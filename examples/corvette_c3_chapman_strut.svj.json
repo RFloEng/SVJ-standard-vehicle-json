@@ -1,0 +1,579 @@
+{
+  "_metadata": {
+    "specification": "SVJ",
+    "version": "0.94",
+    "description": "Chevrolet Corvette C3 (1972) \u2014 double wishbone front, Chapman strut independent rear.",
+    "coordinate_system": "SAE_J670",
+    "units": "SI",
+    "alignment_convention": "relative_to_centerline"
+  },
+  "vehicle_info": {
+    "make": "Chevrolet",
+    "model": "Corvette C3",
+    "year": 1972,
+    "variant": "350ci Coupe",
+    "drive_type": "RWD"
+  },
+  "chassis": {
+    "mass_total": 1530.0,
+    "wheelbase": 2.489,
+    "track_front": 1.473,
+    "track_rear": 1.524,
+    "center_of_gravity": [
+      -1.17,
+      0.0,
+      -0.46
+    ],
+    "_est": true
+  },
+  "steering": {
+    "type": "rack_and_pinion",
+    "rack_position": [
+      -0.05,
+      0.0,
+      -0.2
+    ],
+    "rack_travel": 0.15,
+    "overall_ratio": 17.6,
+    "lock_to_lock": 18.221,
+    "_est": true
+  },
+  "suspension": {
+    "FL": {
+      "topology": {
+        "system_type": "double_wishbone",
+        "upright": {
+          "id": "upright_FL",
+          "mass": 12.0,
+          "hardpoints": {
+            "upper_ball_joint": [
+              0.0,
+              -0.58,
+              -0.44
+            ],
+            "lower_ball_joint": [
+              0.0,
+              -0.64,
+              -0.14
+            ],
+            "steering_tie_rod_end": [
+              0.1,
+              -0.61,
+              -0.2
+            ],
+            "wheel_center": [
+              0.0,
+              -0.737,
+              -0.32
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "upper_wishbone",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.14,
+                -0.28,
+                -0.44
+              ],
+              [
+                -0.14,
+                -0.28,
+                -0.44
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_ball_joint"
+          },
+          {
+            "name": "lower_wishbone",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.2,
+                -0.24,
+                -0.14
+              ],
+              [
+                -0.18,
+                -0.24,
+                -0.14
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_ball_joint"
+          },
+          {
+            "name": "steering_tie_rod",
+            "type": "rod",
+            "inboard_points": [
+              [
+                0.1,
+                -0.16,
+                -0.2
+              ]
+            ],
+            "outboard_ref": "hardpoints.steering_tie_rod_end"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.381,
+        "rim_width": 0.1778,
+        "mass": 20.0,
+        "rotational_inertia": 0.95
+      },
+      "spring": {
+        "type": "coil",
+        "rate": 24000
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            600
+          ],
+          [
+            0.2,
+            1500
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            900
+          ],
+          [
+            0.2,
+            2300
+          ]
+        ]
+      },
+      "_est": true
+    },
+    "FR": {
+      "topology": {
+        "system_type": "double_wishbone",
+        "upright": {
+          "id": "upright_FR",
+          "mass": 12.0,
+          "hardpoints": {
+            "upper_ball_joint": [
+              0.0,
+              0.58,
+              -0.44
+            ],
+            "lower_ball_joint": [
+              0.0,
+              0.64,
+              -0.14
+            ],
+            "steering_tie_rod_end": [
+              0.1,
+              0.61,
+              -0.2
+            ],
+            "wheel_center": [
+              0.0,
+              0.737,
+              -0.32
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "upper_wishbone",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.14,
+                0.28,
+                -0.44
+              ],
+              [
+                -0.14,
+                0.28,
+                -0.44
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_ball_joint"
+          },
+          {
+            "name": "lower_wishbone",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.2,
+                0.24,
+                -0.14
+              ],
+              [
+                -0.18,
+                0.24,
+                -0.14
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_ball_joint"
+          },
+          {
+            "name": "steering_tie_rod",
+            "type": "rod",
+            "inboard_points": [
+              [
+                0.1,
+                0.16,
+                -0.2
+              ]
+            ],
+            "outboard_ref": "hardpoints.steering_tie_rod_end"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.381,
+        "rim_width": 0.1778,
+        "mass": 20.0,
+        "rotational_inertia": 0.95
+      },
+      "spring": {
+        "type": "coil",
+        "rate": 24000
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            600
+          ],
+          [
+            0.2,
+            1500
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            900
+          ],
+          [
+            0.2,
+            2300
+          ]
+        ]
+      },
+      "_est": true
+    },
+    "RL": {
+      "topology": {
+        "system_type": "chapman_strut",
+        "upright": {
+          "id": "upright_RL",
+          "mass": 10.0,
+          "hardpoints": {
+            "strut_top": [
+              -2.489,
+              -0.52,
+              -0.6
+            ],
+            "lower_ball_joint": [
+              -2.489,
+              -0.64,
+              -0.13
+            ],
+            "toe_link_end": [
+              -2.389,
+              -0.62,
+              -0.17
+            ],
+            "wheel_center": [
+              -2.489,
+              -0.762,
+              -0.32
+            ],
+            "cv_joint_outer": [
+              -2.489,
+              -0.762,
+              -0.32
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "strut",
+            "type": "strut",
+            "inboard_points": [
+              [
+                -2.489,
+                -0.52,
+                -0.6
+              ]
+            ],
+            "outboard_ref": "hardpoints.strut_top",
+            "_note": "Chapman strut: driveshaft acts as upper locating member, spring/damper telescopic"
+          },
+          {
+            "name": "lower_control_arm",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -2.35,
+                -0.24,
+                -0.13
+              ],
+              [
+                -2.62,
+                -0.24,
+                -0.13
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_ball_joint"
+          },
+          {
+            "name": "toe_link",
+            "type": "rod",
+            "inboard_points": [
+              [
+                -2.389,
+                -0.18,
+                -0.17
+              ]
+            ],
+            "outboard_ref": "hardpoints.toe_link_end"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.381,
+        "rim_width": 0.1778,
+        "mass": 20.0,
+        "rotational_inertia": 0.95
+      },
+      "spring": {
+        "type": "coil",
+        "rate": 19000,
+        "_note": "Transverse leaf spring on real C3, modeled as equivalent coil rate"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            500
+          ],
+          [
+            0.2,
+            1250
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            750
+          ],
+          [
+            0.2,
+            1900
+          ]
+        ]
+      },
+      "_est": true
+    },
+    "RR": {
+      "topology": {
+        "system_type": "chapman_strut",
+        "upright": {
+          "id": "upright_RR",
+          "mass": 10.0,
+          "hardpoints": {
+            "strut_top": [
+              -2.489,
+              0.52,
+              -0.6
+            ],
+            "lower_ball_joint": [
+              -2.489,
+              0.64,
+              -0.13
+            ],
+            "toe_link_end": [
+              -2.389,
+              0.62,
+              -0.17
+            ],
+            "wheel_center": [
+              -2.489,
+              0.762,
+              -0.32
+            ],
+            "cv_joint_outer": [
+              -2.489,
+              0.762,
+              -0.32
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "strut",
+            "type": "strut",
+            "inboard_points": [
+              [
+                -2.489,
+                0.52,
+                -0.6
+              ]
+            ],
+            "outboard_ref": "hardpoints.strut_top",
+            "_note": "Chapman strut: driveshaft acts as upper locating member, spring/damper telescopic"
+          },
+          {
+            "name": "lower_control_arm",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -2.35,
+                0.24,
+                -0.13
+              ],
+              [
+                -2.62,
+                0.24,
+                -0.13
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_ball_joint"
+          },
+          {
+            "name": "toe_link",
+            "type": "rod",
+            "inboard_points": [
+              [
+                -2.389,
+                0.18,
+                -0.17
+              ]
+            ],
+            "outboard_ref": "hardpoints.toe_link_end"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.381,
+        "rim_width": 0.1778,
+        "mass": 20.0,
+        "rotational_inertia": 0.95
+      },
+      "spring": {
+        "type": "coil",
+        "rate": 19000,
+        "_note": "Transverse leaf spring on real C3, modeled as equivalent coil rate"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            500
+          ],
+          [
+            0.2,
+            1250
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            750
+          ],
+          [
+            0.2,
+            1900
+          ]
+        ]
+      },
+      "_est": true
+    }
+  },
+  "powertrain": {
+    "layout": "FR",
+    "engine": {
+      "displacement": 5.735,
+      "configuration": "V8",
+      "torque_curve": [
+        [
+          1000,
+          300
+        ],
+        [
+          2500,
+          400
+        ],
+        [
+          3500,
+          420
+        ],
+        [
+          4500,
+          380
+        ],
+        [
+          5500,
+          340
+        ]
+      ],
+      "_note": "350ci (5.7L) LT-1 small block"
+    },
+    "gearbox": {
+      "type": "manual",
+      "ratios": [
+        2.52,
+        1.88,
+        1.46,
+        1.0
+      ],
+      "_note": "Muncie M20 4-speed"
+    },
+    "differentials": [
+      {
+        "id": "diff_rear",
+        "location": "rear",
+        "type": "open",
+        "final_drive": 3.36
+      }
+    ]
+  }
+}

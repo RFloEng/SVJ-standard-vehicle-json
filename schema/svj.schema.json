@@ -1,0 +1,3446 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:svj:schema:v0.94",
+  "title": "Standard Vehicle JSON (SVJ)",
+  "description": "Schema for SVJ v0.9.0 — universal vehicle dynamics exchange format.",
+  "type": "object",
+  "required": [
+    "_metadata"
+  ],
+  "additionalProperties": true,
+  "patternProperties": {
+    "^x_": {
+      "description": "Simulator-specific extension. Parsers MUST ignore unrecognized x_ keys."
+    }
+  },
+  "properties": {
+    "_metadata": {
+      "type": "object",
+      "required": [
+        "specification",
+        "version",
+        "coordinate_system",
+        "units"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "specification": {
+          "type": "string",
+          "const": "SVJ"
+        },
+        "version": {
+          "type": "string",
+          "const": "0.94"
+        },
+        "description": {
+          "type": "string"
+        },
+        "coordinate_system": {
+          "type": "string",
+          "const": "SAE_J670"
+        },
+        "units": {
+          "type": "string",
+          "const": "SI"
+        },
+        "created": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "author": {
+          "type": "string"
+        },
+        "source_format": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "alignment_convention": {
+          "type": "string",
+          "enum": [
+            "relative_to_centerline",
+            "absolute"
+          ],
+          "description": "Alignment sign convention. relative_to_centerline: negative camber = top leans inward on BOTH sides."
+        }
+      }
+    },
+    "vehicle_info": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "make": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "year": {
+          "type": "integer"
+        },
+        "variant": {
+          "type": "string"
+        },
+        "drive_type": {
+          "type": "string",
+          "enum": [
+            "FWD",
+            "RWD",
+            "AWD",
+            "4WD"
+          ]
+        }
+      }
+    },
+    "chassis": {
+      "type": "object",
+      "required": [
+        "mass_total",
+        "wheelbase",
+        "track_front",
+        "track_rear",
+        "center_of_gravity"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "mass_total": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "mass_unsprung_per_corner": {
+          "type": "object",
+          "required": [
+            "FL",
+            "FR",
+            "RL",
+            "RR"
+          ],
+          "properties": {
+            "FL": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "FR": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "RL": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "RR": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          },
+          "additionalProperties": true
+        },
+        "wheelbase": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "track_front": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "track_rear": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "center_of_gravity": {
+          "$ref": "#/definitions/vec3"
+        },
+        "inertia": {
+          "type": "object",
+          "properties": {
+            "Ixx": {
+              "type": "number",
+              "minimum": 0
+            },
+            "Iyy": {
+              "type": "number",
+              "minimum": 0
+            },
+            "Izz": {
+              "type": "number",
+              "minimum": 0
+            },
+            "Ixz": {
+              "type": "number"
+            },
+            "Ixy": {
+              "type": "number"
+            },
+            "Iyz": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": true
+        },
+        "mass_bodies": {
+          "description": "Sprung mass decomposition into individually positioned rigid bodies.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/mass_body"
+          },
+          "minItems": 1
+        },
+        "chassis_stiffness": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "torsional_stiffness": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "bending_stiffness": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "measurement_method": {
+              "type": "string",
+              "enum": [
+                "calculated",
+                "measured",
+                "fem",
+                "estimated"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "steering": {
+      "type": "object",
+      "required": [
+        "type",
+        "rack_position",
+        "rack_travel",
+        "overall_ratio",
+        "lock_to_lock"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "rack_and_pinion",
+            "recirculating_ball",
+            "worm_and_sector"
+          ]
+        },
+        "rack_position": {
+          "$ref": "#/definitions/vec3"
+        },
+        "rack_travel": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "overall_ratio": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "lock_to_lock": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "ackermann": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "power_assist": {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "additionalProperties": true,
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "none",
+                "hydraulic",
+                "electric",
+                "electro_hydraulic"
+              ]
+            },
+            "assist_curve": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 2,
+                "maxItems": 2
+              },
+              "minItems": 2
+            },
+            "max_assist_torque": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "column": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "inertia": {
+              "type": "number",
+              "minimum": 0
+            },
+            "damping": {
+              "type": "number",
+              "minimum": 0
+            },
+            "friction": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "tie_rod_inboard": {
+          "type": "object",
+          "required": [
+            "left",
+            "right"
+          ],
+          "additionalProperties": true,
+          "properties": {
+            "left": {
+              "$ref": "#/definitions/vec3"
+            },
+            "right": {
+              "$ref": "#/definitions/vec3"
+            }
+          }
+        },
+        "max_steer_angle": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Maximum road wheel steer angle (rad)"
+        },
+        "lock_to_lock_turns": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Total steering wheel rotation in turns"
+        },
+        "turning_circle": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Minimum turning circle diameter curb-to-curb (m)"
+        },
+        "steering_wheel": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "diameter": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "mass": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        },
+        "rack_mass": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Steering rack assembly mass (kg)"
+        }
+      }
+    },
+    "suspension": {
+      "type": "object",
+      "required": [
+        "FL",
+        "FR",
+        "RL",
+        "RR"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "FL": {
+          "$ref": "#/definitions/suspension_corner"
+        },
+        "FR": {
+          "$ref": "#/definitions/suspension_corner"
+        },
+        "RL": {
+          "$ref": "#/definitions/suspension_corner"
+        },
+        "RR": {
+          "$ref": "#/definitions/suspension_corner"
+        }
+      }
+    },
+    "powertrain": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "layout": {
+          "type": "string",
+          "enum": [
+            "FR",
+            "FF",
+            "MR",
+            "RR",
+            "AWD",
+            "4WD"
+          ]
+        },
+        "engine": {
+          "type": "object",
+          "required": [
+            "torque_curve"
+          ],
+          "additionalProperties": true,
+          "properties": {
+            "idle_rpm": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "max_rpm": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "torque_curve": {
+              "$ref": "#/definitions/curve2d"
+            },
+            "inertia": {
+              "type": "number",
+              "minimum": 0
+            },
+            "displacement": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "configuration": {
+              "type": "string"
+            },
+            "compression_ratio": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "position": {
+              "$ref": "#/definitions/vec3"
+            },
+            "mass": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "thermal": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "heat_capacity": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "temperature_nominal": {
+                  "type": "number"
+                },
+                "temperature_cold_start": {
+                  "type": "number"
+                },
+                "warmup_time": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "heat_generation_curve": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "minItems": 3,
+                    "maxItems": 3
+                  }
+                },
+                "friction_vs_temperature": {
+                  "$ref": "#/definitions/curve2d"
+                },
+                "power_derating_vs_temperature": {
+                  "$ref": "#/definitions/curve2d"
+                },
+                "oil_temperature_offset": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        },
+        "clutch": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "single_plate",
+                "multi_plate",
+                "dual_clutch",
+                "torque_converter"
+              ]
+            },
+            "max_torque": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "inertia_driven": {
+              "type": "number",
+              "minimum": 0
+            },
+            "engagement_point": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "mass": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Clutch assembly mass (pressure plate + disc + release bearing) (kg)"
+            },
+            "position": {
+              "$ref": "#/definitions/vec3"
+            }
+          }
+        },
+        "gearbox": {
+          "type": "object",
+          "required": [
+            "ratios"
+          ],
+          "additionalProperties": true,
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "manual",
+                "sequential",
+                "dct",
+                "auto",
+                "cvt"
+              ]
+            },
+            "ratios": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "minItems": 1
+            },
+            "reverse_ratios": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "minItems": 1
+            },
+            "inertia_input": {
+              "type": "number",
+              "minimum": 0
+            },
+            "inertia_output": {
+              "type": "number",
+              "minimum": 0
+            },
+            "efficiency": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 1
+            },
+            "shift_time": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "position": {
+              "$ref": "#/definitions/vec3"
+            },
+            "mass": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "output_flange": {
+              "$ref": "#/definitions/vec3"
+            },
+            "thermal": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "oil_capacity": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "heat_capacity": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "efficiency_vs_temperature": {
+                  "$ref": "#/definitions/curve2d"
+                },
+                "temperature_nominal": {
+                  "type": "number"
+                },
+                "heat_generation_rate": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              }
+            }
+          }
+        },
+        "transfer_case": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "full_time",
+                "part_time",
+                "on_demand"
+              ]
+            },
+            "ratio_high": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "ratio_low": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "torque_split": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "center_diff": {
+              "$ref": "#/definitions/differential_obj"
+            },
+            "inertia": {
+              "type": "number",
+              "minimum": 0
+            },
+            "position": {
+              "$ref": "#/definitions/vec3"
+            },
+            "mass": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "output_front": {
+              "$ref": "#/definitions/vec3"
+            },
+            "output_rear": {
+              "$ref": "#/definitions/vec3"
+            }
+          }
+        },
+        "driveshafts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/driveshaft_obj"
+          },
+          "minItems": 1
+        },
+        "differentials": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/differential_full",
+            "properties": {
+              "thermal": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                  "oil_capacity": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "heat_capacity": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "efficiency_vs_temperature": {
+                    "$ref": "#/definitions/curve2d"
+                  },
+                  "temperature_nominal": {
+                    "type": "number"
+                  },
+                  "heat_generation_rate": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          },
+          "minItems": 1
+        },
+        "half_shafts": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/half_shaft_obj"
+          },
+          "properties": {
+            "FL": {
+              "$ref": "#/definitions/half_shaft_obj"
+            },
+            "FR": {
+              "$ref": "#/definitions/half_shaft_obj"
+            },
+            "RL": {
+              "$ref": "#/definitions/half_shaft_obj"
+            },
+            "RR": {
+              "$ref": "#/definitions/half_shaft_obj"
+            }
+          }
+        }
+      }
+    },
+    "tires": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "sets": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/tire_set"
+          },
+          "minProperties": 1,
+          "description": "Named tire sets keyed by identifier."
+        }
+      }
+    },
+    "brakes": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "pedal": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "ratio": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "travel": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "pad_area": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        },
+        "booster": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "none",
+                "vacuum",
+                "electric",
+                "hydraulic"
+              ]
+            },
+            "boost_ratio": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "diameter": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "max_force": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "mass": {
+              "type": "number",
+              "minimum": 0
+            },
+            "position": {
+              "$ref": "#/definitions/vec3"
+            }
+          }
+        },
+        "master_cylinder": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "bore": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "bore_primary": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "bore_secondary": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "stroke": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "reservoir_volume": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "mass": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "position": {
+              "$ref": "#/definitions/vec3"
+            }
+          }
+        },
+        "circuit_type": {
+          "type": "string",
+          "enum": [
+            "dual_diagonal",
+            "front_rear_split"
+          ]
+        },
+        "bias": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "bias_type": {
+          "type": "string",
+          "enum": [
+            "fixed",
+            "adjustable",
+            "electronic"
+          ]
+        },
+        "line_pressure_max": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "abs": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "2_channel",
+                "3_channel",
+                "4_channel"
+              ]
+            },
+            "cycle_rate": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "slip_target": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "ebd": {
+              "type": "boolean"
+            },
+            "brake_assist": {
+              "type": "boolean"
+            }
+          }
+        },
+        "esc": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "yaw_rate_threshold": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "sideslip_threshold": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "torque_vectoring": {
+              "type": "boolean"
+            },
+            "track_mode": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "aerodynamics": {
+      "type": "object",
+      "required": [
+        "reference"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "reference": {
+          "type": "object",
+          "required": [
+            "frontal_area"
+          ],
+          "additionalProperties": true,
+          "properties": {
+            "frontal_area": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "planform_area": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "reference_length": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "air_density": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        },
+        "coefficients": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "Cd": {
+              "type": "number"
+            },
+            "Cl": {
+              "type": "number"
+            },
+            "Cl_front": {
+              "type": "number"
+            },
+            "Cl_rear": {
+              "type": "number"
+            },
+            "Cs": {
+              "type": "number"
+            },
+            "Cpm": {
+              "type": "number"
+            },
+            "Cym": {
+              "type": "number"
+            },
+            "Crm": {
+              "type": "number"
+            }
+          }
+        },
+        "maps": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "Cd_vs_yaw": {
+              "$ref": "#/definitions/curve2d"
+            },
+            "Cl_front_vs_ride_height": {
+              "$ref": "#/definitions/curve2d"
+            },
+            "Cl_rear_vs_ride_height": {
+              "$ref": "#/definitions/curve2d"
+            },
+            "Cl_vs_pitch": {
+              "$ref": "#/definitions/curve2d"
+            },
+            "Cs_vs_yaw": {
+              "$ref": "#/definitions/curve2d"
+            },
+            "Cym_vs_yaw": {
+              "$ref": "#/definitions/curve2d"
+            },
+            "Cd_vs_ride_height": {
+              "$ref": "#/definitions/curve2d"
+            }
+          }
+        },
+        "center_of_pressure": {
+          "$ref": "#/definitions/vec3"
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/aero_component"
+          },
+          "minItems": 1
+        },
+        "active_systems": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "drs": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "component_ref": {
+                  "type": "string"
+                },
+                "setting_ref": {
+                  "type": "string"
+                },
+                "activation_speed": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "transition_time": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                }
+              }
+            },
+            "active_ride_height": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "min_height": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "max_height": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "transition_speed": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              }
+            },
+            "active_wing": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "component_ref": {
+                  "type": "string"
+                },
+                "angle_range": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                },
+                "Cl_range": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                },
+                "Cd_range": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                },
+                "response_time": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "electric": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "hybrid_type": {
+          "type": "string",
+          "enum": [
+            "none",
+            "mild",
+            "parallel",
+            "series",
+            "power_split",
+            "bev"
+          ]
+        },
+        "motors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "additionalProperties": true,
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "placement": {
+                "type": "string",
+                "enum": [
+                  "P0",
+                  "P1",
+                  "P2",
+                  "P3",
+                  "P4",
+                  "in_wheel"
+                ]
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "pmsm",
+                  "im",
+                  "srm",
+                  "axial_flux"
+                ]
+              },
+              "max_power": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "max_torque": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "max_rpm": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "continuous_power": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "torque_curve": {
+                "$ref": "#/definitions/curve2d"
+              },
+              "efficiency_map": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "minItems": 3,
+                  "maxItems": 3
+                }
+              },
+              "inertia": {
+                "type": "number",
+                "minimum": 0
+              },
+              "mass": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "position": {
+                "$ref": "#/definitions/vec3"
+              },
+              "gear_ratio": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "gear_efficiency": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 1
+              },
+              "driven_axle": {
+                "type": "string"
+              },
+              "cooling": {
+                "type": "string",
+                "enum": [
+                  "air",
+                  "liquid",
+                  "oil"
+                ]
+              }
+            }
+          },
+          "minItems": 1
+        },
+        "battery": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "chemistry": {
+              "type": "string",
+              "enum": [
+                "NMC",
+                "NCA",
+                "LFP",
+                "NMC811",
+                "solid_state",
+                "NiMH"
+              ]
+            },
+            "capacity_kwh": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "capacity_usable_kwh": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "voltage_nominal": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "voltage_max": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "voltage_min": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "cells_series": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "cells_parallel": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "internal_resistance": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "max_discharge_power": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "max_charge_power": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "soc_initial": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "mass": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "position": {
+              "$ref": "#/definitions/vec3"
+            },
+            "inertia": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "Ixx": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "Iyy": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "Izz": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "Ixz": {
+                  "type": "number"
+                },
+                "Ixy": {
+                  "type": "number"
+                },
+                "Iyz": {
+                  "type": "number"
+                }
+              }
+            },
+            "thermal": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "heat_capacity": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "optimal_temperature": {
+                  "type": "number"
+                },
+                "min_temperature": {
+                  "type": "number"
+                },
+                "max_temperature": {
+                  "type": "number"
+                },
+                "cooling_type": {
+                  "type": "string",
+                  "enum": [
+                    "air",
+                    "liquid",
+                    "refrigerant"
+                  ]
+                },
+                "cooling_power": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "resistance_vs_temp": {
+                  "$ref": "#/definitions/curve2d"
+                }
+              }
+            }
+          }
+        },
+        "inverters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "additionalProperties": true,
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "motor_ref": {
+                "type": "string"
+              },
+              "max_power": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "efficiency": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 1
+              },
+              "mass": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "position": {
+                "$ref": "#/definitions/vec3"
+              }
+            }
+          },
+          "minItems": 1
+        },
+        "regen": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "max_torque": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "max_power": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "blend_with_hydraulic": {
+              "type": "boolean"
+            },
+            "front_rear_split": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "min_speed": {
+              "type": "number",
+              "minimum": 0
+            },
+            "coast_regen": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "cooling": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "circuits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "additionalProperties": true,
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "liquid",
+                  "air",
+                  "oil",
+                  "refrigerant"
+                ]
+              },
+              "coolant": {
+                "type": "string",
+                "enum": [
+                  "water_glycol",
+                  "oil",
+                  "dielectric",
+                  "r134a",
+                  "r1234yf"
+                ]
+              },
+              "volume": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "flow_rate": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "heat_sources": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "component_ref"
+                  ],
+                  "additionalProperties": true,
+                  "properties": {
+                    "component_ref": {
+                      "type": "string"
+                    },
+                    "thermal_resistance": {
+                      "type": "number",
+                      "exclusiveMinimum": 0
+                    },
+                    "heat_generation_nominal": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "heat_generation_max": {
+                      "type": "number",
+                      "minimum": 0
+                    }
+                  }
+                }
+              },
+              "radiator": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                  "heat_rejection": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "area": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "mass": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "position": {
+                    "$ref": "#/definitions/vec3"
+                  },
+                  "air_flow_dependence": {
+                    "$ref": "#/definitions/curve2d"
+                  }
+                }
+              },
+              "pump": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "mechanical",
+                      "electric"
+                    ]
+                  },
+                  "flow_rate": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "power": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                }
+              },
+              "thermostat": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                  "open_temperature": {
+                    "type": "number"
+                  },
+                  "full_open_temperature": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          },
+          "minItems": 1
+        },
+        "environment": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "temperature_ambient": {
+              "type": "number"
+            },
+            "pressure_ambient": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "humidity": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "altitude": {
+              "type": "number"
+            },
+            "wind_speed": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "driver_controls": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "throttle": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "map": {
+              "$ref": "#/definitions/curve2d"
+            },
+            "response_time": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "drive_by_wire": {
+              "type": "boolean"
+            }
+          }
+        },
+        "brake_feel": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "dead_zone": {
+              "type": "number",
+              "minimum": 0
+            },
+            "pedal_stiffness": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "modulation_curve": {
+              "$ref": "#/definitions/curve2d"
+            }
+          }
+        },
+        "traction_control": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "slip_threshold": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "intervention_mode": {
+              "type": "string",
+              "enum": [
+                "throttle_cut",
+                "brake_apply",
+                "both"
+              ]
+            },
+            "response_time": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        },
+        "launch_control": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "target_rpm": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "slip_target": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "vec3": {
+      "description": "3D coordinate [x, y, z] in meters, SAE J670.",
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "curve2d": {
+      "description": "Array of [x, y] data points, sorted by x.",
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 2,
+        "maxItems": 2
+      },
+      "minItems": 2
+    },
+    "suspension_corner": {
+      "type": "object",
+      "required": [
+        "topology",
+        "wheel",
+        "spring",
+        "damper"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "topology": {
+          "type": "object",
+          "required": [
+            "system_type",
+            "upright",
+            "links"
+          ],
+          "additionalProperties": true,
+          "properties": {
+            "system_type": {
+              "type": "string",
+              "enum": [
+                "double_wishbone",
+                "macpherson",
+                "chapman_strut",
+                "multi_link",
+                "trailing_arm",
+                "semi_trailing_arm",
+                "torsion_beam",
+                "solid_axle",
+                "de_dion",
+                "custom"
+              ]
+            },
+            "upright": {
+              "type": "object",
+              "required": [
+                "id",
+                "hardpoints"
+              ],
+              "additionalProperties": true,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "mass": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "hardpoints": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "#/definitions/vec3"
+                  },
+                  "minProperties": 1
+                },
+                "inertia": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {
+                    "Ixx": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "Iyy": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "Izz": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "Ixz": {
+                      "type": "number"
+                    },
+                    "Ixy": {
+                      "type": "number"
+                    },
+                    "Iyz": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "cg_position": {
+                  "$ref": "#/definitions/vec3",
+                  "description": "Upright CG in vehicle frame (m)"
+                }
+              }
+            },
+            "links": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "inboard_points",
+                  "outboard_ref"
+                ],
+                "additionalProperties": true,
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "arm",
+                      "rod",
+                      "strut"
+                    ],
+                    "default": "arm"
+                  },
+                  "inboard_points": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/definitions/vec3"
+                    },
+                    "minItems": 1
+                  },
+                  "outboard_ref": {
+                    "type": "string",
+                    "pattern": "^hardpoints\\."
+                  },
+                  "bushings": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/definitions/bushing_obj"
+                    },
+                    "minItems": 1,
+                    "description": "Bushing at each inboard point. bushings[i] corresponds to inboard_points[i]."
+                  },
+                  "outboard_bushing": {
+                    "$ref": "#/definitions/bushing_obj"
+                  },
+                  "mass": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Link mass (kg)"
+                  },
+                  "inertia": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Rotational inertia about pivot axis (kg·m²)"
+                  },
+                  "cg_position": {
+                    "$ref": "#/definitions/vec3",
+                    "description": "Link CG in vehicle frame (m)"
+                  },
+                  "mass_distribution": {
+                    "type": "object",
+                    "additionalProperties": true,
+                    "properties": {
+                      "sprung_fraction": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1,
+                        "description": "Fraction of link mass that counts as sprung (0.0-1.0). Remainder is unsprung."
+                      }
+                    }
+                  }
+                }
+              },
+              "minItems": 1
+            },
+            "axle_body": {
+              "type": "object",
+              "required": [
+                "id"
+              ],
+              "additionalProperties": true,
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "mass": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "position": {
+                  "$ref": "#/definitions/vec3"
+                },
+                "inertia": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {
+                    "Ixx": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "Iyy": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "Izz": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "Ixz": {
+                      "type": "number"
+                    },
+                    "Ixy": {
+                      "type": "number"
+                    },
+                    "Iyz": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "torsional_stiffness": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "beam_type": {
+                  "type": "string",
+                  "enum": [
+                    "open_section",
+                    "closed_section",
+                    "tubular"
+                  ]
+                },
+                "beam_position": {
+                  "$ref": "#/definitions/vec3"
+                }
+              }
+            },
+            "lateral_location": {
+              "type": "string",
+              "enum": [
+                "panhard_rod",
+                "watts_link",
+                "track_bar",
+                "leaf_located",
+                "a_arm"
+              ]
+            }
+          }
+        },
+        "wheel": {
+          "type": "object",
+          "required": [
+            "rim_diameter",
+            "rim_width"
+          ],
+          "additionalProperties": true,
+          "properties": {
+            "rim_diameter": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "rim_width": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "rim_offset": {
+              "type": "number"
+            },
+            "loaded_radius": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "mass": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "rotational_inertia": {
+              "type": "number",
+              "minimum": 0
+            },
+            "set_ref": {
+              "type": "string",
+              "description": "Reference to a tire set id in tires.sets. Authoritative source for tire dimensions."
+            }
+          }
+        },
+        "spring": {
+          "type": "object",
+          "required": [
+            "type",
+            "rate"
+          ],
+          "additionalProperties": true,
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "coil",
+                "torsion_bar",
+                "leaf",
+                "air",
+                "coilover"
+              ]
+            },
+            "rate": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "rate_curve": {
+              "$ref": "#/definitions/curve2d"
+            },
+            "free_length": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "preload": {
+              "type": "number",
+              "minimum": 0
+            },
+            "motion_ratio": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "inboard_mount": {
+              "$ref": "#/definitions/vec3"
+            },
+            "outboard_mount": {
+              "$ref": "#/definitions/vec3"
+            },
+            "mass": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Spring mass (kg). Typically 50% sprung, 50% unsprung."
+            }
+          }
+        },
+        "damper": {
+          "type": "object",
+          "required": [
+            "bump_curve",
+            "rebound_curve"
+          ],
+          "additionalProperties": true,
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "monotube",
+                "twin_tube",
+                "adjustable",
+                "mrd"
+              ]
+            },
+            "bump_curve": {
+              "$ref": "#/definitions/curve2d"
+            },
+            "rebound_curve": {
+              "$ref": "#/definitions/curve2d"
+            },
+            "motion_ratio": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "inboard_mount": {
+              "$ref": "#/definitions/vec3"
+            },
+            "outboard_mount": {
+              "$ref": "#/definitions/vec3"
+            },
+            "mass": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Damper mass (kg). Body = sprung, rod+piston ≈ unsprung."
+            }
+          }
+        },
+        "arb": {
+          "type": "object",
+          "required": [
+            "bar_id",
+            "bar_rate"
+          ],
+          "additionalProperties": true,
+          "properties": {
+            "bar_id": {
+              "type": "string"
+            },
+            "bar_rate": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "wheel_rate_equiv": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "motion_ratio": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "drop_link_mount": {
+              "$ref": "#/definitions/vec3"
+            },
+            "mass": {
+              "type": "number",
+              "minimum": 0,
+              "description": "ARB bar mass for this axle (kg). Shared between both corners — enter full bar mass, not half."
+            }
+          }
+        },
+        "alignment": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "camber": {
+              "type": "number"
+            },
+            "toe": {
+              "type": "number"
+            },
+            "caster": {
+              "type": "number"
+            },
+            "caster_trail": {
+              "type": "number"
+            },
+            "kpi": {
+              "type": "number"
+            },
+            "scrub_radius": {
+              "type": "number"
+            }
+          }
+        },
+        "bump_stop": {
+          "$ref": "#/definitions/stop_obj"
+        },
+        "rebound_stop": {
+          "$ref": "#/definitions/stop_obj"
+        },
+        "brake": {
+          "$ref": "#/definitions/brake_assembly"
+        },
+        "tire": {
+          "$ref": "#/definitions/tire_corner_ref"
+        },
+        "compliance_summary": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "toe_stiffness": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "camber_stiffness": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "caster_stiffness": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "longitudinal_stiffness": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "lateral_stiffness": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        },
+        "static_setup": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "ride_height": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "corner_weight": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "spring_compression": {
+              "type": "number",
+              "minimum": 0
+            },
+            "damper_position": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "stop_obj": {
+      "type": "object",
+      "required": [
+        "gap"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "gap": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "rate": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "rate_curve": {
+          "$ref": "#/definitions/curve2d"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "rubber",
+            "hydraulic",
+            "progressive"
+          ]
+        }
+      }
+    },
+    "differential_obj": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "open",
+            "locked",
+            "lsd_clutch",
+            "lsd_torsen",
+            "lsd_viscous",
+            "active"
+          ]
+        },
+        "location": {
+          "type": "string",
+          "enum": [
+            "rear",
+            "front",
+            "center"
+          ]
+        },
+        "preload": {
+          "type": "number",
+          "minimum": 0
+        },
+        "lock_power": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "lock_coast": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "thermal": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "oil_capacity": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "heat_capacity": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "efficiency_vs_temperature": {
+              "$ref": "#/definitions/curve2d"
+            },
+            "temperature_nominal": {
+              "type": "number"
+            },
+            "heat_generation_rate": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "mass_body": {
+      "description": "A single rigid body contributing to the sprung mass.",
+      "type": "object",
+      "required": [
+        "id",
+        "mass",
+        "position"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "structural",
+            "powertrain",
+            "fluid",
+            "payload",
+            "ballast",
+            "electrical",
+            "other"
+          ]
+        },
+        "mass": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "position": {
+          "$ref": "#/definitions/vec3"
+        },
+        "inertia": {
+          "type": "object",
+          "properties": {
+            "Ixx": {
+              "type": "number",
+              "minimum": 0
+            },
+            "Iyy": {
+              "type": "number",
+              "minimum": 0
+            },
+            "Izz": {
+              "type": "number",
+              "minimum": 0
+            },
+            "Ixz": {
+              "type": "number"
+            },
+            "Ixy": {
+              "type": "number"
+            },
+            "Iyz": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": true
+        }
+      }
+    },
+    "tire_set": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "measured",
+            "fitted",
+            "estimated",
+            "manufacturer"
+          ]
+        },
+        "reference": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "load": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "pressure": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "speed": {
+              "type": "number",
+              "minimum": 0
+            },
+            "camber": {
+              "type": "number"
+            }
+          }
+        },
+        "pacejka": {
+          "type": "object",
+          "required": [
+            "model",
+            "lateral",
+            "longitudinal"
+          ],
+          "additionalProperties": true,
+          "properties": {
+            "model": {
+              "type": "string",
+              "enum": [
+                "MF52",
+                "MF62"
+              ]
+            },
+            "lateral": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number"
+              },
+              "description": "Pacejka lateral (Fy) coefficients: pCy1, pDy1-3, pEy1-5, pKy1-7, pHy1-3, pVy1-4, pPy1-5."
+            },
+            "longitudinal": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number"
+              },
+              "description": "Pacejka longitudinal (Fx) coefficients: pCx1, pDx1-3, pEx1-4, pKx1-3, pHx1-2, pVx1-2, pPx1-4."
+            },
+            "aligning": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number"
+              },
+              "description": "Self-aligning torque (Mz) coefficients: qBz1-10, qCz1, qDz1-11, qEz1-5, qHz1-4."
+            },
+            "overturning": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number"
+              },
+              "description": "Overturning moment (Mx) coefficients: qsx1-14."
+            },
+            "rolling_resistance": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number"
+              },
+              "description": "Rolling resistance (My) coefficients: qsy1-8."
+            },
+            "combined": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number"
+              },
+              "description": "Combined slip weighting: rBx1-3, rCx1, rHx1, rBy1-4, rCy1, rHy1, rVy1-6."
+            }
+          }
+        },
+        "relaxation": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "lateral": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "longitudinal": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        },
+        "thermal": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "surface_heat_capacity": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "carcass_heat_capacity": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "surface_to_carcass": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "carcass_to_air": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "friction_heat_fraction": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "mu_temperature_curve": {
+              "$ref": "#/definitions/curve2d"
+            },
+            "optimal_temperature": {
+              "type": "number"
+            }
+          }
+        },
+        "wear": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "rate_lateral": {
+              "type": "number",
+              "minimum": 0
+            },
+            "rate_longitudinal": {
+              "type": "number",
+              "minimum": 0
+            },
+            "rate_thermal": {
+              "type": "number",
+              "minimum": 0
+            },
+            "mu_wear_curve": {
+              "$ref": "#/definitions/curve2d"
+            },
+            "stiffness_wear_curve": {
+              "$ref": "#/definitions/curve2d"
+            }
+          }
+        },
+        "pressure": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "temperature_nominal": {
+          "type": "number"
+        },
+        "size_code": {
+          "type": "string",
+          "description": "Standard tire size notation, e.g. '245/35R19'.",
+          "pattern": "^\\d{3}/\\d{2}[RBD]\\d{2}$"
+        },
+        "dimensions": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "section_width": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "aspect_ratio": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 1
+            },
+            "rim_diameter_code": {
+              "type": "integer",
+              "minimum": 10,
+              "maximum": 30
+            },
+            "overall_diameter": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "section_height": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "tread_width": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        },
+        "rim": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "diameter": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "width_nominal": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "width_range": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "offset_range": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          }
+        },
+        "construction": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "mass": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "vertical_stiffness": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "vertical_damping": {
+              "type": "number",
+              "minimum": 0
+            },
+            "lateral_stiffness": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "rolling_radius": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "tread_depth_new": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "ply_type": {
+              "type": "string",
+              "enum": [
+                "radial",
+                "bias",
+                "bias_belted"
+              ]
+            },
+            "speed_rating": {
+              "type": "string"
+            },
+            "load_index": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "utqg": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "treadwear": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "traction": {
+                  "type": "string",
+                  "enum": [
+                    "AA",
+                    "A",
+                    "B",
+                    "C"
+                  ]
+                },
+                "temperature": {
+                  "type": "string",
+                  "enum": [
+                    "A",
+                    "B",
+                    "C"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tmeasy": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "dFy0": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Cornering stiffness at zero slip (N/rad)"
+            },
+            "Fy_max": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Peak lateral force (N)"
+            },
+            "alpha_max": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Slip angle at peak Fy (rad)"
+            },
+            "Fy_slide": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Sliding lateral force (N)"
+            },
+            "alpha_slide": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Slip angle at sliding (rad)"
+            },
+            "dFx0": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Longitudinal stiffness at zero slip (N/unit)"
+            },
+            "Fx_max": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Peak longitudinal force (N)"
+            },
+            "kappa_max": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Slip ratio at peak Fx"
+            },
+            "Fx_slide": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Sliding longitudinal force (N)"
+            },
+            "kappa_slide": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Slip ratio at sliding"
+            },
+            "Fz0": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Reference vertical load (N)"
+            },
+            "dFy0_dFz": {
+              "type": "number",
+              "description": "Cornering stiffness sensitivity to load"
+            },
+            "Fy_max_dFz": {
+              "type": "number",
+              "description": "Peak Fy sensitivity to load"
+            },
+            "camber_stiffness": {
+              "type": "number",
+              "description": "Camber thrust coefficient (N/rad)"
+            },
+            "Fz_dependency": {
+              "type": "string",
+              "enum": [
+                "linear",
+                "degressive"
+              ]
+            },
+            "pneumatic_trail_max": {
+              "type": "number",
+              "minimum": 0
+            },
+            "pneumatic_trail_slide": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "brush": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "contact_length": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "contact_width": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "tread_stiffness_lat": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "tread_stiffness_lon": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "mu_static": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "mu_kinetic": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "pressure_distribution": {
+              "type": "string",
+              "enum": [
+                "uniform",
+                "parabolic",
+                "trapezoidal"
+              ]
+            },
+            "bristle_rows": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "carcass_stiffness": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        },
+        "external_models": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "additionalProperties": true,
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "ftire",
+                  "cdtire",
+                  "mfswift",
+                  "mftyre",
+                  "pac2002",
+                  "rmod_k",
+                  "custom"
+                ]
+              },
+              "version": {
+                "type": "string"
+              },
+              "file": {
+                "type": "string"
+              },
+              "uri": {
+                "type": "string",
+                "format": "uri"
+              },
+              "description": {
+                "type": "string"
+              },
+              "source_lab": {
+                "type": "string"
+              },
+              "conditions": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                  "load": {
+                    "type": "number"
+                  },
+                  "pressure": {
+                    "type": "number"
+                  },
+                  "speed": {
+                    "type": "number"
+                  },
+                  "surface": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "tire_corner_ref": {
+      "type": "object",
+      "required": [
+        "set_ref"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "set_ref": {
+          "type": "string"
+        },
+        "pressure": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "temperature_initial": {
+          "type": "number"
+        },
+        "wear_initial": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "camber_stiffness_mult": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "brake_assembly": {
+      "type": "object",
+      "required": [
+        "disc"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "disc": {
+          "type": "object",
+          "required": [
+            "type",
+            "outer_diameter"
+          ],
+          "additionalProperties": true,
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "solid",
+                "vented",
+                "drilled",
+                "carbon_ceramic"
+              ]
+            },
+            "outer_diameter": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "inner_diameter": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "thickness": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "effective_radius": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "mass": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "material": {
+              "type": "string",
+              "enum": [
+                "cast_iron",
+                "carbon_ceramic",
+                "carbon_carbon"
+              ]
+            },
+            "specific_heat": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "max_temperature": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "thermal_mass": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "rotational_inertia": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Disc spin inertia about wheel axis (kg·m²). Added to wheel rotational_inertia for total spinning mass."
+            }
+          }
+        },
+        "caliper": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "floating",
+                "fixed",
+                "sliding"
+              ]
+            },
+            "pistons": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "piston_area_total": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "mass": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "position": {
+              "$ref": "#/definitions/vec3",
+              "description": "Caliper CG position (m)"
+            }
+          }
+        },
+        "pad": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "material": {
+              "type": "string",
+              "enum": [
+                "organic",
+                "semi_metallic",
+                "ceramic",
+                "racing"
+              ]
+            },
+            "area": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "thickness": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "mass": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "mu_cold": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "mu_curve": {
+              "$ref": "#/definitions/curve2d"
+            },
+            "specific_heat": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        },
+        "thermal_dynamics": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "disc_to_pad_conductance": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "disc_to_air_conductance": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "disc_to_air_speed_curve": {
+              "$ref": "#/definitions/curve2d"
+            },
+            "pad_to_caliper_conductance": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "caliper_to_air_conductance": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "initial_temperature": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    },
+    "aero_component": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "wing",
+            "splitter",
+            "diffuser",
+            "spoiler",
+            "canard",
+            "flat_floor",
+            "vortex_generator",
+            "other"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "position": {
+          "$ref": "#/definitions/vec3"
+        },
+        "mass": {
+          "type": "number",
+          "minimum": 0
+        },
+        "area": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "Cd_contribution": {
+          "type": "number"
+        },
+        "Cl_contribution": {
+          "type": "number"
+        },
+        "adjustable": {
+          "type": "boolean"
+        },
+        "settings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name"
+            ],
+            "additionalProperties": true,
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "angle": {
+                "type": "number"
+              },
+              "Cd": {
+                "type": "number"
+              },
+              "Cl": {
+                "type": "number"
+              }
+            }
+          },
+          "minItems": 1
+        },
+        "inertia": {
+          "type": "object",
+          "properties": {
+            "Ixx": {
+              "type": "number",
+              "minimum": 0
+            },
+            "Iyy": {
+              "type": "number",
+              "minimum": 0
+            },
+            "Izz": {
+              "type": "number",
+              "minimum": 0
+            },
+            "Ixz": {
+              "type": "number"
+            },
+            "Ixy": {
+              "type": "number"
+            },
+            "Iyz": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "driveshaft_obj": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "from": {
+          "type": "string"
+        },
+        "to": {
+          "type": "string"
+        },
+        "joint_front": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "universal",
+                "cv",
+                "flex_disc",
+                "guibo"
+              ]
+            },
+            "position": {
+              "$ref": "#/definitions/vec3"
+            },
+            "max_angle": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        },
+        "joint_rear": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "universal",
+                "cv",
+                "flex_disc",
+                "guibo"
+              ]
+            },
+            "position": {
+              "$ref": "#/definitions/vec3"
+            },
+            "max_angle": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        },
+        "joint_center": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "universal",
+                "cv",
+                "flex_disc",
+                "guibo"
+              ]
+            },
+            "position": {
+              "$ref": "#/definitions/vec3"
+            },
+            "max_angle": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        },
+        "sections": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3
+        },
+        "mass": {
+          "type": "number",
+          "minimum": 0
+        },
+        "inertia": {
+          "type": "number",
+          "minimum": 0
+        },
+        "cg_position": {
+          "$ref": "#/definitions/vec3"
+        }
+      }
+    },
+    "differential_full": {
+      "type": "object",
+      "required": [
+        "id",
+        "final_drive"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "location": {
+          "type": "string",
+          "enum": [
+            "rear",
+            "front",
+            "center"
+          ]
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "open",
+            "locked",
+            "lsd_clutch",
+            "lsd_torsen",
+            "lsd_viscous",
+            "active",
+            "spool"
+          ]
+        },
+        "final_drive": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "preload": {
+          "type": "number",
+          "minimum": 0
+        },
+        "lock_power": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "lock_coast": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "ramp_angle_power": {
+          "type": "number"
+        },
+        "ramp_angle_coast": {
+          "type": "number"
+        },
+        "efficiency": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1
+        },
+        "inertia": {
+          "type": "number",
+          "minimum": 0
+        },
+        "mass": {
+          "type": "number",
+          "minimum": 0
+        },
+        "position": {
+          "$ref": "#/definitions/vec3"
+        },
+        "input_flange": {
+          "$ref": "#/definitions/vec3"
+        },
+        "output_left": {
+          "$ref": "#/definitions/vec3"
+        },
+        "output_right": {
+          "$ref": "#/definitions/vec3"
+        },
+        "thermal": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "oil_capacity": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "heat_capacity": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "efficiency_vs_temperature": {
+              "$ref": "#/definitions/curve2d"
+            },
+            "temperature_nominal": {
+              "type": "number"
+            },
+            "heat_generation_rate": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "half_shaft_obj": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "diff_ref": {
+          "type": "string"
+        },
+        "cv_inner": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "rzeppa",
+                "tripod",
+                "double_offset",
+                "cross_groove"
+              ]
+            },
+            "position": {
+              "$ref": "#/definitions/vec3"
+            },
+            "max_angle": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "max_plunge": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        },
+        "cv_outer": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "rzeppa",
+                "tripod",
+                "double_offset",
+                "cross_groove"
+              ]
+            },
+            "position": {
+              "$ref": "#/definitions/vec3"
+            },
+            "max_angle": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "max_plunge": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        },
+        "length": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "mass": {
+          "type": "number",
+          "minimum": 0
+        },
+        "inertia": {
+          "type": "number",
+          "minimum": 0
+        },
+        "cg_position": {
+          "$ref": "#/definitions/vec3"
+        }
+      }
+    },
+    "bushing_obj": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "rate_x": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "rate_y": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "rate_z": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "rate_rx": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "rate_ry": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "rate_rz": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "damping_x": {
+          "type": "number",
+          "minimum": 0
+        },
+        "damping_y": {
+          "type": "number",
+          "minimum": 0
+        },
+        "damping_z": {
+          "type": "number",
+          "minimum": 0
+        },
+        "rate_x_curve": {
+          "$ref": "#/definitions/curve2d"
+        },
+        "rate_y_curve": {
+          "$ref": "#/definitions/curve2d"
+        },
+        "rate_z_curve": {
+          "$ref": "#/definitions/curve2d"
+        },
+        "preload": {
+          "$ref": "#/definitions/vec3"
+        }
+      }
+    }
+  }
+}

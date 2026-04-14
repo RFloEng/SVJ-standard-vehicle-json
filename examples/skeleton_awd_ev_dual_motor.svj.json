@@ -1,0 +1,548 @@
+{
+  "_metadata": {
+    "specification": "SVJ",
+    "version": "0.94",
+    "description": "Skeleton: AWD BEV with dual motors \u2014 double wishbone all corners.",
+    "coordinate_system": "SAE_J670",
+    "units": "SI",
+    "alignment_convention": "relative_to_centerline"
+  },
+  "vehicle_info": {
+    "make": "Example",
+    "model": "AWD EV Sedan",
+    "year": 2024,
+    "variant": "Skeleton",
+    "drive_type": "AWD"
+  },
+  "chassis": {
+    "mass_total": 2100.0,
+    "wheelbase": 2.96,
+    "track_front": 1.62,
+    "track_rear": 1.64,
+    "center_of_gravity": [
+      -1.5,
+      0.0,
+      -0.42
+    ]
+  },
+  "suspension": {
+    "FL": {
+      "topology": {
+        "system_type": "double_wishbone",
+        "upright": {
+          "id": "upright_FL",
+          "hardpoints": {
+            "upper_ball_joint": [
+              0.0,
+              -0.65,
+              -0.44
+            ],
+            "lower_ball_joint": [
+              0.0,
+              -0.68,
+              -0.14
+            ],
+            "wheel_center": [
+              0.0,
+              -0.81,
+              -0.33
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "upper_wishbone",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.14,
+                -0.3,
+                -0.44
+              ],
+              [
+                -0.14,
+                -0.3,
+                -0.44
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_ball_joint"
+          },
+          {
+            "name": "lower_wishbone",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.2,
+                -0.26,
+                -0.14
+              ],
+              [
+                -0.18,
+                -0.26,
+                -0.14
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_ball_joint"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.2286
+      },
+      "spring": {
+        "type": "air",
+        "rate": 35000
+      },
+      "damper": {
+        "type": "adjustable",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            800
+          ],
+          [
+            0.2,
+            2000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            1200
+          ],
+          [
+            0.2,
+            3000
+          ]
+        ]
+      }
+    },
+    "FR": {
+      "topology": {
+        "system_type": "double_wishbone",
+        "upright": {
+          "id": "upright_FR",
+          "hardpoints": {
+            "upper_ball_joint": [
+              0.0,
+              0.65,
+              -0.44
+            ],
+            "lower_ball_joint": [
+              0.0,
+              0.68,
+              -0.14
+            ],
+            "wheel_center": [
+              0.0,
+              0.81,
+              -0.33
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "upper_wishbone",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.14,
+                0.3,
+                -0.44
+              ],
+              [
+                -0.14,
+                0.3,
+                -0.44
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_ball_joint"
+          },
+          {
+            "name": "lower_wishbone",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.2,
+                0.26,
+                -0.14
+              ],
+              [
+                -0.18,
+                0.26,
+                -0.14
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_ball_joint"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.2286
+      },
+      "spring": {
+        "type": "air",
+        "rate": 35000
+      },
+      "damper": {
+        "type": "adjustable",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            800
+          ],
+          [
+            0.2,
+            2000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            1200
+          ],
+          [
+            0.2,
+            3000
+          ]
+        ]
+      }
+    },
+    "RL": {
+      "topology": {
+        "system_type": "double_wishbone",
+        "upright": {
+          "id": "upright_RL",
+          "hardpoints": {
+            "upper_ball_joint": [
+              0.0,
+              0.65,
+              -0.44
+            ],
+            "lower_ball_joint": [
+              0.0,
+              0.68,
+              -0.14
+            ],
+            "wheel_center": [
+              0.0,
+              0.81,
+              -0.33
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "upper_wishbone",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.14,
+                0.3,
+                -0.44
+              ],
+              [
+                -0.14,
+                0.3,
+                -0.44
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_ball_joint"
+          },
+          {
+            "name": "lower_wishbone",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.2,
+                0.26,
+                -0.14
+              ],
+              [
+                -0.18,
+                0.26,
+                -0.14
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_ball_joint"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.2286
+      },
+      "spring": {
+        "type": "air",
+        "rate": 35000
+      },
+      "damper": {
+        "type": "adjustable",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            800
+          ],
+          [
+            0.2,
+            2000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            1200
+          ],
+          [
+            0.2,
+            3000
+          ]
+        ]
+      }
+    },
+    "RR": {
+      "topology": {
+        "system_type": "double_wishbone",
+        "upright": {
+          "id": "upright_RR",
+          "hardpoints": {
+            "upper_ball_joint": [
+              0.0,
+              0.65,
+              -0.44
+            ],
+            "lower_ball_joint": [
+              0.0,
+              0.68,
+              -0.14
+            ],
+            "wheel_center": [
+              0.0,
+              0.81,
+              -0.33
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "upper_wishbone",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.14,
+                0.3,
+                -0.44
+              ],
+              [
+                -0.14,
+                0.3,
+                -0.44
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_ball_joint"
+          },
+          {
+            "name": "lower_wishbone",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.2,
+                0.26,
+                -0.14
+              ],
+              [
+                -0.18,
+                0.26,
+                -0.14
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_ball_joint"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.2286
+      },
+      "spring": {
+        "type": "air",
+        "rate": 35000
+      },
+      "damper": {
+        "type": "adjustable",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            800
+          ],
+          [
+            0.2,
+            2000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            1200
+          ],
+          [
+            0.2,
+            3000
+          ]
+        ]
+      }
+    }
+  },
+  "powertrain": {
+    "layout": "AWD",
+    "differentials": [
+      {
+        "id": "diff_front",
+        "location": "front",
+        "type": "open",
+        "final_drive": 9.0
+      },
+      {
+        "id": "diff_rear",
+        "location": "rear",
+        "type": "lsd_clutch",
+        "final_drive": 9.0
+      }
+    ],
+    "half_shafts": {
+      "FL": {
+        "diff_ref": "diff_front",
+        "cv_outer": {
+          "type": "rzeppa",
+          "position": [
+            0.0,
+            -0.81,
+            -0.33
+          ]
+        }
+      },
+      "FR": {
+        "diff_ref": "diff_front",
+        "cv_outer": {
+          "type": "rzeppa",
+          "position": [
+            0.0,
+            0.81,
+            -0.33
+          ]
+        }
+      },
+      "RL": {
+        "diff_ref": "diff_rear",
+        "cv_outer": {
+          "type": "rzeppa",
+          "position": [
+            -2.96,
+            -0.82,
+            -0.33
+          ]
+        }
+      },
+      "RR": {
+        "diff_ref": "diff_rear",
+        "cv_outer": {
+          "type": "rzeppa",
+          "position": [
+            -2.96,
+            0.82,
+            -0.33
+          ]
+        }
+      }
+    }
+  },
+  "electric": {
+    "hybrid_type": "bev",
+    "motors": [
+      {
+        "id": "front_motor",
+        "placement": "P4",
+        "type": "pmsm",
+        "max_power": 150000,
+        "max_torque": 320,
+        "max_rpm": 16000,
+        "driven_axle": "front",
+        "gear_ratio": 9.0,
+        "mass": 35.0,
+        "position": [
+          -0.2,
+          0.0,
+          -0.3
+        ]
+      },
+      {
+        "id": "rear_motor",
+        "placement": "P4",
+        "type": "pmsm",
+        "max_power": 210000,
+        "max_torque": 450,
+        "max_rpm": 16000,
+        "driven_axle": "rear",
+        "gear_ratio": 9.0,
+        "mass": 42.0,
+        "position": [
+          -2.7,
+          0.0,
+          -0.3
+        ]
+      }
+    ],
+    "battery": {
+      "chemistry": "NMC811",
+      "capacity_kwh": 82.0,
+      "capacity_usable_kwh": 77.0,
+      "voltage_nominal": 400,
+      "mass": 550.0,
+      "position": [
+        -1.5,
+        0.0,
+        -0.18
+      ]
+    },
+    "regen": {
+      "max_torque": 200,
+      "max_power": 80000,
+      "blend_with_hydraulic": true,
+      "coast_regen": 40
+    }
+  }
+}

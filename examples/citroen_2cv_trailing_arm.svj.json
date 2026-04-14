@@ -1,0 +1,420 @@
+{
+  "_metadata": {
+    "specification": "SVJ",
+    "version": "0.94",
+    "description": "Citro\u00ebn 2CV6 (1979) \u2014 trailing arm front and rear with interconnected horizontal coil springs.",
+    "coordinate_system": "SAE_J670",
+    "units": "SI",
+    "alignment_convention": "relative_to_centerline"
+  },
+  "vehicle_info": {
+    "make": "Citro\u00ebn",
+    "model": "2CV6",
+    "year": 1979,
+    "variant": "602cc",
+    "drive_type": "FWD"
+  },
+  "chassis": {
+    "mass_total": 590.0,
+    "wheelbase": 2.4,
+    "track_front": 1.26,
+    "track_rear": 1.26,
+    "center_of_gravity": [
+      -1.1,
+      0.0,
+      -0.5
+    ],
+    "_est": true
+  },
+  "steering": {
+    "type": "rack_and_pinion",
+    "rack_position": [
+      -0.05,
+      0.0,
+      -0.2
+    ],
+    "rack_travel": 0.13,
+    "overall_ratio": 18.0,
+    "lock_to_lock": 18.85,
+    "_est": true
+  },
+  "suspension": {
+    "FL": {
+      "topology": {
+        "system_type": "trailing_arm",
+        "upright": {
+          "id": "upright_FL",
+          "mass": 6.0,
+          "hardpoints": {
+            "wheel_center": [
+              0.0,
+              -0.63,
+              -0.28
+            ],
+            "damper_outboard": [
+              0.0,
+              -0.45,
+              -0.12
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "leading_arm",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.35,
+                -0.2,
+                -0.2
+              ],
+              [
+                0.35,
+                -0.2,
+                -0.3
+              ]
+            ],
+            "outboard_ref": "hardpoints.wheel_center",
+            "_note": "Leading arm (pivots behind wheel) \u2014 both inboard points at same X: pure lateral pivot axis"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.381,
+        "rim_width": 0.1016,
+        "mass": 10.0,
+        "rotational_inertia": 0.4
+      },
+      "spring": {
+        "type": "coil",
+        "rate": 8000,
+        "_note": "Horizontal springs interconnected front-to-rear per side"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            200
+          ],
+          [
+            0.2,
+            500
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            300
+          ],
+          [
+            0.2,
+            750
+          ]
+        ]
+      },
+      "_est": true
+    },
+    "FR": {
+      "topology": {
+        "system_type": "trailing_arm",
+        "upright": {
+          "id": "upright_FR",
+          "mass": 6.0,
+          "hardpoints": {
+            "wheel_center": [
+              0.0,
+              0.63,
+              -0.28
+            ],
+            "damper_outboard": [
+              0.0,
+              0.45,
+              -0.12
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "leading_arm",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.35,
+                0.2,
+                -0.2
+              ],
+              [
+                0.35,
+                0.2,
+                -0.3
+              ]
+            ],
+            "outboard_ref": "hardpoints.wheel_center",
+            "_note": "Leading arm (pivots behind wheel) \u2014 both inboard points at same X: pure lateral pivot axis"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.381,
+        "rim_width": 0.1016,
+        "mass": 10.0,
+        "rotational_inertia": 0.4
+      },
+      "spring": {
+        "type": "coil",
+        "rate": 8000,
+        "_note": "Horizontal springs interconnected front-to-rear per side"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            200
+          ],
+          [
+            0.2,
+            500
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            300
+          ],
+          [
+            0.2,
+            750
+          ]
+        ]
+      },
+      "_est": true
+    },
+    "RL": {
+      "topology": {
+        "system_type": "trailing_arm",
+        "upright": {
+          "id": "upright_RL",
+          "mass": 5.0,
+          "hardpoints": {
+            "wheel_center": [
+              -2.4,
+              -0.63,
+              -0.28
+            ],
+            "damper_outboard": [
+              -2.4,
+              -0.45,
+              -0.12
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "trailing_arm",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -2.05,
+                -0.2,
+                -0.2
+              ],
+              [
+                -2.05,
+                -0.2,
+                -0.3
+              ]
+            ],
+            "outboard_ref": "hardpoints.wheel_center",
+            "_note": "True trailing arm (pivots ahead of wheel) \u2014 pure lateral axis"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.381,
+        "rim_width": 0.1016,
+        "mass": 10.0,
+        "rotational_inertia": 0.4
+      },
+      "spring": {
+        "type": "coil",
+        "rate": 8000
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            180
+          ],
+          [
+            0.2,
+            450
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            270
+          ],
+          [
+            0.2,
+            680
+          ]
+        ]
+      },
+      "_est": true
+    },
+    "RR": {
+      "topology": {
+        "system_type": "trailing_arm",
+        "upright": {
+          "id": "upright_RR",
+          "mass": 5.0,
+          "hardpoints": {
+            "wheel_center": [
+              -2.4,
+              0.63,
+              -0.28
+            ],
+            "damper_outboard": [
+              -2.4,
+              0.45,
+              -0.12
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "trailing_arm",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -2.05,
+                0.2,
+                -0.2
+              ],
+              [
+                -2.05,
+                0.2,
+                -0.3
+              ]
+            ],
+            "outboard_ref": "hardpoints.wheel_center",
+            "_note": "True trailing arm (pivots ahead of wheel) \u2014 pure lateral axis"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.381,
+        "rim_width": 0.1016,
+        "mass": 10.0,
+        "rotational_inertia": 0.4
+      },
+      "spring": {
+        "type": "coil",
+        "rate": 8000
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            180
+          ],
+          [
+            0.2,
+            450
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            270
+          ],
+          [
+            0.2,
+            680
+          ]
+        ]
+      },
+      "_est": true
+    }
+  },
+  "powertrain": {
+    "layout": "FF",
+    "engine": {
+      "displacement": 0.602,
+      "configuration": "flat2",
+      "torque_curve": [
+        [
+          1500,
+          30
+        ],
+        [
+          3000,
+          39
+        ],
+        [
+          4500,
+          36
+        ],
+        [
+          5500,
+          32
+        ]
+      ],
+      "_note": "Air-cooled flat-twin 602cc, 29hp"
+    },
+    "gearbox": {
+      "type": "manual",
+      "ratios": [
+        4.25,
+        2.57,
+        1.66,
+        1.21
+      ]
+    },
+    "differentials": [
+      {
+        "id": "diff_front",
+        "location": "front",
+        "type": "open",
+        "final_drive": 3.875
+      }
+    ]
+  }
+}
