@@ -1,0 +1,545 @@
+{
+  "_metadata": {
+    "specification": "SVJ",
+    "version": "0.94",
+    "description": "BMW E30 325i (1987) \u2014 MacPherson front, semi-trailing arm rear. Factory specs from BMW.",
+    "coordinate_system": "SAE_J670",
+    "units": "SI",
+    "alignment_convention": "relative_to_centerline"
+  },
+  "vehicle_info": {
+    "make": "BMW",
+    "model": "325i (E30)",
+    "year": 1987,
+    "variant": "US 2-door",
+    "drive_type": "RWD"
+  },
+  "chassis": {
+    "mass_total": 1275.0,
+    "wheelbase": 2.57,
+    "track_front": 1.407,
+    "track_rear": 1.415,
+    "center_of_gravity": [
+      -1.208,
+      0.0,
+      -0.48
+    ],
+    "center_of_gravity_note": "53/47 F/R factory"
+  },
+  "steering": {
+    "type": "rack_and_pinion",
+    "rack_position": [
+      -0.05,
+      0.0,
+      -0.2
+    ],
+    "rack_travel": 0.15,
+    "overall_ratio": 20.5,
+    "overall_ratio_source": "BMW factory",
+    "lock_to_lock": 21.991,
+    "lock_to_lock_turns": 3.5,
+    "_est": true
+  },
+  "suspension": {
+    "FL": {
+      "topology": {
+        "system_type": "macpherson",
+        "upright": {
+          "id": "upright_FL",
+          "mass": 10.0,
+          "hardpoints": {
+            "strut_top": [
+              0.0,
+              -0.55,
+              -0.68
+            ],
+            "lower_ball_joint": [
+              0.0,
+              -0.6,
+              -0.14
+            ],
+            "steering_tie_rod_end": [
+              0.08,
+              -0.58,
+              -0.19
+            ],
+            "wheel_center": [
+              0.0,
+              -0.704,
+              -0.33
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "strut",
+            "type": "strut",
+            "inboard_points": [
+              [
+                0.0,
+                -0.55,
+                -0.68
+              ]
+            ],
+            "outboard_ref": "hardpoints.strut_top"
+          },
+          {
+            "name": "lower_control_arm",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.18,
+                -0.22,
+                -0.14
+              ],
+              [
+                -0.16,
+                -0.22,
+                -0.14
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_ball_joint"
+          },
+          {
+            "name": "steering_tie_rod",
+            "type": "rod",
+            "inboard_points": [
+              [
+                0.08,
+                -0.16,
+                -0.19
+              ]
+            ],
+            "outboard_ref": "hardpoints.steering_tie_rod_end"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.3556,
+        "rim_width": 0.1524,
+        "loaded_radius": 0.295,
+        "mass": 18.0,
+        "rotational_inertia": 0.82
+      },
+      "spring": {
+        "type": "coil",
+        "rate": 22000
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            550
+          ],
+          [
+            0.2,
+            1400
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            820
+          ],
+          [
+            0.2,
+            2100
+          ]
+        ]
+      },
+      "brake": {
+        "disc": {
+          "type": "vented",
+          "outer_diameter": 0.26,
+          "outer_diameter_source": "BMW: 260mm vented front",
+          "mass": 5.5,
+          "material": "cast_iron"
+        }
+      },
+      "_est": true
+    },
+    "FR": {
+      "topology": {
+        "system_type": "macpherson",
+        "upright": {
+          "id": "upright_FR",
+          "mass": 10.0,
+          "hardpoints": {
+            "strut_top": [
+              0.0,
+              0.55,
+              -0.68
+            ],
+            "lower_ball_joint": [
+              0.0,
+              0.6,
+              -0.14
+            ],
+            "steering_tie_rod_end": [
+              0.08,
+              0.58,
+              -0.19
+            ],
+            "wheel_center": [
+              0.0,
+              0.704,
+              -0.33
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "strut",
+            "type": "strut",
+            "inboard_points": [
+              [
+                0.0,
+                0.55,
+                -0.68
+              ]
+            ],
+            "outboard_ref": "hardpoints.strut_top"
+          },
+          {
+            "name": "lower_control_arm",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.18,
+                0.22,
+                -0.14
+              ],
+              [
+                -0.16,
+                0.22,
+                -0.14
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_ball_joint"
+          },
+          {
+            "name": "steering_tie_rod",
+            "type": "rod",
+            "inboard_points": [
+              [
+                0.08,
+                0.16,
+                -0.19
+              ]
+            ],
+            "outboard_ref": "hardpoints.steering_tie_rod_end"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.3556,
+        "rim_width": 0.1524,
+        "loaded_radius": 0.295,
+        "mass": 18.0,
+        "rotational_inertia": 0.82
+      },
+      "spring": {
+        "type": "coil",
+        "rate": 22000
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            550
+          ],
+          [
+            0.2,
+            1400
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            820
+          ],
+          [
+            0.2,
+            2100
+          ]
+        ]
+      },
+      "brake": {
+        "disc": {
+          "type": "vented",
+          "outer_diameter": 0.26,
+          "outer_diameter_source": "BMW: 260mm vented front",
+          "mass": 5.5,
+          "material": "cast_iron"
+        }
+      },
+      "_est": true
+    },
+    "RL": {
+      "topology": {
+        "system_type": "semi_trailing_arm",
+        "upright": {
+          "id": "upright_RL",
+          "mass": 8.0,
+          "hardpoints": {
+            "wheel_center": [
+              -2.57,
+              -0.708,
+              -0.33
+            ],
+            "damper_outboard": [
+              -2.57,
+              -0.5,
+              -0.15
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "semi_trailing_arm",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -2.25,
+                -0.25,
+                -0.25
+              ],
+              [
+                -2.45,
+                -0.18,
+                -0.25
+              ]
+            ],
+            "outboard_ref": "hardpoints.wheel_center",
+            "_note": "Pivot axis angled ~15\u00b0 from lateral \u2014 two inboard points at different X and Y define the axis angle"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.3556,
+        "rim_width": 0.1524,
+        "loaded_radius": 0.295,
+        "mass": 18.0,
+        "rotational_inertia": 0.82
+      },
+      "spring": {
+        "type": "coil",
+        "rate": 24000,
+        "_note": "Progressive rate coil springs per BMW spec"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            500
+          ],
+          [
+            0.2,
+            1300
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            750
+          ],
+          [
+            0.2,
+            1950
+          ]
+        ]
+      },
+      "brake": {
+        "disc": {
+          "type": "solid",
+          "outer_diameter": 0.258,
+          "outer_diameter_source": "BMW: 258mm solid rear",
+          "mass": 4.0,
+          "material": "cast_iron"
+        }
+      },
+      "_est": true
+    },
+    "RR": {
+      "topology": {
+        "system_type": "semi_trailing_arm",
+        "upright": {
+          "id": "upright_RR",
+          "mass": 8.0,
+          "hardpoints": {
+            "wheel_center": [
+              -2.57,
+              0.708,
+              -0.33
+            ],
+            "damper_outboard": [
+              -2.57,
+              0.5,
+              -0.15
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "semi_trailing_arm",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -2.25,
+                0.25,
+                -0.25
+              ],
+              [
+                -2.45,
+                0.18,
+                -0.25
+              ]
+            ],
+            "outboard_ref": "hardpoints.wheel_center",
+            "_note": "Pivot axis angled ~15\u00b0 from lateral \u2014 two inboard points at different X and Y define the axis angle"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.3556,
+        "rim_width": 0.1524,
+        "loaded_radius": 0.295,
+        "mass": 18.0,
+        "rotational_inertia": 0.82
+      },
+      "spring": {
+        "type": "coil",
+        "rate": 24000,
+        "_note": "Progressive rate coil springs per BMW spec"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            500
+          ],
+          [
+            0.2,
+            1300
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            750
+          ],
+          [
+            0.2,
+            1950
+          ]
+        ]
+      },
+      "brake": {
+        "disc": {
+          "type": "solid",
+          "outer_diameter": 0.258,
+          "outer_diameter_source": "BMW: 258mm solid rear",
+          "mass": 4.0,
+          "material": "cast_iron"
+        }
+      },
+      "_est": true
+    }
+  },
+  "powertrain": {
+    "layout": "FR",
+    "engine": {
+      "idle_rpm": 750,
+      "max_rpm": 6350,
+      "displacement": 2.494,
+      "configuration": "I6",
+      "torque_curve": [
+        [
+          1000,
+          140
+        ],
+        [
+          2000,
+          190
+        ],
+        [
+          3000,
+          215
+        ],
+        [
+          4000,
+          226
+        ],
+        [
+          5000,
+          220
+        ],
+        [
+          5800,
+          210
+        ],
+        [
+          6350,
+          190
+        ]
+      ],
+      "peak_power_source": "BMW: 171PS (126kW) @ 5800 rpm",
+      "peak_torque_source": "BMW: 226 Nm @ 4000 rpm"
+    },
+    "gearbox": {
+      "type": "manual",
+      "ratios": [
+        3.83,
+        2.2,
+        1.4,
+        1.0,
+        0.81
+      ],
+      "_note": "Getrag 260 5-speed"
+    },
+    "differentials": [
+      {
+        "id": "diff_rear",
+        "location": "rear",
+        "type": "open",
+        "final_drive": 3.73
+      }
+    ]
+  }
+}

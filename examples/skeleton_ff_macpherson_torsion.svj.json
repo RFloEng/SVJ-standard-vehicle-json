@@ -1,0 +1,529 @@
+{
+  "_metadata": {
+    "specification": "SVJ",
+    "version": "0.94",
+    "description": "Skeleton: FF hatchback \u2014 MacPherson strut front, torsion beam rear.",
+    "coordinate_system": "SAE_J670",
+    "units": "SI",
+    "alignment_convention": "relative_to_centerline"
+  },
+  "vehicle_info": {
+    "make": "Example",
+    "model": "FF Hatchback",
+    "year": 2024,
+    "variant": "Skeleton",
+    "drive_type": "FWD"
+  },
+  "chassis": {
+    "mass_total": 1350.0,
+    "wheelbase": 2.62,
+    "track_front": 1.54,
+    "track_rear": 1.53,
+    "center_of_gravity": [
+      -1.1,
+      0.0,
+      -0.48
+    ]
+  },
+  "steering": {
+    "type": "rack_and_pinion",
+    "rack_position": [
+      -0.05,
+      0.0,
+      -0.2
+    ],
+    "rack_travel": 0.14,
+    "overall_ratio": 14.0,
+    "lock_to_lock": 17.593
+  },
+  "suspension": {
+    "FL": {
+      "topology": {
+        "system_type": "macpherson",
+        "upright": {
+          "id": "upright_FL",
+          "mass": 9.0,
+          "hardpoints": {
+            "strut_top": [
+              0.0,
+              -0.52,
+              -0.62
+            ],
+            "lower_ball_joint": [
+              0.0,
+              -0.62,
+              -0.13
+            ],
+            "steering_tie_rod_end": [
+              0.09,
+              -0.59,
+              -0.18
+            ],
+            "wheel_center": [
+              0.0,
+              -0.77,
+              -0.31
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "strut",
+            "type": "strut",
+            "inboard_points": [
+              [
+                0.0,
+                -0.52,
+                -0.62
+              ]
+            ],
+            "outboard_ref": "hardpoints.strut_top"
+          },
+          {
+            "name": "lower_control_arm",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.18,
+                -0.22,
+                -0.13
+              ],
+              [
+                -0.15,
+                -0.22,
+                -0.13
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_ball_joint"
+          },
+          {
+            "name": "steering_tie_rod",
+            "type": "rod",
+            "inboard_points": [
+              [
+                0.09,
+                -0.15,
+                -0.18
+              ]
+            ],
+            "outboard_ref": "hardpoints.steering_tie_rod_end"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.4064,
+        "rim_width": 0.1778
+      },
+      "spring": {
+        "type": "coilover",
+        "rate": 25000
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            600
+          ],
+          [
+            0.2,
+            1500
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            900
+          ],
+          [
+            0.2,
+            2300
+          ]
+        ]
+      }
+    },
+    "FR": {
+      "topology": {
+        "system_type": "macpherson",
+        "upright": {
+          "id": "upright_FR",
+          "mass": 9.0,
+          "hardpoints": {
+            "strut_top": [
+              0.0,
+              0.52,
+              -0.62
+            ],
+            "lower_ball_joint": [
+              0.0,
+              0.62,
+              -0.13
+            ],
+            "steering_tie_rod_end": [
+              0.09,
+              0.59,
+              -0.18
+            ],
+            "wheel_center": [
+              0.0,
+              0.77,
+              -0.31
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "strut",
+            "type": "strut",
+            "inboard_points": [
+              [
+                0.0,
+                0.52,
+                -0.62
+              ]
+            ],
+            "outboard_ref": "hardpoints.strut_top"
+          },
+          {
+            "name": "lower_control_arm",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.18,
+                0.22,
+                -0.13
+              ],
+              [
+                -0.15,
+                0.22,
+                -0.13
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_ball_joint"
+          },
+          {
+            "name": "steering_tie_rod",
+            "type": "rod",
+            "inboard_points": [
+              [
+                0.09,
+                0.15,
+                -0.18
+              ]
+            ],
+            "outboard_ref": "hardpoints.steering_tie_rod_end"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.4064,
+        "rim_width": 0.1778
+      },
+      "spring": {
+        "type": "coilover",
+        "rate": 25000
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            600
+          ],
+          [
+            0.2,
+            1500
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            900
+          ],
+          [
+            0.2,
+            2300
+          ]
+        ]
+      }
+    },
+    "RL": {
+      "topology": {
+        "system_type": "torsion_beam",
+        "upright": {
+          "id": "upright_RL",
+          "mass": 7.0,
+          "hardpoints": {
+            "wheel_center": [
+              -2.62,
+              -0.765,
+              -0.31
+            ],
+            "damper_outboard": [
+              -2.62,
+              -0.5,
+              -0.13
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "trailing_arm",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -2.2,
+                -0.28,
+                -0.18
+              ],
+              [
+                -2.2,
+                -0.28,
+                -0.28
+              ]
+            ],
+            "outboard_ref": "hardpoints.wheel_center"
+          }
+        ],
+        "axle_body": {
+          "id": "torsion_beam_rear",
+          "mass": 15.0,
+          "torsional_stiffness": 800.0,
+          "beam_type": "open_section",
+          "beam_position": [
+            -2.4,
+            0.0,
+            -0.2
+          ]
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.4064,
+        "rim_width": 0.1651
+      },
+      "spring": {
+        "type": "coil",
+        "rate": 22000
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            500
+          ],
+          [
+            0.2,
+            1300
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            750
+          ],
+          [
+            0.2,
+            1900
+          ]
+        ]
+      }
+    },
+    "RR": {
+      "topology": {
+        "system_type": "torsion_beam",
+        "upright": {
+          "id": "upright_RR",
+          "mass": 7.0,
+          "hardpoints": {
+            "wheel_center": [
+              -2.62,
+              0.765,
+              -0.31
+            ],
+            "damper_outboard": [
+              -2.62,
+              0.5,
+              -0.13
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "trailing_arm",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -2.2,
+                0.28,
+                -0.18
+              ],
+              [
+                -2.2,
+                0.28,
+                -0.28
+              ]
+            ],
+            "outboard_ref": "hardpoints.wheel_center"
+          }
+        ],
+        "axle_body": {
+          "id": "torsion_beam_rear",
+          "mass": 15.0,
+          "torsional_stiffness": 800.0,
+          "beam_type": "open_section",
+          "beam_position": [
+            -2.4,
+            0.0,
+            -0.2
+          ]
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.4064,
+        "rim_width": 0.1651
+      },
+      "spring": {
+        "type": "coil",
+        "rate": 22000
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            500
+          ],
+          [
+            0.2,
+            1300
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            750
+          ],
+          [
+            0.2,
+            1900
+          ]
+        ]
+      }
+    }
+  },
+  "powertrain": {
+    "layout": "FF",
+    "engine": {
+      "torque_curve": [
+        [
+          1000,
+          120
+        ],
+        [
+          3000,
+          200
+        ],
+        [
+          5000,
+          180
+        ],
+        [
+          6500,
+          160
+        ]
+      ]
+    },
+    "gearbox": {
+      "type": "manual",
+      "ratios": [
+        3.727,
+        2.048,
+        1.393,
+        1.029,
+        0.837,
+        0.68
+      ]
+    },
+    "differentials": [
+      {
+        "id": "diff_front",
+        "location": "front",
+        "type": "open",
+        "final_drive": 3.944
+      }
+    ],
+    "half_shafts": {
+      "FL": {
+        "diff_ref": "diff_front",
+        "cv_inner": {
+          "type": "tripod",
+          "position": [
+            0.0,
+            -0.1,
+            -0.25
+          ]
+        },
+        "cv_outer": {
+          "type": "rzeppa",
+          "position": [
+            0.0,
+            -0.77,
+            -0.31
+          ]
+        }
+      },
+      "FR": {
+        "diff_ref": "diff_front",
+        "cv_inner": {
+          "type": "tripod",
+          "position": [
+            0.0,
+            0.1,
+            -0.25
+          ]
+        },
+        "cv_outer": {
+          "type": "rzeppa",
+          "position": [
+            0.0,
+            0.77,
+            -0.31
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,562 @@
+{
+  "_metadata": {
+    "specification": "SVJ",
+    "version": "0.94",
+    "description": "Skeleton: 4WD truck \u2014 MacPherson front, solid axle rear with Panhard rod.",
+    "coordinate_system": "SAE_J670",
+    "units": "SI",
+    "alignment_convention": "relative_to_centerline"
+  },
+  "vehicle_info": {
+    "make": "Example",
+    "model": "4WD Pickup",
+    "year": 2024,
+    "variant": "Skeleton",
+    "drive_type": "4WD"
+  },
+  "chassis": {
+    "mass_total": 2400.0,
+    "wheelbase": 3.2,
+    "track_front": 1.68,
+    "track_rear": 1.7,
+    "center_of_gravity": [
+      -1.55,
+      0.0,
+      -0.62
+    ]
+  },
+  "suspension": {
+    "FL": {
+      "topology": {
+        "system_type": "macpherson",
+        "upright": {
+          "id": "upright_FL",
+          "hardpoints": {
+            "strut_top": [
+              0.0,
+              -0.58,
+              -0.7
+            ],
+            "lower_ball_joint": [
+              0.0,
+              -0.7,
+              -0.16
+            ],
+            "wheel_center": [
+              0.0,
+              -0.84,
+              -0.38
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "strut",
+            "type": "strut",
+            "inboard_points": [
+              [
+                0.0,
+                -0.58,
+                -0.7
+              ]
+            ],
+            "outboard_ref": "hardpoints.strut_top"
+          },
+          {
+            "name": "lower_control_arm",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.2,
+                -0.25,
+                -0.16
+              ],
+              [
+                -0.18,
+                -0.25,
+                -0.16
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_ball_joint"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.4572,
+        "rim_width": 0.2032
+      },
+      "spring": {
+        "type": "coil",
+        "rate": 30000
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            700
+          ],
+          [
+            0.2,
+            1800
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            1050
+          ],
+          [
+            0.2,
+            2700
+          ]
+        ]
+      }
+    },
+    "FR": {
+      "topology": {
+        "system_type": "macpherson",
+        "upright": {
+          "id": "upright_FR",
+          "hardpoints": {
+            "strut_top": [
+              0.0,
+              0.58,
+              -0.7
+            ],
+            "lower_ball_joint": [
+              0.0,
+              0.7,
+              -0.16
+            ],
+            "wheel_center": [
+              0.0,
+              0.84,
+              -0.38
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "strut",
+            "type": "strut",
+            "inboard_points": [
+              [
+                0.0,
+                0.58,
+                -0.7
+              ]
+            ],
+            "outboard_ref": "hardpoints.strut_top"
+          },
+          {
+            "name": "lower_control_arm",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.2,
+                0.25,
+                -0.16
+              ],
+              [
+                -0.18,
+                0.25,
+                -0.16
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_ball_joint"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.4572,
+        "rim_width": 0.2032
+      },
+      "spring": {
+        "type": "coil",
+        "rate": 30000
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            700
+          ],
+          [
+            0.2,
+            1800
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            1050
+          ],
+          [
+            0.2,
+            2700
+          ]
+        ]
+      }
+    },
+    "RL": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "panhard_rod",
+        "upright": {
+          "id": "upright_RL",
+          "hardpoints": {
+            "upper_link_end": [
+              -3.2,
+              -0.6,
+              -0.5
+            ],
+            "lower_link_end": [
+              -3.2,
+              -0.65,
+              -0.18
+            ],
+            "wheel_center": [
+              -3.2,
+              -0.85,
+              -0.38
+            ],
+            "panhard_axle_end": [
+              -3.2,
+              -0.75,
+              -0.32
+            ],
+            "damper_outboard": [
+              -3.2,
+              -0.55,
+              -0.18
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "upper_trailing_link",
+            "type": "rod",
+            "inboard_points": [
+              [
+                -2.8,
+                -0.3,
+                -0.5
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_link_end"
+          },
+          {
+            "name": "lower_trailing_link",
+            "type": "rod",
+            "inboard_points": [
+              [
+                -2.8,
+                -0.28,
+                -0.18
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_link_end"
+          },
+          {
+            "name": "panhard_rod",
+            "type": "rod",
+            "inboard_points": [
+              [
+                -3.2,
+                0.65,
+                -0.35
+              ]
+            ],
+            "outboard_ref": "hardpoints.panhard_axle_end"
+          }
+        ],
+        "axle_body": {
+          "id": "rear_live_axle",
+          "mass": 120.0,
+          "position": [
+            -3.2,
+            0.0,
+            -0.3
+          ],
+          "inertia": {
+            "Ixx": 8.0,
+            "Iyy": 25.0,
+            "Izz": 25.0,
+            "Ixz": 0.0,
+            "Ixy": 0.0,
+            "Iyz": 0.0
+          }
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.4572,
+        "rim_width": 0.2032
+      },
+      "spring": {
+        "type": "coil",
+        "rate": 35000
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            800
+          ],
+          [
+            0.2,
+            2000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            1200
+          ],
+          [
+            0.2,
+            3000
+          ]
+        ]
+      }
+    },
+    "RR": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "panhard_rod",
+        "upright": {
+          "id": "upright_RR",
+          "hardpoints": {
+            "upper_link_end": [
+              -3.2,
+              0.6,
+              -0.5
+            ],
+            "lower_link_end": [
+              -3.2,
+              0.65,
+              -0.18
+            ],
+            "wheel_center": [
+              -3.2,
+              0.85,
+              -0.38
+            ],
+            "panhard_axle_end": [
+              -3.2,
+              0.75,
+              -0.32
+            ],
+            "damper_outboard": [
+              -3.2,
+              0.55,
+              -0.18
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "upper_trailing_link",
+            "type": "rod",
+            "inboard_points": [
+              [
+                -2.8,
+                0.3,
+                -0.5
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_link_end"
+          },
+          {
+            "name": "lower_trailing_link",
+            "type": "rod",
+            "inboard_points": [
+              [
+                -2.8,
+                0.28,
+                -0.18
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_link_end"
+          },
+          {
+            "name": "panhard_rod",
+            "type": "rod",
+            "inboard_points": [
+              [
+                -3.2,
+                -0.65,
+                -0.35
+              ]
+            ],
+            "outboard_ref": "hardpoints.panhard_axle_end"
+          }
+        ],
+        "axle_body": {
+          "id": "rear_live_axle",
+          "mass": 120.0,
+          "position": [
+            -3.2,
+            0.0,
+            -0.3
+          ],
+          "inertia": {
+            "Ixx": 8.0,
+            "Iyy": 25.0,
+            "Izz": 25.0,
+            "Ixz": 0.0,
+            "Ixy": 0.0,
+            "Iyz": 0.0
+          }
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.4572,
+        "rim_width": 0.2032
+      },
+      "spring": {
+        "type": "coil",
+        "rate": 35000
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            800
+          ],
+          [
+            0.2,
+            2000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            1200
+          ],
+          [
+            0.2,
+            3000
+          ]
+        ]
+      }
+    }
+  },
+  "powertrain": {
+    "layout": "4WD",
+    "engine": {
+      "torque_curve": [
+        [
+          1000,
+          200
+        ],
+        [
+          2500,
+          380
+        ],
+        [
+          4000,
+          350
+        ],
+        [
+          5500,
+          300
+        ]
+      ],
+      "displacement": 3.5,
+      "configuration": "V6"
+    },
+    "gearbox": {
+      "type": "auto",
+      "ratios": [
+        4.171,
+        2.34,
+        1.521,
+        1.143,
+        0.867,
+        0.691
+      ]
+    },
+    "transfer_case": {
+      "type": "part_time",
+      "ratio_high": 1.0,
+      "ratio_low": 2.48,
+      "torque_split": [
+        0.5,
+        0.5
+      ],
+      "output_front": [
+        0.8,
+        0.0,
+        -0.3
+      ],
+      "output_rear": [
+        0.8,
+        0.0,
+        -0.3
+      ]
+    },
+    "driveshafts": [
+      {
+        "id": "propshaft_front",
+        "from": "transfer_front",
+        "to": "diff_front"
+      },
+      {
+        "id": "propshaft_rear",
+        "from": "transfer_rear",
+        "to": "diff_rear"
+      }
+    ],
+    "differentials": [
+      {
+        "id": "diff_front",
+        "location": "front",
+        "type": "open",
+        "final_drive": 3.727
+      },
+      {
+        "id": "diff_rear",
+        "location": "rear",
+        "type": "lsd_torsen",
+        "final_drive": 3.727,
+        "lock_power": 0.3
+      }
+    ]
+  }
+}
