@@ -74,6 +74,7 @@ schema/svj.schema.json                  JSON Schema Draft-07
 templates/mazda_mx5_nd2_2024.svj.json   Complete reference vehicle (3285 lines)
 examples/                               7 example vehicles (4 real + 3 skeletons)
 tools/validate.py                       Schema + consistency validation
+viewer/index.html                       Interactive SVJ file viewer (drag & drop)
 ```
 
 ## Coordinate System & Units
@@ -96,4 +97,4 @@ SVJ to any target is a deterministic downsampling — you're projecting rich dat
 
 ## License
 
-[MIT](LICENSE)
+[Apache License 2.0](LICENSE)

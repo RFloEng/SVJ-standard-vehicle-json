@@ -12,6 +12,8 @@ schema/svj.schema.json                  JSON Schema Draft-07 (3447 lines)
 templates/mazda_mx5_nd2_2024.svj.json   Full reference template (3555 lines)
 examples/                               7 examples (4 real cars + 3 skeletons)
 tools/validate.py                       Schema + consistency validation
+viewer/index.html                       Interactive SVJ file viewer (drag & drop)
+svj-py/                                 Python parser library with CLI
 ```
 
 ## Key Conventions
@@ -41,23 +43,6 @@ tools/validate.py                       Schema + consistency validation
 ## MX-5 ND2 Template — Factory Data Sources
 
 17 factory-confirmed values: steering ratio 15.5:1, 2.7 turns L2L, gear ratios (5.087/3.063/2.028/1.522/1.241/1.000), final drive 2.866, track F/R 1495/1505, wheelbase 2310mm, kerb weight 1077kg, tire 205/45R17, brakes 280mm F/R ventilated, ABS 4-channel + EBD, asymmetric LSD (2024 Club). ~60 sections estimated, all marked `_est: true`.
-
-## Version History (key milestones)
-
-| Version | What changed |
-|---------|-------------|
-| v0.1-0.3 | Foundation: chassis, suspension, powertrain, steering |
-| v0.4 | Tires (Pacejka) + brakes (per-corner) |
-| v0.5 | Aero, brakes force chain, suspension topology guide (10 types) |
-| v0.6 | Full drivetrain rewrite (clutch, gearbox, diffs, CV joints) |
-| v0.7 | Electric/hybrid + cooling circuits |
-| v0.8 | Compliance (3-tier bushings), chassis stiffness, static setup, driver controls |
-| v0.81-0.83 | Mass/inertia audit — added mass to every physical component, full 6-DOF tensors, CG positions everywhere |
-| v0.9 | Multi-model tires (TMeasy, brush, external FTire/CDTire refs) |
-| v0.91 | README rewrite, 7 skeleton examples, cross-ref audit, schema error testing |
-| v0.92 | Unified thermal model (engine, gearbox, diff, brake dynamics, environment, heat sources) |
-| v0.93 | External audit corrections: CG sign fix, wheel/tire redundancy removed, alignment convention |
-| v0.94 | Multi-axle naming convention (A{n}{side}), Tyrrell P34 example in spec |
 
 ## Pending / Roadmap
 
