@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "urn:svj:schema:v0.94",
   "title": "Standard Vehicle JSON (SVJ)",
-  "description": "Schema for SVJ v0.9.0 — universal vehicle dynamics exchange format.",
+  "description": "Schema for SVJ v0.94 — universal vehicle dynamics exchange format.",
   "type": "object",
   "required": [
     "_metadata"
