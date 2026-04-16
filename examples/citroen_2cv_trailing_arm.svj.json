@@ -64,18 +64,18 @@
             "type": "arm",
             "inboard_points": [
               [
-                0.35,
-                -0.2,
-                -0.2
+                -0.35,
+                -0.15,
+                -0.25
               ],
               [
-                0.35,
-                -0.2,
-                -0.3
+                -0.35,
+                -0.35,
+                -0.25
               ]
             ],
             "outboard_ref": "hardpoints.wheel_center",
-            "_note": "Leading arm (pivots behind wheel) \u2014 both inboard points at same X: pure lateral pivot axis"
+            "_note": "Leading arm: pivot BEHIND wheel (X=-0.35 vs wheel X=0.0). Lateral pivot axis (points differ in Y only)."
           }
         ]
       },
@@ -148,18 +148,18 @@
             "type": "arm",
             "inboard_points": [
               [
-                0.35,
-                0.2,
-                -0.2
+                -0.35,
+                0.15,
+                -0.25
               ],
               [
+                -0.35,
                 0.35,
-                0.2,
-                -0.3
+                -0.25
               ]
             ],
             "outboard_ref": "hardpoints.wheel_center",
-            "_note": "Leading arm (pivots behind wheel) \u2014 both inboard points at same X: pure lateral pivot axis"
+            "_note": "Leading arm: pivot BEHIND wheel (X=-0.35 vs wheel X=0.0). Lateral pivot axis (points differ in Y only)."
           }
         ]
       },
@@ -233,17 +233,17 @@
             "inboard_points": [
               [
                 -2.05,
-                -0.2,
-                -0.2
+                -0.15,
+                -0.25
               ],
               [
                 -2.05,
-                -0.2,
-                -0.3
+                -0.35,
+                -0.25
               ]
             ],
             "outboard_ref": "hardpoints.wheel_center",
-            "_note": "True trailing arm (pivots ahead of wheel) \u2014 pure lateral axis"
+            "_note": "Trailing arm: pivot AHEAD of wheel (X=-2.05 vs wheel X=-2.4). Lateral pivot axis (points differ in Y only)."
           }
         ]
       },
@@ -316,17 +316,17 @@
             "inboard_points": [
               [
                 -2.05,
-                0.2,
-                -0.2
+                0.15,
+                -0.25
               ],
               [
                 -2.05,
-                0.2,
-                -0.3
+                0.35,
+                -0.25
               ]
             ],
             "outboard_ref": "hardpoints.wheel_center",
-            "_note": "True trailing arm (pivots ahead of wheel) \u2014 pure lateral axis"
+            "_note": "Trailing arm: pivot AHEAD of wheel (X=-2.05 vs wheel X=-2.4). Lateral pivot axis (points differ in Y only)."
           }
         ]
       },
