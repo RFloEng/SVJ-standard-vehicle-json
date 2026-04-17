@@ -5,6 +5,11 @@
     "description": "BMW E30 325i (1987) \u2014 MacPherson front, semi-trailing arm rear. Factory specs from BMW.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
+    "data_origin": {
+      "type": "mixed",
+      "detail": "Factory specs from BMW for mass, wheelbase, track, engine. Suspension hardpoints and rates are engineering estimates.",
+      "confidence": "low"
+    },
     "alignment_convention": "relative_to_centerline"
   },
   "vehicle_info": {

@@ -5,6 +5,11 @@
     "description": "Skeleton: 4WD truck \u2014 MacPherson front, solid axle rear with Panhard rod.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
+    "data_origin": {
+      "type": "calculated",
+      "detail": "Skeleton example with representative values for a 4WD truck platform.",
+      "confidence": "low"
+    },
     "alignment_convention": "relative_to_centerline"
   },
   "vehicle_info": {
