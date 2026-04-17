@@ -8,9 +8,10 @@
     "created": "2026-04-15T00:00:00Z",
     "author": "SVJ Working Draft — MX-5 ND reference",
     "source_format": null,
-    "x_data_sources": {
-      "factory": "Mazda spec sheets (USA/Canada/Qatar/UK), roadster.blog, RACER.com",
-      "estimated": "Suspension hardpoints, spring/damper rates, Pacejka coefficients, inertia tensor, CG height, aero coefficients, mass decomposition. Marked with _est:true at section level."
+    "data_origin": {
+      "type": "mixed",
+      "detail": "Factory specs from Mazda press material (USA/Canada/Qatar/UK), roadster.blog, RACER.com. Suspension hardpoints, spring/damper rates, Pacejka coefficients, inertia tensor, CG height, aero coefficients, and mass decomposition are engineering estimates marked with _est:true.",
+      "confidence": "medium"
     },
     "alignment_convention": "relative_to_centerline"
   },

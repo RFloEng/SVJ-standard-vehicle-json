@@ -5,6 +5,11 @@
     "description": "Chevrolet Corvette C3 (1972) \u2014 double wishbone front, Chapman strut independent rear.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
+    "data_origin": {
+      "type": "calculated",
+      "detail": "Engineering estimates based on published Corvette C3 dimensions and typical component values.",
+      "confidence": "low"
+    },
     "alignment_convention": "relative_to_centerline"
   },
   "vehicle_info": {

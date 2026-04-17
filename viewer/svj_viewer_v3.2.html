@@ -119,6 +119,8 @@ body{background:var(--bg);color:var(--tx);font-family:'DM Sans',system-ui,sans-s
       <button class="btn" onclick="setView('left')" title="Left">△ Left</button>
       <button class="btn" onclick="setView('right')" title="Right">▽ Right</button>
       <button class="btn" onclick="setView('top')" title="Top">◻ Top</button>
+      <span style="width:1px;height:20px;background:#334;margin:0 4px;display:inline-block"></span>
+      <button class="btn" onclick="exportSTEP()" title="Export suspension geometry as STEP file for CAD" style="background:#1a3a2a;border-color:#2dd4bf">&#x2913; STEP</button>
     </div>
     <div id="controls-hint">LMB: Orbit · RMB: Pan · Scroll: Zoom · Hover: Inspect · 1-4: Corner · 0: All · R: Reset · I/F/B/L/T: Views</div>
   </div>
@@ -177,8 +179,8 @@ function resolveTireDims(corn, data) {
   const setRef = corn.tire?.set_ref || w.set_ref;
   if(setRef && data.tires?.sets?.[setRef]) {
     const dims = data.tires.sets[setRef].dimensions || {};
-    if(dims.section_width != null && !secW) secW = dims.section_width;
-    if(dims.aspect_ratio != null && !aspect) aspect = dims.aspect_ratio;
+    if(dims.section_width \!= null && \!secW) secW = dims.section_width;
+    if(dims.aspect_ratio \!= null && \!aspect) aspect = dims.aspect_ratio;
   }
   return { secW: secW || 0.205, aspect: aspect || 0.45 };
 }
@@ -310,6 +312,56 @@ function buildScene() {
     return m;
   };
   const mkL = (p1, p2, color) => new THREE.Line(new THREE.BufferGeometry().setFromPoints([p1,p2]), new THREE.LineBasicMaterial({color}));
+  // Coil spring: helix between p1 (top) and p2 (bottom)
+  const mkCoil = (p1, p2, coilR, wireR, turns, color) => {
+    const dir = new THREE.Vector3().subVectors(p2, p1);
+    const len = dir.length();
+    if(len < 0.001) return null;
+    const segs = turns * 24;
+    const pts = [];
+    for(let i = 0; i <= segs; i++) {
+      const t = i / segs;
+      const angle = t * turns * Math.PI * 2;
+      pts.push(new THREE.Vector3(Math.cos(angle) * coilR, t * len, Math.sin(angle) * coilR));
+    }
+    const curve = new THREE.CatmullRomCurve3(pts);
+    const geo = new THREE.TubeGeometry(curve, segs * 2, wireR, 6, false);
+    const mat = new THREE.MeshPhongMaterial({color, emissive: color, emissiveIntensity: 0.15, shininess: 40});
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.copy(p1);
+    mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), dir.clone().normalize());
+    return mesh;
+  };
+
+  // Damper: body cylinder (lower 55%) + rod (upper 45%) + piston cap
+  const mkDamper = (p1, p2, bodyR, rodR, color) => {
+    const dir = new THREE.Vector3().subVectors(p2, p1);
+    const len = dir.length();
+    if(len < 0.001) return null;
+    const group = new THREE.Group();
+    const dirN = dir.clone().normalize();
+    const bodyLen = len * 0.55;
+    const rodLen = len * 0.45;
+    const bodyGeo = new THREE.CylinderGeometry(bodyR, bodyR, bodyLen, 10);
+    const bodyMat = new THREE.MeshPhongMaterial({color, transparent: true, opacity: 0.8, shininess: 60});
+    const bodyMesh = new THREE.Mesh(bodyGeo, bodyMat);
+    bodyMesh.position.set(0, bodyLen/2, 0);
+    group.add(bodyMesh);
+    const rodGeo = new THREE.CylinderGeometry(rodR, rodR, rodLen, 8);
+    const rodMat = new THREE.MeshPhongMaterial({color: 0xcccccc, transparent: true, opacity: 0.85, shininess: 100, specular: 0xffffff});
+    const rodMesh = new THREE.Mesh(rodGeo, rodMat);
+    rodMesh.position.set(0, bodyLen + rodLen/2, 0);
+    group.add(rodMesh);
+    const capGeo = new THREE.CylinderGeometry(bodyR * 1.05, bodyR * 1.05, bodyR * 0.3, 10);
+    const capMat = new THREE.MeshPhongMaterial({color: 0x444444, shininess: 30});
+    const capMesh = new THREE.Mesh(capGeo, capMat);
+    capMesh.position.set(0, bodyLen, 0);
+    group.add(capMesh);
+    group.position.copy(p2);
+    group.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), dirN);
+    return group;
+  };
+
   const mkBox = (c, sx, sy, sz, color) => {
     const m = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(sx,sy,sz)), new THREE.LineBasicMaterial({color,transparent:true,opacity:0.4}));
     m.position.copy(c); return m;
@@ -382,14 +434,24 @@ function buildScene() {
       });
     });
 
-    // Spring/damper
+    // Spring (coil helix, green)
     const sp = corn.spring;
     if(sp?.inboard_mount && sp?.outboard_mount) {
       const si = sae2three(sp.inboard_mount), so = sae2three(sp.outboard_mount);
-      const st = mkT(si, so, 0.008, 0x34d27b);
-      if(st){st.userData={corner:cn};groups.springs.add(st);}
-      const s1 = mkS(si, 0.009, 0x34d27b); addP(s1, `${cn}.spring top`, cn); groups.springs.add(s1);
-      const s2 = mkS(so, 0.009, 0x34d27b); addP(s2, `${cn}.spring btm`, cn); groups.springs.add(s2);
+      const coil = mkCoil(si, so, 0.018, 0.004, 7, 0x34d27b);
+      if(coil){coil.userData={corner:cn,label:`${cn} spring\ntype: ${sp.type||'?'}\nrate: ${sp.rate||'?'} N/m`};pickables.push(coil);groups.springs.add(coil);}
+      const s1 = mkS(si, 0.009, 0x34d27b); addP(s1, `${cn}.spring top [${sp.inboard_mount.map(v=>v.toFixed(3)).join(', ')}]`, cn); groups.springs.add(s1);
+      const s2 = mkS(so, 0.009, 0x34d27b); addP(s2, `${cn}.spring btm [${sp.outboard_mount.map(v=>v.toFixed(3)).join(', ')}]`, cn); groups.springs.add(s2);
+    }
+
+    // Damper (body+rod, orange/silver)
+    const dm = corn.damper;
+    if(dm?.inboard_mount && dm?.outboard_mount) {
+      const di = sae2three(dm.inboard_mount), dout = sae2three(dm.outboard_mount);
+      const damper = mkDamper(di, dout, 0.012, 0.005, 0xff8c42);
+      if(damper){damper.userData={corner:cn,label:`${cn} damper\ntype: ${dm.type||'?'}\nMR: ${dm.motion_ratio||'?'}`};groups.springs.add(damper);}
+      const d1 = mkS(di, 0.007, 0xff8c42); addP(d1, `${cn}.damper top [${dm.inboard_mount.map(v=>v.toFixed(3)).join(', ')}]`, cn); groups.springs.add(d1);
+      const d2 = mkS(dout, 0.007, 0xff8c42); addP(d2, `${cn}.damper btm [${dm.outboard_mount.map(v=>v.toFixed(3)).join(', ')}]`, cn); groups.springs.add(d2);
     }
 
     // Wheel — realistic cylinder geometry
@@ -771,7 +833,7 @@ function renderOverview(el, data) {
     ${ch.mass_unsprung_per_corner?section('Unsprung Mass (kg)',`<div class="grid4">${['FL','FR','RL','RR'].map(c=>stat(c,fmtN(ch.mass_unsprung_per_corner[c],1),'kg')).join('')}</div>`):''}
     ${ch.mass_bodies?.length?section('Mass Bodies ('+ch.mass_bodies.length+')',`<div style="max-height:200px;overflow:auto">${ch.mass_bodies.map(mb=>`<div class="kv-row"><span class="kv-key">${mb.id}</span><span class="kv-val">${mb.mass} kg</span></div>`).join('')}</div>`):''}
   
-    ${data.steering?section('Steering',`<div class="grid2">${stat('Type',(data.steering.type||'').replace(/_/g,' '))}${stat('Ratio',fmtN(data.steering.overall_ratio,1))}${data.steering.lock_to_lock_turns?stat('Lock-Lock',fmtN(data.steering.lock_to_lock_turns,1),'turns'):data.steering.lock_to_lock?stat('Lock-Lock',fmtN(data.steering.lock_to_lock,2),'rad'):''}${data.steering.turning_circle?stat('Turn Circle',fmtN(data.steering.turning_circle,1),'m'):''}${data.steering.power_assist?.type?stat('Assist',data.steering.power_assist.type):''}${data.steering.ackermann!=null?stat('Ackermann',fmtN(data.steering.ackermann*100,0),'%'):''}</div>`):''}
+    ${data.steering?section('Steering',`<div class="grid2">${stat('Type',(data.steering.type||'').replace(/_/g,' '))}${stat('Ratio',fmtN(data.steering.overall_ratio,1))}${data.steering.lock_to_lock_turns?stat('Lock-Lock',fmtN(data.steering.lock_to_lock_turns,1),'turns'):data.steering.lock_to_lock?stat('Lock-Lock',fmtN(data.steering.lock_to_lock,2),'rad'):''}${data.steering.turning_circle?stat('Turn Circle',fmtN(data.steering.turning_circle,1),'m'):''}${data.steering.power_assist?.type?stat('Assist',data.steering.power_assist.type):''}${data.steering.ackermann\!=null?stat('Ackermann',fmtN(data.steering.ackermann*100,0),'%'):''}</div>`):''}
     ${ch.chassis_stiffness?section('Chassis Stiffness',`<div class="grid2">${ch.chassis_stiffness.torsional_stiffness?stat('Torsional',fmtN(ch.chassis_stiffness.torsional_stiffness,0),'Nm/deg'):''}${ch.chassis_stiffness.bending_stiffness?stat('Bending',fmtN(ch.chassis_stiffness.bending_stiffness,0),'N/mm'):''}</div>`):''}
   `;
 }
@@ -852,7 +914,7 @@ function renderPowertrain(el, data) {
 
 function renderTires(el, data) {
   const t = data.tires;
-  if(!t || !t.sets) { el.innerHTML='<div style="color:var(--txD)">No tire data</div>'; return; }
+  if(\!t || \!t.sets) { el.innerHTML='<div style="color:var(--txD)">No tire data</div>'; return; }
   let h = '';
   const sets = t.sets;
   const setKeys = Object.keys(sets);
@@ -895,12 +957,12 @@ function renderTires(el, data) {
       const lon = pac.longitudinal || {};
       h += '<div class="section-title" style="color:var(--pr)">Pacejka ' + (pac.model||'') + '</div>';
       h += '<div class="grid2 mb8">';
-      if(lat.pCy1!=null) h += stat('pCy1', fmtN(lat.pCy1,4));
-      if(lat.pDy1!=null) h += stat('pDy1', fmtN(lat.pDy1,4));
-      if(lat.pKy1!=null) h += stat('pKy1', fmtN(lat.pKy1,2));
-      if(lon.pCx1!=null) h += stat('pCx1', fmtN(lon.pCx1,4));
-      if(lon.pDx1!=null) h += stat('pDx1', fmtN(lon.pDx1,4));
-      if(lon.pKx1!=null) h += stat('pKx1', fmtN(lon.pKx1,2));
+      if(lat.pCy1\!=null) h += stat('pCy1', fmtN(lat.pCy1,4));
+      if(lat.pDy1\!=null) h += stat('pDy1', fmtN(lat.pDy1,4));
+      if(lat.pKy1\!=null) h += stat('pKy1', fmtN(lat.pKy1,2));
+      if(lon.pCx1\!=null) h += stat('pCx1', fmtN(lon.pCx1,4));
+      if(lon.pDx1\!=null) h += stat('pDx1', fmtN(lon.pDx1,4));
+      if(lon.pKx1\!=null) h += stat('pKx1', fmtN(lon.pKx1,2));
       h += '</div>';
     }
     if(therm.optimal_temperature || therm.mu_temperature_curve) {
@@ -922,7 +984,7 @@ function renderTires(el, data) {
 }
 
 function renderBrakes(el, data) {
-  const b=data.brakes;if(!b){el.innerHTML='No brake data';return;}
+  const b=data.brakes;if(\!b){el.innerHTML='No brake data';return;}
   const pedal=b.pedal||{};const booster=b.booster||{};const mc=b.master_cylinder||{};
   el.innerHTML=`
     <div class="flex-wrap mb8">${tag('Bias: '+((b.bias||0)*100).toFixed(0)+'% F')} ${tag(b.circuit_type||'','var(--bl)')} ${b.abs?.enabled?tag('ABS '+(b.abs.type||''),'var(--gn)'):''} ${b.esc?.enabled?tag('ESC','var(--pr)'):''}</div>
@@ -944,7 +1006,7 @@ function renderBrakes(el, data) {
 }
 
 function renderAero(el, data) {
-  const a=data.aerodynamics;if(!a){el.innerHTML='No aero data';return;}
+  const a=data.aerodynamics;if(\!a){el.innerHTML='No aero data';return;}
   const c=a.coefficients||{};const ref=a.reference||{};
   const dragId='drag-'+Math.random().toString(36).slice(2,8);
   const dragData = c.Cd&&ref.frontal_area ? Array.from({length:16},(_,i)=>{const v=(i+1)*15;const ms=v/3.6;return[v,0.5*1.225*ms*ms*c.Cd*ref.frontal_area];}) : null;
@@ -961,7 +1023,7 @@ function renderAero(el, data) {
       ${stat('Cl Front',fmtN(c.Cl_front,3))}
       ${stat('Cl Rear',fmtN(c.Cl_rear,3))}
       ${ref.frontal_area?stat('Frontal A',fmtN(ref.frontal_area,2),'m\u00b2'):''}
-      ${c.Cpm!=null?stat('Cpm',fmtN(c.Cpm,4)):''}
+      ${c.Cpm\!=null?stat('Cpm',fmtN(c.Cpm,4)):''}
     </div>
     ${cop?section('Center of Pressure','<div class="grid3">'+stat('X',fmtN(cop[0],3),'m')+stat('Y',fmtN(cop[1],3),'m')+stat('Z',fmtN(cop[2],3),'m')+'</div>'):''}
     ${dragData?chartHtml(dragId,'Drag Force vs Speed',[{name:'Drag (N)',data:dragData}],150):''}
@@ -1169,9 +1231,11 @@ function saveFile() {
   const blob = new Blob([json], {type: 'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  const name = document.getElementById('file-name').textContent.replace(/\s*\(.*\)/, '').replace(/\.json$/, '') || 'vehicle';
+  const baseName = document.getElementById('file-name').textContent.replace(/\s*\(.*\)/, '').replace(/\.svj\.json$|\.json$/, '') || 'vehicle';
+  const chosen = prompt('Save as:', baseName + '.svj.json');
+  if(\!chosen) { URL.revokeObjectURL(url); return; }
   a.href = url;
-  a.download = name + '.svj.json';
+  a.download = chosen.endsWith('.json') ? chosen : chosen + '.svj.json';
   a.click();
   URL.revokeObjectURL(url);
   // Mark as saved
@@ -1344,6 +1408,204 @@ function attachEditors(container) {
 // Override renderPanel to attach editors after render
 const _origRenderPanel = renderPanel;
 
+/* ═══════════════════════════════════════════════════
+   STEP EXPORTER  (ISO 10303-21 / AP203 wireframe)
+   Extracts suspension geometry as points + lines
+   Coordinates in mm, SAE J670 axis convention
+   ═══════════════════════════════════════════════════ */
+window.exportSTEP = function() {
+  const data = DATA;
+  if(\!data) { alert('No data loaded'); return; }
+
+  let eid = 0;
+  const ne = () => '#' + (++eid);
+  const lines = [];
+  const push = s => lines.push(s);
+
+  const pts = new Map();
+  function cpt(coord, label) {
+    if(\!coord || coord.length < 3) return null;
+    const mm = coord.map(v => (v * 1000).toFixed(4));
+    const key = mm.join(',');
+    if(pts.has(key)) return pts.get(key);
+    const id = ne();
+    push(id + "=CARTESIAN_POINT('" + (label||'') + "',(" + mm.join(',') + "));");
+    pts.set(key, id);
+    return id;
+  }
+
+  const polylines = [];
+  function seg(p1Id, p2Id, label) {
+    if(\!p1Id || \!p2Id || p1Id === p2Id) return null;
+    const id = ne();
+    push(id + "=POLYLINE('" + (label||'') + "',(" + p1Id + "," + p2Id + "));");
+    polylines.push(id);
+    return id;
+  }
+
+  // CG
+  const ch = data.chassis || {};
+  if(ch.center_of_gravity) cpt(ch.center_of_gravity, 'CG');
+
+  // Aero CoP
+  if(data.aerodynamics && data.aerodynamics.center_of_pressure)
+    cpt(data.aerodynamics.center_of_pressure, 'Aero_CoP');
+
+  // Steering rack
+  const st = data.steering;
+  if(st && st.rack_position) {
+    const rId = cpt(st.rack_position, 'steering_rack');
+    if(st.tie_rod_inboard) {
+      ['left','right'].forEach(function(side) {
+        const c = st.tie_rod_inboard[side];
+        if(c) { const tId = cpt(c, 'tie_rod_inboard_' + side); seg(rId, tId, 'rack_to_tie_rod_' + side); }
+      });
+    }
+  }
+
+  // Suspension corners
+  ['FL','FR','RL','RR'].forEach(function(cn) {
+    const corn = data.suspension ? data.suspension[cn] : null;
+    if(\!corn || \!corn.topology) return;
+    const hp = (corn.topology.upright && corn.topology.upright.hardpoints) || {};
+    const lnks = corn.topology.links || [];
+
+    const hpIds = {};
+    Object.entries(hp).forEach(function(pair) {
+      hpIds[pair[0]] = cpt(pair[1], cn + '_' + pair[0]);
+    });
+
+    lnks.forEach(function(link) {
+      const ref = (link.outboard_ref || '').replace('hardpoints.', '');
+      const obId = hpIds[ref];
+      if(\!obId) return;
+      (link.inboard_points || []).forEach(function(ip, i) {
+        const ibId = cpt(ip, cn + '_' + link.name + '_ib' + i);
+        seg(ibId, obId, cn + '_' + link.name + (i > 0 ? '_' + i : ''));
+      });
+    });
+
+    var sp2 = corn.spring;
+    if(sp2 && sp2.inboard_mount && sp2.outboard_mount) {
+      var siId = cpt(sp2.inboard_mount, cn + '_spring_top');
+      var soId = cpt(sp2.outboard_mount, cn + '_spring_btm');
+      seg(siId, soId, cn + '_spring');
+    }
+
+    var dm2 = corn.damper;
+    if(dm2 && dm2.inboard_mount && dm2.outboard_mount) {
+      var diId = cpt(dm2.inboard_mount, cn + '_damper_top');
+      var doId = cpt(dm2.outboard_mount, cn + '_damper_btm');
+      seg(diId, doId, cn + '_damper');
+    }
+
+    if(hpIds.wheel_center && hpIds.upper_ball_joint)
+      seg(hpIds.wheel_center, hpIds.upper_ball_joint, cn + '_kingpin_upper');
+    if(hpIds.wheel_center && hpIds.lower_ball_joint)
+      seg(hpIds.wheel_center, hpIds.lower_ball_joint, cn + '_kingpin_lower');
+
+    if(hpIds.steering_tie_rod_end && st && st.tie_rod_inboard) {
+      var side = cn.endsWith('L') ? 'left' : 'right';
+      var inb = st.tie_rod_inboard[side];
+      if(inb) { var ibId2 = cpt(inb, cn + '_tie_rod_inboard'); seg(ibId2, hpIds.steering_tie_rod_end, cn + '_tie_rod'); }
+    }
+
+    if(hpIds.toe_link_end) {
+      var tl = lnks.find(function(l){ return l.name === 'toe_link'; });
+      if(tl && tl.inboard_points && tl.inboard_points[0]) {
+        var tId = cpt(tl.inboard_points[0], cn + '_toe_link_ib');
+        seg(tId, hpIds.toe_link_end, cn + '_toe_link');
+      }
+    }
+  });
+
+  // Drivetrain
+  var pt2 = data.powertrain;
+  if(pt2) {
+    if(pt2.engine && pt2.engine.position) cpt(pt2.engine.position, 'engine');
+    if(pt2.gearbox && pt2.gearbox.position) cpt(pt2.gearbox.position, 'gearbox');
+    if(pt2.clutch && pt2.clutch.position) cpt(pt2.clutch.position, 'clutch');
+
+    (pt2.driveshafts || []).forEach(function(ds) {
+      var fj = ds.joint_front ? ds.joint_front.position : null;
+      var rj = ds.joint_rear ? ds.joint_rear.position : null;
+      if(fj && rj) { var fjId = cpt(fj, ds.id + '_front'); var rjId = cpt(rj, ds.id + '_rear'); seg(fjId, rjId, ds.id); }
+    });
+
+    (pt2.differentials || []).forEach(function(df) {
+      if(\!df.position) return;
+      var dId = cpt(df.position, df.id);
+      [['output_left', df.output_left], ['output_right', df.output_right]].forEach(function(pair) {
+        if(pair[1]) { var oId = cpt(pair[1], df.id + '_' + pair[0]); seg(dId, oId, df.id + '_' + pair[0]); }
+      });
+    });
+
+    if(pt2.half_shafts) Object.entries(pt2.half_shafts).forEach(function(pair) {
+      var side = pair[0], hs = pair[1];
+      var ci = hs.cv_inner ? hs.cv_inner.position : null;
+      var co = hs.cv_outer ? hs.cv_outer.position : null;
+      if(ci && co) { var ciId = cpt(ci, 'halfshaft_' + side + '_inner'); var coId = cpt(co, 'halfshaft_' + side + '_outer'); seg(ciId, coId, 'halfshaft_' + side); }
+    });
+  }
+
+  // GEOMETRIC_CURVE_SET
+  var allPtIds = Array.from(pts.values());
+  var members = allPtIds.concat(polylines).join(',');
+  var gcsId = ne();
+  push(gcsId + "=GEOMETRIC_CURVE_SET('SVJ_Suspension',(" + members + "));");
+
+  // Representation context (mm, radians)
+  var mmId = ne(); push(mmId + "=(LENGTH_UNIT()NAMED_UNIT(*)SI_UNIT(.MILLI.,.METRE.));");
+  var radId = ne(); push(radId + "=(NAMED_UNIT(*)PLANE_ANGLE_UNIT()SI_UNIT($,.RADIAN.));");
+  var srId = ne(); push(srId + "=(NAMED_UNIT(*)SI_UNIT($,.STERADIAN.)SOLID_ANGLE_UNIT());");
+  var uncId = ne(); push(uncId + "=UNCERTAINTY_MEASURE_WITH_UNIT(LENGTH_MEASURE(0.01)," + mmId + ",'distance accuracy');");
+  var ctxId = ne();
+  push(ctxId + "=(GEOMETRIC_REPRESENTATION_CONTEXT(3)GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT((" + uncId + "))GLOBAL_UNIT_ASSIGNED_CONTEXT((" + mmId + "," + radId + "," + srId + "))REPRESENTATION_CONTEXT('Context3D',''));");
+
+  var srep = ne();
+  push(srep + "=GEOMETRICALLY_BOUNDED_WIREFRAME_SHAPE_REPRESENTATION('SVJ_Suspension_Geometry',(" + gcsId + ")," + ctxId + ");");
+
+  var appCtx = ne(); push(appCtx + "=APPLICATION_CONTEXT('automotive design');");
+  var prodCtx = ne(); push(prodCtx + "=PRODUCT_CONTEXT(''," + appCtx + ",'mechanical');");
+  var vi = data.vehicle_info || {};
+  var prodName = [vi.make, vi.model, vi.year, vi.variant].filter(Boolean).join(' ') || 'SVJ Vehicle';
+  var safeName = prodName.replace(/'/g, '');
+  var prod = ne(); push(prod + "=PRODUCT('" + safeName + "','" + safeName + "','',(" + prodCtx + "));");
+  var pdf2 = ne(); push(pdf2 + "=PRODUCT_DEFINITION_FORMATION('',''," + prod + ");");
+  var pdCtx = ne(); push(pdCtx + "=PRODUCT_DEFINITION_CONTEXT('part definition'," + appCtx + ",'design');");
+  var pd = ne(); push(pd + "=PRODUCT_DEFINITION('design',''," + pdf2 + "," + pdCtx + ");");
+  var pds = ne(); push(pds + "=PRODUCT_DEFINITION_SHAPE('',''," + pd + ");");
+  var sdr = ne(); push(sdr + "=SHAPE_DEFINITION_REPRESENTATION(" + pds + "," + srep + ");");
+
+  // Assemble file
+  var now = new Date().toISOString().replace(/[-:]/g, '').split('.')[0];
+  var safeFile = prodName.replace(/[^a-zA-Z0-9_ -]/g, '');
+  var header = [
+    "ISO-10303-21;",
+    "HEADER;",
+    "FILE_DESCRIPTION(('SVJ Suspension Geometry Export'),'2;1');",
+    "FILE_NAME('" + safeFile + ".step','" + now + "',('SVJ Viewer'),(''),'',' ','');",
+    "FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));",
+    "ENDSEC;",
+    "DATA;"
+  ];
+  var footer = ["ENDSEC;", "END-ISO-10303-21;"];
+  var full = header.concat(lines).concat(footer).join('\n');
+
+  // Download with filename prompt
+  var defaultName = (prodName.replace(/[^a-zA-Z0-9_-]/g, '_') || 'svj_suspension') + '.step';
+  var chosen = prompt('Save STEP file as:', defaultName);
+  if(\!chosen) return;
+  var fileName = (chosen.endsWith('.step') || chosen.endsWith('.stp')) ? chosen : chosen + '.step';
+  var blob = new Blob([full], {type: 'application/step'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
 // Boot
 loadData(DEMO);
 animate();
@@ -1358,4 +1620,3 @@ animate();
 </div>
 </body>
 </html>
-    

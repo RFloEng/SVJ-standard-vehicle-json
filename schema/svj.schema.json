@@ -54,7 +54,43 @@
           "type": [
             "string",
             "null"
-          ]
+          ],
+          "description": "Original file format if this SVJ was converted (e.g. 'CarSim', 'Assetto Corsa'). Null for native SVJ."
+        },
+        "data_origin": {
+          "type": "object",
+          "description": "Provenance of the vehicle data in this file.",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "manufacturer",
+                "simulation",
+                "measured",
+                "calculated",
+                "mixed",
+                "unknown"
+              ],
+              "description": "Primary source of data. manufacturer = OEM spec sheets / press data. simulation = extracted from a game or sim (see detail). measured = physical test (K&C rig, dyno, laser scan). calculated = engineering estimates or derived values. mixed = combination of sources. unknown = provenance not recorded."
+            },
+            "detail": {
+              "type": "string",
+              "description": "Free-text elaboration, e.g. game title, test facility, calculation method."
+            },
+            "confidence": {
+              "type": "string",
+              "enum": [
+                "high",
+                "medium",
+                "low"
+              ],
+              "description": "Overall confidence in the dataset. high = factory or measured data dominates. medium = mix of confirmed and estimated. low = mostly estimated or unverified."
+            }
+          }
         },
         "alignment_convention": {
           "type": "string",

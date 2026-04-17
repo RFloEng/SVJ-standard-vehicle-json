@@ -5,6 +5,11 @@
     "description": "Alfa Romeo 75 2.0 Twin Spark \u2014 double wishbone front (torsion bar), De Dion tube rear with Watts link. Transaxle layout.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
+    "data_origin": {
+      "type": "calculated",
+      "detail": "Engineering estimates based on published dimensions, typical component values for the era.",
+      "confidence": "low"
+    },
     "alignment_convention": "relative_to_centerline"
   },
   "vehicle_info": {

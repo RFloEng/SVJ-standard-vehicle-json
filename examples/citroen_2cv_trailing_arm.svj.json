@@ -5,6 +5,11 @@
     "description": "Citro\u00ebn 2CV6 (1979) \u2014 trailing arm front and rear with interconnected horizontal coil springs.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
+    "data_origin": {
+      "type": "calculated",
+      "detail": "Engineering estimates based on published 2CV dimensions and known suspension geometry.",
+      "confidence": "low"
+    },
     "alignment_convention": "relative_to_centerline"
   },
   "vehicle_info": {
