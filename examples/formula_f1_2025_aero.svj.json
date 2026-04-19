@@ -1,0 +1,316 @@
+{
+  "_metadata": {
+    "specification": "SVJ",
+    "version": "0.95",
+    "description": "Formula 1 2025 generic car — full aerodynamic model with maps, components, wake, ground effect, DRS, and active wing.",
+    "coordinate_system": "SAE_J670",
+    "units": "SI",
+    "data_origin": {
+      "type": "calculated",
+      "detail": "Representative F1 aerodynamic values based on published regulations and typical CFD-derived ranges. Not from any specific team.",
+      "confidence": "low"
+    },
+    "alignment_convention": "relative_to_centerline"
+  },
+  "vehicle_info": {
+    "make": "Formula",
+    "model": "F1-2025",
+    "year": 2025,
+    "variant": "Generic aero reference",
+    "drive_type": "RWD"
+  },
+  "chassis": {
+    "mass_total": 798.0,
+    "wheelbase": 3.6,
+    "track_front": 1.6,
+    "track_rear": 1.6,
+    "center_of_gravity": [
+      -1.62,
+      0.0,
+      -0.28
+    ],
+    "_est": true
+  },
+  "aerodynamics": {
+    "reference": {
+      "frontal_area": 1.45,
+      "planform_area": 3.9,
+      "reference_length": 3.6,
+      "air_density": 1.225
+    },
+    "global_coefficients": {
+      "Cd": 0.38,
+      "Cl": -3.0,
+      "Cl_front": -1.35,
+      "Cl_rear": -1.65,
+      "Cs": 0.0,
+      "Cym": 0.0,
+      "Cm": 0.0
+    },
+    "maps": {
+      "Cl_total_vs_ride": {
+        "type": "2d",
+        "x_axis": "ride_height_front",
+        "y_axis": "ride_height_rear",
+        "values": [
+          { "x": 0.020, "y": 0.030, "value": -3.5 },
+          { "x": 0.025, "y": 0.035, "value": -3.2 },
+          { "x": 0.035, "y": 0.045, "value": -3.0 },
+          { "x": 0.050, "y": 0.050, "value": -2.8 },
+          { "x": 0.060, "y": 0.065, "value": -2.4 },
+          { "x": 0.075, "y": 0.075, "value": -2.1 }
+        ],
+        "interpolation": "bilinear",
+        "extrapolation": "clamp"
+      },
+      "Cd_vs_yaw": {
+        "type": "1d",
+        "x_axis": "yaw_angle",
+        "values": [
+          { "x": -15.0, "value": 0.62 },
+          { "x": -10.0, "value": 0.50 },
+          { "x":  -5.0, "value": 0.41 },
+          { "x":   0.0, "value": 0.38 },
+          { "x":   5.0, "value": 0.41 },
+          { "x":  10.0, "value": 0.50 },
+          { "x":  15.0, "value": 0.62 }
+        ],
+        "interpolation": "linear",
+        "extrapolation": "clamp"
+      },
+      "Cs_vs_yaw": {
+        "type": "1d",
+        "x_axis": "yaw_angle",
+        "values": [
+          { "x": -15.0, "value": -1.1 },
+          { "x": -10.0, "value": -0.75 },
+          { "x":  -5.0, "value": -0.38 },
+          { "x":   0.0, "value":  0.0 },
+          { "x":   5.0, "value":  0.38 },
+          { "x":  10.0, "value":  0.75 },
+          { "x":  15.0, "value":  1.1 }
+        ],
+        "interpolation": "linear",
+        "extrapolation": "clamp"
+      },
+      "Cym_vs_yaw": {
+        "type": "1d",
+        "x_axis": "yaw_angle",
+        "values": [
+          { "x": -15.0, "value": -0.22 },
+          { "x": -10.0, "value": -0.15 },
+          { "x":  -5.0, "value": -0.08 },
+          { "x":   0.0, "value":  0.0 },
+          { "x":   5.0, "value":  0.08 },
+          { "x":  10.0, "value":  0.15 },
+          { "x":  15.0, "value":  0.22 }
+        ],
+        "interpolation": "linear",
+        "extrapolation": "clamp"
+      },
+      "Cl_vs_pitch": {
+        "type": "1d",
+        "x_axis": "pitch_angle",
+        "values": [
+          { "x": -3.0, "value": -2.5 },
+          { "x": -1.5, "value": -2.9 },
+          { "x":  0.0, "value": -3.0 },
+          { "x":  1.0, "value": -3.2 },
+          { "x":  2.0, "value": -3.1 },
+          { "x":  3.0, "value": -2.7 }
+        ],
+        "interpolation": "linear",
+        "extrapolation": "clamp"
+      }
+    },
+    "components": [
+      {
+        "name": "front_wing",
+        "type": "multi_element",
+        "description": "3-element front wing assembly with endplates",
+        "reference": { "frontal_area": 0.22, "planform_area": 0.54 },
+        "coefficients": {
+          "Cl": -0.70,
+          "Cd": 0.09,
+          "Cs": 0.0
+        },
+        "center_of_pressure": [ 1.75, 0.0, -0.10 ],
+        "adjustable": true,
+        "adjustment_range": {
+          "min_deg": 0,
+          "max_deg": 12,
+          "neutral_deg": 6
+        },
+        "stall_angle": 18.0,
+        "maps": {
+          "Cl_vs_angle": {
+            "type": "1d",
+            "x_axis": "pitch_angle",
+            "values": [
+              { "x": 0.0,  "value": -0.45 },
+              { "x": 6.0,  "value": -0.70 },
+              { "x": 12.0, "value": -0.88 },
+              { "x": 18.0, "value": -0.60 }
+            ],
+            "interpolation": "linear",
+            "extrapolation": "clamp"
+          }
+        },
+        "influences": {
+          "floor": {
+            "efficiency_factor": 0.92,
+            "flow_angle_change": 1.5
+          },
+          "rear_wing": {
+            "efficiency_factor": 0.97,
+            "flow_angle_change": 0.3
+          }
+        }
+      },
+      {
+        "name": "rear_wing",
+        "type": "multi_element",
+        "description": "2-element rear wing with DRS flap",
+        "reference": { "frontal_area": 0.30, "planform_area": 0.42 },
+        "coefficients": {
+          "Cl": -1.00,
+          "Cd": 0.11,
+          "Cs": 0.0
+        },
+        "center_of_pressure": [ -1.60, 0.0, 0.55 ],
+        "adjustable": true,
+        "adjustment_range": {
+          "min_deg": -5,
+          "max_deg": 15,
+          "neutral_deg": 5
+        },
+        "stall_angle": 22.0,
+        "influences": {
+          "rear_diffuser": {
+            "efficiency_factor": 0.85,
+            "flow_angle_change": 2.5
+          }
+        }
+      },
+      {
+        "name": "floor",
+        "type": "fixed",
+        "description": "Ground-effect venturi floor with edge sealing",
+        "reference": { "planform_area": 2.8 },
+        "coefficients": {
+          "Cl": -1.60,
+          "Cd": 0.08
+        },
+        "center_of_pressure": [ -1.20, 0.0, -0.02 ],
+        "_note": "Primary downforce source. Highly sensitive to ride height — see ground_effect section."
+      },
+      {
+        "name": "rear_diffuser",
+        "type": "fixed",
+        "description": "Rear diffuser section of the floor",
+        "reference": { "frontal_area": 0.18, "planform_area": 0.6 },
+        "coefficients": {
+          "Cl": -0.55,
+          "Cd": 0.04
+        },
+        "center_of_pressure": [ -2.10, 0.0, 0.05 ]
+      },
+      {
+        "name": "front_bodywork",
+        "type": "fixed",
+        "description": "Nose, chassis, sidepod leading edges",
+        "reference": { "frontal_area": 0.60 },
+        "coefficients": {
+          "Cl": -0.05,
+          "Cd": 0.04
+        },
+        "center_of_pressure": [ 0.50, 0.0, -0.20 ]
+      },
+      {
+        "name": "rear_bodywork",
+        "type": "fixed",
+        "description": "Engine cover, sidepod exits, beam wing area",
+        "reference": { "frontal_area": 0.40 },
+        "coefficients": {
+          "Cl": -0.10,
+          "Cd": 0.02
+        },
+        "center_of_pressure": [ -1.80, 0.0, 0.15 ]
+      }
+    ],
+    "wake": {
+      "enabled": true,
+      "distance_effect": {
+        "type": "exponential",
+        "max_effect_distance": 25.0,
+        "downforce_loss_ratio_at_1m": 0.45,
+        "drag_reduction_ratio_at_1m": 0.22
+      },
+      "lateral_offset_effect": {
+        "type": "gaussian",
+        "half_width": 1.2
+      },
+      "turbulence_intensity": {
+        "yaw_noise_std_dev": 1.5
+      },
+      "_note": "2025 ground-effect regs reduce wake severity vs. pre-2022 cars."
+    },
+    "ground_effect": {
+      "underbody_Cl_map": {
+        "type": "2d",
+        "x_axis": "ride_height_front",
+        "y_axis": "ride_height_rear",
+        "values": [
+          { "x": 0.015, "y": 0.025, "value": -2.2 },
+          { "x": 0.020, "y": 0.030, "value": -2.0 },
+          { "x": 0.025, "y": 0.035, "value": -1.8 },
+          { "x": 0.035, "y": 0.045, "value": -1.5 },
+          { "x": 0.050, "y": 0.050, "value": -1.2 },
+          { "x": 0.075, "y": 0.075, "value": -0.7 }
+        ],
+        "interpolation": "bilinear",
+        "extrapolation": "clamp"
+      },
+      "tire_squirt": {
+        "enabled": true,
+        "front_tyre_rotation_effect": 0.08,
+        "rear_tyre_rotation_effect": 0.05,
+        "reference_speed": 67.0
+      },
+      "sealing_strips": {
+        "front_splitter_gap_sensitivity": -12.0,
+        "side_skirt_gap_sensitivity": -8.5
+      }
+    },
+    "active_systems": {
+      "drs": {
+        "enabled": true,
+        "component_ref": "rear_wing",
+        "activation_conditions": {
+          "speed_min": 85.0,
+          "driver_override": true,
+          "max_lateral_accel": 4.0
+        },
+        "effect": {
+          "Cd_reduction": 0.07,
+          "Cl_reduction_magnitude": 0.45
+        },
+        "transition_time": 0.3
+      },
+      "active_wing": {
+        "enabled": true,
+        "component_ref": "front_wing",
+        "type": "pid_controlled",
+        "target_aero_balance": 0.42,
+        "actuator_delay": 0.05,
+        "angle_range": [ 0, 12 ],
+        "Cl_range": [ -0.45, -0.88 ],
+        "Cd_range": [ 0.06, 0.12 ],
+        "response_time": 0.15,
+        "_note": "Not legal in current F1 regs — included for simulator reference."
+      }
+    },
+    "_est": true,
+    "_est_note": "All values are representative of a 2025-spec F1 car, not from any specific team data."
+  }
+}
