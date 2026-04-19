@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:svj:schema:v0.94",
+  "$id": "urn:svj:schema:v0.95",
   "title": "Standard Vehicle JSON (SVJ)",
-  "description": "Schema for SVJ v0.94 — universal vehicle dynamics exchange format.",
+  "description": "Schema for SVJ v0.95 \u2014 universal vehicle dynamics exchange format. Adds professional-grade aerodynamics.",
   "type": "object",
   "required": [
     "_metadata"
@@ -30,7 +30,7 @@
         },
         "version": {
           "type": "string",
-          "const": "0.94"
+          "const": "0.95"
         },
         "description": {
           "type": "string"
@@ -940,6 +940,7 @@
         "reference"
       ],
       "additionalProperties": true,
+      "description": "Aerodynamic model. v0.95 adds maps, components with influences, wake, ground_effect, and active_systems.",
       "properties": {
         "reference": {
           "type": "object",
@@ -950,25 +951,30 @@
           "properties": {
             "frontal_area": {
               "type": "number",
-              "exclusiveMinimum": 0
+              "exclusiveMinimum": 0,
+              "description": "Projected frontal area (m\u00b2)"
             },
             "planform_area": {
               "type": "number",
-              "exclusiveMinimum": 0
+              "exclusiveMinimum": 0,
+              "description": "Projected top-view area (m\u00b2)"
             },
             "reference_length": {
               "type": "number",
-              "exclusiveMinimum": 0
+              "exclusiveMinimum": 0,
+              "description": "Wheelbase or characteristic length (m)"
             },
             "air_density": {
               "type": "number",
-              "exclusiveMinimum": 0
+              "exclusiveMinimum": 0,
+              "description": "Default air density (kg/m\u00b3). Default 1.225 at sea level."
             }
           }
         },
         "coefficients": {
           "type": "object",
           "additionalProperties": true,
+          "description": "Legacy v0.94 static coefficients. Prefer global_coefficients for v0.95.",
           "properties": {
             "Cd": {
               "type": "number"
@@ -996,56 +1002,350 @@
             }
           }
         },
+        "global_coefficients": {
+          "$ref": "#/definitions/aero_coefficients",
+          "description": "Fallback static coefficients when maps or components are not defined."
+        },
         "maps": {
           "type": "object",
-          "additionalProperties": true,
-          "properties": {
-            "Cd_vs_yaw": {
-              "$ref": "#/definitions/curve2d"
-            },
-            "Cl_front_vs_ride_height": {
-              "$ref": "#/definitions/curve2d"
-            },
-            "Cl_rear_vs_ride_height": {
-              "$ref": "#/definitions/curve2d"
-            },
-            "Cl_vs_pitch": {
-              "$ref": "#/definitions/curve2d"
-            },
-            "Cs_vs_yaw": {
-              "$ref": "#/definitions/curve2d"
-            },
-            "Cym_vs_yaw": {
-              "$ref": "#/definitions/curve2d"
-            },
-            "Cd_vs_ride_height": {
-              "$ref": "#/definitions/curve2d"
-            }
-          }
+          "additionalProperties": {
+            "$ref": "#/definitions/aero_map"
+          },
+          "description": "Named lookup maps for aerodynamic coefficients vs. vehicle state variables."
         },
         "center_of_pressure": {
           "$ref": "#/definitions/vec3"
         },
         "components": {
           "type": "array",
+          "minItems": 1,
           "items": {
-            "$ref": "#/definitions/aero_component"
-          },
-          "minItems": 1
+            "type": "object",
+            "required": [
+              "name"
+            ],
+            "additionalProperties": true,
+            "description": "Individual aerodynamic component (wing, diffuser, splitter, etc.)",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Unique identifier for this component, used for references."
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "fixed",
+                  "multi_element",
+                  "adjustable",
+                  "wing",
+                  "splitter",
+                  "diffuser",
+                  "spoiler",
+                  "canard",
+                  "flat_floor",
+                  "vortex_generator",
+                  "other"
+                ],
+                "description": "Component form factor or behavior class."
+              },
+              "description": {
+                "type": "string"
+              },
+              "reference": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Per-component reference overrides (e.g. component frontal_area).",
+                "properties": {
+                  "frontal_area": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "planform_area": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  }
+                }
+              },
+              "coefficients": {
+                "$ref": "#/definitions/aero_coefficients"
+              },
+              "maps": {
+                "type": "object",
+                "additionalProperties": {
+                  "$ref": "#/definitions/aero_map"
+                },
+                "description": "Per-coefficient maps for this component."
+              },
+              "center_of_pressure": {
+                "$ref": "#/definitions/vec3"
+              },
+              "position": {
+                "$ref": "#/definitions/vec3",
+                "description": "Mounting position of the component."
+              },
+              "mass": {
+                "type": "number",
+                "minimum": 0
+              },
+              "area": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "adjustable": {
+                "type": "boolean"
+              },
+              "adjustment_range": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Angular adjustment range for adjustable components.",
+                "properties": {
+                  "min_deg": {
+                    "type": "number"
+                  },
+                  "max_deg": {
+                    "type": "number"
+                  },
+                  "neutral_deg": {
+                    "type": "number"
+                  }
+                }
+              },
+              "stall_angle": {
+                "type": "number",
+                "description": "Angle of attack (deg) where downforce drops sharply."
+              },
+              "influences": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {
+                    "efficiency_factor": {
+                      "type": "number",
+                      "description": "Multiplier on the influenced component's effectiveness (0-1)."
+                    },
+                    "flow_angle_change": {
+                      "type": "number",
+                      "description": "Change in flow angle (deg) arriving at the influenced component."
+                    }
+                  }
+                },
+                "description": "Influence on other named components. Keys are component names."
+              },
+              "Cd_contribution": {
+                "type": "number"
+              },
+              "Cl_contribution": {
+                "type": "number"
+              },
+              "settings": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "name"
+                  ],
+                  "additionalProperties": true,
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "angle": {
+                      "type": "number"
+                    },
+                    "Cd": {
+                      "type": "number"
+                    },
+                    "Cl": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "minItems": 1
+              }
+            }
+          }
+        },
+        "wake": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Slipstream / dirty air model for following another vehicle.",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "distance_effect": {
+              "type": "object",
+              "additionalProperties": true,
+              "description": "How aero losses vary with distance to car ahead.",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "exponential",
+                    "linear"
+                  ]
+                },
+                "max_effect_distance": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "description": "Distance (m) beyond which wake effects are negligible."
+                },
+                "downforce_loss_ratio_at_1m": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1,
+                  "description": "Fraction of downforce lost at 1m following distance."
+                },
+                "drag_reduction_ratio_at_1m": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1,
+                  "description": "Fraction of drag reduced at 1m following distance."
+                }
+              }
+            },
+            "lateral_offset_effect": {
+              "type": "object",
+              "additionalProperties": true,
+              "description": "Lateral sensitivity of wake effects.",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "gaussian",
+                    "linear"
+                  ]
+                },
+                "half_width": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "description": "Half-width (m) of the wake cone."
+                }
+              }
+            },
+            "turbulence_intensity": {
+              "type": "object",
+              "additionalProperties": true,
+              "description": "Turbulence-induced instability in the wake.",
+              "properties": {
+                "yaw_noise_std_dev": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Standard deviation of yaw noise (deg) induced by turbulence."
+                }
+              }
+            }
+          }
+        },
+        "ground_effect": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Underbody aerodynamics: ride-height sensitivity, tire squirt, sealing.",
+          "properties": {
+            "underbody_Cl_map": {
+              "$ref": "#/definitions/aero_map",
+              "description": "2D map of underbody Cl vs. front and rear ride heights."
+            },
+            "tire_squirt": {
+              "type": "object",
+              "additionalProperties": true,
+              "description": "Effect of rotating tires on underbody airflow.",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "front_tyre_rotation_effect": {
+                  "type": "number",
+                  "description": "Cl penalty from front tire rotation (positive = less downforce)."
+                },
+                "rear_tyre_rotation_effect": {
+                  "type": "number",
+                  "description": "Cl penalty from rear tire rotation."
+                },
+                "reference_speed": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "description": "Speed (m/s) at which the rotation effects are characterized."
+                }
+              }
+            },
+            "sealing_strips": {
+              "type": "object",
+              "additionalProperties": true,
+              "description": "Sensitivity of underbody aero to seal gaps.",
+              "properties": {
+                "front_splitter_gap_sensitivity": {
+                  "type": "number",
+                  "description": "dCl/d(gap) for front splitter seal (1/m)."
+                },
+                "side_skirt_gap_sensitivity": {
+                  "type": "number",
+                  "description": "dCl/d(gap) for side skirt seal (1/m)."
+                }
+              }
+            }
+          }
         },
         "active_systems": {
           "type": "object",
           "additionalProperties": true,
+          "description": "Active aerodynamic devices: DRS, active wings, active ride height.",
           "properties": {
             "drs": {
               "type": "object",
               "additionalProperties": true,
+              "description": "Drag Reduction System.",
               "properties": {
                 "enabled": {
                   "type": "boolean"
                 },
                 "component_ref": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "Name of the component affected by DRS."
+                },
+                "activation_conditions": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "description": "Conditions under which DRS can activate.",
+                  "properties": {
+                    "speed_min": {
+                      "type": "number",
+                      "minimum": 0,
+                      "description": "Minimum speed (m/s) to activate."
+                    },
+                    "driver_override": {
+                      "type": "boolean",
+                      "description": "Whether the driver can manually trigger DRS."
+                    },
+                    "max_lateral_accel": {
+                      "type": "number",
+                      "minimum": 0,
+                      "description": "Maximum lateral acceleration (m/s\u00b2) for activation."
+                    }
+                  }
+                },
+                "effect": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "description": "Aero changes when DRS is open.",
+                  "properties": {
+                    "Cd_reduction": {
+                      "type": "number",
+                      "minimum": 0,
+                      "description": "Absolute reduction in Cd."
+                    },
+                    "Cl_reduction_magnitude": {
+                      "type": "number",
+                      "minimum": 0,
+                      "description": "Absolute reduction in downforce (Cl magnitude decreases)."
+                    }
+                  }
+                },
+                "transition_time": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "description": "Time (s) for DRS to fully open/close."
                 },
                 "setting_ref": {
                   "type": "string"
@@ -1053,10 +1353,6 @@
                 "activation_speed": {
                   "type": "number",
                   "minimum": 0
-                },
-                "transition_time": {
-                  "type": "number",
-                  "exclusiveMinimum": 0
                 }
               }
             },
@@ -1084,12 +1380,33 @@
             "active_wing": {
               "type": "object",
               "additionalProperties": true,
+              "description": "Closed-loop active wing control.",
               "properties": {
                 "enabled": {
                   "type": "boolean"
                 },
                 "component_ref": {
                   "type": "string"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "pid_controlled",
+                    "map_controlled",
+                    "manual"
+                  ],
+                  "description": "Control strategy for the active wing."
+                },
+                "target_aero_balance": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1,
+                  "description": "Target front aero balance fraction (0-1) for PID control."
+                },
+                "actuator_delay": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Actuator response delay (s)."
                 },
                 "angle_range": {
                   "type": "array",
@@ -1839,7 +2156,7 @@
                   "inertia": {
                     "type": "number",
                     "minimum": 0,
-                    "description": "Rotational inertia about pivot axis (kg·m²)"
+                    "description": "Rotational inertia about pivot axis (kg\u00b7m\u00b2)"
                   },
                   "cg_position": {
                     "$ref": "#/definitions/vec3",
@@ -2057,7 +2374,7 @@
             "mass": {
               "type": "number",
               "minimum": 0,
-              "description": "Damper mass (kg). Body = sprung, rod+piston ≈ unsprung."
+              "description": "Damper mass (kg). Body = sprung, rod+piston \u2248 unsprung."
             }
           }
         },
@@ -2090,7 +2407,7 @@
             "mass": {
               "type": "number",
               "minimum": 0,
-              "description": "ARB bar mass for this axle (kg). Shared between both corners — enter full bar mass, not half."
+              "description": "ARB bar mass for this axle (kg). Shared between both corners \u2014 enter full bar mass, not half."
             }
           }
         },
@@ -2940,7 +3257,7 @@
             "rotational_inertia": {
               "type": "number",
               "minimum": 0,
-              "description": "Disc spin inertia about wheel axis (kg·m²). Added to wheel rotational_inertia for total spinning mass."
+              "description": "Disc spin inertia about wheel axis (kg\u00b7m\u00b2). Added to wheel rotational_inertia for total spinning mass."
             }
           }
         },
@@ -3475,6 +3792,151 @@
         },
         "preload": {
           "$ref": "#/definitions/vec3"
+        }
+      }
+    },
+    "aero_map_point_1d": {
+      "type": "object",
+      "required": [
+        "x",
+        "value"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "value": {
+          "type": "number"
+        }
+      }
+    },
+    "aero_map_point_2d": {
+      "type": "object",
+      "required": [
+        "x",
+        "y",
+        "value"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "value": {
+          "type": "number"
+        }
+      }
+    },
+    "aero_map": {
+      "type": "object",
+      "required": [
+        "type",
+        "x_axis",
+        "values"
+      ],
+      "additionalProperties": true,
+      "description": "Aerodynamic lookup map. 1D maps use x_axis + aero_map_point_1d values. 2D maps add y_axis + aero_map_point_2d values.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "1d",
+            "2d"
+          ]
+        },
+        "x_axis": {
+          "type": "string",
+          "enum": [
+            "ride_height_front",
+            "ride_height_rear",
+            "yaw_angle",
+            "pitch_angle",
+            "steering_angle",
+            "speed"
+          ],
+          "description": "Independent variable for the X axis."
+        },
+        "y_axis": {
+          "type": "string",
+          "enum": [
+            "ride_height_front",
+            "ride_height_rear",
+            "yaw_angle",
+            "pitch_angle",
+            "steering_angle",
+            "speed"
+          ],
+          "description": "Independent variable for the Y axis (2D maps only)."
+        },
+        "values": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/definitions/aero_map_point_1d"
+              },
+              {
+                "$ref": "#/definitions/aero_map_point_2d"
+              }
+            ]
+          }
+        },
+        "interpolation": {
+          "type": "string",
+          "enum": [
+            "linear",
+            "bilinear",
+            "cubic"
+          ],
+          "description": "Interpolation method. Use linear for 1D, bilinear for 2D. Cubic optional."
+        },
+        "extrapolation": {
+          "type": "string",
+          "enum": [
+            "clamp",
+            "extrapolate"
+          ],
+          "description": "Behavior outside the data range."
+        }
+      }
+    },
+    "aero_coefficients": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Set of aerodynamic force/moment coefficients.",
+      "properties": {
+        "Cd": {
+          "type": "number",
+          "description": "Drag coefficient"
+        },
+        "Cl": {
+          "type": "number",
+          "description": "Lift coefficient (negative = downforce)"
+        },
+        "Cl_front": {
+          "type": "number",
+          "description": "Front axle lift coefficient"
+        },
+        "Cl_rear": {
+          "type": "number",
+          "description": "Rear axle lift coefficient"
+        },
+        "Cs": {
+          "type": "number",
+          "description": "Side force coefficient"
+        },
+        "Cym": {
+          "type": "number",
+          "description": "Yaw moment coefficient"
+        },
+        "Cm": {
+          "type": "number",
+          "description": "Pitch moment coefficient"
         }
       }
     }

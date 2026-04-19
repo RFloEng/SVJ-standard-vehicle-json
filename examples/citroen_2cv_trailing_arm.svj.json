@@ -1,8 +1,8 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.94",
-    "description": "Citro\u00ebn 2CV6 (1979) \u2014 trailing arm front and rear with interconnected horizontal coil springs.",
+    "version": "0.95",
+    "description": "Citroën 2CV6 (1979) — trailing arm front and rear with interconnected horizontal coil springs.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
     "data_origin": {
@@ -13,7 +13,7 @@
     "alignment_convention": "relative_to_centerline"
   },
   "vehicle_info": {
-    "make": "Citro\u00ebn",
+    "make": "Citroën",
     "model": "2CV6",
     "year": 1979,
     "variant": "602cc",

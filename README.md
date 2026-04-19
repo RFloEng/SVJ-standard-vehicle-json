@@ -24,7 +24,7 @@ An SVJ file describes the complete physical vehicle:
 - **Tires** — 4 model types in one file: Pacejka MF 5.2/6.2 (80+ coefficients), TMeasy (~20 params), brush model (~10 params), plus external file references for FTire, CDTire, MF-Swift
 - **Brakes** — full force chain from pedal through booster and master cylinder to caliper, per-corner discs with mass and thermal properties, ABS/ESC
 - **Drivetrain** — engine, clutch, gearbox, transfer case, propshafts with joints, differentials (including asymmetric LSD ramp angles), half-shafts with CV joints that match the upright hardpoints
-- **Aerodynamics** — coefficients, sensitivity maps, individual components (wings, splitters, diffusers), active systems (DRS, active ride height)
+- **Aerodynamics** — coefficients, 1D/2D sensitivity maps (ride height, yaw, pitch, speed), individual components with cross-influences, wake/dirty air model, ground effect (underbody, tire squirt, sealing), active systems (DRS, PID-controlled active wings, active ride height)
 - **Electric/Hybrid** — motors (P0 through P4 and in-wheel), battery pack with thermal model, inverters, regenerative braking
 - **Cooling** — thermal circuits with radiator, pump, thermostat
 - **Driver controls** — throttle mapping, brake feel, traction control, launch control
@@ -65,6 +65,7 @@ Real vehicles and skeleton files covering all 10 suspension topologies:
 | FF Hatchback (skeleton) | FF | `macpherson` | `torsion_beam` | Generic |
 | AWD EV Sedan (skeleton) | AWD | `double_wishbone` | `double_wishbone` | Generic |
 | 4WD Pickup (skeleton) | 4WD | `macpherson` | `solid_axle` + Panhard | Generic |
+| Formula F1-2025 | RWD | — | — | Generic aero reference |
 
 ## Repo Structure
 
@@ -72,7 +73,7 @@ Real vehicles and skeleton files covering all 10 suspension topologies:
 spec/SVJ_Spec.md                        Full specification (2026 lines, 124 sections)
 schema/svj.schema.json                  JSON Schema Draft-07
 templates/mazda_mx5_nd2_2024.svj.json   Complete reference vehicle (3285 lines)
-examples/                               7 example vehicles (4 real + 3 skeletons)
+examples/                               8 example vehicles (4 real + 3 skeletons + 1 aero reference)
 tools/validate.py                       Schema + consistency validation
 viewer/index.html                       Interactive SVJ file viewer (drag & drop)
 ```
@@ -87,7 +88,7 @@ SVJ to any target is a deterministic downsampling — you're projecting rich dat
 
 ## Status
 
-**v0.94 — v1.0 Release Candidate.** Spec frozen for parser development. See [CHANGELOG.md](CHANGELOG.md) for full history.
+**v0.95 — v1.0 Release Candidate.** Adds professional-grade aerodynamics (maps, components, wake, ground effect, active systems). See [CHANGELOG.md](CHANGELOG.md).
 
 ## What's Next
 
