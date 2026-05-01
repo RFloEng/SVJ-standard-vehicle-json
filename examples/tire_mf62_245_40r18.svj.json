@@ -1,0 +1,161 @@
+{
+  "_metadata": {
+    "specification": "SVJ",
+    "version": "0.95",
+    "description": "MF6.2 tire example — ultra-high performance summer 245/40R18 with full Pacejka coefficients.",
+    "coordinate_system": "SAE_J670",
+    "units": "SI",
+    "data_origin": {
+      "type": "calculated",
+      "detail": "Representative MF6.2 coefficients for a UHP summer tire. Not from physical test data.",
+      "confidence": "low"
+    },
+    "alignment_convention": "relative_to_centerline"
+  },
+  "tires": {
+    "sets": {
+      "sport_245_40r18_mf62": {
+        "description": "Ultra-high performance summer tire — MF6.2 coefficients with pressure dependency",
+        "size_code": "245/40R18",
+        "source": "estimated",
+        "dimensions": {
+          "section_width": 0.245,
+          "aspect_ratio": 0.40,
+          "rim_diameter_code": 18,
+          "overall_diameter": 0.653,
+          "section_height": 0.098,
+          "tread_width": 0.210
+        },
+        "construction": {
+          "mass": 10.2,
+          "vertical_stiffness": 235000,
+          "vertical_damping": 480,
+          "lateral_stiffness": 135000,
+          "rolling_radius": 0.312,
+          "ply_type": "radial",
+          "speed_rating": "Y",
+          "load_index": 94
+        },
+        "reference": {
+          "load": 4500.0,
+          "pressure": 230000.0,
+          "speed": 25.0,
+          "camber": 0.0
+        },
+        "pacejka": {
+          "model": "MF62",
+          "longitudinal": {
+            "pCx1": 1.685,
+            "pDx1": 1.210,
+            "pDx2": -0.092,
+            "pDx3": 6.500,
+            "pEx1": 0.480,
+            "pEx2": 0.045,
+            "pEx3": -0.082,
+            "pEx4": 0.0,
+            "pKx1": 26.800,
+            "pKx2": -0.185,
+            "pKx3": 0.520,
+            "pHx1": 0.0004,
+            "pHx2": 0.0015,
+            "pVx1": 0.0,
+            "pVx2": 0.0,
+            "pPx1": 0.120,
+            "pPx2": 0.850,
+            "pPx3": 0.320
+          },
+          "lateral": {
+            "pCy1": 1.425,
+            "pDy1": 1.125,
+            "pDy2": -0.185,
+            "pDy3": -3.200,
+            "pEy1": -0.680,
+            "pEy2": -0.415,
+            "pEy3": 0.085,
+            "pEy4": -6.800,
+            "pEy5": 0.0,
+            "pKy1": -18.500,
+            "pKy2": 2.250,
+            "pKy3": 0.450,
+            "pKy4": 2.800,
+            "pKy5": 0.0,
+            "pKy6": -0.950,
+            "pKy7": -0.280,
+            "pHy1": 0.0045,
+            "pHy2": 0.0009,
+            "pHy3": 0.052,
+            "pVy1": 0.058,
+            "pVy2": -0.018,
+            "pVy3": -0.285,
+            "pVy4": -0.195,
+            "pPy1": 2.850,
+            "pPy2": 28.500
+          },
+          "aligning": {
+            "qBz1": 10.250,
+            "qBz2": -1.350,
+            "qBz3": -0.980,
+            "qBz4": 0.850,
+            "qBz5": -0.285,
+            "qBz9": 22.000,
+            "qBz10": 0.0,
+            "qCz1": 1.250,
+            "qDz1": 0.125,
+            "qDz2": -0.0045,
+            "qDz3": 0.0,
+            "qDz4": 6.500,
+            "qDz6": -0.0045,
+            "qDz7": 0.0032,
+            "qDz8": -0.720,
+            "qDz9": 0.185,
+            "qEz1": -1.850,
+            "qEz2": -0.580,
+            "qEz3": 0.0,
+            "qEz4": 0.225,
+            "qEz5": -0.895,
+            "qHz1": 0.0075,
+            "qHz2": 0.0042,
+            "qHz3": 0.142,
+            "qHz4": -0.062
+          },
+          "overturning": {
+            "qsx1": 0.0,
+            "qsx2": 0.0,
+            "qsx3": 0.0
+          },
+          "rolling_resistance": {
+            "qsy1": 0.01,
+            "qsy2": 0.0,
+            "qsy3": 0.0004,
+            "qsy4": 0.0
+          },
+          "combined": {
+            "rBx1": 14.200,
+            "rBx2": 12.500,
+            "rBx3": 0.0,
+            "rCx1": 1.085,
+            "rHx1": 0.0075,
+            "rBy1": 8.650,
+            "rBy2": 6.850,
+            "rBy3": -0.032,
+            "rBy4": 0.0,
+            "rCy1": 1.095,
+            "rHy1": 0.0115,
+            "rVy1": 0.0,
+            "rVy2": 0.0,
+            "rVy3": 0.0,
+            "rVy4": 25.000,
+            "rVy5": 2.500,
+            "rVy6": 12.500
+          }
+        },
+        "relaxation": {
+          "lateral": 0.420,
+          "longitudinal": 0.125
+        },
+        "pressure": 230000.0,
+        "temperature_nominal": 85.0
+      }
+    }
+  }
+}
