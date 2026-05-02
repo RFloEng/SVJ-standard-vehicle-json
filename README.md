@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/svj_logo.png" alt="SVJ Logo" width="200"/>
+</p>
+
 # SVJ — Standard Vehicle JSON
 
 ### A Rosetta Stone for vehicle simulation.
