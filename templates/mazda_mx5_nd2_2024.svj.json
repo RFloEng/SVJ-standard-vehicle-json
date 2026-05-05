@@ -1,12 +1,12 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.95",
-    "description": "Mazda MX-5 ND2 (2019+) 2.0L Skyactiv-G 6MT Club — factory specs where available, engineering estimates marked.",
+    "version": "0.96",
+    "description": "Mazda MX-5 ND2 (2019+) 2.0L Skyactiv-G 6MT Club \u2014 factory specs where available, engineering estimates marked.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
     "created": "2026-04-15T00:00:00Z",
-    "author": "SVJ Working Draft — MX-5 ND reference",
+    "author": "SVJ Working Draft \u2014 MX-5 ND reference",
     "source_format": null,
     "data_origin": {
       "type": "mixed",
@@ -582,7 +582,7 @@
                 "rate_y": 500000,
                 "rate_z": 500000,
                 "_est": true,
-                "_est_note": "Tie rod ends are ball joints — very stiff, minimal compliance"
+                "_est_note": "Tie rod ends are ball joints \u2014 very stiff, minimal compliance"
               }
             ],
             "mass": 0.8,
@@ -1038,7 +1038,7 @@
                 "rate_y": 500000,
                 "rate_z": 500000,
                 "_est": true,
-                "_est_note": "Tie rod ends are ball joints — very stiff, minimal compliance"
+                "_est_note": "Tie rod ends are ball joints \u2014 very stiff, minimal compliance"
               }
             ],
             "mass": 0.8,
@@ -2268,7 +2268,7 @@
   "tires": {
     "sets": {
       "front_205_45r17": {
-        "description": "High-performance summer 205/45R17 — Bridgestone Potenza S001 (OEM equivalent)",
+        "description": "High-performance summer 205/45R17 \u2014 Bridgestone Potenza S001 (OEM equivalent)",
         "size_code": "205/45R17",
         "source": "fitted",
         "dimensions": {
@@ -2545,13 +2545,13 @@
             "type": "mftyre",
             "version": "MF6.2",
             "file": "./tires/front_205_45r17.tir",
-            "description": "Pacejka MF 6.2 .tir file — for use with Adams/Tire or MF-Tool",
-            "_note": "Reference placeholder — file not included in this template"
+            "description": "Pacejka MF 6.2 .tir file \u2014 for use with Adams/Tire or MF-Tool",
+            "_note": "Reference placeholder \u2014 file not included in this template"
           }
         ]
       },
       "rear_205_45r17": {
-        "description": "High-performance summer 205/45R17 — rear (same as front, square setup)",
+        "description": "High-performance summer 205/45R17 \u2014 rear (same as front, square setup)",
         "size_code": "205/45R17",
         "source": "fitted",
         "dimensions": {
@@ -2828,8 +2828,8 @@
             "type": "mftyre",
             "version": "MF6.2",
             "file": "./tires/rear_205_45r17.tir",
-            "description": "Pacejka MF 6.2 .tir file — for use with Adams/Tire or MF-Tool",
-            "_note": "Reference placeholder — file not included in this template"
+            "description": "Pacejka MF 6.2 .tir file \u2014 for use with Adams/Tire or MF-Tool",
+            "_note": "Reference placeholder \u2014 file not included in this template"
           }
         ]
       }

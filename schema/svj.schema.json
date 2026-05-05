@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:svj:schema:v0.95",
+  "$id": "urn:svj:schema:v0.96",
   "title": "Standard Vehicle JSON (SVJ)",
-  "description": "Schema for SVJ v0.95 \u2014 universal vehicle dynamics exchange format. Adds professional-grade aerodynamics.",
+  "description": "Schema for SVJ v0.96 — universal vehicle dynamics exchange format. Adds multibody topology extension (marker orientations, explicit joint types, body references) for direct exchange with professional MBD tools (ADAMS/Car, Simpack, MBD for ANSYS).",
   "type": "object",
   "required": [
     "_metadata"
@@ -30,7 +30,7 @@
         },
         "version": {
           "type": "string",
-          "const": "0.95"
+          "const": "0.96"
         },
         "description": {
           "type": "string"
@@ -952,12 +952,12 @@
             "frontal_area": {
               "type": "number",
               "exclusiveMinimum": 0,
-              "description": "Projected frontal area (m\u00b2)"
+              "description": "Projected frontal area (m²)"
             },
             "planform_area": {
               "type": "number",
               "exclusiveMinimum": 0,
-              "description": "Projected top-view area (m\u00b2)"
+              "description": "Projected top-view area (m²)"
             },
             "reference_length": {
               "type": "number",
@@ -967,7 +967,7 @@
             "air_density": {
               "type": "number",
               "exclusiveMinimum": 0,
-              "description": "Default air density (kg/m\u00b3). Default 1.225 at sea level."
+              "description": "Default air density (kg/m³). Default 1.225 at sea level."
             }
           }
         },
@@ -1321,7 +1321,7 @@
                     "max_lateral_accel": {
                       "type": "number",
                       "minimum": 0,
-                      "description": "Maximum lateral acceleration (m/s\u00b2) for activation."
+                      "description": "Maximum lateral acceleration (m/s²) for activation."
                     }
                   }
                 },
@@ -2065,8 +2065,16 @@
                 },
                 "hardpoints": {
                   "type": "object",
+                  "description": "Named key-points on the upright. Each value is either a plain [x,y,z] vec3 (backward-compatible) or a marker object with position + optional orientation quaternion for multibody tools.",
                   "additionalProperties": {
-                    "$ref": "#/definitions/vec3"
+                    "oneOf": [
+                      {
+                        "$ref": "#/definitions/vec3"
+                      },
+                      {
+                        "$ref": "#/definitions/marker"
+                      }
+                    ]
                   },
                   "minProperties": 1
                 },
@@ -2100,6 +2108,10 @@
                 "cg_position": {
                   "$ref": "#/definitions/vec3",
                   "description": "Upright CG in vehicle frame (m)"
+                },
+                "body_ref": {
+                  "type": "string",
+                  "description": "Reference to a mass_body id in chassis.mass_bodies that represents this upright/knuckle as a rigid body. Used by multibody tools to link geometry to body mass properties."
                 }
               }
             },
@@ -2156,7 +2168,7 @@
                   "inertia": {
                     "type": "number",
                     "minimum": 0,
-                    "description": "Rotational inertia about pivot axis (kg\u00b7m\u00b2)"
+                    "description": "Rotational inertia about pivot axis (kg·m²)"
                   },
                   "cg_position": {
                     "$ref": "#/definitions/vec3",
@@ -2173,6 +2185,36 @@
                         "description": "Fraction of link mass that counts as sprung (0.0-1.0). Remainder is unsprung."
                       }
                     }
+                  },
+                  "joint_type": {
+                    "type": "string",
+                    "enum": [
+                      "spherical",
+                      "revolute",
+                      "cylindrical",
+                      "translational",
+                      "universal",
+                      "fixed",
+                      "planar",
+                      "convel",
+                      "hooke"
+                    ],
+                    "description": "Joint type at the outboard connection (link-to-upright). If omitted, inferred from system_type by the converter."
+                  },
+                  "inboard_joint_type": {
+                    "type": "string",
+                    "enum": [
+                      "revolute",
+                      "spherical",
+                      "cylindrical",
+                      "fixed",
+                      "bushing"
+                    ],
+                    "description": "Joint type at the inboard connection(s) (link-to-chassis). Default: revolute for arms, spherical for rods."
+                  },
+                  "body_ref": {
+                    "type": "string",
+                    "description": "Reference to a mass_body id in chassis.mass_bodies that represents this link as a rigid body. Used by multibody tools."
                   }
                 }
               },
@@ -2326,10 +2368,26 @@
               "exclusiveMinimum": 0
             },
             "inboard_mount": {
-              "$ref": "#/definitions/vec3"
+              "description": "Spring inboard mount. Plain vec3 or marker with optional orientation for multibody tools.",
+              "oneOf": [
+                {
+                  "$ref": "#/definitions/vec3"
+                },
+                {
+                  "$ref": "#/definitions/marker"
+                }
+              ]
             },
             "outboard_mount": {
-              "$ref": "#/definitions/vec3"
+              "description": "Spring outboard mount. Plain vec3 or marker with optional orientation for multibody tools.",
+              "oneOf": [
+                {
+                  "$ref": "#/definitions/vec3"
+                },
+                {
+                  "$ref": "#/definitions/marker"
+                }
+              ]
             },
             "mass": {
               "type": "number",
@@ -2366,15 +2424,31 @@
               "exclusiveMinimum": 0
             },
             "inboard_mount": {
-              "$ref": "#/definitions/vec3"
+              "description": "Damper inboard mount. Plain vec3 or marker with optional orientation for multibody tools.",
+              "oneOf": [
+                {
+                  "$ref": "#/definitions/vec3"
+                },
+                {
+                  "$ref": "#/definitions/marker"
+                }
+              ]
             },
             "outboard_mount": {
-              "$ref": "#/definitions/vec3"
+              "description": "Damper outboard mount. Plain vec3 or marker with optional orientation for multibody tools.",
+              "oneOf": [
+                {
+                  "$ref": "#/definitions/vec3"
+                },
+                {
+                  "$ref": "#/definitions/marker"
+                }
+              ]
             },
             "mass": {
               "type": "number",
               "minimum": 0,
-              "description": "Damper mass (kg). Body = sprung, rod+piston \u2248 unsprung."
+              "description": "Damper mass (kg). Body = sprung, rod+piston ≈ unsprung."
             }
           }
         },
@@ -2407,7 +2481,7 @@
             "mass": {
               "type": "number",
               "minimum": 0,
-              "description": "ARB bar mass for this axle (kg). Shared between both corners \u2014 enter full bar mass, not half."
+              "description": "ARB bar mass for this axle (kg). Shared between both corners — enter full bar mass, not half."
             }
           }
         },
@@ -2649,6 +2723,18 @@
             }
           },
           "additionalProperties": true
+        },
+        "parent": {
+          "type": "string",
+          "description": "Parent body id. Defaults to 'ground' for the main chassis body, 'chassis' for suspension components. Used by multibody solvers to build the topology graph.",
+          "default": "chassis"
+        },
+        "markers": {
+          "type": "object",
+          "description": "Named reference frames fixed to this body. Each entry provides a position in the vehicle frame and an optional orientation quaternion. Equivalent to ADAMS MARKERs on a PART.",
+          "additionalProperties": {
+            "$ref": "#/definitions/marker"
+          }
         }
       }
     },
@@ -3257,7 +3343,7 @@
             "rotational_inertia": {
               "type": "number",
               "minimum": 0,
-              "description": "Disc spin inertia about wheel axis (kg\u00b7m\u00b2). Added to wheel rotational_inertia for total spinning mass."
+              "description": "Disc spin inertia about wheel axis (kg·m²). Added to wheel rotational_inertia for total spinning mass."
             }
           }
         },
@@ -3791,7 +3877,12 @@
           "$ref": "#/definitions/curve2d"
         },
         "preload": {
-          "$ref": "#/definitions/vec3"
+          "$ref": "#/definitions/vec3",
+          "description": "Bushing preload forces [Fx, Fy, Fz] in N along the bushing local axes."
+        },
+        "orientation": {
+          "$ref": "#/definitions/orientation",
+          "description": "Orientation of the bushing stiffness frame relative to the vehicle frame. Aligns the rate_x/y/z axes with the bushing’s local coordinate system. Default: identity (aligned with vehicle axes)."
         }
       }
     },
@@ -3937,6 +4028,37 @@
         "Cm": {
           "type": "number",
           "description": "Pitch moment coefficient"
+        }
+      }
+    },
+    "orientation": {
+      "description": "Orientation as unit quaternion [qx, qy, qz, qw] relative to the vehicle frame. Default: [0,0,0,1] (identity — aligned with vehicle axes).",
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 4,
+      "maxItems": 4,
+      "default": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    "marker": {
+      "description": "A named reference frame: position in the vehicle frame plus an optional orientation quaternion. Equivalent to an ADAMS MARKER.",
+      "type": "object",
+      "required": [
+        "position"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "position": {
+          "$ref": "#/definitions/vec3"
+        },
+        "orientation": {
+          "$ref": "#/definitions/orientation"
         }
       }
     }
