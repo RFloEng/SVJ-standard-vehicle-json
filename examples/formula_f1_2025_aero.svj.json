@@ -1,8 +1,8 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.95",
-    "description": "Formula 1 2025 generic car — full aerodynamic model with maps, components, wake, ground effect, DRS, and active wing.",
+    "version": "0.96",
+    "description": "Formula 1 2025 generic car \u2014 full aerodynamic model with maps, components, wake, ground effect, DRS, and active wing.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
     "data_origin": {
@@ -53,12 +53,36 @@
         "x_axis": "ride_height_front",
         "y_axis": "ride_height_rear",
         "values": [
-          { "x": 0.020, "y": 0.030, "value": -3.5 },
-          { "x": 0.025, "y": 0.035, "value": -3.2 },
-          { "x": 0.035, "y": 0.045, "value": -3.0 },
-          { "x": 0.050, "y": 0.050, "value": -2.8 },
-          { "x": 0.060, "y": 0.065, "value": -2.4 },
-          { "x": 0.075, "y": 0.075, "value": -2.1 }
+          {
+            "x": 0.02,
+            "y": 0.03,
+            "value": -3.5
+          },
+          {
+            "x": 0.025,
+            "y": 0.035,
+            "value": -3.2
+          },
+          {
+            "x": 0.035,
+            "y": 0.045,
+            "value": -3.0
+          },
+          {
+            "x": 0.05,
+            "y": 0.05,
+            "value": -2.8
+          },
+          {
+            "x": 0.06,
+            "y": 0.065,
+            "value": -2.4
+          },
+          {
+            "x": 0.075,
+            "y": 0.075,
+            "value": -2.1
+          }
         ],
         "interpolation": "bilinear",
         "extrapolation": "clamp"
@@ -67,13 +91,34 @@
         "type": "1d",
         "x_axis": "yaw_angle",
         "values": [
-          { "x": -15.0, "value": 0.62 },
-          { "x": -10.0, "value": 0.50 },
-          { "x":  -5.0, "value": 0.41 },
-          { "x":   0.0, "value": 0.38 },
-          { "x":   5.0, "value": 0.41 },
-          { "x":  10.0, "value": 0.50 },
-          { "x":  15.0, "value": 0.62 }
+          {
+            "x": -15.0,
+            "value": 0.62
+          },
+          {
+            "x": -10.0,
+            "value": 0.5
+          },
+          {
+            "x": -5.0,
+            "value": 0.41
+          },
+          {
+            "x": 0.0,
+            "value": 0.38
+          },
+          {
+            "x": 5.0,
+            "value": 0.41
+          },
+          {
+            "x": 10.0,
+            "value": 0.5
+          },
+          {
+            "x": 15.0,
+            "value": 0.62
+          }
         ],
         "interpolation": "linear",
         "extrapolation": "clamp"
@@ -82,13 +127,34 @@
         "type": "1d",
         "x_axis": "yaw_angle",
         "values": [
-          { "x": -15.0, "value": -1.1 },
-          { "x": -10.0, "value": -0.75 },
-          { "x":  -5.0, "value": -0.38 },
-          { "x":   0.0, "value":  0.0 },
-          { "x":   5.0, "value":  0.38 },
-          { "x":  10.0, "value":  0.75 },
-          { "x":  15.0, "value":  1.1 }
+          {
+            "x": -15.0,
+            "value": -1.1
+          },
+          {
+            "x": -10.0,
+            "value": -0.75
+          },
+          {
+            "x": -5.0,
+            "value": -0.38
+          },
+          {
+            "x": 0.0,
+            "value": 0.0
+          },
+          {
+            "x": 5.0,
+            "value": 0.38
+          },
+          {
+            "x": 10.0,
+            "value": 0.75
+          },
+          {
+            "x": 15.0,
+            "value": 1.1
+          }
         ],
         "interpolation": "linear",
         "extrapolation": "clamp"
@@ -97,13 +163,34 @@
         "type": "1d",
         "x_axis": "yaw_angle",
         "values": [
-          { "x": -15.0, "value": -0.22 },
-          { "x": -10.0, "value": -0.15 },
-          { "x":  -5.0, "value": -0.08 },
-          { "x":   0.0, "value":  0.0 },
-          { "x":   5.0, "value":  0.08 },
-          { "x":  10.0, "value":  0.15 },
-          { "x":  15.0, "value":  0.22 }
+          {
+            "x": -15.0,
+            "value": -0.22
+          },
+          {
+            "x": -10.0,
+            "value": -0.15
+          },
+          {
+            "x": -5.0,
+            "value": -0.08
+          },
+          {
+            "x": 0.0,
+            "value": 0.0
+          },
+          {
+            "x": 5.0,
+            "value": 0.08
+          },
+          {
+            "x": 10.0,
+            "value": 0.15
+          },
+          {
+            "x": 15.0,
+            "value": 0.22
+          }
         ],
         "interpolation": "linear",
         "extrapolation": "clamp"
@@ -112,12 +199,30 @@
         "type": "1d",
         "x_axis": "pitch_angle",
         "values": [
-          { "x": -3.0, "value": -2.5 },
-          { "x": -1.5, "value": -2.9 },
-          { "x":  0.0, "value": -3.0 },
-          { "x":  1.0, "value": -3.2 },
-          { "x":  2.0, "value": -3.1 },
-          { "x":  3.0, "value": -2.7 }
+          {
+            "x": -3.0,
+            "value": -2.5
+          },
+          {
+            "x": -1.5,
+            "value": -2.9
+          },
+          {
+            "x": 0.0,
+            "value": -3.0
+          },
+          {
+            "x": 1.0,
+            "value": -3.2
+          },
+          {
+            "x": 2.0,
+            "value": -3.1
+          },
+          {
+            "x": 3.0,
+            "value": -2.7
+          }
         ],
         "interpolation": "linear",
         "extrapolation": "clamp"
@@ -128,13 +233,20 @@
         "name": "front_wing",
         "type": "multi_element",
         "description": "3-element front wing assembly with endplates",
-        "reference": { "frontal_area": 0.22, "planform_area": 0.54 },
+        "reference": {
+          "frontal_area": 0.22,
+          "planform_area": 0.54
+        },
         "coefficients": {
-          "Cl": -0.70,
+          "Cl": -0.7,
           "Cd": 0.09,
           "Cs": 0.0
         },
-        "center_of_pressure": [ 1.75, 0.0, -0.10 ],
+        "center_of_pressure": [
+          1.75,
+          0.0,
+          -0.1
+        ],
         "adjustable": true,
         "adjustment_range": {
           "min_deg": 0,
@@ -147,10 +259,22 @@
             "type": "1d",
             "x_axis": "pitch_angle",
             "values": [
-              { "x": 0.0,  "value": -0.45 },
-              { "x": 6.0,  "value": -0.70 },
-              { "x": 12.0, "value": -0.88 },
-              { "x": 18.0, "value": -0.60 }
+              {
+                "x": 0.0,
+                "value": -0.45
+              },
+              {
+                "x": 6.0,
+                "value": -0.7
+              },
+              {
+                "x": 12.0,
+                "value": -0.88
+              },
+              {
+                "x": 18.0,
+                "value": -0.6
+              }
             ],
             "interpolation": "linear",
             "extrapolation": "clamp"
@@ -171,13 +295,20 @@
         "name": "rear_wing",
         "type": "multi_element",
         "description": "2-element rear wing with DRS flap",
-        "reference": { "frontal_area": 0.30, "planform_area": 0.42 },
+        "reference": {
+          "frontal_area": 0.3,
+          "planform_area": 0.42
+        },
         "coefficients": {
-          "Cl": -1.00,
+          "Cl": -1.0,
           "Cd": 0.11,
           "Cs": 0.0
         },
-        "center_of_pressure": [ -1.60, 0.0, 0.55 ],
+        "center_of_pressure": [
+          -1.6,
+          0.0,
+          0.55
+        ],
         "adjustable": true,
         "adjustment_range": {
           "min_deg": -5,
@@ -196,46 +327,71 @@
         "name": "floor",
         "type": "fixed",
         "description": "Ground-effect venturi floor with edge sealing",
-        "reference": { "planform_area": 2.8 },
+        "reference": {
+          "planform_area": 2.8
+        },
         "coefficients": {
-          "Cl": -1.60,
+          "Cl": -1.6,
           "Cd": 0.08
         },
-        "center_of_pressure": [ -1.20, 0.0, -0.02 ],
-        "_note": "Primary downforce source. Highly sensitive to ride height — see ground_effect section."
+        "center_of_pressure": [
+          -1.2,
+          0.0,
+          -0.02
+        ],
+        "_note": "Primary downforce source. Highly sensitive to ride height \u2014 see ground_effect section."
       },
       {
         "name": "rear_diffuser",
         "type": "fixed",
         "description": "Rear diffuser section of the floor",
-        "reference": { "frontal_area": 0.18, "planform_area": 0.6 },
+        "reference": {
+          "frontal_area": 0.18,
+          "planform_area": 0.6
+        },
         "coefficients": {
           "Cl": -0.55,
           "Cd": 0.04
         },
-        "center_of_pressure": [ -2.10, 0.0, 0.05 ]
+        "center_of_pressure": [
+          -2.1,
+          0.0,
+          0.05
+        ]
       },
       {
         "name": "front_bodywork",
         "type": "fixed",
         "description": "Nose, chassis, sidepod leading edges",
-        "reference": { "frontal_area": 0.60 },
+        "reference": {
+          "frontal_area": 0.6
+        },
         "coefficients": {
           "Cl": -0.05,
           "Cd": 0.04
         },
-        "center_of_pressure": [ 0.50, 0.0, -0.20 ]
+        "center_of_pressure": [
+          0.5,
+          0.0,
+          -0.2
+        ]
       },
       {
         "name": "rear_bodywork",
         "type": "fixed",
         "description": "Engine cover, sidepod exits, beam wing area",
-        "reference": { "frontal_area": 0.40 },
+        "reference": {
+          "frontal_area": 0.4
+        },
         "coefficients": {
-          "Cl": -0.10,
+          "Cl": -0.1,
           "Cd": 0.02
         },
-        "center_of_pressure": [ -1.80, 0.0, 0.15 ]
+        "center_of_pressure": [
+          -1.8,
+          0.0,
+          0.15
+        ]
       }
     ],
     "wake": {
@@ -261,12 +417,36 @@
         "x_axis": "ride_height_front",
         "y_axis": "ride_height_rear",
         "values": [
-          { "x": 0.015, "y": 0.025, "value": -2.2 },
-          { "x": 0.020, "y": 0.030, "value": -2.0 },
-          { "x": 0.025, "y": 0.035, "value": -1.8 },
-          { "x": 0.035, "y": 0.045, "value": -1.5 },
-          { "x": 0.050, "y": 0.050, "value": -1.2 },
-          { "x": 0.075, "y": 0.075, "value": -0.7 }
+          {
+            "x": 0.015,
+            "y": 0.025,
+            "value": -2.2
+          },
+          {
+            "x": 0.02,
+            "y": 0.03,
+            "value": -2.0
+          },
+          {
+            "x": 0.025,
+            "y": 0.035,
+            "value": -1.8
+          },
+          {
+            "x": 0.035,
+            "y": 0.045,
+            "value": -1.5
+          },
+          {
+            "x": 0.05,
+            "y": 0.05,
+            "value": -1.2
+          },
+          {
+            "x": 0.075,
+            "y": 0.075,
+            "value": -0.7
+          }
         ],
         "interpolation": "bilinear",
         "extrapolation": "clamp"
@@ -303,11 +483,20 @@
         "type": "pid_controlled",
         "target_aero_balance": 0.42,
         "actuator_delay": 0.05,
-        "angle_range": [ 0, 12 ],
-        "Cl_range": [ -0.45, -0.88 ],
-        "Cd_range": [ 0.06, 0.12 ],
+        "angle_range": [
+          0,
+          12
+        ],
+        "Cl_range": [
+          -0.45,
+          -0.88
+        ],
+        "Cd_range": [
+          0.06,
+          0.12
+        ],
         "response_time": 0.15,
-        "_note": "Not legal in current F1 regs — included for simulator reference."
+        "_note": "Not legal in current F1 regs \u2014 included for simulator reference."
       }
     },
     "_est": true,

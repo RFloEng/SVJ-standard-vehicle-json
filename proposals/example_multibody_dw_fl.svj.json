@@ -1,0 +1,630 @@
+{
+  "_metadata": {
+    "specification": "SVJ",
+    "version": "0.96",
+    "description": "Double wishbone FL corner \u2014 multibody topology extension demo (v0.96 proposal)",
+    "coordinate_system": "SAE_J670",
+    "units": "SI",
+    "author": "RFloEng",
+    "data_origin": {
+      "type": "calculated",
+      "detail": "Estimated values for topology extension demonstration",
+      "confidence": "low"
+    }
+  },
+  "chassis": {
+    "mass_total": 1420.0,
+    "wheelbase": 2.65,
+    "track_front": 1.62,
+    "track_rear": 1.6,
+    "center_of_gravity": [
+      -1.25,
+      0.0,
+      -0.48
+    ],
+    "inertia": {
+      "Ixx": 580,
+      "Iyy": 2450,
+      "Izz": 2650,
+      "Ixz": -120
+    },
+    "mass_bodies": [
+      {
+        "id": "chassis_body",
+        "description": "Main chassis structure",
+        "category": "structural",
+        "mass": 285.0,
+        "position": [
+          -1.48,
+          0.0,
+          -0.35
+        ],
+        "inertia": {
+          "Ixx": 180,
+          "Iyy": 850,
+          "Izz": 920,
+          "Ixy": 0,
+          "Ixz": -45,
+          "Iyz": 0
+        },
+        "parent": "ground",
+        "markers": {
+          "uca_front_mount_fl": {
+            "position": [
+              0.14,
+              -0.3,
+              -0.44
+            ],
+            "orientation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          "uca_rear_mount_fl": {
+            "position": [
+              -0.14,
+              -0.3,
+              -0.44
+            ],
+            "orientation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          "lca_front_mount_fl": {
+            "position": [
+              0.2,
+              -0.26,
+              -0.14
+            ],
+            "orientation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          "lca_rear_mount_fl": {
+            "position": [
+              -0.18,
+              -0.26,
+              -0.14
+            ],
+            "orientation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          "spring_top_fl": {
+            "position": [
+              0.02,
+              -0.42,
+              -0.55
+            ],
+            "orientation": [
+              0.087,
+              0,
+              0,
+              0.996
+            ]
+          },
+          "damper_top_fl": {
+            "position": [
+              0.02,
+              -0.4,
+              -0.56
+            ],
+            "orientation": [
+              0.087,
+              0,
+              0,
+              0.996
+            ]
+          },
+          "steering_rack_fl": {
+            "position": [
+              0.08,
+              -0.18,
+              -0.22
+            ],
+            "orientation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        }
+      },
+      {
+        "id": "upright_fl_body",
+        "description": "Front-left upright/knuckle",
+        "category": "structural",
+        "mass": 8.2,
+        "position": [
+          0.0,
+          -0.72,
+          -0.29
+        ],
+        "parent": "chassis_body",
+        "inertia": {
+          "Ixx": 0.045,
+          "Iyy": 0.042,
+          "Izz": 0.038,
+          "Ixy": 0.0,
+          "Ixz": 0.001,
+          "Iyz": 0.0
+        },
+        "markers": {
+          "upper_ball_joint": {
+            "position": [
+              0.0,
+              -0.65,
+              -0.44
+            ],
+            "orientation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          "lower_ball_joint": {
+            "position": [
+              0.0,
+              -0.68,
+              -0.14
+            ],
+            "orientation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          "wheel_center": {
+            "position": [
+              0.0,
+              -0.81,
+              -0.33
+            ],
+            "orientation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          "tie_rod_outer": {
+            "position": [
+              -0.04,
+              -0.66,
+              -0.2
+            ],
+            "orientation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          "caliper_mount": {
+            "position": [
+              0.0,
+              -0.74,
+              -0.3
+            ],
+            "orientation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        }
+      },
+      {
+        "id": "upper_arm_fl_body",
+        "description": "Front-left upper control arm",
+        "category": "structural",
+        "mass": 2.8,
+        "position": [
+          0.0,
+          -0.475,
+          -0.44
+        ],
+        "parent": "chassis_body",
+        "inertia": {
+          "Ixx": 0.012,
+          "Iyy": 0.085,
+          "Izz": 0.082,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        }
+      },
+      {
+        "id": "lower_arm_fl_body",
+        "description": "Front-left lower control arm",
+        "category": "structural",
+        "mass": 3.5,
+        "position": [
+          0.01,
+          -0.47,
+          -0.14
+        ],
+        "parent": "chassis_body",
+        "inertia": {
+          "Ixx": 0.015,
+          "Iyy": 0.11,
+          "Izz": 0.105,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        }
+      },
+      {
+        "id": "tie_rod_fl_body",
+        "description": "Front-left tie rod",
+        "category": "structural",
+        "mass": 0.9,
+        "position": [
+          0.02,
+          -0.42,
+          -0.21
+        ],
+        "parent": "chassis_body",
+        "inertia": {
+          "Ixx": 0.001,
+          "Iyy": 0.018,
+          "Izz": 0.018,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        }
+      }
+    ]
+  },
+  "suspension": {
+    "FL": {
+      "topology": {
+        "system_type": "double_wishbone",
+        "upright": {
+          "id": "upright_fl",
+          "body_ref": "upright_fl_body",
+          "mass": 8.2,
+          "cg_position": [
+            0.0,
+            -0.72,
+            -0.29
+          ],
+          "inertia": {
+            "Ixx": 0.045,
+            "Iyy": 0.042,
+            "Izz": 0.038,
+            "Ixz": 0.001
+          },
+          "hardpoints": {
+            "upper_ball_joint": [
+              0.0,
+              -0.65,
+              -0.44
+            ],
+            "lower_ball_joint": [
+              0.0,
+              -0.68,
+              -0.14
+            ],
+            "wheel_center": [
+              0.0,
+              -0.81,
+              -0.33
+            ],
+            "tie_rod_outer": [
+              -0.04,
+              -0.66,
+              -0.2
+            ]
+          },
+          "x_hardpoint_orientations_note": "v0.96 proposal: hardpoints accept {position, orientation} object form. All identity here."
+        },
+        "links": [
+          {
+            "name": "upper_wishbone",
+            "type": "arm",
+            "body_ref": "upper_arm_fl_body",
+            "joint_type": "spherical",
+            "inboard_joint_type": "revolute",
+            "inboard_points": [
+              [
+                0.14,
+                -0.3,
+                -0.44
+              ],
+              [
+                -0.14,
+                -0.3,
+                -0.44
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_ball_joint",
+            "bushings": [
+              {
+                "rate_x": 80000,
+                "rate_y": 25000,
+                "rate_z": 25000,
+                "rate_rx": 150,
+                "rate_ry": 150,
+                "rate_rz": 150,
+                "orientation": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "preload": [
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "rate_x": 80000,
+                "rate_y": 25000,
+                "rate_z": 25000,
+                "rate_rx": 150,
+                "rate_ry": 150,
+                "rate_rz": 150,
+                "orientation": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "preload": [
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ],
+            "mass": 2.8,
+            "cg_position": [
+              0.0,
+              -0.475,
+              -0.44
+            ],
+            "mass_distribution": {
+              "sprung_fraction": 0.5
+            }
+          },
+          {
+            "name": "lower_wishbone",
+            "type": "arm",
+            "body_ref": "lower_arm_fl_body",
+            "joint_type": "spherical",
+            "inboard_joint_type": "revolute",
+            "inboard_points": [
+              [
+                0.2,
+                -0.26,
+                -0.14
+              ],
+              [
+                -0.18,
+                -0.26,
+                -0.14
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_ball_joint",
+            "bushings": [
+              {
+                "rate_x": 120000,
+                "rate_y": 40000,
+                "rate_z": 40000,
+                "rate_rx": 200,
+                "rate_ry": 200,
+                "rate_rz": 200,
+                "orientation": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "preload": [
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "rate_x": 120000,
+                "rate_y": 40000,
+                "rate_z": 40000,
+                "rate_rx": 200,
+                "rate_ry": 200,
+                "rate_rz": 200,
+                "orientation": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "preload": [
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ],
+            "mass": 3.5,
+            "cg_position": [
+              0.01,
+              -0.47,
+              -0.14
+            ],
+            "mass_distribution": {
+              "sprung_fraction": 0.5
+            }
+          },
+          {
+            "name": "tie_rod",
+            "type": "rod",
+            "body_ref": "tie_rod_fl_body",
+            "joint_type": "spherical",
+            "inboard_joint_type": "spherical",
+            "inboard_points": [
+              [
+                0.08,
+                -0.18,
+                -0.22
+              ]
+            ],
+            "outboard_ref": "hardpoints.tie_rod_outer",
+            "mass": 0.9,
+            "cg_position": [
+              0.02,
+              -0.42,
+              -0.21
+            ]
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.4572,
+        "rim_width": 0.2286,
+        "rim_offset": 0.045,
+        "loaded_radius": 0.326,
+        "mass": 9.8,
+        "rotational_inertia": 0.72,
+        "center": [
+          0.0,
+          -0.81,
+          -0.33
+        ],
+        "spindle_axis": [
+          0.0,
+          -1.0,
+          0.0
+        ]
+      },
+      "spring": {
+        "type": "coil",
+        "rate": 35000,
+        "free_length": 0.28,
+        "preload": 420,
+        "motion_ratio": 0.65,
+        "inboard_mount": [
+          0.02,
+          -0.42,
+          -0.55
+        ],
+        "outboard_mount": [
+          0.02,
+          -0.5,
+          -0.18
+        ],
+        "x_mount_orientation_proposed": {
+          "inboard": [
+            0.087,
+            0,
+            0,
+            0.996
+          ],
+          "outboard": [
+            0.087,
+            0,
+            0,
+            0.996
+          ],
+          "_note": "v0.96 proposal: mounts accept {position, orientation} object form"
+        }
+      },
+      "damper": {
+        "type": "monotube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.05,
+            800
+          ],
+          [
+            0.15,
+            1800
+          ],
+          [
+            0.3,
+            3200
+          ],
+          [
+            0.5,
+            4800
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            -0.05,
+            -1200
+          ],
+          [
+            -0.15,
+            -2800
+          ],
+          [
+            -0.3,
+            -4500
+          ],
+          [
+            -0.5,
+            -6200
+          ]
+        ],
+        "motion_ratio": 0.65,
+        "inboard_mount": [
+          0.02,
+          -0.4,
+          -0.56
+        ],
+        "outboard_mount": [
+          0.02,
+          -0.48,
+          -0.16
+        ],
+        "x_mount_orientation_proposed": {
+          "inboard": [
+            0.087,
+            0,
+            0,
+            0.996
+          ],
+          "outboard": [
+            0.087,
+            0,
+            0,
+            0.996
+          ],
+          "_note": "v0.96 proposal: mounts accept {position, orientation} object form"
+        }
+      },
+      "alignment": {
+        "camber": -1.2,
+        "toe": 0.08,
+        "caster": 6.5,
+        "kpi": 12.8
+      }
+    }
+  }
+}

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/svj_logo.png" alt="SVJ Logo" width="200"/>
+  <img src="docs/SVJ%20logo.png" alt="SVJ Logo" width="200"/>
 </p>
 
 # SVJ — Standard Vehicle JSON
@@ -92,7 +92,7 @@ SVJ to any target is a deterministic downsampling — you're projecting rich dat
 
 ## Status
 
-**v0.95 — v1.0 Release Candidate.** Adds professional-grade aerodynamics (maps, components, wake, ground effect, active systems). See [CHANGELOG.md](CHANGELOG.md).
+**v0.96 — v1.0 Release Candidate.** Adds multibody topology (explicit joints, marker orientations, body references) for ADAMS/Simpack compatibility, and professional-grade aerodynamics (maps, components, wake, ground effect, active systems). See [CHANGELOG.md](CHANGELOG.md).
 
 ## What's Next
 

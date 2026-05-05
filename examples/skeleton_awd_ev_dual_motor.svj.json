@@ -1,8 +1,8 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.95",
-    "description": "Skeleton: AWD BEV with dual motors — double wishbone all corners.",
+    "version": "0.96",
+    "description": "Skeleton: AWD BEV with dual motors \u2014 double wishbone all corners.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
     "data_origin": {
