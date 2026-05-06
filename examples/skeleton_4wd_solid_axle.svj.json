@@ -28,6 +28,176 @@
       -1.55,
       0.0,
       -0.62
+    ],
+    "mass_bodies": [
+      {
+        "id": "upright_fl",
+        "description": "Front Left upright/knuckle",
+        "category": "structural",
+        "mass": 7.5,
+        "position": [
+          0.0,
+          -0.7067,
+          -0.4133
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "strut_fl",
+        "description": "Front Left strut",
+        "category": "structural",
+        "mass": 4.5,
+        "position": [
+          0.0,
+          -0.58,
+          -0.7
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "lower_control_arm_fl",
+        "description": "Front Left lower control arm",
+        "category": "structural",
+        "mass": 3.5,
+        "position": [
+          0.0067,
+          -0.4,
+          -0.16
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "upright_fr",
+        "description": "Front Right upright/knuckle",
+        "category": "structural",
+        "mass": 7.5,
+        "position": [
+          0.0,
+          0.7067,
+          -0.4133
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "strut_fr",
+        "description": "Front Right strut",
+        "category": "structural",
+        "mass": 4.5,
+        "position": [
+          0.0,
+          0.58,
+          -0.7
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "lower_control_arm_fr",
+        "description": "Front Right lower control arm",
+        "category": "structural",
+        "mass": 3.5,
+        "position": [
+          0.0067,
+          0.4,
+          -0.16
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "upright_rl",
+        "description": "Rear Left upright/knuckle",
+        "category": "structural",
+        "mass": 2.5,
+        "position": [
+          -3.2,
+          -0.68,
+          -0.312
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "upper_trailing_link_rl",
+        "description": "Rear Left upper trailing link",
+        "category": "structural",
+        "mass": 2.0,
+        "position": [
+          -3.0,
+          -0.45,
+          -0.5
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "lower_trailing_link_rl",
+        "description": "Rear Left lower trailing link",
+        "category": "structural",
+        "mass": 2.0,
+        "position": [
+          -3.0,
+          -0.465,
+          -0.18
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "panhard_rod_rl",
+        "description": "Rear Left panhard rod",
+        "category": "structural",
+        "mass": 2.0,
+        "position": [
+          -3.2,
+          -0.05,
+          -0.335
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "upright_rr",
+        "description": "Rear Right upright/knuckle",
+        "category": "structural",
+        "mass": 2.5,
+        "position": [
+          -3.2,
+          0.68,
+          -0.312
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "upper_trailing_link_rr",
+        "description": "Rear Right upper trailing link",
+        "category": "structural",
+        "mass": 2.0,
+        "position": [
+          -3.0,
+          0.45,
+          -0.5
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "lower_trailing_link_rr",
+        "description": "Rear Right lower trailing link",
+        "category": "structural",
+        "mass": 2.0,
+        "position": [
+          -3.0,
+          0.465,
+          -0.18
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "panhard_rod_rr",
+        "description": "Rear Right panhard rod",
+        "category": "structural",
+        "mass": 2.0,
+        "position": [
+          -3.2,
+          0.05,
+          -0.335
+        ],
+        "parent": "chassis"
+      }
     ]
   },
   "suspension": {
@@ -52,7 +222,14 @@
               -0.84,
               -0.38
             ]
-          }
+          },
+          "body_ref": "upright_fl",
+          "mass": 7.5,
+          "cg_position": [
+            0.0,
+            -0.7067,
+            -0.4133
+          ]
         },
         "links": [
           {
@@ -65,7 +242,16 @@
                 -0.7
               ]
             ],
-            "outboard_ref": "hardpoints.strut_top"
+            "outboard_ref": "hardpoints.strut_top",
+            "joint_type": "translational",
+            "inboard_joint_type": "fixed",
+            "body_ref": "strut_fl",
+            "mass": 4.5,
+            "cg_position": [
+              0.0,
+              -0.58,
+              -0.7
+            ]
           },
           {
             "name": "lower_control_arm",
@@ -82,7 +268,16 @@
                 -0.16
               ]
             ],
-            "outboard_ref": "hardpoints.lower_ball_joint"
+            "outboard_ref": "hardpoints.lower_ball_joint",
+            "joint_type": "spherical",
+            "inboard_joint_type": "revolute",
+            "body_ref": "lower_control_arm_fl",
+            "mass": 3.5,
+            "cg_position": [
+              0.0067,
+              -0.4,
+              -0.16
+            ]
           }
         ]
       },
@@ -147,7 +342,14 @@
               0.84,
               -0.38
             ]
-          }
+          },
+          "body_ref": "upright_fr",
+          "mass": 7.5,
+          "cg_position": [
+            0.0,
+            0.7067,
+            -0.4133
+          ]
         },
         "links": [
           {
@@ -160,7 +362,16 @@
                 -0.7
               ]
             ],
-            "outboard_ref": "hardpoints.strut_top"
+            "outboard_ref": "hardpoints.strut_top",
+            "joint_type": "translational",
+            "inboard_joint_type": "fixed",
+            "body_ref": "strut_fr",
+            "mass": 4.5,
+            "cg_position": [
+              0.0,
+              0.58,
+              -0.7
+            ]
           },
           {
             "name": "lower_control_arm",
@@ -177,7 +388,16 @@
                 -0.16
               ]
             ],
-            "outboard_ref": "hardpoints.lower_ball_joint"
+            "outboard_ref": "hardpoints.lower_ball_joint",
+            "joint_type": "spherical",
+            "inboard_joint_type": "revolute",
+            "body_ref": "lower_control_arm_fr",
+            "mass": 3.5,
+            "cg_position": [
+              0.0067,
+              0.4,
+              -0.16
+            ]
           }
         ]
       },
@@ -253,7 +473,14 @@
               -0.55,
               -0.18
             ]
-          }
+          },
+          "body_ref": "upright_rl",
+          "mass": 2.5,
+          "cg_position": [
+            -3.2,
+            -0.68,
+            -0.312
+          ]
         },
         "links": [
           {
@@ -266,7 +493,16 @@
                 -0.5
               ]
             ],
-            "outboard_ref": "hardpoints.upper_link_end"
+            "outboard_ref": "hardpoints.upper_link_end",
+            "joint_type": "spherical",
+            "inboard_joint_type": "spherical",
+            "body_ref": "upper_trailing_link_rl",
+            "mass": 2.0,
+            "cg_position": [
+              -3.0,
+              -0.45,
+              -0.5
+            ]
           },
           {
             "name": "lower_trailing_link",
@@ -278,7 +514,16 @@
                 -0.18
               ]
             ],
-            "outboard_ref": "hardpoints.lower_link_end"
+            "outboard_ref": "hardpoints.lower_link_end",
+            "joint_type": "spherical",
+            "inboard_joint_type": "spherical",
+            "body_ref": "lower_trailing_link_rl",
+            "mass": 2.0,
+            "cg_position": [
+              -3.0,
+              -0.465,
+              -0.18
+            ]
           },
           {
             "name": "panhard_rod",
@@ -290,7 +535,16 @@
                 -0.35
               ]
             ],
-            "outboard_ref": "hardpoints.panhard_axle_end"
+            "outboard_ref": "hardpoints.panhard_axle_end",
+            "joint_type": "spherical",
+            "inboard_joint_type": "spherical",
+            "body_ref": "panhard_rod_rl",
+            "mass": 2.0,
+            "cg_position": [
+              -3.2,
+              -0.05,
+              -0.335
+            ]
           }
         ],
         "axle_body": {
@@ -383,7 +637,14 @@
               0.55,
               -0.18
             ]
-          }
+          },
+          "body_ref": "upright_rr",
+          "mass": 2.5,
+          "cg_position": [
+            -3.2,
+            0.68,
+            -0.312
+          ]
         },
         "links": [
           {
@@ -396,7 +657,16 @@
                 -0.5
               ]
             ],
-            "outboard_ref": "hardpoints.upper_link_end"
+            "outboard_ref": "hardpoints.upper_link_end",
+            "joint_type": "spherical",
+            "inboard_joint_type": "spherical",
+            "body_ref": "upper_trailing_link_rr",
+            "mass": 2.0,
+            "cg_position": [
+              -3.0,
+              0.45,
+              -0.5
+            ]
           },
           {
             "name": "lower_trailing_link",
@@ -408,7 +678,16 @@
                 -0.18
               ]
             ],
-            "outboard_ref": "hardpoints.lower_link_end"
+            "outboard_ref": "hardpoints.lower_link_end",
+            "joint_type": "spherical",
+            "inboard_joint_type": "spherical",
+            "body_ref": "lower_trailing_link_rr",
+            "mass": 2.0,
+            "cg_position": [
+              -3.0,
+              0.465,
+              -0.18
+            ]
           },
           {
             "name": "panhard_rod",
@@ -420,7 +699,16 @@
                 -0.35
               ]
             ],
-            "outboard_ref": "hardpoints.panhard_axle_end"
+            "outboard_ref": "hardpoints.panhard_axle_end",
+            "joint_type": "spherical",
+            "inboard_joint_type": "spherical",
+            "body_ref": "panhard_rod_rr",
+            "mass": 2.0,
+            "cg_position": [
+              -3.2,
+              0.05,
+              -0.335
+            ]
           }
         ],
         "axle_body": {
