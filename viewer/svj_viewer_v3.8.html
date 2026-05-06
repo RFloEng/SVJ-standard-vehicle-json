@@ -400,10 +400,11 @@ function buildScene() {
   // Mass bodies
   const catC = {structural:0x4d9fff,powertrain:0xff8c42,fluid:0x2dd4bf,payload:0xf0b429,electrical:0xb06aff};
   (ch.mass_bodies||[]).forEach(mb => {
+    if(!mb.position) return;
     const p = sae2three(mb.position);
     const r = Math.max(0.015, Math.min(0.06, Math.cbrt(mb.mass/400)*0.04));
     const s = mkS(p, r, catC[mb.category]||0x6e7a96);
-    addP(s, `${mb.id}: ${mb.mass} kg\n[${mb.position.map(v=>v.toFixed(3)).join(', ')}]`);
+    addP(s, `${mb.id||mb.name||'body'}: ${mb.mass} kg\n[${mb.position.map(v=>v.toFixed(3)).join(', ')}]`);
     groups.massBodies.add(s);
   });
 
@@ -787,8 +788,10 @@ function runValidation(data) {
   }
   // Check mass_bodies X range
   (ch.mass_bodies||[]).forEach(mb => {
-    if(mb.position[0] > 1.0 || mb.position[0] < -(wb+1.0)) {
-      warnings.push(mb.id+' position X='+mb.position[0].toFixed(3)+' seems outside vehicle envelope.');
+    if(mb.position && mb.position[0] != null) {
+      if(mb.position[0] > 1.0 || mb.position[0] < -(wb+1.0)) {
+        warnings.push((mb.id||mb.name||'body')+' position X='+mb.position[0].toFixed(3)+' seems outside vehicle envelope.');
+      }
     }
   });
   return warnings;
@@ -1016,7 +1019,14 @@ function renderTires(el, data) {
     const dims = s.dimensions || {};
     const constr = s.construction || {};
     const ref = s.reference || {};
-    const pac = s.pacejka;
+    const pac = s.pacejka || (s.models?.pacejka_mf52 ? {
+      lateral: s.models.pacejka_mf52.pure_slip_lateral,
+      longitudinal: s.models.pacejka_mf52.pure_slip_longitudinal,
+      aligning: s.models.pacejka_mf52.aligning || s.models.pacejka_mf52.self_aligning,
+      combined: s.models.pacejka_mf52.combined_slip,
+      model: s.models.pacejka_mf52.version || 'MF 5.2'
+    } : null);
+    if(pac && !ref.load && s.models?.pacejka_mf52?.reference_load_N) ref.load = s.models.pacejka_mf52.reference_load_N;
     const therm = s.thermal || {};
     const wear = s.wear || {};
     h += '<div class="section-title">' + key + '</div>';
@@ -1901,3 +1911,4 @@ animate();
 </div>
 </body>
 </html>
+
