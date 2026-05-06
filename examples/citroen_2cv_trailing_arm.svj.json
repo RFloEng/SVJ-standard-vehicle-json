@@ -29,7 +29,105 @@
       0.0,
       -0.5
     ],
-    "_est": true
+    "_est": true,
+    "mass_bodies": [
+      {
+        "id": "upright_fl",
+        "description": "Front Left upright/knuckle",
+        "category": "structural",
+        "mass": 6.0,
+        "position": [
+          0.0,
+          -0.54,
+          -0.2
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "leading_arm_fl",
+        "description": "Front Left leading arm",
+        "category": "structural",
+        "mass": 5.5,
+        "position": [
+          -0.2333,
+          -0.3767,
+          -0.26
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "upright_fr",
+        "description": "Front Right upright/knuckle",
+        "category": "structural",
+        "mass": 6.0,
+        "position": [
+          0.0,
+          0.54,
+          -0.2
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "leading_arm_fr",
+        "description": "Front Right leading arm",
+        "category": "structural",
+        "mass": 5.5,
+        "position": [
+          -0.2333,
+          0.3767,
+          -0.26
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "upright_rl",
+        "description": "Rear Left upright/knuckle",
+        "category": "structural",
+        "mass": 5.0,
+        "position": [
+          -2.4,
+          -0.54,
+          -0.2
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "trailing_arm_rl",
+        "description": "Rear Left trailing arm",
+        "category": "structural",
+        "mass": 5.5,
+        "position": [
+          -2.1667,
+          -0.3767,
+          -0.26
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "upright_rr",
+        "description": "Rear Right upright/knuckle",
+        "category": "structural",
+        "mass": 5.0,
+        "position": [
+          -2.4,
+          0.54,
+          -0.2
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "trailing_arm_rr",
+        "description": "Rear Right trailing arm",
+        "category": "structural",
+        "mass": 5.5,
+        "position": [
+          -2.1667,
+          0.3767,
+          -0.26
+        ],
+        "parent": "chassis"
+      }
+    ]
   },
   "steering": {
     "type": "rack_and_pinion",
@@ -61,7 +159,13 @@
               -0.45,
               -0.12
             ]
-          }
+          },
+          "body_ref": "upright_fl",
+          "cg_position": [
+            0.0,
+            -0.54,
+            -0.2
+          ]
         },
         "links": [
           {
@@ -80,7 +184,16 @@
               ]
             ],
             "outboard_ref": "hardpoints.wheel_center",
-            "_note": "Leading arm: pivot BEHIND wheel (X=-0.35 vs wheel X=0.0). Lateral pivot axis (points differ in Y only)."
+            "_note": "Leading arm: pivot BEHIND wheel (X=-0.35 vs wheel X=0.0). Lateral pivot axis (points differ in Y only).",
+            "joint_type": "revolute",
+            "inboard_joint_type": "revolute",
+            "body_ref": "leading_arm_fl",
+            "mass": 5.5,
+            "cg_position": [
+              -0.2333,
+              -0.3767,
+              -0.26
+            ]
           }
         ]
       },
@@ -145,7 +258,13 @@
               0.45,
               -0.12
             ]
-          }
+          },
+          "body_ref": "upright_fr",
+          "cg_position": [
+            0.0,
+            0.54,
+            -0.2
+          ]
         },
         "links": [
           {
@@ -164,7 +283,16 @@
               ]
             ],
             "outboard_ref": "hardpoints.wheel_center",
-            "_note": "Leading arm: pivot BEHIND wheel (X=-0.35 vs wheel X=0.0). Lateral pivot axis (points differ in Y only)."
+            "_note": "Leading arm: pivot BEHIND wheel (X=-0.35 vs wheel X=0.0). Lateral pivot axis (points differ in Y only).",
+            "joint_type": "revolute",
+            "inboard_joint_type": "revolute",
+            "body_ref": "leading_arm_fr",
+            "mass": 5.5,
+            "cg_position": [
+              -0.2333,
+              0.3767,
+              -0.26
+            ]
           }
         ]
       },
@@ -229,7 +357,13 @@
               -0.45,
               -0.12
             ]
-          }
+          },
+          "body_ref": "upright_rl",
+          "cg_position": [
+            -2.4,
+            -0.54,
+            -0.2
+          ]
         },
         "links": [
           {
@@ -248,7 +382,16 @@
               ]
             ],
             "outboard_ref": "hardpoints.wheel_center",
-            "_note": "Trailing arm: pivot AHEAD of wheel (X=-2.05 vs wheel X=-2.4). Lateral pivot axis (points differ in Y only)."
+            "_note": "Trailing arm: pivot AHEAD of wheel (X=-2.05 vs wheel X=-2.4). Lateral pivot axis (points differ in Y only).",
+            "joint_type": "revolute",
+            "inboard_joint_type": "revolute",
+            "body_ref": "trailing_arm_rl",
+            "mass": 5.5,
+            "cg_position": [
+              -2.1667,
+              -0.3767,
+              -0.26
+            ]
           }
         ]
       },
@@ -312,7 +455,13 @@
               0.45,
               -0.12
             ]
-          }
+          },
+          "body_ref": "upright_rr",
+          "cg_position": [
+            -2.4,
+            0.54,
+            -0.2
+          ]
         },
         "links": [
           {
@@ -331,7 +480,16 @@
               ]
             ],
             "outboard_ref": "hardpoints.wheel_center",
-            "_note": "Trailing arm: pivot AHEAD of wheel (X=-2.05 vs wheel X=-2.4). Lateral pivot axis (points differ in Y only)."
+            "_note": "Trailing arm: pivot AHEAD of wheel (X=-2.05 vs wheel X=-2.4). Lateral pivot axis (points differ in Y only).",
+            "joint_type": "revolute",
+            "inboard_joint_type": "revolute",
+            "body_ref": "trailing_arm_rr",
+            "mass": 5.5,
+            "cg_position": [
+              -2.1667,
+              0.3767,
+              -0.26
+            ]
           }
         ]
       },

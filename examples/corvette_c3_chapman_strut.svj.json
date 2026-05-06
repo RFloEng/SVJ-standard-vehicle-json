@@ -29,7 +29,201 @@
       0.0,
       -0.46
     ],
-    "_est": true
+    "_est": true,
+    "mass_bodies": [
+      {
+        "id": "upright_fl",
+        "description": "Front Left upright/knuckle",
+        "category": "structural",
+        "mass": 12.0,
+        "position": [
+          0.025,
+          -0.6418,
+          -0.275
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "upper_wishbone_fl",
+        "description": "Front Left upper wishbone",
+        "category": "structural",
+        "mass": 2.5,
+        "position": [
+          0.0,
+          -0.38,
+          -0.44
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "lower_wishbone_fl",
+        "description": "Front Left lower wishbone",
+        "category": "structural",
+        "mass": 3.2,
+        "position": [
+          0.0067,
+          -0.3733,
+          -0.14
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "steering_tie_rod_fl",
+        "description": "Front Left steering tie rod",
+        "category": "structural",
+        "mass": 0.8,
+        "position": [
+          0.1,
+          -0.385,
+          -0.2
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "upright_fr",
+        "description": "Front Right upright/knuckle",
+        "category": "structural",
+        "mass": 12.0,
+        "position": [
+          0.025,
+          0.6418,
+          -0.275
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "upper_wishbone_fr",
+        "description": "Front Right upper wishbone",
+        "category": "structural",
+        "mass": 2.5,
+        "position": [
+          0.0,
+          0.38,
+          -0.44
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "lower_wishbone_fr",
+        "description": "Front Right lower wishbone",
+        "category": "structural",
+        "mass": 3.2,
+        "position": [
+          0.0067,
+          0.3733,
+          -0.14
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "steering_tie_rod_fr",
+        "description": "Front Right steering tie rod",
+        "category": "structural",
+        "mass": 0.8,
+        "position": [
+          0.1,
+          0.385,
+          -0.2
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "upright_rl",
+        "description": "Rear Left upright/knuckle",
+        "category": "structural",
+        "mass": 10.0,
+        "position": [
+          -2.469,
+          -0.6608,
+          -0.308
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "strut_rl",
+        "description": "Rear Left strut",
+        "category": "structural",
+        "mass": 4.5,
+        "position": [
+          -2.489,
+          -0.52,
+          -0.6
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "lower_control_arm_rl",
+        "description": "Rear Left lower control arm",
+        "category": "structural",
+        "mass": 3.5,
+        "position": [
+          -2.4863,
+          -0.3733,
+          -0.13
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "toe_link_rl",
+        "description": "Rear Left toe link",
+        "category": "structural",
+        "mass": 1.0,
+        "position": [
+          -2.389,
+          -0.4,
+          -0.17
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "upright_rr",
+        "description": "Rear Right upright/knuckle",
+        "category": "structural",
+        "mass": 10.0,
+        "position": [
+          -2.469,
+          0.6608,
+          -0.308
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "strut_rr",
+        "description": "Rear Right strut",
+        "category": "structural",
+        "mass": 4.5,
+        "position": [
+          -2.489,
+          0.52,
+          -0.6
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "lower_control_arm_rr",
+        "description": "Rear Right lower control arm",
+        "category": "structural",
+        "mass": 3.5,
+        "position": [
+          -2.4863,
+          0.3733,
+          -0.13
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "toe_link_rr",
+        "description": "Rear Right toe link",
+        "category": "structural",
+        "mass": 1.0,
+        "position": [
+          -2.389,
+          0.4,
+          -0.17
+        ],
+        "parent": "chassis"
+      }
+    ]
   },
   "steering": {
     "type": "rack_and_pinion",
@@ -71,7 +265,13 @@
               -0.737,
               -0.32
             ]
-          }
+          },
+          "body_ref": "upright_fl",
+          "cg_position": [
+            0.025,
+            -0.6418,
+            -0.275
+          ]
         },
         "links": [
           {
@@ -89,7 +289,16 @@
                 -0.44
               ]
             ],
-            "outboard_ref": "hardpoints.upper_ball_joint"
+            "outboard_ref": "hardpoints.upper_ball_joint",
+            "joint_type": "spherical",
+            "inboard_joint_type": "revolute",
+            "body_ref": "upper_wishbone_fl",
+            "mass": 2.5,
+            "cg_position": [
+              0.0,
+              -0.38,
+              -0.44
+            ]
           },
           {
             "name": "lower_wishbone",
@@ -106,7 +315,16 @@
                 -0.14
               ]
             ],
-            "outboard_ref": "hardpoints.lower_ball_joint"
+            "outboard_ref": "hardpoints.lower_ball_joint",
+            "joint_type": "spherical",
+            "inboard_joint_type": "revolute",
+            "body_ref": "lower_wishbone_fl",
+            "mass": 3.2,
+            "cg_position": [
+              0.0067,
+              -0.3733,
+              -0.14
+            ]
           },
           {
             "name": "steering_tie_rod",
@@ -118,7 +336,16 @@
                 -0.2
               ]
             ],
-            "outboard_ref": "hardpoints.steering_tie_rod_end"
+            "outboard_ref": "hardpoints.steering_tie_rod_end",
+            "joint_type": "spherical",
+            "inboard_joint_type": "spherical",
+            "body_ref": "steering_tie_rod_fl",
+            "mass": 0.8,
+            "cg_position": [
+              0.1,
+              -0.385,
+              -0.2
+            ]
           }
         ]
       },
@@ -192,7 +419,13 @@
               0.737,
               -0.32
             ]
-          }
+          },
+          "body_ref": "upright_fr",
+          "cg_position": [
+            0.025,
+            0.6418,
+            -0.275
+          ]
         },
         "links": [
           {
@@ -210,7 +443,16 @@
                 -0.44
               ]
             ],
-            "outboard_ref": "hardpoints.upper_ball_joint"
+            "outboard_ref": "hardpoints.upper_ball_joint",
+            "joint_type": "spherical",
+            "inboard_joint_type": "revolute",
+            "body_ref": "upper_wishbone_fr",
+            "mass": 2.5,
+            "cg_position": [
+              0.0,
+              0.38,
+              -0.44
+            ]
           },
           {
             "name": "lower_wishbone",
@@ -227,7 +469,16 @@
                 -0.14
               ]
             ],
-            "outboard_ref": "hardpoints.lower_ball_joint"
+            "outboard_ref": "hardpoints.lower_ball_joint",
+            "joint_type": "spherical",
+            "inboard_joint_type": "revolute",
+            "body_ref": "lower_wishbone_fr",
+            "mass": 3.2,
+            "cg_position": [
+              0.0067,
+              0.3733,
+              -0.14
+            ]
           },
           {
             "name": "steering_tie_rod",
@@ -239,7 +490,16 @@
                 -0.2
               ]
             ],
-            "outboard_ref": "hardpoints.steering_tie_rod_end"
+            "outboard_ref": "hardpoints.steering_tie_rod_end",
+            "joint_type": "spherical",
+            "inboard_joint_type": "spherical",
+            "body_ref": "steering_tie_rod_fr",
+            "mass": 0.8,
+            "cg_position": [
+              0.1,
+              0.385,
+              -0.2
+            ]
           }
         ]
       },
@@ -318,7 +578,13 @@
               -0.762,
               -0.32
             ]
-          }
+          },
+          "body_ref": "upright_rl",
+          "cg_position": [
+            -2.469,
+            -0.6608,
+            -0.308
+          ]
         },
         "links": [
           {
@@ -332,7 +598,16 @@
               ]
             ],
             "outboard_ref": "hardpoints.strut_top",
-            "_note": "Chapman strut: driveshaft acts as upper locating member, spring/damper telescopic"
+            "_note": "Chapman strut: driveshaft acts as upper locating member, spring/damper telescopic",
+            "joint_type": "translational",
+            "inboard_joint_type": "fixed",
+            "body_ref": "strut_rl",
+            "mass": 4.5,
+            "cg_position": [
+              -2.489,
+              -0.52,
+              -0.6
+            ]
           },
           {
             "name": "lower_control_arm",
@@ -349,7 +624,16 @@
                 -0.13
               ]
             ],
-            "outboard_ref": "hardpoints.lower_ball_joint"
+            "outboard_ref": "hardpoints.lower_ball_joint",
+            "joint_type": "spherical",
+            "inboard_joint_type": "revolute",
+            "body_ref": "lower_control_arm_rl",
+            "mass": 3.5,
+            "cg_position": [
+              -2.4863,
+              -0.3733,
+              -0.13
+            ]
           },
           {
             "name": "toe_link",
@@ -361,7 +645,16 @@
                 -0.17
               ]
             ],
-            "outboard_ref": "hardpoints.toe_link_end"
+            "outboard_ref": "hardpoints.toe_link_end",
+            "joint_type": "spherical",
+            "inboard_joint_type": "spherical",
+            "body_ref": "toe_link_rl",
+            "mass": 1.0,
+            "cg_position": [
+              -2.389,
+              -0.4,
+              -0.17
+            ]
           }
         ]
       },
@@ -441,7 +734,13 @@
               0.762,
               -0.32
             ]
-          }
+          },
+          "body_ref": "upright_rr",
+          "cg_position": [
+            -2.469,
+            0.6608,
+            -0.308
+          ]
         },
         "links": [
           {
@@ -455,7 +754,16 @@
               ]
             ],
             "outboard_ref": "hardpoints.strut_top",
-            "_note": "Chapman strut: driveshaft acts as upper locating member, spring/damper telescopic"
+            "_note": "Chapman strut: driveshaft acts as upper locating member, spring/damper telescopic",
+            "joint_type": "translational",
+            "inboard_joint_type": "fixed",
+            "body_ref": "strut_rr",
+            "mass": 4.5,
+            "cg_position": [
+              -2.489,
+              0.52,
+              -0.6
+            ]
           },
           {
             "name": "lower_control_arm",
@@ -472,7 +780,16 @@
                 -0.13
               ]
             ],
-            "outboard_ref": "hardpoints.lower_ball_joint"
+            "outboard_ref": "hardpoints.lower_ball_joint",
+            "joint_type": "spherical",
+            "inboard_joint_type": "revolute",
+            "body_ref": "lower_control_arm_rr",
+            "mass": 3.5,
+            "cg_position": [
+              -2.4863,
+              0.3733,
+              -0.13
+            ]
           },
           {
             "name": "toe_link",
@@ -484,7 +801,16 @@
                 -0.17
               ]
             ],
-            "outboard_ref": "hardpoints.toe_link_end"
+            "outboard_ref": "hardpoints.toe_link_end",
+            "joint_type": "spherical",
+            "inboard_joint_type": "spherical",
+            "body_ref": "toe_link_rr",
+            "mass": 1.0,
+            "cg_position": [
+              -2.389,
+              0.4,
+              -0.17
+            ]
           }
         ]
       },

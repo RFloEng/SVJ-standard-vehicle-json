@@ -28,6 +28,152 @@
       -1.5,
       0.0,
       -0.42
+    ],
+    "mass_bodies": [
+      {
+        "id": "upright_fl",
+        "description": "Front Left upright/knuckle",
+        "category": "structural",
+        "mass": 8.0,
+        "position": [
+          0.0,
+          -0.7133,
+          -0.3033
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "upper_wishbone_fl",
+        "description": "Front Left upper wishbone",
+        "category": "structural",
+        "mass": 2.5,
+        "position": [
+          0.0,
+          -0.4167,
+          -0.44
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "lower_wishbone_fl",
+        "description": "Front Left lower wishbone",
+        "category": "structural",
+        "mass": 3.2,
+        "position": [
+          0.0067,
+          -0.4,
+          -0.14
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "upright_fr",
+        "description": "Front Right upright/knuckle",
+        "category": "structural",
+        "mass": 8.0,
+        "position": [
+          0.0,
+          0.7133,
+          -0.3033
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "upper_wishbone_fr",
+        "description": "Front Right upper wishbone",
+        "category": "structural",
+        "mass": 2.5,
+        "position": [
+          0.0,
+          0.4167,
+          -0.44
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "lower_wishbone_fr",
+        "description": "Front Right lower wishbone",
+        "category": "structural",
+        "mass": 3.2,
+        "position": [
+          0.0067,
+          0.4,
+          -0.14
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "upright_rl",
+        "description": "Rear Left upright/knuckle",
+        "category": "structural",
+        "mass": 8.0,
+        "position": [
+          -2.96,
+          -0.7233,
+          -0.3033
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "upper_wishbone_rl",
+        "description": "Rear Left upper wishbone",
+        "category": "structural",
+        "mass": 2.5,
+        "position": [
+          -2.96,
+          -0.42,
+          -0.44
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "lower_wishbone_rl",
+        "description": "Rear Left lower wishbone",
+        "category": "structural",
+        "mass": 3.2,
+        "position": [
+          -2.9533,
+          -0.4033,
+          -0.14
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "upright_rr",
+        "description": "Rear Right upright/knuckle",
+        "category": "structural",
+        "mass": 8.0,
+        "position": [
+          -2.96,
+          0.7233,
+          -0.3033
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "upper_wishbone_rr",
+        "description": "Rear Right upper wishbone",
+        "category": "structural",
+        "mass": 2.5,
+        "position": [
+          -2.96,
+          0.42,
+          -0.44
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "lower_wishbone_rr",
+        "description": "Rear Right lower wishbone",
+        "category": "structural",
+        "mass": 3.2,
+        "position": [
+          -2.9533,
+          0.4033,
+          -0.14
+        ],
+        "parent": "chassis"
+      }
     ]
   },
   "suspension": {
@@ -52,7 +198,14 @@
               -0.81,
               -0.33
             ]
-          }
+          },
+          "body_ref": "upright_fl",
+          "mass": 8.0,
+          "cg_position": [
+            0.0,
+            -0.7133,
+            -0.3033
+          ]
         },
         "links": [
           {
@@ -70,7 +223,16 @@
                 -0.44
               ]
             ],
-            "outboard_ref": "hardpoints.upper_ball_joint"
+            "outboard_ref": "hardpoints.upper_ball_joint",
+            "joint_type": "spherical",
+            "inboard_joint_type": "revolute",
+            "body_ref": "upper_wishbone_fl",
+            "mass": 2.5,
+            "cg_position": [
+              0.0,
+              -0.4167,
+              -0.44
+            ]
           },
           {
             "name": "lower_wishbone",
@@ -87,7 +249,16 @@
                 -0.14
               ]
             ],
-            "outboard_ref": "hardpoints.lower_ball_joint"
+            "outboard_ref": "hardpoints.lower_ball_joint",
+            "joint_type": "spherical",
+            "inboard_joint_type": "revolute",
+            "body_ref": "lower_wishbone_fl",
+            "mass": 3.2,
+            "cg_position": [
+              0.0067,
+              -0.4,
+              -0.14
+            ]
           }
         ]
       },
@@ -152,7 +323,14 @@
               0.81,
               -0.33
             ]
-          }
+          },
+          "body_ref": "upright_fr",
+          "mass": 8.0,
+          "cg_position": [
+            0.0,
+            0.7133,
+            -0.3033
+          ]
         },
         "links": [
           {
@@ -170,7 +348,16 @@
                 -0.44
               ]
             ],
-            "outboard_ref": "hardpoints.upper_ball_joint"
+            "outboard_ref": "hardpoints.upper_ball_joint",
+            "joint_type": "spherical",
+            "inboard_joint_type": "revolute",
+            "body_ref": "upper_wishbone_fr",
+            "mass": 2.5,
+            "cg_position": [
+              0.0,
+              0.4167,
+              -0.44
+            ]
           },
           {
             "name": "lower_wishbone",
@@ -187,7 +374,16 @@
                 -0.14
               ]
             ],
-            "outboard_ref": "hardpoints.lower_ball_joint"
+            "outboard_ref": "hardpoints.lower_ball_joint",
+            "joint_type": "spherical",
+            "inboard_joint_type": "revolute",
+            "body_ref": "lower_wishbone_fr",
+            "mass": 3.2,
+            "cg_position": [
+              0.0067,
+              0.4,
+              -0.14
+            ]
           }
         ]
       },
@@ -252,7 +448,14 @@
               -0.82,
               -0.33
             ]
-          }
+          },
+          "body_ref": "upright_rl",
+          "mass": 8.0,
+          "cg_position": [
+            -2.96,
+            -0.7233,
+            -0.3033
+          ]
         },
         "links": [
           {
@@ -270,7 +473,16 @@
                 -0.44
               ]
             ],
-            "outboard_ref": "hardpoints.upper_ball_joint"
+            "outboard_ref": "hardpoints.upper_ball_joint",
+            "joint_type": "spherical",
+            "inboard_joint_type": "revolute",
+            "body_ref": "upper_wishbone_rl",
+            "mass": 2.5,
+            "cg_position": [
+              -2.96,
+              -0.42,
+              -0.44
+            ]
           },
           {
             "name": "lower_wishbone",
@@ -287,7 +499,16 @@
                 -0.14
               ]
             ],
-            "outboard_ref": "hardpoints.lower_ball_joint"
+            "outboard_ref": "hardpoints.lower_ball_joint",
+            "joint_type": "spherical",
+            "inboard_joint_type": "revolute",
+            "body_ref": "lower_wishbone_rl",
+            "mass": 3.2,
+            "cg_position": [
+              -2.9533,
+              -0.4033,
+              -0.14
+            ]
           }
         ]
       },
@@ -352,7 +573,14 @@
               0.82,
               -0.33
             ]
-          }
+          },
+          "body_ref": "upright_rr",
+          "mass": 8.0,
+          "cg_position": [
+            -2.96,
+            0.7233,
+            -0.3033
+          ]
         },
         "links": [
           {
@@ -370,7 +598,16 @@
                 -0.44
               ]
             ],
-            "outboard_ref": "hardpoints.upper_ball_joint"
+            "outboard_ref": "hardpoints.upper_ball_joint",
+            "joint_type": "spherical",
+            "inboard_joint_type": "revolute",
+            "body_ref": "upper_wishbone_rr",
+            "mass": 2.5,
+            "cg_position": [
+              -2.96,
+              0.42,
+              -0.44
+            ]
           },
           {
             "name": "lower_wishbone",
@@ -387,7 +624,16 @@
                 -0.14
               ]
             ],
-            "outboard_ref": "hardpoints.lower_ball_joint"
+            "outboard_ref": "hardpoints.lower_ball_joint",
+            "joint_type": "spherical",
+            "inboard_joint_type": "revolute",
+            "body_ref": "lower_wishbone_rr",
+            "mass": 3.2,
+            "cg_position": [
+              -2.9533,
+              0.4033,
+              -0.14
+            ]
           }
         ]
       },

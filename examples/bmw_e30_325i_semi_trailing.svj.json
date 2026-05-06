@@ -29,7 +29,153 @@
       0.0,
       -0.48
     ],
-    "center_of_gravity_note": "53/47 F/R factory"
+    "center_of_gravity_note": "53/47 F/R factory",
+    "mass_bodies": [
+      {
+        "id": "upright_fl",
+        "description": "Front Left upright/knuckle",
+        "category": "structural",
+        "mass": 10.0,
+        "position": [
+          0.02,
+          -0.6085,
+          -0.335
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "strut_fl",
+        "description": "Front Left strut",
+        "category": "structural",
+        "mass": 4.5,
+        "position": [
+          0.0,
+          -0.55,
+          -0.68
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "lower_control_arm_fl",
+        "description": "Front Left lower control arm",
+        "category": "structural",
+        "mass": 3.5,
+        "position": [
+          0.0067,
+          -0.3467,
+          -0.14
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "steering_tie_rod_fl",
+        "description": "Front Left steering tie rod",
+        "category": "structural",
+        "mass": 0.8,
+        "position": [
+          0.08,
+          -0.37,
+          -0.19
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "upright_fr",
+        "description": "Front Right upright/knuckle",
+        "category": "structural",
+        "mass": 10.0,
+        "position": [
+          0.02,
+          0.6085,
+          -0.335
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "strut_fr",
+        "description": "Front Right strut",
+        "category": "structural",
+        "mass": 4.5,
+        "position": [
+          0.0,
+          0.55,
+          -0.68
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "lower_control_arm_fr",
+        "description": "Front Right lower control arm",
+        "category": "structural",
+        "mass": 3.5,
+        "position": [
+          0.0067,
+          0.3467,
+          -0.14
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "steering_tie_rod_fr",
+        "description": "Front Right steering tie rod",
+        "category": "structural",
+        "mass": 0.8,
+        "position": [
+          0.08,
+          0.37,
+          -0.19
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "upright_rl",
+        "description": "Rear Left upright/knuckle",
+        "category": "structural",
+        "mass": 8.0,
+        "position": [
+          -2.57,
+          -0.604,
+          -0.24
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "semi_trailing_arm_rl",
+        "description": "Rear Left semi trailing arm",
+        "category": "structural",
+        "mass": 5.5,
+        "position": [
+          -2.4233,
+          -0.3793,
+          -0.2767
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "upright_rr",
+        "description": "Rear Right upright/knuckle",
+        "category": "structural",
+        "mass": 8.0,
+        "position": [
+          -2.57,
+          0.604,
+          -0.24
+        ],
+        "parent": "chassis"
+      },
+      {
+        "id": "semi_trailing_arm_rr",
+        "description": "Rear Right semi trailing arm",
+        "category": "structural",
+        "mass": 5.5,
+        "position": [
+          -2.4233,
+          0.3793,
+          -0.2767
+        ],
+        "parent": "chassis"
+      }
+    ]
   },
   "steering": {
     "type": "rack_and_pinion",
@@ -73,7 +219,13 @@
               -0.704,
               -0.33
             ]
-          }
+          },
+          "body_ref": "upright_fl",
+          "cg_position": [
+            0.02,
+            -0.6085,
+            -0.335
+          ]
         },
         "links": [
           {
@@ -86,7 +238,16 @@
                 -0.68
               ]
             ],
-            "outboard_ref": "hardpoints.strut_top"
+            "outboard_ref": "hardpoints.strut_top",
+            "joint_type": "translational",
+            "inboard_joint_type": "fixed",
+            "body_ref": "strut_fl",
+            "mass": 4.5,
+            "cg_position": [
+              0.0,
+              -0.55,
+              -0.68
+            ]
           },
           {
             "name": "lower_control_arm",
@@ -103,7 +264,16 @@
                 -0.14
               ]
             ],
-            "outboard_ref": "hardpoints.lower_ball_joint"
+            "outboard_ref": "hardpoints.lower_ball_joint",
+            "joint_type": "spherical",
+            "inboard_joint_type": "revolute",
+            "body_ref": "lower_control_arm_fl",
+            "mass": 3.5,
+            "cg_position": [
+              0.0067,
+              -0.3467,
+              -0.14
+            ]
           },
           {
             "name": "steering_tie_rod",
@@ -115,7 +285,16 @@
                 -0.19
               ]
             ],
-            "outboard_ref": "hardpoints.steering_tie_rod_end"
+            "outboard_ref": "hardpoints.steering_tie_rod_end",
+            "joint_type": "spherical",
+            "inboard_joint_type": "spherical",
+            "body_ref": "steering_tie_rod_fl",
+            "mass": 0.8,
+            "cg_position": [
+              0.08,
+              -0.37,
+              -0.19
+            ]
           }
         ]
       },
@@ -199,7 +378,13 @@
               0.704,
               -0.33
             ]
-          }
+          },
+          "body_ref": "upright_fr",
+          "cg_position": [
+            0.02,
+            0.6085,
+            -0.335
+          ]
         },
         "links": [
           {
@@ -212,7 +397,16 @@
                 -0.68
               ]
             ],
-            "outboard_ref": "hardpoints.strut_top"
+            "outboard_ref": "hardpoints.strut_top",
+            "joint_type": "translational",
+            "inboard_joint_type": "fixed",
+            "body_ref": "strut_fr",
+            "mass": 4.5,
+            "cg_position": [
+              0.0,
+              0.55,
+              -0.68
+            ]
           },
           {
             "name": "lower_control_arm",
@@ -229,7 +423,16 @@
                 -0.14
               ]
             ],
-            "outboard_ref": "hardpoints.lower_ball_joint"
+            "outboard_ref": "hardpoints.lower_ball_joint",
+            "joint_type": "spherical",
+            "inboard_joint_type": "revolute",
+            "body_ref": "lower_control_arm_fr",
+            "mass": 3.5,
+            "cg_position": [
+              0.0067,
+              0.3467,
+              -0.14
+            ]
           },
           {
             "name": "steering_tie_rod",
@@ -241,7 +444,16 @@
                 -0.19
               ]
             ],
-            "outboard_ref": "hardpoints.steering_tie_rod_end"
+            "outboard_ref": "hardpoints.steering_tie_rod_end",
+            "joint_type": "spherical",
+            "inboard_joint_type": "spherical",
+            "body_ref": "steering_tie_rod_fr",
+            "mass": 0.8,
+            "cg_position": [
+              0.08,
+              0.37,
+              -0.19
+            ]
           }
         ]
       },
@@ -315,7 +527,13 @@
               -0.5,
               -0.15
             ]
-          }
+          },
+          "body_ref": "upright_rl",
+          "cg_position": [
+            -2.57,
+            -0.604,
+            -0.24
+          ]
         },
         "links": [
           {
@@ -334,7 +552,16 @@
               ]
             ],
             "outboard_ref": "hardpoints.wheel_center",
-            "_note": "Pivot axis angled ~15\u00b0 from lateral \u2014 two inboard points at different X and Y define the axis angle"
+            "_note": "Pivot axis angled ~15\u00b0 from lateral \u2014 two inboard points at different X and Y define the axis angle",
+            "joint_type": "revolute",
+            "inboard_joint_type": "revolute",
+            "body_ref": "semi_trailing_arm_rl",
+            "mass": 5.5,
+            "cg_position": [
+              -2.4233,
+              -0.3793,
+              -0.2767
+            ]
           }
         ]
       },
@@ -409,7 +636,13 @@
               0.5,
               -0.15
             ]
-          }
+          },
+          "body_ref": "upright_rr",
+          "cg_position": [
+            -2.57,
+            0.604,
+            -0.24
+          ]
         },
         "links": [
           {
@@ -428,7 +661,16 @@
               ]
             ],
             "outboard_ref": "hardpoints.wheel_center",
-            "_note": "Pivot axis angled ~15\u00b0 from lateral \u2014 two inboard points at different X and Y define the axis angle"
+            "_note": "Pivot axis angled ~15\u00b0 from lateral \u2014 two inboard points at different X and Y define the axis angle",
+            "joint_type": "revolute",
+            "inboard_joint_type": "revolute",
+            "body_ref": "semi_trailing_arm_rr",
+            "mass": 5.5,
+            "cg_position": [
+              -2.4233,
+              0.3793,
+              -0.2767
+            ]
           }
         ]
       },
