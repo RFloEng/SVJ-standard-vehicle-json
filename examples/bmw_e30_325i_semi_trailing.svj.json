@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.96",
+    "version": "0.97",
     "description": "BMW E30 325i (1987) \u2014 MacPherson front, semi-trailing arm rear. Factory specs from BMW.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
@@ -175,7 +175,11 @@
         ],
         "parent": "chassis"
       }
-    ]
+    ],
+    "visual": {
+      "mesh_ref": "bmw_e30",
+      "node": "SVJ::body::chassis"
+    }
   },
   "steering": {
     "type": "rack_and_pinion",
@@ -349,7 +353,11 @@
           "material": "cast_iron"
         }
       },
-      "_est": true
+      "_est": true,
+      "visual": {
+        "mesh_ref": "bmw_e30",
+        "node": "SVJ::body::upright_fl"
+      }
     },
     "FR": {
       "topology": {
@@ -508,7 +516,11 @@
           "material": "cast_iron"
         }
       },
-      "_est": true
+      "_est": true,
+      "visual": {
+        "mesh_ref": "bmw_e30",
+        "node": "SVJ::body::upright_fr"
+      }
     },
     "RL": {
       "topology": {
@@ -617,7 +629,11 @@
           "material": "cast_iron"
         }
       },
-      "_est": true
+      "_est": true,
+      "visual": {
+        "mesh_ref": "bmw_e30",
+        "node": "SVJ::body::upright_rl"
+      }
     },
     "RR": {
       "topology": {
@@ -726,7 +742,11 @@
           "material": "cast_iron"
         }
       },
-      "_est": true
+      "_est": true,
+      "visual": {
+        "mesh_ref": "bmw_e30",
+        "node": "SVJ::body::upright_rr"
+      }
     }
   },
   "powertrain": {
@@ -786,6 +806,15 @@
         "location": "rear",
         "type": "open",
         "final_drive": 3.73
+      }
+    ]
+  },
+  "assets": {
+    "meshes": [
+      {
+        "id": "bmw_e30",
+        "uri": "meshes/bmw_e30.glb",
+        "description": "BMW E30 325i \u2014 chassis and suspension geometry"
       }
     ]
   }
