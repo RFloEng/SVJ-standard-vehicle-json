@@ -117,30 +117,68 @@ pip install jsonschema
 python tools/validate.py templates/mazda_mx5_nd2_2024.svj.json
 ```
 
-## Repository Structure
+---
 
-```
-schema/           JSON Schema (svj.schema.json)
-examples/         Reference vehicle implementations
-  ├── alfa_romeo_75_de_dion.svj.json
-  ├── bmw_e30_325i_semi_trailing.svj.json
-  ├── formula_f1_2025_aero.svj.json   ← updated in v0.97 (visual bindings)
-  └── ...
-docs/
-  └── naming_convention.md            ← new in v0.97
-tools/
-  ├── validate.py                     schema validation
-  └── integrity_check.py              ← new in v0.97, visual binding checks
-proposals/        Accepted and draft proposals
-spec/             Human-readable specification
-templates/        Ready-to-use vehicle templates
-svj-py/           Python library
-viewer/           Browser-based SVJ viewer
-```
+## Tools
+
+| Tool | Purpose |
+|---|---|
+| `tools/validate.py` | Validates any SVJ file against the JSON Schema. Accepts one or more files, exits non-zero on errors. |
+| `tools/integrity_check.py` | Validates glTF visual bindings: node naming pattern, id-suffix match, mesh_ref validity, uniqueness. Use `--strict` to also fail on warnings. |
+
+---
+
+## Examples
+
+All example files are valid SVJ v0.97 with visual bindings. They cover all 10 supported suspension topologies.
+
+| File | Layout | Front | Rear |
+|---|---|---|---|
+| `formula_f1_2025_aero.svj.json` | RWD | `double_wishbone` (pushrod) | `double_wishbone` (pullrod) |
+| `alfa_romeo_75_de_dion.svj.json` | RWD | `double_wishbone` | `de_dion` |
+| `bmw_e30_325i_semi_trailing.svj.json` | RWD | `macpherson` | `semi_trailing_arm` |
+| `corvette_c3_chapman_strut.svj.json` | RWD | `double_wishbone` | `chapman_strut` |
+| `citroen_2cv_trailing_arm.svj.json` | FWD | `trailing_arm` | `trailing_arm` |
+| `skeleton_ff_macpherson_torsion.svj.json` | FWD | `macpherson` | `torsion_beam` |
+| `skeleton_awd_ev_dual_motor.svj.json` | AWD | `double_wishbone` | `double_wishbone` |
+| `skeleton_4wd_solid_axle.svj.json` | 4WD | `macpherson` | `solid_axle` |
+| `tire_mf62_245_40r18.svj.json` | — | Standalone Pacejka MF 6.2 tire file | — |
+
+---
 
 ## Reference Template
 
-Mazda MX-5 ND2 2024 Club 6MT — the included template uses factory data where available (steering ratio, gear ratios, track width, brake sizes, tire dimensions) and carefully sourced estimates for the rest.
+`templates/mazda_mx5_nd2_2024.svj.json` — Mazda MX-5 ND converted from Assetto Corsa data. Includes full suspension geometry (double wishbone front, multi-link rear), Pacejka MF 5.2 tire coefficients fitted from the AC model, complete powertrain (engine torque curve, 6-speed manual, LSD), and aerodynamics. Engineering estimates are marked `_est: true`. Valid SVJ v0.97 with visual bindings.
+
+---
+
+## Repository Structure
+
+```
+schema/
+  └── svj.schema.json             JSON Schema Draft-07
+docs/
+  └── naming_convention.md        SVJ::category::name glTF convention (new in v0.97)
+examples/
+  ├── formula_f1_2025_aero.svj.json
+  ├── alfa_romeo_75_de_dion.svj.json
+  ├── bmw_e30_325i_semi_trailing.svj.json
+  ├── corvette_c3_chapman_strut.svj.json
+  ├── citroen_2cv_trailing_arm.svj.json
+  ├── skeleton_ff_macpherson_torsion.svj.json
+  ├── skeleton_awd_ev_dual_motor.svj.json
+  ├── skeleton_4wd_solid_axle.svj.json
+  └── tire_mf62_245_40r18.svj.json
+templates/
+  └── mazda_mx5_nd2_2024.svj.json  Full reference vehicle (AC-derived)
+tools/
+  ├── validate.py                  Schema validation (new in v0.97)
+  └── integrity_check.py           Visual binding checks (new in v0.97)
+proposals/                         Accepted and draft proposals
+spec/                              Human-readable specification
+svj-py/                            Python library
+viewer/                            Browser-based SVJ viewer
+```
 
 ---
 
