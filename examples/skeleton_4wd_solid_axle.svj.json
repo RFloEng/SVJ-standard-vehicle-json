@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.96",
+    "version": "0.97",
     "description": "Skeleton: 4WD truck \u2014 MacPherson front, solid axle rear with Panhard rod.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
@@ -198,7 +198,11 @@
         ],
         "parent": "chassis"
       }
-    ]
+    ],
+    "visual": {
+      "mesh_ref": "skeleton_4wd",
+      "node": "SVJ::body::chassis"
+    }
   },
   "suspension": {
     "FL": {
@@ -319,6 +323,10 @@
             2700
           ]
         ]
+      },
+      "visual": {
+        "mesh_ref": "skeleton_4wd",
+        "node": "SVJ::body::upright_fl"
       }
     },
     "FR": {
@@ -439,6 +447,10 @@
             2700
           ]
         ]
+      },
+      "visual": {
+        "mesh_ref": "skeleton_4wd",
+        "node": "SVJ::body::upright_fr"
       }
     },
     "RL": {
@@ -562,6 +574,10 @@
             "Ixz": 0.0,
             "Ixy": 0.0,
             "Iyz": 0.0
+          },
+          "visual": {
+            "mesh_ref": "skeleton_4wd",
+            "node": "SVJ::body::rear_live_axle"
           }
         }
       },
@@ -603,6 +619,10 @@
             3000
           ]
         ]
+      },
+      "visual": {
+        "mesh_ref": "skeleton_4wd",
+        "node": "SVJ::body::upright_rl"
       }
     },
     "RR": {
@@ -726,6 +746,10 @@
             "Ixz": 0.0,
             "Ixy": 0.0,
             "Iyz": 0.0
+          },
+          "visual": {
+            "mesh_ref": "skeleton_4wd",
+            "node": "SVJ::body::rear_live_axle"
           }
         }
       },
@@ -767,6 +791,10 @@
             3000
           ]
         ]
+      },
+      "visual": {
+        "mesh_ref": "skeleton_4wd",
+        "node": "SVJ::body::upright_rr"
       }
     }
   },
@@ -849,6 +877,15 @@
         "type": "lsd_torsen",
         "final_drive": 3.727,
         "lock_power": 0.3
+      }
+    ]
+  },
+  "assets": {
+    "meshes": [
+      {
+        "id": "skeleton_4wd",
+        "uri": "meshes/skeleton_4wd.glb",
+        "description": "4WD solid axle skeleton \u2014 chassis and axle geometry"
       }
     ]
   }

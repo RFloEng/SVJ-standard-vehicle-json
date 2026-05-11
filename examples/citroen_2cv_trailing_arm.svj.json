@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.96",
+    "version": "0.97",
     "description": "Citro\u00ebn 2CV6 (1979) \u2014 trailing arm front and rear with interconnected horizontal coil springs.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
@@ -127,7 +127,11 @@
         ],
         "parent": "chassis"
       }
-    ]
+    ],
+    "visual": {
+      "mesh_ref": "citroen_2cv",
+      "node": "SVJ::body::chassis"
+    }
   },
   "steering": {
     "type": "rack_and_pinion",
@@ -239,7 +243,11 @@
           ]
         ]
       },
-      "_est": true
+      "_est": true,
+      "visual": {
+        "mesh_ref": "citroen_2cv",
+        "node": "SVJ::body::upright_fl"
+      }
     },
     "FR": {
       "topology": {
@@ -338,7 +346,11 @@
           ]
         ]
       },
-      "_est": true
+      "_est": true,
+      "visual": {
+        "mesh_ref": "citroen_2cv",
+        "node": "SVJ::body::upright_fr"
+      }
     },
     "RL": {
       "topology": {
@@ -436,7 +448,11 @@
           ]
         ]
       },
-      "_est": true
+      "_est": true,
+      "visual": {
+        "mesh_ref": "citroen_2cv",
+        "node": "SVJ::body::upright_rl"
+      }
     },
     "RR": {
       "topology": {
@@ -534,7 +550,11 @@
           ]
         ]
       },
-      "_est": true
+      "_est": true,
+      "visual": {
+        "mesh_ref": "citroen_2cv",
+        "node": "SVJ::body::upright_rr"
+      }
     }
   },
   "powertrain": {
@@ -577,6 +597,15 @@
         "location": "front",
         "type": "open",
         "final_drive": 3.875
+      }
+    ]
+  },
+  "assets": {
+    "meshes": [
+      {
+        "id": "citroen_2cv",
+        "uri": "meshes/citroen_2cv.glb",
+        "description": "Citro\u00ebn 2CV \u2014 chassis and trailing arm geometry"
       }
     ]
   }

@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:svj:schema:v0.96",
+  "$id": "urn:svj:schema:v0.97",
   "title": "Standard Vehicle JSON (SVJ)",
-  "description": "Schema for SVJ v0.96 — universal vehicle dynamics exchange format. Adds multibody topology extension (marker orientations, explicit joint types, body references) for direct exchange with professional MBD tools (ADAMS/Car, Simpack, MBD for ANSYS).",
+  "description": "Schema for SVJ v0.97 \u2014 universal vehicle dynamics exchange format. v0.97 adds glTF visual binding: flexible coordinate_system and units declarations, optional assets block (mesh manifest), visual_binding definition, and visual fields on chassis and suspension bodies. All v0.96 files are valid v0.97 without changes.",
   "type": "object",
   "required": [
     "_metadata"
@@ -30,18 +30,78 @@
         },
         "version": {
           "type": "string",
-          "const": "0.96"
+          "enum": [
+            "0.96",
+            "0.97"
+          ],
+          "description": "SVJ specification version. Use '0.97' for files that include glTF visual binding."
         },
         "description": {
           "type": "string"
         },
         "coordinate_system": {
-          "type": "string",
-          "const": "SAE_J670"
+          "description": "Coordinate system. Named standard string OR explicit axis object for glTF/DCC compatibility.",
+          "oneOf": [
+            {
+              "type": "string",
+              "enum": [
+                "SAE_J670",
+                "ISO_8855",
+                "OpenDRIVE"
+              ],
+              "description": "Named standard coordinate system"
+            },
+            {
+              "type": "object",
+              "required": [
+                "up",
+                "forward"
+              ],
+              "additionalProperties": false,
+              "description": "Custom glTF-compatible axis specification (e.g. Y-up, -Z forward for Blender)",
+              "properties": {
+                "up": {
+                  "type": "string",
+                  "enum": [
+                    "X",
+                    "Y",
+                    "Z",
+                    "-X",
+                    "-Y",
+                    "-Z"
+                  ]
+                },
+                "forward": {
+                  "type": "string",
+                  "enum": [
+                    "X",
+                    "Y",
+                    "Z",
+                    "-X",
+                    "-Y",
+                    "-Z"
+                  ]
+                },
+                "handedness": {
+                  "type": "string",
+                  "enum": [
+                    "right",
+                    "left"
+                  ],
+                  "default": "right"
+                }
+              }
+            }
+          ]
         },
         "units": {
+          "description": "Unit system. 'SI' (default) implies meters/kg/s. 'meters' or 'millimeters' for glTF pipelines.",
           "type": "string",
-          "const": "SI"
+          "enum": [
+            "SI",
+            "meters",
+            "millimeters"
+          ]
         },
         "created": {
           "type": "string",
@@ -244,6 +304,10 @@
               ]
             }
           }
+        },
+        "visual": {
+          "$ref": "#/definitions/visual_binding",
+          "description": "Optional glTF visual binding for the main chassis body."
         }
       }
     },
@@ -952,12 +1016,12 @@
             "frontal_area": {
               "type": "number",
               "exclusiveMinimum": 0,
-              "description": "Projected frontal area (m²)"
+              "description": "Projected frontal area (m\u00b2)"
             },
             "planform_area": {
               "type": "number",
               "exclusiveMinimum": 0,
-              "description": "Projected top-view area (m²)"
+              "description": "Projected top-view area (m\u00b2)"
             },
             "reference_length": {
               "type": "number",
@@ -967,7 +1031,7 @@
             "air_density": {
               "type": "number",
               "exclusiveMinimum": 0,
-              "description": "Default air density (kg/m³). Default 1.225 at sea level."
+              "description": "Default air density (kg/m\u00b3). Default 1.225 at sea level."
             }
           }
         },
@@ -1321,7 +1385,7 @@
                     "max_lateral_accel": {
                       "type": "number",
                       "minimum": 0,
-                      "description": "Maximum lateral acceleration (m/s²) for activation."
+                      "description": "Maximum lateral acceleration (m/s\u00b2) for activation."
                     }
                   }
                 },
@@ -1989,6 +2053,39 @@
           }
         }
       }
+    },
+    "assets": {
+      "description": "External visual asset manifest listing glTF mesh files referenced by body visual bindings.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "meshes": {
+          "type": "array",
+          "description": "glTF mesh asset entries. Each entry has a stable id and a relative URI.",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "uri"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9_]+$",
+                "description": "Stable identifier referenced by visual.mesh_ref fields."
+              },
+              "uri": {
+                "type": "string",
+                "description": "Relative path to the .glb or .gltf file."
+              },
+              "description": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -2168,7 +2265,7 @@
                   "inertia": {
                     "type": "number",
                     "minimum": 0,
-                    "description": "Rotational inertia about pivot axis (kg·m²)"
+                    "description": "Rotational inertia about pivot axis (kg\u00b7m\u00b2)"
                   },
                   "cg_position": {
                     "$ref": "#/definitions/vec3",
@@ -2448,7 +2545,7 @@
             "mass": {
               "type": "number",
               "minimum": 0,
-              "description": "Damper mass (kg). Body = sprung, rod+piston ≈ unsprung."
+              "description": "Damper mass (kg). Body = sprung, rod+piston \u2248 unsprung."
             }
           }
         },
@@ -2481,7 +2578,7 @@
             "mass": {
               "type": "number",
               "minimum": 0,
-              "description": "ARB bar mass for this axle (kg). Shared between both corners — enter full bar mass, not half."
+              "description": "ARB bar mass for this axle (kg). Shared between both corners \u2014 enter full bar mass, not half."
             }
           }
         },
@@ -2568,6 +2665,10 @@
               "minimum": 0
             }
           }
+        },
+        "visual": {
+          "$ref": "#/definitions/visual_binding",
+          "description": "Optional glTF visual binding for the upright/knuckle of this corner."
         }
       }
     },
@@ -2735,6 +2836,10 @@
           "additionalProperties": {
             "$ref": "#/definitions/marker"
           }
+        },
+        "visual": {
+          "$ref": "#/definitions/visual_binding",
+          "description": "Optional glTF visual binding for this mass component."
         }
       }
     },
@@ -3343,7 +3448,7 @@
             "rotational_inertia": {
               "type": "number",
               "minimum": 0,
-              "description": "Disc spin inertia about wheel axis (kg·m²). Added to wheel rotational_inertia for total spinning mass."
+              "description": "Disc spin inertia about wheel axis (kg\u00b7m\u00b2). Added to wheel rotational_inertia for total spinning mass."
             }
           }
         },
@@ -3882,7 +3987,7 @@
         },
         "orientation": {
           "$ref": "#/definitions/orientation",
-          "description": "Orientation of the bushing stiffness frame relative to the vehicle frame. Aligns the rate_x/y/z axes with the bushing’s local coordinate system. Default: identity (aligned with vehicle axes)."
+          "description": "Orientation of the bushing stiffness frame relative to the vehicle frame. Aligns the rate_x/y/z axes with the bushing\u2019s local coordinate system. Default: identity (aligned with vehicle axes)."
         }
       }
     },
@@ -4032,7 +4137,7 @@
       }
     },
     "orientation": {
-      "description": "Orientation as unit quaternion [qx, qy, qz, qw] relative to the vehicle frame. Default: [0,0,0,1] (identity — aligned with vehicle axes).",
+      "description": "Orientation as unit quaternion [qx, qy, qz, qw] relative to the vehicle frame. Default: [0,0,0,1] (identity \u2014 aligned with vehicle axes).",
       "type": "array",
       "items": {
         "type": "number"
@@ -4059,6 +4164,25 @@
         },
         "orientation": {
           "$ref": "#/definitions/orientation"
+        }
+      }
+    },
+    "visual_binding": {
+      "description": "Binds an SVJ body to a glTF node via the SVJ::category::name naming convention.",
+      "type": "object",
+      "required": [
+        "node"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "mesh_ref": {
+          "type": "string",
+          "description": "References an assets.meshes entry by id. Required when multiple meshes are declared."
+        },
+        "node": {
+          "type": "string",
+          "pattern": "^SVJ::(body|helper|lod)::[a-z0-9_]+$",
+          "description": "glTF node name in SVJ::category::name format. For body/lod, name suffix must equal the body id."
         }
       }
     }

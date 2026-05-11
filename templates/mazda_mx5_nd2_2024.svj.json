@@ -1,713 +1,84 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.96",
-    "description": "Mazda MX-5 ND2 (2019+) 2.0L Skyactiv-G 6MT Club \u2014 factory specs where available, engineering estimates marked.",
+    "version": "0.97",
     "coordinate_system": "SAE_J670",
     "units": "SI",
-    "created": "2026-04-15T00:00:00Z",
-    "author": "SVJ Working Draft \u2014 MX-5 ND reference",
-    "source_format": null,
+    "alignment_convention": "relative_to_centerline",
+    "source_format": "AC",
+    "author": "ac_to_svj_converter v0.99.9",
+    "created": "2026-05-01T23:04:00Z",
+    "description": "Mazda MX-5 ND 2015 (street) \u2014 converted from Assetto Corsa data. Factory values where available; estimates marked _est. v0.97 visual binding layer added.",
+    "x_svj_repo": "https://github.com/RFloEng/SVJ-standard-vehicle-json",
     "data_origin": {
-      "type": "mixed",
-      "detail": "Factory specs from Mazda press material (USA/Canada/Qatar/UK), roadster.blog, RACER.com. Suspension hardpoints, spring/damper rates, Pacejka coefficients, inertia tensor, CG height, aero coefficients, and mass decomposition are engineering estimates marked with _est:true.",
+      "type": "simulation",
+      "detail": "Assetto Corsa \u2014 unpacked data/ (28 ini)",
       "confidence": "medium"
-    },
-    "alignment_convention": "relative_to_centerline"
+    }
   },
   "vehicle_info": {
     "make": "Mazda",
-    "model": "MX-5 (Miata)",
-    "year": 2024,
-    "variant": "ND2 Club 6MT",
+    "model": "Mazda MX5 ND",
+    "year": 2015,
+    "variant": "street",
     "drive_type": "RWD"
   },
   "chassis": {
-    "mass_total": 1077.0,
+    "mass_total": 1058.0,
     "mass_unsprung_per_corner": {
-      "FL": 40.3,
-      "FR": 40.3,
-      "RL": 39.9,
-      "RR": 39.9,
-      "_est": true
+      "FL": 13.5,
+      "FR": 13.5,
+      "RL": 12.25,
+      "RR": 12.25
     },
     "wheelbase": 2.31,
-    "track_front": 1.495,
-    "track_rear": 1.505,
+    "track_front": 1.496,
+    "track_rear": 1.503,
     "center_of_gravity": [
-      -1.086,
+      -1.224,
       0.0,
-      -0.43
+      -0.42
     ],
-    "inertia": {
-      "Ixx": 290.0,
-      "Iyy": 1450.0,
-      "Izz": 1520.0,
-      "Ixz": 55.0,
-      "_est": true,
-      "Ixy": 0.0,
-      "Iyz": 0.0
-    },
-    "mass_bodies": [
-      {
-        "id": "body_shell",
-        "description": "Unibody + backbone frame, closures, glass, bumpers",
-        "category": "structural",
-        "mass": 390.6,
-        "position": [
-          -2.03,
-          0.0,
-          -0.562
-        ],
-        "_est": true,
-        "inertia": {
-          "Ixx": 180.0,
-          "Iyy": 650.0,
-          "Izz": 700.0,
-          "Ixz": 25.0,
-          "Ixy": 0.0,
-          "Iyz": 0.0
-        }
-      },
-      {
-        "id": "front_subframe",
-        "description": "Front subframe with steering rack mounts",
-        "category": "structural",
-        "mass": 28.0,
-        "position": [
-          -0.1,
-          0.0,
-          -0.2
-        ],
-        "_est": true,
-        "inertia": {
-          "Ixx": 2.5,
-          "Iyy": 5.5,
-          "Izz": 6.0,
-          "Ixz": 0.3,
-          "Ixy": 0.0,
-          "Iyz": 0.0
-        }
-      },
-      {
-        "id": "rear_subframe",
-        "description": "Rear subframe with diff cradle",
-        "category": "structural",
-        "mass": 22.0,
-        "position": [
-          -2.15,
-          0.0,
-          -0.18
-        ],
-        "_est": true,
-        "inertia": {
-          "Ixx": 2.0,
-          "Iyy": 5.0,
-          "Izz": 5.5,
-          "Ixz": 0.2,
-          "Ixy": 0.0,
-          "Iyz": 0.0
-        }
-      },
-      {
-        "id": "engine",
-        "description": "Skyactiv-G 2.0L PE-VPR block+head+ancillaries",
-        "category": "powertrain",
-        "mass": 130.0,
-        "position": [
-          -0.7,
-          0.0,
-          -0.38
-        ],
-        "_est": true,
-        "inertia": {
-          "Ixx": 8.0,
-          "Iyy": 12.0,
-          "Izz": 10.0,
-          "Ixz": 1.0,
-          "Ixy": 0.0,
-          "Iyz": 0.0
-        }
-      },
-      {
-        "id": "transmission",
-        "description": "Skyactiv-MT 6-speed manual, 82kg drivetrain total",
-        "category": "powertrain",
-        "mass": 38.0,
-        "position": [
-          -1.1,
-          0.0,
-          -0.32
-        ],
-        "_est": true,
-        "inertia": {
-          "Ixx": 2.0,
-          "Iyy": 3.2,
-          "Izz": 2.8,
-          "Ixz": 0.1,
-          "Ixy": 0.0,
-          "Iyz": 0.0
-        }
-      },
-      {
-        "id": "driveshaft",
-        "description": "Propshaft, center bearing",
-        "category": "powertrain",
-        "mass": 8.0,
-        "position": [
-          -1.6,
-          0.0,
-          -0.28
-        ],
-        "_est": true,
-        "inertia": {
-          "Ixx": 0.05,
-          "Iyy": 1.5,
-          "Izz": 1.5,
-          "Ixz": 0.0,
-          "Ixy": 0.0,
-          "Iyz": 0.0
-        }
-      },
-      {
-        "id": "differential",
-        "description": "Torque-sensing LSD, ring/pinion",
-        "category": "powertrain",
-        "mass": 18.0,
-        "position": [
-          -2.31,
-          0.0,
-          -0.24
-        ],
-        "_est": true,
-        "inertia": {
-          "Ixx": 0.6,
-          "Iyy": 0.9,
-          "Izz": 0.9,
-          "Ixz": 0.0,
-          "Ixy": 0.0,
-          "Iyz": 0.0
-        }
-      },
-      {
-        "id": "exhaust",
-        "description": "Manifold, cat, mid-pipe, muffler",
-        "category": "powertrain",
-        "mass": 18.0,
-        "position": [
-          -1.4,
-          0.0,
-          -0.16
-        ],
-        "_est": true,
-        "inertia": {
-          "Ixx": 0.3,
-          "Iyy": 6.0,
-          "Izz": 6.0,
-          "Ixz": 0.0,
-          "Ixy": 0.0,
-          "Iyz": 0.0
-        }
-      },
-      {
-        "id": "fuel",
-        "description": "45L tank, half full (~17L)",
-        "category": "fluid",
-        "mass": 20.0,
-        "position": [
-          -1.85,
-          0.0,
-          -0.26
-        ],
-        "_est": true,
-        "inertia": {
-          "Ixx": 0.8,
-          "Iyy": 1.2,
-          "Izz": 1.5,
-          "Ixz": 0.0,
-          "Ixy": 0.0,
-          "Iyz": 0.0
-        }
-      },
-      {
-        "id": "coolant_oil",
-        "description": "Coolant, engine oil, gearbox oil, brake fluid",
-        "category": "fluid",
-        "mass": 10.0,
-        "position": [
-          -0.75,
-          0.0,
-          -0.3
-        ],
-        "_est": true,
-        "inertia": {
-          "Ixx": 0.2,
-          "Iyy": 0.3,
-          "Izz": 0.3,
-          "Ixz": 0.0,
-          "Ixy": 0.0,
-          "Iyz": 0.0
-        }
-      },
-      {
-        "id": "interior",
-        "description": "Seats, dash, trim, soft-top mechanism",
-        "category": "structural",
-        "mass": 95.0,
-        "position": [
-          -1.2,
-          0.0,
-          -0.48
-        ],
-        "_est": true,
-        "inertia": {
-          "Ixx": 25.0,
-          "Iyy": 35.0,
-          "Izz": 38.0,
-          "Ixz": 3.0,
-          "Ixy": 0.0,
-          "Iyz": 0.0
-        }
-      },
-      {
-        "id": "electronics",
-        "description": "Wiring, ECU, battery 12V, alternator, HVAC",
-        "category": "electrical",
-        "mass": 55.0,
-        "position": [
-          -0.9,
-          0.0,
-          -0.38
-        ],
-        "_est": true,
-        "inertia": {
-          "Ixx": 5.0,
-          "Iyy": 7.5,
-          "Izz": 8.5,
-          "Ixz": 0.5,
-          "Ixy": 0.0,
-          "Iyz": 0.0
-        }
-      },
-      {
-        "id": "driver",
-        "description": "75 kg driver",
-        "category": "payload",
-        "mass": 75.0,
-        "position": [
-          -1.2,
-          0.0,
-          -0.5
-        ],
-        "_est": true,
-        "inertia": {
-          "Ixx": 8.0,
-          "Iyy": 10.0,
-          "Izz": 3.5,
-          "Ixz": 0.3,
-          "Ixy": 0.0,
-          "Iyz": 0.0
-        }
-      },
-      {
-        "id": "radiator_fans",
-        "description": "Radiator, fans, hoses",
-        "category": "other",
-        "mass": 8.0,
-        "position": [
-          0.05,
-          0.0,
-          -0.32
-        ],
-        "_est": true,
-        "inertia": {
-          "Ixx": 0.4,
-          "Iyy": 0.3,
-          "Izz": 0.5,
-          "Ixz": 0.0,
-          "Ixy": 0.0,
-          "Iyz": 0.0
-        }
-      },
-      {
-        "id": "upright_fl",
-        "description": "Front Left upright/knuckle",
-        "category": "structural",
-        "mass": 8.5,
-        "position": [
-          0.0,
-          -0.7975000000000001,
-          -0.27999999999999997
-        ],
-        "parent": "chassis"
-      },
-      {
-        "id": "upper_wishbone_fl",
-        "description": "Front Left upper wishbone",
-        "category": "structural",
-        "mass": 3.2,
-        "position": [
-          0.0,
-          -0.41,
-          -0.4
-        ],
-        "parent": "chassis"
-      },
-      {
-        "id": "lower_wishbone_fl",
-        "description": "Front Left lower wishbone",
-        "category": "structural",
-        "mass": 3.2,
-        "position": [
-          0.005,
-          -0.41,
-          -0.12
-        ],
-        "parent": "chassis"
-      },
-      {
-        "id": "steering_tie_rod_fl",
-        "description": "Front Left steering tie rod",
-        "category": "structural",
-        "mass": 0.8,
-        "position": [
-          0.08,
-          -0.365,
-          -0.18
-        ],
-        "parent": "chassis"
-      },
-      {
-        "id": "upright_fr",
-        "description": "Front Right upright/knuckle",
-        "category": "structural",
-        "mass": 8.5,
-        "position": [
-          0.0,
-          0.7975000000000001,
-          -0.27999999999999997
-        ],
-        "parent": "chassis"
-      },
-      {
-        "id": "upper_wishbone_fr",
-        "description": "Front Right upper wishbone",
-        "category": "structural",
-        "mass": 3.2,
-        "position": [
-          0.0,
-          0.41,
-          -0.4
-        ],
-        "parent": "chassis"
-      },
-      {
-        "id": "lower_wishbone_fr",
-        "description": "Front Right lower wishbone",
-        "category": "structural",
-        "mass": 3.2,
-        "position": [
-          0.005,
-          0.41,
-          -0.12
-        ],
-        "parent": "chassis"
-      },
-      {
-        "id": "steering_tie_rod_fr",
-        "description": "Front Right steering tie rod",
-        "category": "structural",
-        "mass": 0.8,
-        "position": [
-          0.08,
-          0.365,
-          -0.18
-        ],
-        "parent": "chassis"
-      },
-      {
-        "id": "upright_rl",
-        "description": "Rear Left upright/knuckle",
-        "category": "structural",
-        "mass": 9.5,
-        "position": [
-          -2.31,
-          -0.8025,
-          -0.27999999999999997
-        ],
-        "parent": "chassis"
-      },
-      {
-        "id": "upper_control_arm_rl",
-        "description": "Rear Left upper control arm",
-        "category": "structural",
-        "mass": 2.8,
-        "position": [
-          -2.31,
-          -0.4,
-          -0.38
-        ],
-        "parent": "chassis"
-      },
-      {
-        "id": "lower_control_arm_rl",
-        "description": "Rear Left lower control arm",
-        "category": "structural",
-        "mass": 2.8,
-        "position": [
-          -2.315,
-          -0.395,
-          -0.11
-        ],
-        "parent": "chassis"
-      },
-      {
-        "id": "toe_link_rl",
-        "description": "Rear Left toe link",
-        "category": "structural",
-        "mass": 0.8,
-        "position": [
-          -2.23,
-          -0.365,
-          -0.16
-        ],
-        "parent": "chassis"
-      },
-      {
-        "id": "upper_lateral_link_rl",
-        "description": "Rear Left upper lateral link",
-        "category": "structural",
-        "mass": 1.2,
-        "position": [
-          -2.35,
-          -0.395,
-          -0.36
-        ],
-        "parent": "chassis"
-      },
-      {
-        "id": "lower_lateral_link_rl",
-        "description": "Rear Left lower lateral link",
-        "category": "structural",
-        "mass": 1.2,
-        "position": [
-          -2.27,
-          -0.395,
-          -0.13
-        ],
-        "parent": "chassis"
-      },
-      {
-        "id": "upright_rr",
-        "description": "Rear Right upright/knuckle",
-        "category": "structural",
-        "mass": 9.5,
-        "position": [
-          -2.31,
-          0.8025,
-          -0.27999999999999997
-        ],
-        "parent": "chassis"
-      },
-      {
-        "id": "upper_control_arm_rr",
-        "description": "Rear Right upper control arm",
-        "category": "structural",
-        "mass": 2.8,
-        "position": [
-          -2.31,
-          0.4,
-          -0.38
-        ],
-        "parent": "chassis"
-      },
-      {
-        "id": "lower_control_arm_rr",
-        "description": "Rear Right lower control arm",
-        "category": "structural",
-        "mass": 2.8,
-        "position": [
-          -2.315,
-          0.395,
-          -0.11
-        ],
-        "parent": "chassis"
-      },
-      {
-        "id": "toe_link_rr",
-        "description": "Rear Right toe link",
-        "category": "structural",
-        "mass": 0.8,
-        "position": [
-          -2.23,
-          0.365,
-          -0.16
-        ],
-        "parent": "chassis"
-      },
-      {
-        "id": "upper_lateral_link_rr",
-        "description": "Rear Right upper lateral link",
-        "category": "structural",
-        "mass": 1.2,
-        "position": [
-          -2.35,
-          0.395,
-          -0.36
-        ],
-        "parent": "chassis"
-      },
-      {
-        "id": "lower_lateral_link_rr",
-        "description": "Rear Right lower lateral link",
-        "category": "structural",
-        "mass": 1.2,
-        "position": [
-          -2.27,
-          0.395,
-          -0.13
-        ],
-        "parent": "chassis"
-      }
-    ],
-    "center_of_gravity_x_note": "factory: 53/47 F/R distribution",
-    "center_of_gravity_z_note": "estimated",
-    "chassis_stiffness": {
-      "torsional_stiffness": 8500.0,
-      "torsional_stiffness_note": "MX-5 ND roadster typical range 4000-10000 Nm/deg",
-      "bending_stiffness": 12000.0,
-      "measurement_method": "estimated",
-      "_est": true
-    }
-  },
-  "steering": {
-    "type": "rack_and_pinion",
-    "rack_position": [
-      -0.05,
-      0.0,
-      -0.18
-    ],
-    "rack_position_note": "estimated position",
-    "rack_travel": 0.132,
-    "rack_travel_note": "estimated from geometry",
-    "overall_ratio": 15.5,
-    "overall_ratio_source": "Mazda spec sheet",
-    "lock_to_lock": 16.965,
-    "lock_to_lock_turns": 2.7,
-    "lock_to_lock_source": "Mazda spec sheet",
-    "max_steer_angle": 0.5472,
-    "max_steer_angle_note": "derived: (lock_to_lock/2) / overall_ratio",
-    "turning_circle": 9.4,
-    "turning_circle_note": "Mazda Canada spec, curb-to-curb diameter (m)",
-    "ackermann": 0.65,
-    "ackermann_note": "estimated",
-    "power_assist": {
-      "type": "electric",
-      "subtype": "dual_pinion",
-      "subtype_source": "Mazda DP-EPAS",
-      "assist_curve": [
-        [
-          0.0,
-          3.0
-        ],
-        [
-          10.0,
-          2.6
-        ],
-        [
-          30.0,
-          1.6
-        ],
-        [
-          60.0,
-          1.0
-        ]
-      ],
-      "assist_curve_note": "estimated shape, speed-sensitive",
-      "max_assist_torque": 5.0
-    },
-    "column": {
-      "inertia": 0.03,
-      "damping": 0.4,
-      "friction": 0.7,
-      "_est": true
-    },
-    "steering_wheel": {
-      "diameter": 0.37,
-      "diameter_note": "factory Nardi-style 370mm",
-      "mass": 3.2,
-      "mass_note": "estimated",
-      "inertia": 0.038,
-      "_est": true
-    },
-    "tie_rod_inboard": {
-      "left": [
-        0.08,
-        -0.16,
-        -0.18
-      ],
-      "right": [
-        0.08,
-        0.16,
-        -0.18
-      ],
-      "_est": true
-    },
-    "rack": {
-      "mass": 4.8,
-      "inertia": 0.002,
-      "_est": true
+    "fuel_capacity": 45.0,
+    "fuel_initial": 30.0,
+    "visual": {
+      "mesh_ref": "mx5_body",
+      "node": "SVJ::body::chassis"
     }
   },
   "suspension": {
     "FL": {
+      "position": [
+        0.0,
+        -0.748,
+        -0.3081
+      ],
       "topology": {
         "system_type": "double_wishbone",
         "upright": {
-          "id": "upright_FL",
-          "mass": 8.5,
+          "id": "upright_fl",
           "hardpoints": {
-            "upper_ball_joint": [
-              0.0,
-              -0.56,
-              -0.4
-            ],
-            "lower_ball_joint": [
-              0.0,
-              -0.6,
-              -0.12
-            ],
-            "steering_tie_rod_end": [
-              0.08,
-              -0.57,
-              -0.18
-            ],
             "wheel_center": [
               0.0,
-              -0.7475,
-              -0.3
+              -0.748,
+              -0.3081
             ],
-            "damper_outboard": [
-              -0.015,
-              -0.52,
-              -0.14
+            "upper_ball_joint": [
+              -0.0321,
+              -0.5932,
+              -0.4176
+            ],
+            "lower_ball_joint": [
+              -0.0025,
+              -0.6475,
+              -0.2071
+            ],
+            "steering_tie_rod_end": [
+              0.1169,
+              -0.6532,
+              -0.248
             ]
-          },
-          "inertia": {
-            "Ixx": 0.035,
-            "Iyy": 0.04,
-            "Izz": 0.03,
-            "Ixz": 0.002,
-            "_est": true,
-            "Ixy": 0.002,
-            "Iyz": 0.001
-          },
-          "cg_position": [
-            0.0,
-            -0.7975000000000001,
-            -0.27999999999999997
-          ],
-          "body_ref": "upright_fl"
+          }
         },
         "links": [
           {
@@ -715,167 +86,87 @@
             "type": "arm",
             "inboard_points": [
               [
-                0.12,
-                -0.26,
-                -0.4
+                0.1348,
+                -0.365,
+                -0.4312
               ],
               [
-                -0.12,
-                -0.26,
-                -0.4
+                -0.1669,
+                -0.365,
+                -0.4326
               ]
             ],
             "outboard_ref": "hardpoints.upper_ball_joint",
-            "bushings": [
-              {
-                "rate_x": 25000,
-                "rate_y": 150000,
-                "rate_z": 80000,
-                "rate_rz": 200,
-                "damping_x": 200,
-                "damping_y": 500,
-                "_est": true
-              },
-              {
-                "rate_x": 25000,
-                "rate_y": 150000,
-                "rate_z": 80000,
-                "rate_rz": 200,
-                "damping_x": 200,
-                "damping_y": 500,
-                "_est": true
-              }
-            ],
-            "mass": 3.2,
-            "inertia": 0.08,
-            "mass_distribution": {
-              "sprung_fraction": 0.5
-            },
-            "_est": true,
-            "cg_position": [
-              0.0,
-              -0.41,
-              -0.4
-            ],
-            "joint_type": "spherical",
-            "inboard_joint_type": "revolute",
-            "body_ref": "upper_wishbone_fl"
+            "outboard_point": [
+              -0.0321,
+              -0.5932,
+              -0.4176
+            ]
           },
           {
             "name": "lower_wishbone",
             "type": "arm",
             "inboard_points": [
               [
-                0.17,
-                -0.22,
-                -0.12
+                -0.0333,
+                -0.2928,
+                -0.2385
               ],
               [
-                -0.15,
-                -0.22,
-                -0.12
+                -0.3962,
+                -0.3221,
+                -0.227
               ]
             ],
             "outboard_ref": "hardpoints.lower_ball_joint",
-            "bushings": [
-              {
-                "rate_x": 25000,
-                "rate_y": 150000,
-                "rate_z": 80000,
-                "rate_rz": 200,
-                "damping_x": 200,
-                "damping_y": 500,
-                "_est": true
-              },
-              {
-                "rate_x": 25000,
-                "rate_y": 150000,
-                "rate_z": 80000,
-                "rate_rz": 200,
-                "damping_x": 200,
-                "damping_y": 500,
-                "_est": true
-              }
-            ],
-            "mass": 3.2,
-            "inertia": 0.08,
-            "mass_distribution": {
-              "sprung_fraction": 0.5
-            },
-            "_est": true,
-            "cg_position": [
-              0.005,
-              -0.41,
-              -0.12
-            ],
-            "joint_type": "spherical",
-            "inboard_joint_type": "revolute",
-            "body_ref": "lower_wishbone_fl"
+            "outboard_point": [
+              -0.0025,
+              -0.6475,
+              -0.2071
+            ]
           },
           {
             "name": "steering_tie_rod",
             "type": "rod",
             "inboard_points": [
               [
-                0.08,
-                -0.16,
-                -0.18
+                0.0589,
+                -0.2928,
+                -0.2785
               ]
             ],
             "outboard_ref": "hardpoints.steering_tie_rod_end",
-            "bushings": [
-              {
-                "rate_x": 500000,
-                "rate_y": 500000,
-                "rate_z": 500000,
-                "_est": true,
-                "_est_note": "Tie rod ends are ball joints \u2014 very stiff, minimal compliance"
-              }
-            ],
-            "mass": 0.8,
-            "inertia": 0.005,
-            "mass_distribution": {
-              "sprung_fraction": 0.5
-            },
-            "_est": true,
-            "cg_position": [
-              0.08,
-              -0.365,
-              -0.18
-            ],
-            "joint_type": "spherical",
-            "inboard_joint_type": "spherical",
-            "body_ref": "steering_tie_rod_fl"
+            "outboard_point": [
+              0.1169,
+              -0.6532,
+              -0.248
+            ]
           }
         ]
       },
       "wheel": {
-        "rim_diameter": 0.4318,
-        "rim_width": 0.1778,
-        "rim_offset": 0.045,
-        "loaded_radius": 0.298,
-        "mass": 16.5,
-        "rotational_inertia": 0.72,
-        "set_ref": "front_205_45r17"
+        "rim_diameter": 0.432,
+        "rim_width": 0.2,
+        "set_ref": "tire_front_1_205_39r18",
+        "mass": 13.5
       },
       "spring": {
         "type": "coilover",
-        "rate": 26000,
-        "free_length": 0.23,
-        "preload": 350,
-        "motion_ratio": 0.9,
-        "inboard_mount": [
-          -0.015,
-          -0.3,
-          -0.54
+        "rate": 11708.0,
+        "motion_ratio": 1.0,
+        "axis": "vertical",
+        "inboard_point": [
+          0.0,
+          -0.748,
+          -0.6581
         ],
-        "outboard_mount": [
-          -0.015,
-          -0.52,
-          -0.14
+        "outboard_point": [
+          0.0,
+          -0.748,
+          -0.3081
         ],
-        "_est": true,
-        "mass": 2.0
+        "_note": "AC spring rate is already wheel-rate \u2014 axis taken as vertical through the wheel centre (AC does not model pickup points)",
+        "rod_length": 0.18
       },
       "damper": {
         "type": "monotube",
@@ -886,23 +177,23 @@
           ],
           [
             0.025,
-            300
+            21.9
           ],
           [
             0.05,
-            560
+            87.5
           ],
           [
             0.1,
-            900
+            280.0
           ],
           [
             0.2,
-            1350
+            700.0
           ],
           [
             0.5,
-            2200
+            1925.0
           ]
         ],
         "rebound_curve": [
@@ -912,268 +203,104 @@
           ],
           [
             0.025,
-            450
+            51.6
           ],
           [
             0.05,
-            840
+            206.2
           ],
           [
             0.1,
-            1350
+            660.0
           ],
           [
             0.2,
-            2100
+            1650.0
           ],
           [
             0.5,
-            3600
+            4537.5
           ]
         ],
-        "motion_ratio": 0.9,
-        "inboard_mount": [
-          -0.015,
-          -0.3,
-          -0.54
+        "motion_ratio": 1.0,
+        "axis": "vertical",
+        "inboard_point": [
+          0.0,
+          -0.748,
+          -0.6581
         ],
-        "outboard_mount": [
-          -0.015,
-          -0.52,
-          -0.14
+        "outboard_point": [
+          0.0,
+          -0.748,
+          -0.3081
         ],
         "_est": true,
-        "mass": 2.5
+        "_note": "AC damping is specified at wheel \u2014 vertical axis at wheel centre, 1:1 motion ratio. Curves synthesised from AC scalar bump/rebound.",
+        "bumpstops": {
+          "up": 0.1,
+          "down": 0.085
+        }
       },
       "arb": {
         "bar_id": "arb_front",
-        "bar_rate": 600.0,
-        "wheel_rate_equiv": 12000,
-        "motion_ratio": 0.65,
-        "drop_link_mount": [
-          0.015,
-          -0.42,
-          -0.13
-        ],
-        "_est": true,
-        "mass": 3.5
+        "bar_rate": 8000.0,
+        "_est": true
       },
       "alignment": {
-        "camber": -0.0122,
-        "toe": 0.0005,
-        "caster": 0.11,
-        "kpi": 0.21,
-        "scrub_radius": 0.015,
-        "_est": true
-      },
-      "bump_stop": {
-        "gap": 0.055,
-        "type": "progressive",
-        "rate_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.005,
-            400
-          ],
-          [
-            0.01,
-            1600
-          ],
-          [
-            0.02,
-            6500
-          ],
-          [
-            0.03,
-            20000
-          ]
-        ],
-        "_est": true
-      },
-      "rebound_stop": {
-        "gap": 0.065,
-        "rate": 40000,
-        "type": "rubber",
-        "_est": true
+        "camber": -0.4,
+        "toe": -0.0002
       },
       "brake": {
         "disc": {
           "type": "vented",
-          "outer_diameter": 0.28,
-          "outer_diameter_source": "Mazda: 11-inch vented",
-          "inner_diameter": 0.2,
-          "thickness": 0.024,
-          "effective_radius": 0.12,
-          "mass": 5.8,
-          "material": "cast_iron",
-          "specific_heat": 460.0,
-          "max_temperature": 650.0,
-          "thermal_mass": 2668.0,
-          "_est_note": "Diameter factory, other dims estimated",
-          "rotational_inertia": 0.0858
+          "outer_diameter": 0.56
         },
-        "caliper": {
-          "type": "floating",
-          "pistons": 1,
-          "pistons_source": "Mazda: single piston",
-          "piston_area_total": 0.0025,
-          "mass": 2.2,
-          "_est": true,
-          "position": [
-            0.0,
-            -0.7775000000000001,
-            -0.18
-          ]
-        },
-        "pad": {
-          "material": "semi_metallic",
-          "area": 0.0045,
-          "thickness": 0.011,
-          "mass": 0.35,
-          "mu_cold": 0.38,
-          "mu_curve": [
-            [
-              25,
-              0.38
-            ],
-            [
-              100,
-              0.4
-            ],
-            [
-              200,
-              0.42
-            ],
-            [
-              300,
-              0.44
-            ],
-            [
-              400,
-              0.43
-            ],
-            [
-              500,
-              0.4
-            ],
-            [
-              600,
-              0.35
-            ],
-            [
-              700,
-              0.28
-            ]
-          ],
-          "specific_heat": 1200.0,
-          "_est": true
-        },
-        "thermal_dynamics": {
-          "disc_to_pad_conductance": 150.0,
-          "disc_to_air_conductance": 15.0,
-          "disc_to_air_speed_curve": [
-            [
-              0,
-              15
-            ],
-            [
-              10,
-              40
-            ],
-            [
-              20,
-              80
-            ],
-            [
-              40,
-              150
-            ],
-            [
-              60,
-              200
-            ]
-          ],
-          "pad_to_caliper_conductance": 8.0,
-          "caliper_to_air_conductance": 5.0,
-          "initial_temperature": 25.0,
-          "_est": true
-        }
+        "max_torque_nm": 3500.0
       },
       "tire": {
-        "set_ref": "front_205_45r17",
-        "pressure": 200000.0,
-        "temperature_initial": 25.0,
-        "wear_initial": 0.0
-      },
-      "_est": true,
-      "_est_note": "Topology confirmed (double wishbone). Hardpoint coordinates, rates, alignment estimated.",
-      "compliance_summary": {
-        "toe_stiffness": 95000,
-        "camber_stiffness": 50000,
-        "caster_stiffness": 120000,
-        "longitudinal_stiffness": 180000,
-        "lateral_stiffness": 150000,
-        "_est": true
+        "set_ref": "tire_front_1_205_39r18"
       },
       "static_setup": {
-        "ride_height": 0.135,
-        "ride_height_note": "ground clearance 135mm front / 149mm rear, estimated",
-        "corner_weight": 2799.8,
-        "spring_compression": 0.035,
-        "_est": true
+        "ride_height": 0.15,
+        "_ride_height_note": "Absolute value of AC Z-offset; sign convention differs from SAE."
+      },
+      "visual": {
+        "mesh_ref": "mx5_body",
+        "node": "SVJ::body::upright_fl"
       }
     },
     "FR": {
+      "position": [
+        0.0,
+        0.748,
+        -0.3081
+      ],
       "topology": {
         "system_type": "double_wishbone",
         "upright": {
-          "id": "upright_FR",
-          "mass": 8.5,
+          "id": "upright_fr",
           "hardpoints": {
-            "upper_ball_joint": [
-              0.0,
-              0.56,
-              -0.4
-            ],
-            "lower_ball_joint": [
-              0.0,
-              0.6,
-              -0.12
-            ],
-            "steering_tie_rod_end": [
-              0.08,
-              0.57,
-              -0.18
-            ],
             "wheel_center": [
               0.0,
-              0.7475,
-              -0.3
+              0.748,
+              -0.3081
             ],
-            "damper_outboard": [
-              -0.015,
-              0.52,
-              -0.14
+            "upper_ball_joint": [
+              -0.0321,
+              0.5932,
+              -0.4176
+            ],
+            "lower_ball_joint": [
+              -0.0025,
+              0.6475,
+              -0.2071
+            ],
+            "steering_tie_rod_end": [
+              0.1169,
+              0.6532,
+              -0.248
             ]
-          },
-          "inertia": {
-            "Ixx": 0.035,
-            "Iyy": 0.04,
-            "Izz": 0.03,
-            "Ixz": 0.002,
-            "_est": true,
-            "Ixy": 0.002,
-            "Iyz": 0.001
-          },
-          "cg_position": [
-            0.0,
-            0.7975000000000001,
-            -0.27999999999999997
-          ],
-          "body_ref": "upright_fr"
+          }
         },
         "links": [
           {
@@ -1181,167 +308,87 @@
             "type": "arm",
             "inboard_points": [
               [
-                0.12,
-                0.26,
-                -0.4
+                0.1348,
+                0.365,
+                -0.4312
               ],
               [
-                -0.12,
-                0.26,
-                -0.4
+                -0.1669,
+                0.365,
+                -0.4326
               ]
             ],
             "outboard_ref": "hardpoints.upper_ball_joint",
-            "bushings": [
-              {
-                "rate_x": 25000,
-                "rate_y": 150000,
-                "rate_z": 80000,
-                "rate_rz": 200,
-                "damping_x": 200,
-                "damping_y": 500,
-                "_est": true
-              },
-              {
-                "rate_x": 25000,
-                "rate_y": 150000,
-                "rate_z": 80000,
-                "rate_rz": 200,
-                "damping_x": 200,
-                "damping_y": 500,
-                "_est": true
-              }
-            ],
-            "mass": 3.2,
-            "inertia": 0.08,
-            "mass_distribution": {
-              "sprung_fraction": 0.5
-            },
-            "_est": true,
-            "cg_position": [
-              0.0,
-              0.41,
-              -0.4
-            ],
-            "joint_type": "spherical",
-            "inboard_joint_type": "revolute",
-            "body_ref": "upper_wishbone_fr"
+            "outboard_point": [
+              -0.0321,
+              0.5932,
+              -0.4176
+            ]
           },
           {
             "name": "lower_wishbone",
             "type": "arm",
             "inboard_points": [
               [
-                0.17,
-                0.22,
-                -0.12
+                -0.0333,
+                0.2928,
+                -0.2385
               ],
               [
-                -0.15,
-                0.22,
-                -0.12
+                -0.3962,
+                0.3221,
+                -0.227
               ]
             ],
             "outboard_ref": "hardpoints.lower_ball_joint",
-            "bushings": [
-              {
-                "rate_x": 25000,
-                "rate_y": 150000,
-                "rate_z": 80000,
-                "rate_rz": 200,
-                "damping_x": 200,
-                "damping_y": 500,
-                "_est": true
-              },
-              {
-                "rate_x": 25000,
-                "rate_y": 150000,
-                "rate_z": 80000,
-                "rate_rz": 200,
-                "damping_x": 200,
-                "damping_y": 500,
-                "_est": true
-              }
-            ],
-            "mass": 3.2,
-            "inertia": 0.08,
-            "mass_distribution": {
-              "sprung_fraction": 0.5
-            },
-            "_est": true,
-            "cg_position": [
-              0.005,
-              0.41,
-              -0.12
-            ],
-            "joint_type": "spherical",
-            "inboard_joint_type": "revolute",
-            "body_ref": "lower_wishbone_fr"
+            "outboard_point": [
+              -0.0025,
+              0.6475,
+              -0.2071
+            ]
           },
           {
             "name": "steering_tie_rod",
             "type": "rod",
             "inboard_points": [
               [
-                0.08,
-                0.16,
-                -0.18
+                0.0589,
+                0.2928,
+                -0.2785
               ]
             ],
             "outboard_ref": "hardpoints.steering_tie_rod_end",
-            "bushings": [
-              {
-                "rate_x": 500000,
-                "rate_y": 500000,
-                "rate_z": 500000,
-                "_est": true,
-                "_est_note": "Tie rod ends are ball joints \u2014 very stiff, minimal compliance"
-              }
-            ],
-            "mass": 0.8,
-            "inertia": 0.005,
-            "mass_distribution": {
-              "sprung_fraction": 0.5
-            },
-            "_est": true,
-            "cg_position": [
-              0.08,
-              0.365,
-              -0.18
-            ],
-            "joint_type": "spherical",
-            "inboard_joint_type": "spherical",
-            "body_ref": "steering_tie_rod_fr"
+            "outboard_point": [
+              0.1169,
+              0.6532,
+              -0.248
+            ]
           }
         ]
       },
       "wheel": {
-        "rim_diameter": 0.4318,
-        "rim_width": 0.1778,
-        "rim_offset": 0.045,
-        "loaded_radius": 0.298,
-        "mass": 16.5,
-        "rotational_inertia": 0.72,
-        "set_ref": "front_205_45r17"
+        "rim_diameter": 0.432,
+        "rim_width": 0.2,
+        "set_ref": "tire_front_1_205_39r18",
+        "mass": 13.5
       },
       "spring": {
         "type": "coilover",
-        "rate": 26000,
-        "free_length": 0.23,
-        "preload": 350,
-        "motion_ratio": 0.9,
-        "inboard_mount": [
-          -0.015,
-          0.3,
-          -0.54
+        "rate": 11708.0,
+        "motion_ratio": 1.0,
+        "axis": "vertical",
+        "inboard_point": [
+          0.0,
+          0.748,
+          -0.6581
         ],
-        "outboard_mount": [
-          -0.015,
-          0.52,
-          -0.14
+        "outboard_point": [
+          0.0,
+          0.748,
+          -0.3081
         ],
-        "_est": true,
-        "mass": 2.0
+        "_note": "AC spring rate is already wheel-rate \u2014 axis taken as vertical through the wheel centre (AC does not model pickup points)",
+        "rod_length": 0.18
       },
       "damper": {
         "type": "monotube",
@@ -1352,23 +399,23 @@
           ],
           [
             0.025,
-            300
+            21.9
           ],
           [
             0.05,
-            560
+            87.5
           ],
           [
             0.1,
-            900
+            280.0
           ],
           [
             0.2,
-            1350
+            700.0
           ],
           [
             0.5,
-            2200
+            1925.0
           ]
         ],
         "rebound_curve": [
@@ -1378,454 +425,197 @@
           ],
           [
             0.025,
-            450
+            51.6
           ],
           [
             0.05,
-            840
+            206.2
           ],
           [
             0.1,
-            1350
+            660.0
           ],
           [
             0.2,
-            2100
+            1650.0
           ],
           [
             0.5,
-            3600
+            4537.5
           ]
         ],
-        "motion_ratio": 0.9,
-        "inboard_mount": [
-          -0.015,
-          0.3,
-          -0.54
+        "motion_ratio": 1.0,
+        "axis": "vertical",
+        "inboard_point": [
+          0.0,
+          0.748,
+          -0.6581
         ],
-        "outboard_mount": [
-          -0.015,
-          0.52,
-          -0.14
+        "outboard_point": [
+          0.0,
+          0.748,
+          -0.3081
         ],
         "_est": true,
-        "mass": 2.5
+        "_note": "AC damping is specified at wheel \u2014 vertical axis at wheel centre, 1:1 motion ratio. Curves synthesised from AC scalar bump/rebound.",
+        "bumpstops": {
+          "up": 0.1,
+          "down": 0.085
+        }
       },
       "arb": {
         "bar_id": "arb_front",
-        "bar_rate": 600.0,
-        "wheel_rate_equiv": 12000,
-        "motion_ratio": 0.65,
-        "drop_link_mount": [
-          0.015,
-          0.42,
-          -0.13
-        ],
-        "_est": true,
-        "mass": 3.5
+        "bar_rate": 8000.0,
+        "_est": true
       },
       "alignment": {
-        "camber": -0.0122,
-        "toe": 0.0005,
-        "caster": 0.11,
-        "kpi": 0.21,
-        "scrub_radius": 0.015,
-        "_est": true
-      },
-      "bump_stop": {
-        "gap": 0.055,
-        "type": "progressive",
-        "rate_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.005,
-            400
-          ],
-          [
-            0.01,
-            1600
-          ],
-          [
-            0.02,
-            6500
-          ],
-          [
-            0.03,
-            20000
-          ]
-        ],
-        "_est": true
-      },
-      "rebound_stop": {
-        "gap": 0.065,
-        "rate": 40000,
-        "type": "rubber",
-        "_est": true
+        "camber": -0.4,
+        "toe": -0.0002
       },
       "brake": {
         "disc": {
           "type": "vented",
-          "outer_diameter": 0.28,
-          "outer_diameter_source": "Mazda: 11-inch vented",
-          "inner_diameter": 0.2,
-          "thickness": 0.024,
-          "effective_radius": 0.12,
-          "mass": 5.8,
-          "material": "cast_iron",
-          "specific_heat": 460.0,
-          "max_temperature": 650.0,
-          "thermal_mass": 2668.0,
-          "_est_note": "Diameter factory, other dims estimated",
-          "rotational_inertia": 0.0858
+          "outer_diameter": 0.56
         },
-        "caliper": {
-          "type": "floating",
-          "pistons": 1,
-          "pistons_source": "Mazda: single piston",
-          "piston_area_total": 0.0025,
-          "mass": 2.2,
-          "_est": true,
-          "position": [
-            0.0,
-            0.7775000000000001,
-            -0.18
-          ]
-        },
-        "pad": {
-          "material": "semi_metallic",
-          "area": 0.0045,
-          "thickness": 0.011,
-          "mass": 0.35,
-          "mu_cold": 0.38,
-          "mu_curve": [
-            [
-              25,
-              0.38
-            ],
-            [
-              100,
-              0.4
-            ],
-            [
-              200,
-              0.42
-            ],
-            [
-              300,
-              0.44
-            ],
-            [
-              400,
-              0.43
-            ],
-            [
-              500,
-              0.4
-            ],
-            [
-              600,
-              0.35
-            ],
-            [
-              700,
-              0.28
-            ]
-          ],
-          "specific_heat": 1200.0,
-          "_est": true
-        },
-        "thermal_dynamics": {
-          "disc_to_pad_conductance": 150.0,
-          "disc_to_air_conductance": 15.0,
-          "disc_to_air_speed_curve": [
-            [
-              0,
-              15
-            ],
-            [
-              10,
-              40
-            ],
-            [
-              20,
-              80
-            ],
-            [
-              40,
-              150
-            ],
-            [
-              60,
-              200
-            ]
-          ],
-          "pad_to_caliper_conductance": 8.0,
-          "caliper_to_air_conductance": 5.0,
-          "initial_temperature": 25.0,
-          "_est": true
-        }
+        "max_torque_nm": 3500.0
       },
       "tire": {
-        "set_ref": "front_205_45r17",
-        "pressure": 200000.0,
-        "temperature_initial": 25.0,
-        "wear_initial": 0.0
-      },
-      "_est": true,
-      "_est_note": "Topology confirmed (double wishbone). Hardpoint coordinates, rates, alignment estimated.",
-      "compliance_summary": {
-        "toe_stiffness": 95000,
-        "camber_stiffness": 50000,
-        "caster_stiffness": 120000,
-        "longitudinal_stiffness": 180000,
-        "lateral_stiffness": 150000,
-        "_est": true
+        "set_ref": "tire_front_1_205_39r18"
       },
       "static_setup": {
-        "ride_height": 0.135,
-        "ride_height_note": "ground clearance 135mm front / 149mm rear, estimated",
-        "corner_weight": 2799.8,
-        "spring_compression": 0.035,
-        "_est": true
+        "ride_height": 0.15,
+        "_ride_height_note": "Absolute value of AC Z-offset; sign convention differs from SAE."
+      },
+      "visual": {
+        "mesh_ref": "mx5_body",
+        "node": "SVJ::body::upright_fr"
       }
     },
     "RL": {
+      "position": [
+        -2.31,
+        -0.7515,
+        -0.3081
+      ],
       "topology": {
-        "system_type": "multi_link",
+        "system_type": "double_wishbone",
         "upright": {
-          "id": "upright_RL",
-          "mass": 9.5,
+          "id": "upright_rl",
           "hardpoints": {
-            "upper_ball_joint": [
-              -2.31,
-              -0.54,
-              -0.38
-            ],
-            "lower_ball_joint": [
-              -2.31,
-              -0.58,
-              -0.11
-            ],
-            "toe_link_end": [
-              -2.23,
-              -0.56,
-              -0.16
-            ],
             "wheel_center": [
               -2.31,
-              -0.7525,
-              -0.3
+              -0.7515,
+              -0.3081
             ],
-            "damper_outboard": [
-              -2.33,
-              -0.5,
-              -0.12
-            ],
-            "upper_lateral_end": [
-              -2.35,
-              -0.55,
-              -0.36
-            ],
-            "lower_lateral_end": [
-              -2.27,
-              -0.57,
-              -0.13
-            ],
-            "cv_joint_outer": [
+            "upper_ball_joint": [
               -2.31,
-              -0.7525,
-              -0.3
+              -0.6415,
+              -0.4203
+            ],
+            "lower_ball_joint": [
+              -2.32,
+              -0.6602,
+              -0.203
+            ],
+            "steering_tie_rod_end": [
+              -2.1601,
+              -0.6602,
+              -0.2547
+            ],
+            "toe_link_outer": [
+              -2.1601,
+              -0.6602,
+              -0.2547
             ]
-          },
-          "inertia": {
-            "Ixx": 0.035,
-            "Iyy": 0.04,
-            "Izz": 0.03,
-            "Ixz": 0.002,
-            "_est": true,
-            "Ixy": 0.002,
-            "Iyz": 0.001
-          },
-          "cg_position": [
-            -2.31,
-            -0.8025,
-            -0.27999999999999997
-          ],
-          "body_ref": "upright_rl"
+          }
         },
         "links": [
           {
-            "name": "upper_control_arm",
+            "name": "upper_wishbone",
             "type": "arm",
             "inboard_points": [
               [
-                -2.25,
-                -0.26,
-                -0.38
+                -2.2687,
+                -0.3613,
+                -0.3951
               ],
               [
-                -2.37,
-                -0.26,
-                -0.38
+                -2.5511,
+                -0.3313,
+                -0.4028
               ]
             ],
             "outboard_ref": "hardpoints.upper_ball_joint",
-            "mass": 2.8,
-            "inertia": 0.06,
-            "mass_distribution": {
-              "sprung_fraction": 0.5
-            },
-            "_est": true,
-            "cg_position": [
+            "outboard_point": [
               -2.31,
-              -0.4,
-              -0.38
-            ],
-            "joint_type": "spherical",
-            "inboard_joint_type": "revolute",
-            "body_ref": "upper_control_arm_rl"
+              -0.6415,
+              -0.4203
+            ]
           },
           {
-            "name": "lower_control_arm",
+            "name": "lower_wishbone",
             "type": "arm",
             "inboard_points": [
               [
-                -2.23,
-                -0.21,
-                -0.11
+                -2.0889,
+                -0.3105,
+                -0.238
               ],
               [
-                -2.41,
-                -0.21,
-                -0.11
+                -2.4194,
+                -0.3111,
+                -0.2182
               ]
             ],
             "outboard_ref": "hardpoints.lower_ball_joint",
-            "mass": 2.8,
-            "inertia": 0.06,
-            "mass_distribution": {
-              "sprung_fraction": 0.5
-            },
-            "_est": true,
-            "cg_position": [
-              -2.315,
-              -0.395,
-              -0.11
-            ],
-            "joint_type": "spherical",
-            "inboard_joint_type": "revolute",
-            "body_ref": "lower_control_arm_rl"
+            "outboard_point": [
+              -2.32,
+              -0.6602,
+              -0.203
+            ]
           },
           {
             "name": "toe_link",
             "type": "rod",
             "inboard_points": [
               [
-                -2.23,
-                -0.17,
-                -0.16
+                -2.1498,
+                -0.3616,
+                -0.2627
               ]
             ],
-            "outboard_ref": "hardpoints.toe_link_end",
-            "mass": 0.8,
-            "inertia": 0.005,
-            "mass_distribution": {
-              "sprung_fraction": 0.5
-            },
-            "_est": true,
-            "cg_position": [
-              -2.23,
-              -0.365,
-              -0.16
-            ],
-            "joint_type": "spherical",
-            "inboard_joint_type": "spherical",
-            "body_ref": "toe_link_rl"
-          },
-          {
-            "name": "upper_lateral_link",
-            "type": "rod",
-            "inboard_points": [
-              [
-                -2.35,
-                -0.24,
-                -0.36
-              ]
-            ],
-            "outboard_ref": "hardpoints.upper_lateral_end",
-            "mass": 1.2,
-            "inertia": 0.015,
-            "mass_distribution": {
-              "sprung_fraction": 0.5
-            },
-            "_est": true,
-            "cg_position": [
-              -2.35,
-              -0.395,
-              -0.36
-            ],
-            "joint_type": "spherical",
-            "inboard_joint_type": "spherical",
-            "body_ref": "upper_lateral_link_rl"
-          },
-          {
-            "name": "lower_lateral_link",
-            "type": "rod",
-            "inboard_points": [
-              [
-                -2.27,
-                -0.22,
-                -0.13
-              ]
-            ],
-            "outboard_ref": "hardpoints.lower_lateral_end",
-            "mass": 1.2,
-            "inertia": 0.015,
-            "mass_distribution": {
-              "sprung_fraction": 0.5
-            },
-            "_est": true,
-            "cg_position": [
-              -2.27,
-              -0.395,
-              -0.13
-            ],
-            "joint_type": "spherical",
-            "inboard_joint_type": "spherical",
-            "body_ref": "lower_lateral_link_rl"
+            "outboard_ref": "hardpoints.toe_link_outer",
+            "outboard_point": [
+              -2.1601,
+              -0.6602,
+              -0.2547
+            ]
           }
         ]
       },
       "wheel": {
-        "rim_diameter": 0.4318,
-        "rim_width": 0.1778,
-        "rim_offset": 0.045,
-        "loaded_radius": 0.298,
-        "mass": 16.5,
-        "rotational_inertia": 0.72,
-        "set_ref": "rear_205_45r17"
+        "rim_diameter": 0.432,
+        "rim_width": 0.2,
+        "set_ref": "tire_rear_1_205_39r18",
+        "mass": 12.25
       },
       "spring": {
         "type": "coilover",
-        "rate": 28000,
-        "free_length": 0.22,
-        "preload": 380,
-        "motion_ratio": 0.85,
-        "inboard_mount": [
-          -2.33,
-          -0.28,
-          -0.52
+        "rate": 13417.0,
+        "motion_ratio": 1.0,
+        "axis": "vertical",
+        "inboard_point": [
+          -2.31,
+          -0.7515,
+          -0.6081
         ],
-        "outboard_mount": [
-          -2.33,
-          -0.5,
-          -0.12
+        "outboard_point": [
+          -2.31,
+          -0.7515,
+          -0.3081
         ],
-        "_est": true,
-        "mass": 1.8
+        "_note": "AC spring rate is already wheel-rate \u2014 axis taken as vertical through the wheel centre (AC does not model pickup points)",
+        "rod_length": 0.16
       },
       "damper": {
         "type": "monotube",
@@ -1836,23 +626,23 @@
           ],
           [
             0.025,
-            330
+            16.2
           ],
           [
             0.05,
-            620
+            65.0
           ],
           [
             0.1,
-            1000
+            208.0
           ],
           [
             0.2,
-            1500
+            520.0
           ],
           [
             0.5,
-            2500
+            1430.0
           ]
         ],
         "rebound_curve": [
@@ -1862,452 +652,197 @@
           ],
           [
             0.025,
-            500
+            24.4
           ],
           [
             0.05,
-            930
+            97.5
           ],
           [
             0.1,
-            1500
+            312.0
           ],
           [
             0.2,
-            2350
+            780.0
           ],
           [
             0.5,
-            4000
+            2145.0
           ]
         ],
-        "motion_ratio": 0.85,
-        "inboard_mount": [
-          -2.33,
-          -0.28,
-          -0.52
+        "motion_ratio": 1.0,
+        "axis": "vertical",
+        "inboard_point": [
+          -2.31,
+          -0.7515,
+          -0.6081
         ],
-        "outboard_mount": [
-          -2.33,
-          -0.5,
-          -0.12
+        "outboard_point": [
+          -2.31,
+          -0.7515,
+          -0.3081
         ],
         "_est": true,
-        "mass": 2.5
+        "_note": "AC damping is specified at wheel \u2014 vertical axis at wheel centre, 1:1 motion ratio. Curves synthesised from AC scalar bump/rebound.",
+        "bumpstops": {
+          "up": 0.085,
+          "down": 0.085
+        }
       },
       "arb": {
         "bar_id": "arb_rear",
-        "bar_rate": 350.0,
-        "wheel_rate_equiv": 7000,
-        "motion_ratio": 0.6,
-        "drop_link_mount": [
-          -2.31,
-          -0.4,
-          -0.12
-        ],
-        "_est": true,
-        "mass": 2.5
+        "bar_rate": 6000.0,
+        "_est": true
       },
       "alignment": {
-        "camber": -0.0175,
-        "toe": 0.0014,
-        "caster": 0.0,
-        "_est": true
-      },
-      "bump_stop": {
-        "gap": 0.05,
-        "type": "progressive",
-        "rate_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.005,
-            500
-          ],
-          [
-            0.01,
-            2000
-          ],
-          [
-            0.02,
-            8000
-          ],
-          [
-            0.03,
-            25000
-          ]
-        ],
-        "_est": true
-      },
-      "rebound_stop": {
-        "gap": 0.06,
-        "rate": 45000,
-        "type": "rubber",
-        "_est": true
+        "camber": -1.6,
+        "toe": -0.0003
       },
       "brake": {
         "disc": {
-          "type": "solid",
-          "outer_diameter": 0.28,
-          "outer_diameter_source": "Mazda: 11-inch solid",
-          "inner_diameter": 0.2,
-          "thickness": 0.012,
-          "effective_radius": 0.12,
-          "mass": 4.2,
-          "material": "cast_iron",
-          "specific_heat": 460.0,
-          "max_temperature": 600.0,
-          "thermal_mass": 1932.0,
-          "_est_note": "Diameter factory, other dims estimated",
-          "rotational_inertia": 0.0622
+          "type": "vented",
+          "outer_diameter": 0.56
         },
-        "caliper": {
-          "type": "floating",
-          "pistons": 1,
-          "pistons_source": "Mazda: single piston",
-          "piston_area_total": 0.0018,
-          "mass": 1.8,
-          "_est": true,
-          "position": [
-            -2.31,
-            -0.7825,
-            -0.18
-          ]
-        },
-        "pad": {
-          "material": "semi_metallic",
-          "area": 0.0038,
-          "thickness": 0.01,
-          "mass": 0.3,
-          "mu_cold": 0.38,
-          "mu_curve": [
-            [
-              25,
-              0.38
-            ],
-            [
-              100,
-              0.4
-            ],
-            [
-              200,
-              0.42
-            ],
-            [
-              300,
-              0.44
-            ],
-            [
-              400,
-              0.43
-            ],
-            [
-              500,
-              0.4
-            ],
-            [
-              600,
-              0.35
-            ],
-            [
-              700,
-              0.28
-            ]
-          ],
-          "specific_heat": 1200.0,
-          "_est": true
-        },
-        "thermal_dynamics": {
-          "disc_to_pad_conductance": 120.0,
-          "disc_to_air_conductance": 12.0,
-          "disc_to_air_speed_curve": [
-            [
-              0,
-              12
-            ],
-            [
-              10,
-              30
-            ],
-            [
-              20,
-              60
-            ],
-            [
-              40,
-              110
-            ],
-            [
-              60,
-              150
-            ]
-          ],
-          "pad_to_caliper_conductance": 8.0,
-          "caliper_to_air_conductance": 5.0,
-          "initial_temperature": 25.0,
-          "_est": true
-        }
+        "max_torque_nm": 2500.0
       },
       "tire": {
-        "set_ref": "rear_205_45r17",
-        "pressure": 200000.0,
-        "temperature_initial": 25.0,
-        "wear_initial": 0.0
-      },
-      "_est": true,
-      "_est_note": "Topology confirmed (multi-link). Hardpoint coordinates, rates estimated.",
-      "compliance_summary": {
-        "toe_stiffness": 75000,
-        "camber_stiffness": 40000,
-        "longitudinal_stiffness": 25000,
-        "lateral_stiffness": 120000,
-        "_est": true,
-        "_est_note": "Rear trailing arms have soft longitudinal bushings for ride"
+        "set_ref": "tire_rear_1_205_39r18"
       },
       "static_setup": {
-        "ride_height": 0.149,
-        "ride_height_note": "ground clearance 135mm front / 149mm rear, estimated",
-        "corner_weight": 2482.9,
-        "spring_compression": 0.03,
-        "_est": true
+        "ride_height": 0.15,
+        "_ride_height_note": "Absolute value of AC Z-offset; sign convention differs from SAE."
+      },
+      "visual": {
+        "mesh_ref": "mx5_body",
+        "node": "SVJ::body::upright_rl"
       }
     },
     "RR": {
+      "position": [
+        -2.31,
+        0.7515,
+        -0.3081
+      ],
       "topology": {
-        "system_type": "multi_link",
+        "system_type": "double_wishbone",
         "upright": {
-          "id": "upright_RR",
-          "mass": 9.5,
+          "id": "upright_rr",
           "hardpoints": {
-            "upper_ball_joint": [
-              -2.31,
-              0.54,
-              -0.38
-            ],
-            "lower_ball_joint": [
-              -2.31,
-              0.58,
-              -0.11
-            ],
-            "toe_link_end": [
-              -2.23,
-              0.56,
-              -0.16
-            ],
             "wheel_center": [
               -2.31,
-              0.7525,
-              -0.3
+              0.7515,
+              -0.3081
             ],
-            "damper_outboard": [
-              -2.33,
-              0.5,
-              -0.12
-            ],
-            "upper_lateral_end": [
-              -2.35,
-              0.55,
-              -0.36
-            ],
-            "lower_lateral_end": [
-              -2.27,
-              0.57,
-              -0.13
-            ],
-            "cv_joint_outer": [
+            "upper_ball_joint": [
               -2.31,
-              0.7525,
-              -0.3
+              0.6415,
+              -0.4203
+            ],
+            "lower_ball_joint": [
+              -2.32,
+              0.6602,
+              -0.203
+            ],
+            "steering_tie_rod_end": [
+              -2.1601,
+              0.6602,
+              -0.2547
+            ],
+            "toe_link_outer": [
+              -2.1601,
+              0.6602,
+              -0.2547
             ]
-          },
-          "inertia": {
-            "Ixx": 0.035,
-            "Iyy": 0.04,
-            "Izz": 0.03,
-            "Ixz": 0.002,
-            "_est": true,
-            "Ixy": 0.002,
-            "Iyz": 0.001
-          },
-          "cg_position": [
-            -2.31,
-            0.8025,
-            -0.27999999999999997
-          ],
-          "body_ref": "upright_rr"
+          }
         },
         "links": [
           {
-            "name": "upper_control_arm",
+            "name": "upper_wishbone",
             "type": "arm",
             "inboard_points": [
               [
-                -2.25,
-                0.26,
-                -0.38
+                -2.2687,
+                0.3613,
+                -0.3951
               ],
               [
-                -2.37,
-                0.26,
-                -0.38
+                -2.5511,
+                0.3313,
+                -0.4028
               ]
             ],
             "outboard_ref": "hardpoints.upper_ball_joint",
-            "mass": 2.8,
-            "inertia": 0.06,
-            "mass_distribution": {
-              "sprung_fraction": 0.5
-            },
-            "_est": true,
-            "cg_position": [
+            "outboard_point": [
               -2.31,
-              0.4,
-              -0.38
-            ],
-            "joint_type": "spherical",
-            "inboard_joint_type": "revolute",
-            "body_ref": "upper_control_arm_rr"
+              0.6415,
+              -0.4203
+            ]
           },
           {
-            "name": "lower_control_arm",
+            "name": "lower_wishbone",
             "type": "arm",
             "inboard_points": [
               [
-                -2.23,
-                0.21,
-                -0.11
+                -2.0889,
+                0.3105,
+                -0.238
               ],
               [
-                -2.41,
-                0.21,
-                -0.11
+                -2.4194,
+                0.3111,
+                -0.2182
               ]
             ],
             "outboard_ref": "hardpoints.lower_ball_joint",
-            "mass": 2.8,
-            "inertia": 0.06,
-            "mass_distribution": {
-              "sprung_fraction": 0.5
-            },
-            "_est": true,
-            "cg_position": [
-              -2.315,
-              0.395,
-              -0.11
-            ],
-            "joint_type": "spherical",
-            "inboard_joint_type": "revolute",
-            "body_ref": "lower_control_arm_rr"
+            "outboard_point": [
+              -2.32,
+              0.6602,
+              -0.203
+            ]
           },
           {
             "name": "toe_link",
             "type": "rod",
             "inboard_points": [
               [
-                -2.23,
-                0.17,
-                -0.16
+                -2.1498,
+                0.3616,
+                -0.2627
               ]
             ],
-            "outboard_ref": "hardpoints.toe_link_end",
-            "mass": 0.8,
-            "inertia": 0.005,
-            "mass_distribution": {
-              "sprung_fraction": 0.5
-            },
-            "_est": true,
-            "cg_position": [
-              -2.23,
-              0.365,
-              -0.16
-            ],
-            "joint_type": "spherical",
-            "inboard_joint_type": "spherical",
-            "body_ref": "toe_link_rr"
-          },
-          {
-            "name": "upper_lateral_link",
-            "type": "rod",
-            "inboard_points": [
-              [
-                -2.35,
-                0.24,
-                -0.36
-              ]
-            ],
-            "outboard_ref": "hardpoints.upper_lateral_end",
-            "mass": 1.2,
-            "inertia": 0.015,
-            "mass_distribution": {
-              "sprung_fraction": 0.5
-            },
-            "_est": true,
-            "cg_position": [
-              -2.35,
-              0.395,
-              -0.36
-            ],
-            "joint_type": "spherical",
-            "inboard_joint_type": "spherical",
-            "body_ref": "upper_lateral_link_rr"
-          },
-          {
-            "name": "lower_lateral_link",
-            "type": "rod",
-            "inboard_points": [
-              [
-                -2.27,
-                0.22,
-                -0.13
-              ]
-            ],
-            "outboard_ref": "hardpoints.lower_lateral_end",
-            "mass": 1.2,
-            "inertia": 0.015,
-            "mass_distribution": {
-              "sprung_fraction": 0.5
-            },
-            "_est": true,
-            "cg_position": [
-              -2.27,
-              0.395,
-              -0.13
-            ],
-            "joint_type": "spherical",
-            "inboard_joint_type": "spherical",
-            "body_ref": "lower_lateral_link_rr"
+            "outboard_ref": "hardpoints.toe_link_outer",
+            "outboard_point": [
+              -2.1601,
+              0.6602,
+              -0.2547
+            ]
           }
         ]
       },
       "wheel": {
-        "rim_diameter": 0.4318,
-        "rim_width": 0.1778,
-        "rim_offset": 0.045,
-        "loaded_radius": 0.298,
-        "mass": 16.5,
-        "rotational_inertia": 0.72,
-        "set_ref": "rear_205_45r17"
+        "rim_diameter": 0.432,
+        "rim_width": 0.2,
+        "set_ref": "tire_rear_1_205_39r18",
+        "mass": 12.25
       },
       "spring": {
         "type": "coilover",
-        "rate": 28000,
-        "free_length": 0.22,
-        "preload": 380,
-        "motion_ratio": 0.85,
-        "inboard_mount": [
-          -2.33,
-          0.28,
-          -0.52
+        "rate": 13417.0,
+        "motion_ratio": 1.0,
+        "axis": "vertical",
+        "inboard_point": [
+          -2.31,
+          0.7515,
+          -0.6081
         ],
-        "outboard_mount": [
-          -2.33,
-          0.5,
-          -0.12
+        "outboard_point": [
+          -2.31,
+          0.7515,
+          -0.3081
         ],
-        "_est": true,
-        "mass": 1.8
+        "_note": "AC spring rate is already wheel-rate \u2014 axis taken as vertical through the wheel centre (AC does not model pickup points)",
+        "rod_length": 0.16
       },
       "damper": {
         "type": "monotube",
@@ -2318,23 +853,23 @@
           ],
           [
             0.025,
-            330
+            16.2
           ],
           [
             0.05,
-            620
+            65.0
           ],
           [
             0.1,
-            1000
+            208.0
           ],
           [
             0.2,
-            1500
+            520.0
           ],
           [
             0.5,
-            2500
+            1430.0
           ]
         ],
         "rebound_curve": [
@@ -2344,1511 +879,1020 @@
           ],
           [
             0.025,
-            500
+            24.4
           ],
           [
             0.05,
-            930
+            97.5
           ],
           [
             0.1,
-            1500
+            312.0
           ],
           [
             0.2,
-            2350
+            780.0
           ],
           [
             0.5,
-            4000
+            2145.0
           ]
         ],
-        "motion_ratio": 0.85,
-        "inboard_mount": [
-          -2.33,
-          0.28,
-          -0.52
+        "motion_ratio": 1.0,
+        "axis": "vertical",
+        "inboard_point": [
+          -2.31,
+          0.7515,
+          -0.6081
         ],
-        "outboard_mount": [
-          -2.33,
-          0.5,
-          -0.12
+        "outboard_point": [
+          -2.31,
+          0.7515,
+          -0.3081
         ],
         "_est": true,
-        "mass": 2.5
+        "_note": "AC damping is specified at wheel \u2014 vertical axis at wheel centre, 1:1 motion ratio. Curves synthesised from AC scalar bump/rebound.",
+        "bumpstops": {
+          "up": 0.085,
+          "down": 0.085
+        }
       },
       "arb": {
         "bar_id": "arb_rear",
-        "bar_rate": 350.0,
-        "wheel_rate_equiv": 7000,
-        "motion_ratio": 0.6,
-        "drop_link_mount": [
-          -2.31,
-          0.4,
-          -0.12
-        ],
-        "_est": true,
-        "mass": 2.5
+        "bar_rate": 6000.0,
+        "_est": true
       },
       "alignment": {
-        "camber": -0.0175,
-        "toe": 0.0014,
-        "caster": 0.0,
-        "_est": true
-      },
-      "bump_stop": {
-        "gap": 0.05,
-        "type": "progressive",
-        "rate_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.005,
-            500
-          ],
-          [
-            0.01,
-            2000
-          ],
-          [
-            0.02,
-            8000
-          ],
-          [
-            0.03,
-            25000
-          ]
-        ],
-        "_est": true
-      },
-      "rebound_stop": {
-        "gap": 0.06,
-        "rate": 45000,
-        "type": "rubber",
-        "_est": true
+        "camber": -1.6,
+        "toe": -0.0003
       },
       "brake": {
         "disc": {
-          "type": "solid",
-          "outer_diameter": 0.28,
-          "outer_diameter_source": "Mazda: 11-inch solid",
-          "inner_diameter": 0.2,
-          "thickness": 0.012,
-          "effective_radius": 0.12,
-          "mass": 4.2,
-          "material": "cast_iron",
-          "specific_heat": 460.0,
-          "max_temperature": 600.0,
-          "thermal_mass": 1932.0,
-          "_est_note": "Diameter factory, other dims estimated",
-          "rotational_inertia": 0.0622
+          "type": "vented",
+          "outer_diameter": 0.56
         },
-        "caliper": {
-          "type": "floating",
-          "pistons": 1,
-          "pistons_source": "Mazda: single piston",
-          "piston_area_total": 0.0018,
-          "mass": 1.8,
-          "_est": true,
-          "position": [
-            -2.31,
-            0.7825,
-            -0.18
-          ]
-        },
-        "pad": {
-          "material": "semi_metallic",
-          "area": 0.0038,
-          "thickness": 0.01,
-          "mass": 0.3,
-          "mu_cold": 0.38,
-          "mu_curve": [
-            [
-              25,
-              0.38
-            ],
-            [
-              100,
-              0.4
-            ],
-            [
-              200,
-              0.42
-            ],
-            [
-              300,
-              0.44
-            ],
-            [
-              400,
-              0.43
-            ],
-            [
-              500,
-              0.4
-            ],
-            [
-              600,
-              0.35
-            ],
-            [
-              700,
-              0.28
-            ]
-          ],
-          "specific_heat": 1200.0,
-          "_est": true
-        },
-        "thermal_dynamics": {
-          "disc_to_pad_conductance": 120.0,
-          "disc_to_air_conductance": 12.0,
-          "disc_to_air_speed_curve": [
-            [
-              0,
-              12
-            ],
-            [
-              10,
-              30
-            ],
-            [
-              20,
-              60
-            ],
-            [
-              40,
-              110
-            ],
-            [
-              60,
-              150
-            ]
-          ],
-          "pad_to_caliper_conductance": 8.0,
-          "caliper_to_air_conductance": 5.0,
-          "initial_temperature": 25.0,
-          "_est": true
-        }
+        "max_torque_nm": 2500.0
       },
       "tire": {
-        "set_ref": "rear_205_45r17",
-        "pressure": 200000.0,
-        "temperature_initial": 25.0,
-        "wear_initial": 0.0
-      },
-      "_est": true,
-      "_est_note": "Topology confirmed (multi-link). Hardpoint coordinates, rates estimated.",
-      "compliance_summary": {
-        "toe_stiffness": 75000,
-        "camber_stiffness": 40000,
-        "longitudinal_stiffness": 25000,
-        "lateral_stiffness": 120000,
-        "_est": true,
-        "_est_note": "Rear trailing arms have soft longitudinal bushings for ride"
+        "set_ref": "tire_rear_1_205_39r18"
       },
       "static_setup": {
-        "ride_height": 0.149,
-        "ride_height_note": "ground clearance 135mm front / 149mm rear, estimated",
-        "corner_weight": 2482.9,
-        "spring_compression": 0.03,
-        "_est": true
+        "ride_height": 0.15,
+        "_ride_height_note": "Absolute value of AC Z-offset; sign convention differs from SAE."
+      },
+      "visual": {
+        "mesh_ref": "mx5_body",
+        "node": "SVJ::body::upright_rr"
       }
     }
   },
   "tires": {
     "sets": {
-      "front_205_45r17": {
-        "description": "High-performance summer 205/45R17 \u2014 Bridgestone Potenza S001 (OEM equivalent)",
-        "size_code": "205/45R17",
-        "source": "fitted",
+      "tire_front_1_205_39r18": {
+        "description": "AC-derived tire 205/39R18 (front_1)",
+        "size_code": "205/39R18",
+        "source": "estimated",
         "dimensions": {
           "section_width": 0.205,
-          "aspect_ratio": 0.45,
-          "rim_diameter_code": 17,
-          "overall_diameter": 0.616,
-          "section_height": 0.092,
-          "tread_width": 0.18
+          "aspect_ratio": 0.388,
+          "rim_diameter_code": 18,
+          "overall_diameter": 0.6163,
+          "section_height": 0.0795
         },
         "rim": {
-          "diameter": 0.4318,
-          "width_nominal": 0.1778,
-          "width_range": [
-            0.1524,
-            0.2032
-          ],
-          "offset_range": [
-            0.035,
-            0.055
-          ]
+          "diameter": 0.4572,
+          "width_nominal": 0.205
         },
-        "construction": {
-          "mass": 8.5,
-          "vertical_stiffness": 210000.0,
-          "vertical_damping": 400.0,
-          "lateral_stiffness": 120000.0,
-          "rolling_radius": 0.295,
-          "tread_depth_new": 0.0065,
-          "ply_type": "radial",
-          "speed_rating": "W",
-          "load_index": 84,
-          "utqg": {
-            "treadwear": 280,
-            "traction": "AA",
-            "temperature": "A"
-          }
-        },
-        "reference": {
-          "load": 3000.0,
-          "pressure": 200000.0,
-          "speed": 16.7,
-          "camber": 0.0
-        },
-        "pacejka": {
-          "model": "MF52",
-          "lateral": {
-            "pCy1": 1.338,
-            "pDy1": 1.075,
-            "pDy2": -0.132,
-            "pDy3": -2.0,
-            "pEy1": -0.56,
-            "pEy2": -0.358,
-            "pEy3": 0.065,
-            "pEy4": -5.2,
-            "pEy5": 0.0,
-            "pKy1": -15.2,
-            "pKy2": 1.973,
-            "pKy3": 0.29,
-            "pKy4": 2.0,
-            "pKy5": 0.0,
-            "pKy6": -0.8,
-            "pKy7": -0.2,
-            "pHy1": 0.003,
-            "pHy2": 0.0006,
-            "pHy3": 0.038,
-            "pVy1": 0.043,
-            "pVy2": -0.012,
-            "pVy3": -0.21,
-            "pVy4": -0.14
-          },
-          "longitudinal": {
-            "pCx1": 1.579,
-            "pDx1": 1.12,
-            "pDx2": -0.078,
-            "pDx3": 5.0,
-            "pEx1": 0.34,
-            "pEx2": 0.036,
-            "pEx3": -0.085,
-            "pEx4": 0.0,
-            "pKx1": 22.5,
-            "pKx2": -0.15,
-            "pKx3": 0.408,
-            "pHx1": 0.0003,
-            "pHx2": 0.0012,
-            "pVx1": 0.0,
-            "pVx2": 0.0
-          },
-          "aligning": {
-            "qBz1": 8.964,
-            "qBz2": -1.106,
-            "qBz3": -0.842,
-            "qBz4": 0.718,
-            "qBz5": -0.227,
-            "qBz9": 18.0,
-            "qBz10": 0.0,
-            "qCz1": 1.18,
-            "qDz1": 0.1,
-            "qDz2": -0.003,
-            "qDz3": 0.0,
-            "qDz4": 5.0,
-            "qDz6": -0.003,
-            "qDz7": 0.002,
-            "qDz8": -0.58,
-            "qDz9": 0.14,
-            "qEz1": -1.5,
-            "qEz2": -0.45,
-            "qEz3": 0.0,
-            "qEz4": 0.178,
-            "qEz5": -0.744,
-            "qHz1": 0.005,
-            "qHz2": 0.003,
-            "qHz3": 0.105,
-            "qHz4": -0.048
-          },
-          "combined": {
-            "rBx1": 12.35,
-            "rBx2": 10.77,
-            "rBx3": 0.0,
-            "rCx1": 1.035,
-            "rHx1": 0.005,
-            "rBy1": 7.15,
-            "rBy2": 5.12,
-            "rBy3": -0.025,
-            "rBy4": 0.0,
-            "rCy1": 1.048,
-            "rHy1": 0.008,
-            "rVy1": 0.0,
-            "rVy2": 0.0,
-            "rVy3": 0.0,
-            "rVy4": 20.0,
-            "rVy5": 2.0,
-            "rVy6": 10.0
-          }
-        },
-        "relaxation": {
-          "lateral": 0.35,
-          "longitudinal": 0.1
-        },
-        "thermal": {
-          "surface_heat_capacity": 2800.0,
-          "carcass_heat_capacity": 45000.0,
-          "surface_to_carcass": 120.0,
-          "carcass_to_air": 8.5,
-          "friction_heat_fraction": 0.45,
-          "mu_temperature_curve": [
-            [
-              20,
-              0.85
-            ],
-            [
-              50,
-              0.95
-            ],
-            [
-              80,
-              1.0
-            ],
-            [
-              100,
-              1.0
-            ],
-            [
-              120,
-              0.97
-            ],
-            [
-              140,
-              0.92
-            ],
-            [
-              160,
-              0.85
-            ],
-            [
-              200,
-              0.7
-            ]
-          ],
-          "optimal_temperature": 90.0
-        },
-        "wear": {
-          "rate_lateral": 3.5e-07,
-          "rate_longitudinal": 2e-07,
-          "rate_thermal": 1e-08,
-          "mu_wear_curve": [
-            [
-              0.0,
-              1.0
-            ],
-            [
-              0.1,
-              1.02
-            ],
-            [
-              0.3,
-              1.0
-            ],
-            [
-              0.6,
-              0.95
-            ],
-            [
-              0.8,
-              0.88
-            ],
-            [
-              1.0,
-              0.75
-            ]
-          ],
-          "stiffness_wear_curve": [
-            [
-              0.0,
-              1.0
-            ],
-            [
-              0.3,
-              0.98
-            ],
-            [
-              0.6,
-              0.92
-            ],
-            [
-              0.8,
-              0.85
-            ],
-            [
-              1.0,
-              0.7
-            ]
-          ]
-        },
-        "pressure": 200000.0,
-        "temperature_nominal": 85.0,
+        "pressure": 210000.0,
         "_est": true,
-        "_est_note": "Tire size factory. Pacejka coefficients, thermal, wear are estimated.",
-        "tmeasy": {
-          "Fz0": 3000.0,
-          "dFy0": 45000.0,
-          "Fy_max": 3200.0,
-          "alpha_max": 0.12,
-          "Fy_slide": 2900.0,
-          "alpha_slide": 0.25,
-          "dFx0": 65000.0,
-          "Fx_max": 3400.0,
-          "kappa_max": 0.1,
-          "Fx_slide": 3100.0,
-          "kappa_slide": 0.25,
-          "dFy0_dFz": 12.0,
-          "Fy_max_dFz": 0.85,
-          "camber_stiffness": 800.0,
-          "Fz_dependency": "degressive",
-          "pneumatic_trail_max": 0.028,
-          "pneumatic_trail_slide": 0.003,
-          "_est": true,
-          "_est_note": "TMeasy parameters estimated from Pacejka evaluation at Fz0"
+        "_note": "Tire dimensions from tyres.ini. See models.pacejka_mf52 for force model.",
+        "thermal": {
+          "performance_curve": "tcurve_semis.lut",
+          "core_transfer": 9e-05,
+          "surface_transfer": 0.0165,
+          "patch_transfer": 0.00027,
+          "friction_k": 0.06858,
+          "rolling_k": 0.23
         },
-        "brush": {
-          "contact_length": 0.15,
-          "contact_width": 0.18,
-          "tread_stiffness_lat": 8000000.0,
-          "tread_stiffness_lon": 10000000.0,
-          "mu_static": 1.1,
-          "mu_kinetic": 0.95,
-          "pressure_distribution": "parabolic",
-          "carcass_stiffness": 120000.0,
-          "_est": true,
-          "_est_note": "Brush model parameters estimated for 205/45R17 performance tire"
+        "relaxation_length_m": 0.07137,
+        "rolling_resistance": {
+          "k0": 12.0,
+          "k1": 0.001013,
+          "k2": 4911.0
         },
-        "external_models": [
-          {
-            "type": "mftyre",
-            "version": "MF6.2",
-            "file": "./tires/front_205_45r17.tir",
-            "description": "Pacejka MF 6.2 .tir file \u2014 for use with Adams/Tire or MF-Tool",
-            "_note": "Reference placeholder \u2014 file not included in this template"
+        "speed_sensitivity": 0.003456,
+        "dcamber_0": 1.2,
+        "dcamber_1": -13.0,
+        "friction_limit_angle": 8.07,
+        "pressure_model": {
+          "static_psi": 25.0,
+          "ideal_psi": 29.0,
+          "d_gain": 0.0045,
+          "flex_gain": 0.4
+        },
+        "models": {
+          "pacejka_mf52": {
+            "version": "MF 5.2",
+            "reference_load_N": 2737.0,
+            "pure_slip_lateral": {
+              "pCy1": 1.892109228837841,
+              "pDy1": 1.3128921514551202,
+              "pDy2": -0.18360648542127608,
+              "pEy1": -0.4132739959344881,
+              "pEy2": -0.3380227309406213,
+              "pKy1": 21.96237921850206,
+              "pKy2": 2.1596176143785395,
+              "_metrics": {
+                "r2": 0.99915,
+                "rmse_N": 110.4,
+                "n_points": 605
+              }
+            },
+            "pure_slip_longitudinal": {
+              "pCx1": 1.2000000000000002,
+              "pDx1": 1.2670186071540095,
+              "pDx2": -0.12023910355526302,
+              "pEx1": -9.999999999999998,
+              "pEx2": 0.23857776167348801,
+              "pEx3": -1.8535063029748924,
+              "pEx4": 4.00912539912713e-08,
+              "pKx1": 79.99999999999999,
+              "pKx2": -0.006260047552860312,
+              "pKx3": 1.2415199242991555,
+              "_metrics": {
+                "r2": 0.99727,
+                "rmse_N": 247.9,
+                "n_points": 605
+              }
+            },
+            "_source": "virtual_bench (AC forward model \u2192 MF fit)",
+            "_source_params": {
+              "name": "AC_front_1",
+              "axle": "front_1",
+              "FZ0": 2737.0,
+              "DY0": 1.3076,
+              "DY1": -0.048,
+              "LS_EXPY": 0.8135,
+              "DX0": 1.3154,
+              "DX1": -0.046,
+              "LS_EXPX": 0.8804,
+              "K_a": 22.0,
+              "K_k": 18.0,
+              "FLEX": 0.000523,
+              "CAMBER_GAIN": 0.129,
+              "KINETIC_RATIO": 0.92,
+              "PRESSURE_REF_PSI": 29.0,
+              "PRESSURE_NOW_PSI": 27.0,
+              "PRESSURE_GAIN": 0.005,
+              "source": "tyres.ini"
+            },
+            "_note": "Pure-slip only; combined-slip + thermal + transient terms deferred."
           }
-        ]
+        }
       },
-      "rear_205_45r17": {
-        "description": "High-performance summer 205/45R17 \u2014 rear (same as front, square setup)",
-        "size_code": "205/45R17",
-        "source": "fitted",
+      "tire_rear_1_205_39r18": {
+        "description": "AC-derived tire 205/39R18 (rear_1)",
+        "size_code": "205/39R18",
+        "source": "estimated",
         "dimensions": {
           "section_width": 0.205,
-          "aspect_ratio": 0.45,
-          "rim_diameter_code": 17,
-          "overall_diameter": 0.616,
-          "section_height": 0.092,
-          "tread_width": 0.18
+          "aspect_ratio": 0.388,
+          "rim_diameter_code": 18,
+          "overall_diameter": 0.6163,
+          "section_height": 0.0795
         },
         "rim": {
-          "diameter": 0.4318,
-          "width_nominal": 0.1778,
-          "width_range": [
-            0.1524,
-            0.2032
-          ],
-          "offset_range": [
-            0.035,
-            0.055
-          ]
+          "diameter": 0.4572,
+          "width_nominal": 0.205
         },
-        "construction": {
-          "mass": 8.5,
-          "vertical_stiffness": 210000.0,
-          "vertical_damping": 400.0,
-          "lateral_stiffness": 120000.0,
-          "rolling_radius": 0.295,
-          "tread_depth_new": 0.0065,
-          "ply_type": "radial",
-          "speed_rating": "W",
-          "load_index": 84,
-          "utqg": {
-            "treadwear": 280,
-            "traction": "AA",
-            "temperature": "A"
-          }
-        },
-        "reference": {
-          "load": 3000.0,
-          "pressure": 200000.0,
-          "speed": 16.7,
-          "camber": 0.0
-        },
-        "pacejka": {
-          "model": "MF52",
-          "lateral": {
-            "pCy1": 1.338,
-            "pDy1": 1.075,
-            "pDy2": -0.132,
-            "pDy3": -2.0,
-            "pEy1": -0.56,
-            "pEy2": -0.358,
-            "pEy3": 0.065,
-            "pEy4": -5.2,
-            "pEy5": 0.0,
-            "pKy1": -15.2,
-            "pKy2": 1.973,
-            "pKy3": 0.29,
-            "pKy4": 2.0,
-            "pKy5": 0.0,
-            "pKy6": -0.8,
-            "pKy7": -0.2,
-            "pHy1": 0.003,
-            "pHy2": 0.0006,
-            "pHy3": 0.038,
-            "pVy1": 0.043,
-            "pVy2": -0.012,
-            "pVy3": -0.21,
-            "pVy4": -0.14
-          },
-          "longitudinal": {
-            "pCx1": 1.579,
-            "pDx1": 1.12,
-            "pDx2": -0.078,
-            "pDx3": 5.0,
-            "pEx1": 0.34,
-            "pEx2": 0.036,
-            "pEx3": -0.085,
-            "pEx4": 0.0,
-            "pKx1": 22.5,
-            "pKx2": -0.15,
-            "pKx3": 0.408,
-            "pHx1": 0.0003,
-            "pHx2": 0.0012,
-            "pVx1": 0.0,
-            "pVx2": 0.0
-          },
-          "aligning": {
-            "qBz1": 8.964,
-            "qBz2": -1.106,
-            "qBz3": -0.842,
-            "qBz4": 0.718,
-            "qBz5": -0.227,
-            "qBz9": 18.0,
-            "qBz10": 0.0,
-            "qCz1": 1.18,
-            "qDz1": 0.1,
-            "qDz2": -0.003,
-            "qDz3": 0.0,
-            "qDz4": 5.0,
-            "qDz6": -0.003,
-            "qDz7": 0.002,
-            "qDz8": -0.58,
-            "qDz9": 0.14,
-            "qEz1": -1.5,
-            "qEz2": -0.45,
-            "qEz3": 0.0,
-            "qEz4": 0.178,
-            "qEz5": -0.744,
-            "qHz1": 0.005,
-            "qHz2": 0.003,
-            "qHz3": 0.105,
-            "qHz4": -0.048
-          },
-          "combined": {
-            "rBx1": 12.35,
-            "rBx2": 10.77,
-            "rBx3": 0.0,
-            "rCx1": 1.035,
-            "rHx1": 0.005,
-            "rBy1": 7.15,
-            "rBy2": 5.12,
-            "rBy3": -0.025,
-            "rBy4": 0.0,
-            "rCy1": 1.048,
-            "rHy1": 0.008,
-            "rVy1": 0.0,
-            "rVy2": 0.0,
-            "rVy3": 0.0,
-            "rVy4": 20.0,
-            "rVy5": 2.0,
-            "rVy6": 10.0
-          }
-        },
-        "relaxation": {
-          "lateral": 0.35,
-          "longitudinal": 0.1
-        },
-        "thermal": {
-          "surface_heat_capacity": 2800.0,
-          "carcass_heat_capacity": 45000.0,
-          "surface_to_carcass": 120.0,
-          "carcass_to_air": 8.5,
-          "friction_heat_fraction": 0.45,
-          "mu_temperature_curve": [
-            [
-              20,
-              0.85
-            ],
-            [
-              50,
-              0.95
-            ],
-            [
-              80,
-              1.0
-            ],
-            [
-              100,
-              1.0
-            ],
-            [
-              120,
-              0.97
-            ],
-            [
-              140,
-              0.92
-            ],
-            [
-              160,
-              0.85
-            ],
-            [
-              200,
-              0.7
-            ]
-          ],
-          "optimal_temperature": 90.0
-        },
-        "wear": {
-          "rate_lateral": 3.5e-07,
-          "rate_longitudinal": 2e-07,
-          "rate_thermal": 1e-08,
-          "mu_wear_curve": [
-            [
-              0.0,
-              1.0
-            ],
-            [
-              0.1,
-              1.02
-            ],
-            [
-              0.3,
-              1.0
-            ],
-            [
-              0.6,
-              0.95
-            ],
-            [
-              0.8,
-              0.88
-            ],
-            [
-              1.0,
-              0.75
-            ]
-          ],
-          "stiffness_wear_curve": [
-            [
-              0.0,
-              1.0
-            ],
-            [
-              0.3,
-              0.98
-            ],
-            [
-              0.6,
-              0.92
-            ],
-            [
-              0.8,
-              0.85
-            ],
-            [
-              1.0,
-              0.7
-            ]
-          ]
-        },
-        "pressure": 200000.0,
-        "temperature_nominal": 85.0,
+        "pressure": 210000.0,
         "_est": true,
-        "_est_note": "Tire size factory. Pacejka coefficients, thermal, wear are estimated.",
-        "tmeasy": {
-          "Fz0": 3000.0,
-          "dFy0": 45000.0,
-          "Fy_max": 3200.0,
-          "alpha_max": 0.12,
-          "Fy_slide": 2900.0,
-          "alpha_slide": 0.25,
-          "dFx0": 65000.0,
-          "Fx_max": 3400.0,
-          "kappa_max": 0.1,
-          "Fx_slide": 3100.0,
-          "kappa_slide": 0.25,
-          "dFy0_dFz": 12.0,
-          "Fy_max_dFz": 0.85,
-          "camber_stiffness": 800.0,
-          "Fz_dependency": "degressive",
-          "pneumatic_trail_max": 0.028,
-          "pneumatic_trail_slide": 0.003,
-          "_est": true,
-          "_est_note": "TMeasy parameters estimated from Pacejka evaluation at Fz0"
+        "_note": "Tire dimensions from tyres.ini. See models.pacejka_mf52 for force model.",
+        "thermal": {
+          "performance_curve": "tcurve_semis.lut",
+          "core_transfer": 9e-05,
+          "surface_transfer": 0.0165,
+          "patch_transfer": 0.00027,
+          "friction_k": 0.06858,
+          "rolling_k": 0.23
         },
-        "brush": {
-          "contact_length": 0.15,
-          "contact_width": 0.18,
-          "tread_stiffness_lat": 8000000.0,
-          "tread_stiffness_lon": 10000000.0,
-          "mu_static": 1.1,
-          "mu_kinetic": 0.95,
-          "pressure_distribution": "parabolic",
-          "carcass_stiffness": 120000.0,
-          "_est": true,
-          "_est_note": "Brush model parameters estimated for 205/45R17 performance tire"
+        "relaxation_length_m": 0.07137,
+        "rolling_resistance": {
+          "k0": 12.0,
+          "k1": 0.001013,
+          "k2": 4911.0
         },
-        "external_models": [
-          {
-            "type": "mftyre",
-            "version": "MF6.2",
-            "file": "./tires/rear_205_45r17.tir",
-            "description": "Pacejka MF 6.2 .tir file \u2014 for use with Adams/Tire or MF-Tool",
-            "_note": "Reference placeholder \u2014 file not included in this template"
+        "speed_sensitivity": 0.003456,
+        "dcamber_0": 1.2,
+        "dcamber_1": -13.0,
+        "friction_limit_angle": 8.07,
+        "pressure_model": {
+          "static_psi": 25.0,
+          "ideal_psi": 29.0,
+          "d_gain": 0.0045,
+          "flex_gain": 0.4
+        },
+        "models": {
+          "pacejka_mf52": {
+            "version": "MF 5.2",
+            "reference_load_N": 2737.0,
+            "pure_slip_lateral": {
+              "pCy1": 1.892109228837841,
+              "pDy1": 1.3128921514551202,
+              "pDy2": -0.18360648542127608,
+              "pEy1": -0.4132739959344881,
+              "pEy2": -0.3380227309406213,
+              "pKy1": 21.96237921850206,
+              "pKy2": 2.1596176143785395,
+              "_metrics": {
+                "r2": 0.99915,
+                "rmse_N": 110.4,
+                "n_points": 605
+              }
+            },
+            "pure_slip_longitudinal": {
+              "pCx1": 1.2000000000000002,
+              "pDx1": 1.2670186071540095,
+              "pDx2": -0.12023910355526302,
+              "pEx1": -9.999999999999998,
+              "pEx2": 0.23857776167348801,
+              "pEx3": -1.8535063029748924,
+              "pEx4": 4.00912539912713e-08,
+              "pKx1": 79.99999999999999,
+              "pKx2": -0.006260047552860312,
+              "pKx3": 1.2415199242991555,
+              "_metrics": {
+                "r2": 0.99727,
+                "rmse_N": 247.9,
+                "n_points": 605
+              }
+            },
+            "_source": "virtual_bench (AC forward model \u2192 MF fit)",
+            "_source_params": {
+              "name": "AC_rear_1",
+              "axle": "rear_1",
+              "FZ0": 2737.0,
+              "DY0": 1.3076,
+              "DY1": -0.048,
+              "LS_EXPY": 0.8135,
+              "DX0": 1.3154,
+              "DX1": -0.046,
+              "LS_EXPX": 0.8804,
+              "K_a": 22.0,
+              "K_k": 18.0,
+              "FLEX": 0.000523,
+              "CAMBER_GAIN": 0.129,
+              "KINETIC_RATIO": 0.92,
+              "PRESSURE_REF_PSI": 29.0,
+              "PRESSURE_NOW_PSI": 27.0,
+              "PRESSURE_GAIN": 0.005,
+              "source": "tyres.ini"
+            },
+            "_note": "Pure-slip only; combined-slip + thermal + transient terms deferred."
           }
-        ]
+        }
       }
     }
   },
   "brakes": {
-    "pedal": {
-      "ratio": 4.2,
-      "travel": 0.12,
-      "_est": true,
-      "_est_note": "Pedal ratio estimated, typical for MX-5 class"
-    },
-    "booster": {
-      "type": "vacuum",
-      "type_source": "Mazda: vacuum-assisted brakes (2.0L has intake manifold vacuum)",
-      "boost_ratio": 3.5,
-      "diameter": 0.228,
-      "max_force": 2800.0,
-      "mass": 3.2,
-      "_est": true,
-      "_est_note": "Vacuum booster confirmed; boost_ratio and dimensions estimated",
-      "position": [
-        -0.4,
-        -0.2,
-        -0.45
-      ]
-    },
-    "master_cylinder": {
-      "bore_primary": 0.02223,
-      "bore_secondary": 0.02223,
-      "stroke": 0.028,
-      "reservoir_volume": 0.00025,
-      "mass": 1.5,
-      "_est": true,
-      "position": [
-        -0.35,
-        -0.2,
-        -0.42
-      ]
-    },
-    "circuit_type": "dual_diagonal",
-    "bias": 0.62,
-    "bias_note": "estimated, typical for front-biased lightweight RWD",
-    "bias_type": "fixed",
-    "line_pressure_max": 10000000.0,
-    "abs": {
-      "enabled": true,
-      "type": "4_channel",
-      "type_source": "Mazda: 4-wheel, 4-channel ABS",
-      "cycle_rate": 14.0,
-      "slip_target": [
-        0.08,
-        0.12
-      ],
-      "ebd": true,
-      "ebd_source": "Mazda: Electronic Brake-force Distribution",
-      "brake_assist": true,
-      "brake_assist_source": "Mazda: Brake Assist standard"
-    },
-    "esc": {
-      "enabled": true,
-      "yaw_rate_threshold": 0.15,
-      "sideslip_threshold": 0.12,
-      "torque_vectoring": false,
-      "track_mode": true,
-      "track_mode_source": "Mazda: DSC-Track mode (2024 ND3)",
-      "_est": true,
-      "_est_note": "ESC confirmed with DSC-Track; thresholds estimated"
-    }
+    "bias": 0.6,
+    "bias_type": "fixed"
   },
   "powertrain": {
     "layout": "FR",
-    "layout_source": "Mazda: front-midship engine, rear-wheel drive",
     "engine": {
-      "idle_rpm": 800,
-      "max_rpm": 7500,
-      "displacement": 2.0,
-      "configuration": "I4",
-      "compression_ratio": 13.0,
-      "compression_ratio_source": "Mazda",
-      "inertia": 0.12,
-      "position": [
-        -0.7,
-        0.0,
-        -0.38
-      ],
-      "mass": 130.0,
+      "idle_rpm": 780.0,
+      "max_rpm": 6800.0,
+      "inertia": 0.13,
+      "limiter_hz": 50.0,
+      "altitude_sensitivity": 0.1,
       "torque_curve": [
         [
-          800,
-          80
+          0.0,
+          100.0
         ],
         [
-          1000,
-          110
+          500.0,
+          100.0
         ],
         [
-          1500,
-          145
+          1000.0,
+          110.0
         ],
         [
-          2000,
-          170
+          1500.0,
+          134.0
         ],
         [
-          2500,
-          185
+          2000.0,
+          154.0
         ],
         [
-          3000,
-          195
+          2500.0,
+          168.0
         ],
         [
-          3500,
-          200
+          3000.0,
+          174.0
         ],
         [
-          4000,
-          205
+          3250.0,
+          183.0
         ],
         [
-          4500,
-          203
+          3500.0,
+          176.0
         ],
         [
-          5000,
-          198
+          4000.0,
+          178.0
         ],
         [
-          5500,
-          192
+          4500.0,
+          183.0
         ],
         [
-          6000,
-          183
+          4600.0,
+          187.0
         ],
         [
-          6500,
-          170
+          5000.0,
+          184.0
         ],
         [
-          7000,
-          155
+          5500.0,
+          178.0
         ],
         [
-          7500,
-          140
+          6000.0,
+          173.0
+        ],
+        [
+          6500.0,
+          149.0
+        ],
+        [
+          7000.0,
+          100.0
+        ],
+        [
+          7250.0,
+          0.0
         ]
       ],
-      "peak_power_source": "Mazda: 181hp (135kW) @ 7000 rpm",
-      "peak_torque_source": "Mazda: 205 Nm @ 4000 rpm",
-      "_est": true,
-      "_est_note": "Peak values factory; curve shape and component masses estimated",
-      "thermal": {
-        "heat_capacity": 35000,
-        "temperature_nominal": 90.0,
-        "temperature_cold_start": 20.0,
-        "warmup_time": 300,
-        "friction_vs_temperature": [
-          [
-            20,
-            1.3
-          ],
-          [
-            40,
-            1.18
-          ],
-          [
-            60,
-            1.08
-          ],
-          [
-            80,
-            1.02
-          ],
-          [
-            90,
-            1.0
-          ],
-          [
-            100,
-            1.0
-          ],
-          [
-            110,
-            1.0
-          ]
+      "coast_curve": [
+        [
+          0,
+          -0.0
         ],
-        "power_derating_vs_temperature": [
-          [
-            90,
-            1.0
-          ],
-          [
-            100,
-            1.0
-          ],
-          [
-            110,
-            0.95
-          ],
-          [
-            115,
-            0.85
-          ],
-          [
-            120,
-            0.7
-          ]
+        [
+          780,
+          -9.75
         ],
-        "oil_temperature_offset": 15.0,
-        "_est": true
+        [
+          1700,
+          -21.25
+        ],
+        [
+          3400,
+          -42.5
+        ],
+        [
+          5100,
+          -63.75
+        ],
+        [
+          6800,
+          -85.0
+        ]
+      ],
+      "_source": {
+        "power_lut": true,
+        "coast_lut": false,
+        "version": "1"
       }
-    },
-    "clutch": {
-      "type": "single_plate",
-      "max_torque": 350.0,
-      "inertia_driven": 0.035,
-      "engagement_point": 0.35,
-      "_est": true,
-      "mass": 6.5,
-      "position": [
-        -0.95,
-        0.0,
-        -0.35
-      ]
     },
     "gearbox": {
       "type": "manual",
-      "type_source": "Mazda: Skyactiv-MT 6-speed",
       "ratios": [
-        5.087,
-        2.991,
-        2.035,
-        1.594,
-        1.286,
+        5.09,
+        2.99,
+        2.04,
+        1.59,
+        1.29,
         1.0
       ],
-      "ratios_source": "Mazda spec sheet",
-      "reverse_ratios": [
-        4.696
-      ],
-      "reverse_source": "Mazda spec sheet",
-      "inertia_input": 0.015,
-      "inertia_output": 0.008,
-      "efficiency": 0.97,
-      "shift_time": 0.2,
-      "position": [
-        1.1,
-        0.0,
-        -0.32
-      ],
-      "mass": 38.0,
-      "output_flange": [
-        1.25,
-        0.0,
-        -0.28
-      ],
-      "_est": true,
-      "_est_note": "Ratios factory; inertias, efficiency, flange position estimated",
-      "thermal": {
-        "oil_capacity": 0.002,
-        "heat_capacity": 12000,
-        "efficiency_vs_temperature": [
-          [
-            0,
-            0.88
-          ],
-          [
-            20,
-            0.91
-          ],
-          [
-            40,
-            0.94
-          ],
-          [
-            60,
-            0.96
-          ],
-          [
-            80,
-            0.97
-          ],
-          [
-            100,
-            0.96
-          ]
-        ],
-        "temperature_nominal": 75.0,
-        "heat_generation_rate": 800,
-        "_est": true
-      }
+      "final_drive": 2.87,
+      "shift_up_time": 260.0,
+      "shift_down_time": 270.0,
+      "auto_cutoff_time": 260.0,
+      "h_pattern_supported": true,
+      "inertia": 0.0182
     },
-    "driveshafts": [
-      {
-        "id": "propshaft_rear",
-        "from": "gearbox",
-        "to": "diff_rear",
-        "joint_front": {
-          "type": "flex_disc",
-          "position": [
-            1.25,
-            0.0,
-            -0.28
-          ]
-        },
-        "joint_center": {
-          "type": "universal",
-          "position": [
-            1.75,
-            0.0,
-            -0.26
-          ]
-        },
-        "joint_rear": {
-          "type": "universal",
-          "position": [
-            2.2,
-            0.0,
-            -0.245
-          ]
-        },
-        "sections": 2,
-        "mass": 8.0,
-        "inertia": 0.025,
-        "_est": true,
-        "cg_position": [
-          1.725,
-          0.0,
-          -0.263
-        ]
-      }
-    ],
     "differentials": [
       {
         "id": "diff_rear",
         "location": "rear",
         "type": "lsd_clutch",
-        "type_note": "2024 ND3: asymmetric conical clutch LSD",
-        "type_source": "Mazda: asymmetric LSD (2024+)",
-        "final_drive": 2.866,
-        "final_drive_source": "Mazda spec sheet",
-        "preload": 40,
-        "lock_power": 0.35,
-        "lock_coast": 0.2,
-        "ramp_angle_power": 45.0,
-        "ramp_angle_coast": 60.0,
-        "efficiency": 0.96,
-        "inertia": 0.015,
-        "mass": 18.0,
-        "position": [
-          -2.31,
-          0.0,
-          -0.24
-        ],
-        "input_flange": [
-          -2.23,
-          0.0,
-          -0.245
-        ],
-        "output_left": [
-          -2.31,
-          -0.12,
-          -0.24
-        ],
-        "output_right": [
-          -2.31,
-          0.12,
-          -0.24
-        ],
-        "_est": true,
-        "_est_note": "LSD type and final_drive factory; ramp angles, geometry estimated",
-        "thermal": {
-          "oil_capacity": 0.0008,
-          "heat_capacity": 5000,
-          "efficiency_vs_temperature": [
-            [
-              0,
-              0.92
-            ],
-            [
-              20,
-              0.94
-            ],
-            [
-              40,
-              0.96
-            ],
-            [
-              60,
-              0.97
-            ],
-            [
-              80,
-              0.97
-            ],
-            [
-              100,
-              0.96
-            ]
-          ],
-          "temperature_nominal": 80.0,
-          "heat_generation_rate": 400,
-          "_est": true
-        }
+        "final_drive": 2.87,
+        "preload": 0.0,
+        "lock_power": 0.6,
+        "lock_coast": 0.45
       }
-    ],
-    "half_shafts": {
-      "RL": {
-        "diff_ref": "diff_rear",
-        "cv_inner": {
-          "type": "tripod",
-          "position": [
-            -2.31,
-            -0.12,
-            -0.24
-          ],
-          "max_angle": 0.4,
-          "max_plunge": 0.025
-        },
-        "cv_outer": {
-          "type": "rzeppa",
-          "position": [
-            -2.31,
-            -0.7525,
-            -0.3
-          ],
-          "max_angle": 0.8
-        },
-        "length": 0.635,
-        "mass": 4.5,
-        "inertia": 0.012,
-        "_est": true,
-        "cg_position": [
-          -2.31,
-          -0.436,
-          -0.27
-        ]
-      },
-      "RR": {
-        "diff_ref": "diff_rear",
-        "cv_inner": {
-          "type": "tripod",
-          "position": [
-            -2.31,
-            0.12,
-            -0.24
-          ],
-          "max_angle": 0.4,
-          "max_plunge": 0.025
-        },
-        "cv_outer": {
-          "type": "rzeppa",
-          "position": [
-            -2.31,
-            0.7525,
-            -0.3
-          ],
-          "max_angle": 0.8
-        },
-        "length": 0.635,
-        "mass": 4.5,
-        "inertia": 0.012,
-        "_est": true,
-        "cg_position": [
-          -2.31,
-          0.436,
-          -0.27
-        ]
-      }
-    }
+    ]
   },
   "aerodynamics": {
     "reference": {
-      "frontal_area": 1.72,
-      "planform_area": 3.1,
-      "reference_length": 2.31,
-      "air_density": 1.225
+      "frontal_area": 1.8,
+      "air_density": 1.225,
+      "reference_length": 2.31
+    },
+    "global_coefficients": {
+      "Cd": 0.32,
+      "Cl": 0.0,
+      "Cl_front": 0.0,
+      "Cl_rear": 0.0
     },
     "coefficients": {
-      "Cd": 0.31,
-      "Cl": 0.12,
-      "Cl_front": 0.06,
-      "Cl_rear": 0.06,
-      "Cs": 0.0,
-      "Cpm": -0.012,
-      "Cym": 0.0,
-      "Crm": 0.0
+      "Cd": 0.32,
+      "Cl": 0.0,
+      "Cl_front": 0.0,
+      "Cl_rear": 0.0,
+      "_note": "Legacy 0.94 key \u2014 see global_coefficients for 0.95."
     },
-    "maps": {
-      "Cd_vs_yaw": {
-        "type": "1d",
-        "x_axis": "yaw_angle",
-        "values": [
-          {
-            "x": 0.0,
-            "value": 0.31
-          },
-          {
-            "x": 2.5,
-            "value": 0.315
-          },
-          {
-            "x": 5.0,
-            "value": 0.33
-          },
-          {
-            "x": 7.5,
-            "value": 0.355
-          },
-          {
-            "x": 10.0,
-            "value": 0.39
-          },
-          {
-            "x": 15.0,
-            "value": 0.49
-          }
-        ],
-        "interpolation": "linear",
-        "extrapolation": "clamp",
-        "_note": "Original data in radians, converted to degrees for v0.95 map format"
-      },
-      "Cs_vs_yaw": {
-        "type": "1d",
-        "x_axis": "yaw_angle",
-        "values": [
-          {
-            "x": -15.0,
-            "value": 0.65
-          },
-          {
-            "x": -10.0,
-            "value": 0.46
-          },
-          {
-            "x": -5.0,
-            "value": 0.24
-          },
-          {
-            "x": 0.0,
-            "value": 0.0
-          },
-          {
-            "x": 5.0,
-            "value": -0.24
-          },
-          {
-            "x": 10.0,
-            "value": -0.46
-          },
-          {
-            "x": 15.0,
-            "value": -0.65
-          }
-        ],
-        "interpolation": "linear",
-        "extrapolation": "clamp"
-      }
-    },
-    "center_of_pressure": [
-      1.1,
-      0.0,
-      -0.32
-    ],
     "components": [
       {
-        "type": "other",
-        "description": "Stock MX-5 body aerodynamics",
-        "position": [
-          1.15,
-          0.0,
-          -0.38
-        ],
-        "mass": 0.0,
-        "Cd_contribution": 0.31,
-        "Cl_contribution": 0.12,
-        "adjustable": false,
-        "name": "body_aero"
-      }
-    ],
-    "active_systems": {},
-    "_est": true,
-    "_est_note": "All aero values estimated for MX-5 ND roadster body shape"
-  },
-  "cooling": {
-    "circuits": [
-      {
-        "id": "engine_coolant",
-        "type": "liquid",
-        "coolant": "water_glycol",
-        "volume": 0.0055,
-        "volume_note": "MX-5 ND coolant capacity ~5.5L",
-        "flow_rate": 0.0015,
-        "heat_sources": [
-          {
-            "component_ref": "engine",
-            "thermal_resistance": 0.0015,
-            "heat_generation_nominal": 25000,
-            "heat_generation_max": 55000,
-            "_est": true
-          }
-        ],
-        "radiator": {
-          "heat_rejection": 45000.0,
-          "area": 0.28,
-          "mass": 4.5,
-          "position": [
-            -0.05,
-            0.0,
-            -0.35
-          ],
-          "air_flow_dependence": [
-            [
-              0,
-              8000
-            ],
-            [
-              10,
-              18000
-            ],
-            [
-              20,
-              30000
-            ],
-            [
-              30,
-              40000
-            ],
-            [
-              50,
-              45000
-            ]
-          ]
-        },
-        "pump": {
-          "type": "mechanical",
-          "flow_rate": 0.002
-        },
-        "thermostat": {
-          "open_temperature": 82.0,
-          "full_open_temperature": 95.0
-        },
-        "_est": true
+        "name": "body",
+        "type": "fixed",
+        "coefficients": {
+          "Cd": -2.68,
+          "Cl": -2.0
+        }
       },
       {
-        "id": "engine_oil",
-        "type": "oil",
-        "coolant": "oil",
-        "volume": 0.0042,
-        "volume_note": "MX-5 ND oil capacity ~4.2L",
-        "flow_rate": 0.0005,
-        "heat_sources": [
-          {
-            "component_ref": "engine",
-            "thermal_resistance": 0.003,
-            "heat_generation_nominal": 5000,
-            "heat_generation_max": 12000,
-            "_est": true
-          },
-          {
-            "component_ref": "gearbox",
-            "thermal_resistance": 0.005,
-            "heat_generation_nominal": 800,
-            "heat_generation_max": 2000,
-            "_est": true
-          }
-        ],
-        "_est": true
-      }
-    ],
-    "environment": {
-      "temperature_ambient": 25.0,
-      "pressure_ambient": 101325,
-      "humidity": 0.5,
-      "altitude": 0.0
-    }
-  },
-  "driver_controls": {
-    "throttle": {
-      "map": [
-        [
+        "name": "BODY",
+        "type": "wing",
+        "position": [
+          -0.3,
           0.0,
-          0.0
+          -0.23
         ],
-        [
-          0.2,
-          0.15
+        "reference": {
+          "frontal_area": 1.73
+        },
+        "adjustment_range": {
+          "neutral_deg": 1.0
+        },
+        "coefficients": {
+          "Cl": 0.0,
+          "Cd": 1.0
+        },
+        "maps": {
+          "Cl_vs_angle": {
+            "type": "1d",
+            "x_axis": "pitch_angle",
+            "values": [
+              {
+                "x": -10.0,
+                "value": 0.0
+              },
+              {
+                "x": -2.0,
+                "value": -0.0
+              },
+              {
+                "x": 0.0,
+                "value": -0.0
+              },
+              {
+                "x": 2.0,
+                "value": -0.0
+              },
+              {
+                "x": 5.0,
+                "value": -0.0
+              },
+              {
+                "x": 8.0,
+                "value": -0.0
+              },
+              {
+                "x": 10.0,
+                "value": -0.0
+              }
+            ],
+            "interpolation": "linear",
+            "extrapolation": "clamp",
+            "_note": "x values are degrees (AC convention)."
+          },
+          "Cd_vs_angle": {
+            "type": "1d",
+            "x_axis": "pitch_angle",
+            "values": [
+              {
+                "x": -10.0,
+                "value": 1.0
+              },
+              {
+                "x": -2.0,
+                "value": 0.47
+              },
+              {
+                "x": 0.0,
+                "value": 0.46
+              },
+              {
+                "x": 2.0,
+                "value": 0.48
+              },
+              {
+                "x": 5.0,
+                "value": 0.49
+              },
+              {
+                "x": 8.0,
+                "value": 0.5
+              },
+              {
+                "x": 10.0,
+                "value": 0.52
+              },
+              {
+                "x": 30.0,
+                "value": 1.0
+              }
+            ],
+            "interpolation": "linear",
+            "extrapolation": "clamp",
+            "_note": "x values are degrees (AC convention)."
+          }
+        }
+      },
+      {
+        "name": "FRONT",
+        "type": "wing",
+        "position": [
+          2.0,
+          0.0,
+          0.23
         ],
-        [
-          0.5,
-          0.45
+        "reference": {
+          "frontal_area": 1.73
+        },
+        "adjustment_range": {
+          "neutral_deg": 1.0
+        },
+        "coefficients": {
+          "Cl": 1.0,
+          "Cd": 1.0
+        },
+        "maps": {
+          "Cl_vs_angle": {
+            "type": "1d",
+            "x_axis": "pitch_angle",
+            "values": [
+              {
+                "x": -10.0,
+                "value": -0.2
+              },
+              {
+                "x": -2.0,
+                "value": -0.035
+              },
+              {
+                "x": 0.0,
+                "value": -0.03
+              },
+              {
+                "x": 1.0,
+                "value": -0.025
+              },
+              {
+                "x": 2.0,
+                "value": -0.02
+              },
+              {
+                "x": 3.0,
+                "value": -0.017
+              },
+              {
+                "x": 4.0,
+                "value": -0.015
+              },
+              {
+                "x": 5.0,
+                "value": -0.01
+              },
+              {
+                "x": 6.0,
+                "value": -0.009
+              },
+              {
+                "x": 7.0,
+                "value": -0.008
+              }
+            ],
+            "interpolation": "linear",
+            "extrapolation": "clamp",
+            "_note": "x values are degrees (AC convention)."
+          },
+          "Cd_vs_angle": {
+            "type": "1d",
+            "x_axis": "pitch_angle",
+            "values": [
+              {
+                "x": -10.0,
+                "value": 0.0
+              },
+              {
+                "x": -2.0,
+                "value": 0.0009
+              },
+              {
+                "x": 0.0,
+                "value": 0.0
+              },
+              {
+                "x": 1.0,
+                "value": 0.002
+              },
+              {
+                "x": 2.0,
+                "value": 0.002
+              },
+              {
+                "x": 3.0,
+                "value": 0.003
+              },
+              {
+                "x": 4.0,
+                "value": 0.004
+              },
+              {
+                "x": 5.0,
+                "value": 0.005
+              },
+              {
+                "x": 6.0,
+                "value": 0.006
+              },
+              {
+                "x": 7.0,
+                "value": 0.007
+              }
+            ],
+            "interpolation": "linear",
+            "extrapolation": "clamp",
+            "_note": "x values are degrees (AC convention)."
+          }
+        }
+      },
+      {
+        "name": "REAR",
+        "type": "wing",
+        "position": [
+          -2.0,
+          0.0,
+          -0.33
         ],
-        [
-          0.8,
-          0.78
-        ],
-        [
-          1.0,
-          1.0
-        ]
-      ],
-      "response_time": 0.05,
-      "drive_by_wire": true,
-      "drive_by_wire_source": "Mazda: electronic throttle (Skyactiv)",
-      "_est": true
+        "reference": {
+          "frontal_area": 1.73
+        },
+        "adjustment_range": {
+          "neutral_deg": 1.0
+        },
+        "coefficients": {
+          "Cl": 1.0,
+          "Cd": 1.0
+        },
+        "maps": {
+          "Cl_vs_angle": {
+            "type": "1d",
+            "x_axis": "pitch_angle",
+            "values": [
+              {
+                "x": -10.0,
+                "value": -0.2
+              },
+              {
+                "x": -2.0,
+                "value": -0.03
+              },
+              {
+                "x": 0.0,
+                "value": -0.02
+              },
+              {
+                "x": 1.0,
+                "value": -0.018
+              },
+              {
+                "x": 2.0,
+                "value": -0.017
+              },
+              {
+                "x": 3.0,
+                "value": -0.016
+              },
+              {
+                "x": 4.0,
+                "value": -0.015
+              },
+              {
+                "x": 5.0,
+                "value": -0.014
+              },
+              {
+                "x": 6.0,
+                "value": -0.014
+              },
+              {
+                "x": 7.0,
+                "value": -0.014
+              }
+            ],
+            "interpolation": "linear",
+            "extrapolation": "clamp",
+            "_note": "x values are degrees (AC convention)."
+          },
+          "Cd_vs_angle": {
+            "type": "1d",
+            "x_axis": "pitch_angle",
+            "values": [
+              {
+                "x": -10.0,
+                "value": 0.0
+              },
+              {
+                "x": -2.0,
+                "value": 0.0009
+              },
+              {
+                "x": 0.0,
+                "value": 0.0
+              },
+              {
+                "x": 1.0,
+                "value": 0.01
+              },
+              {
+                "x": 2.0,
+                "value": 0.015
+              },
+              {
+                "x": 3.0,
+                "value": 0.02
+              },
+              {
+                "x": 4.0,
+                "value": 0.03
+              },
+              {
+                "x": 5.0,
+                "value": 0.05
+              },
+              {
+                "x": 6.0,
+                "value": 0.06
+              },
+              {
+                "x": 7.0,
+                "value": 0.07
+              }
+            ],
+            "interpolation": "linear",
+            "extrapolation": "clamp",
+            "_note": "x values are degrees (AC convention)."
+          }
+        }
+      }
+    ]
+  },
+  "x_assettocorsa": {
+    "cm_specs": {
+      "power_bhp": 160.0,
+      "torque_nm": 200.0,
+      "top_speed_kmh": 214.0,
+      "accel_0_100_s": 7.3,
+      "power_to_weight": "6.61kg/hp",
+      "tags": [
+        "#small sports",
+        "rwd",
+        "manual",
+        "street",
+        "japan"
+      ]
     },
-    "brake_feel": {
-      "dead_zone": 0.005,
-      "pedal_stiffness": 25000,
-      "_est": true
+    "damage": {
+      "engine": {
+        "turbo_boost_threshold": 1.4,
+        "turbo_damage_k": 5.0,
+        "rpm_threshold": 7000.0,
+        "rpm_damage_k": 1.0
+      }
     },
-    "traction_control": {
-      "enabled": true,
-      "slip_threshold": 0.08,
-      "intervention_mode": "both",
-      "response_time": 0.08,
-      "_est": true,
-      "_est_note": "MX-5 ND has DSC; DSC-Track mode reduces intervention"
+    "driver_aids": {
+      "autoclutch": {
+        "upshift_profile": "NONE",
+        "downshift_profile": "DOWNSHIFT_PROFILE",
+        "use_on_changes": 1.0,
+        "min_rpm": 1200.0,
+        "max_rpm": 1800.0,
+        "forced_on": "0"
+      },
+      "autoblip": {
+        "electronic": "0",
+        "point_0": 20.0,
+        "point_1": 140.0,
+        "point_2": 200.0,
+        "level": 0.8
+      }
     },
-    "launch_control": {
-      "enabled": false
+    "setup_ranges": {
+      "pressure_lf": {
+        "SHOW_CLICKS": "0",
+        "TAB": "TYRES",
+        "NAME": "Pressure LF",
+        "MIN": "15",
+        "MAX": "40",
+        "STEP": "1",
+        "POS_X": "0",
+        "POS_Y": "2",
+        "HELP": "HELP_LF_PRESSURE"
+      },
+      "pressure_rf": {
+        "SHOW_CLICKS": "0",
+        "TAB": "TYRES",
+        "NAME": "Pressure RF",
+        "MIN": "15",
+        "MAX": "40",
+        "STEP": "1",
+        "POS_X": "1",
+        "POS_Y": "2",
+        "HELP": "HELP_RF_PRESSURE"
+      },
+      "pressure_lr": {
+        "SHOW_CLICKS": "0",
+        "TAB": "TYRES",
+        "NAME": "Pressure LR",
+        "MIN": "15",
+        "MAX": "40",
+        "STEP": "1",
+        "POS_X": "0",
+        "POS_Y": "4",
+        "HELP": "HELP_LR_PRESSURE"
+      },
+      "pressure_rr": {
+        "SHOW_CLICKS": "0",
+        "TAB": "TYRES",
+        "NAME": "Pressure RR",
+        "MIN": "15",
+        "MAX": "40",
+        "STEP": "1",
+        "POS_X": "1",
+        "POS_Y": "4",
+        "HELP": "HELP_RR_PRESSURE"
+      },
+      "camber_lf": {
+        "SHOW_CLICKS": "0",
+        "TAB": "ALIGNMENT",
+        "NAME": "CAMBER_LF",
+        "MIN": "-2.0",
+        "MAX": "0.5",
+        "STEP": "1",
+        "POS_X": "0",
+        "POS_Y": "0",
+        "HELP": "HELP_LF_CAMBER"
+      },
+      "camber_rf": {
+        "SHOW_CLICKS": "0",
+        "TAB": "ALIGNMENT",
+        "NAME": "CAMBER_RF",
+        "MIN": "-2.0",
+        "MAX": "0.5",
+        "STEP": "1",
+        "POS_X": "1",
+        "POS_Y": "0",
+        "HELP": "HELP_RF_CAMBER"
+      },
+      "toe_out_lf": {
+        "SHOW_CLICKS": "2",
+        "TAB": "ALIGNMENT",
+        "NAME": "Toe LF",
+        "MIN": "-60",
+        "MAX": "70",
+        "STEP": "10",
+        "POS_X": "0",
+        "POS_Y": "1",
+        "HELP": "HELP_LF_TOE"
+      },
+      "toe_out_rf": {
+        "SHOW_CLICKS": "2",
+        "TAB": "ALIGNMENT",
+        "NAME": "Toe RF",
+        "MIN": "-60",
+        "MAX": "70",
+        "STEP": "10",
+        "POS_X": "1",
+        "POS_Y": "1",
+        "HELP": "HELP_RF_TOE"
+      },
+      "toe_out_lr": {
+        "SHOW_CLICKS": "2",
+        "TAB": "ALIGNMENT",
+        "NAME": "Toe LR",
+        "MIN": "-80",
+        "MAX": "50",
+        "STEP": "5",
+        "POS_X": "0",
+        "POS_Y": "7",
+        "HELP": "HELP_LR_TOE"
+      },
+      "toe_out_rr": {
+        "SHOW_CLICKS": "2",
+        "TAB": "ALIGNMENT",
+        "NAME": "Toe RR",
+        "MIN": "-80",
+        "MAX": "50",
+        "STEP": "5",
+        "POS_X": "1",
+        "POS_Y": "7",
+        "HELP": "HELP_RR_TOE"
+      },
+      "camber_lr": {
+        "SHOW_CLICKS": "0",
+        "TAB": "ALIGNMENT",
+        "NAME": "CAMBER_LR",
+        "MIN": "-3.0",
+        "MAX": "0.5",
+        "STEP": "1",
+        "POS_X": "0",
+        "POS_Y": "6",
+        "HELP": "HELP_LR_CAMBER"
+      },
+      "camber_rr": {
+        "SHOW_CLICKS": "0",
+        "TAB": "ALIGNMENT",
+        "NAME": "CAMBER_RR",
+        "MIN": "-3.0",
+        "MAX": "0.5",
+        "STEP": "1",
+        "POS_X": "1",
+        "POS_Y": "6",
+        "HELP": "HELP_RR_CAMBER"
+      },
+      "fuel": {
+        "SHOW_CLICKS": "0",
+        "TAB": "GENERIC",
+        "NAME": "Fuel",
+        "MIN": "5",
+        "MAX": "50",
+        "STEP": "1",
+        "POS_X": "0.5",
+        "POS_Y": "0",
+        "HELP": "HELP_FUEL"
+      },
+      "brake_power_mult": {
+        "SHOW_CLICKS": "0",
+        "TAB": "GENERIC",
+        "NAME": "Brake power",
+        "MIN": "80",
+        "MAX": "100",
+        "STEP": "1",
+        "POS_X": "0.5",
+        "POS_Y": "1",
+        "HELP": "HELP_BRAKE_POWER_MULT"
+      }
+    },
+    "info": {
+      "screen_name": "Mazda MX5 ND"
+    },
+    "controls": {
+      "ffb_mult": 3.471,
+      "steer_lock": 486.0,
+      "steer_ratio": 15.5,
+      "steer_assist": 1.0
+    },
+    "pit_stop": {
+      "tyre_change_time": 10.0
+    },
+    "fuel_tank_position": [
+      -1.45,
+      0.0,
+      0.1
+    ],
+    "versions": {
+      "engine_version": "1",
+      "drivetrain_version": "3"
     }
   },
-  "x_mazda": {
-    "_comment": "Mazda-specific extension placeholder",
-    "platform": "ND"
+  "assets": {
+    "meshes": [
+      {
+        "id": "mx5_body",
+        "uri": "meshes/mazda_mx5_nd.glb",
+        "description": "MX-5 ND body, uprights and wheels"
+      }
+    ]
   }
 }

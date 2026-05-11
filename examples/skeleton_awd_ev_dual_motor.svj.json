@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.96",
+    "version": "0.97",
     "description": "Skeleton: AWD BEV with dual motors \u2014 double wishbone all corners.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
@@ -174,7 +174,11 @@
         ],
         "parent": "chassis"
       }
-    ]
+    ],
+    "visual": {
+      "mesh_ref": "skeleton_awd_ev",
+      "node": "SVJ::body::chassis"
+    }
   },
   "suspension": {
     "FL": {
@@ -300,6 +304,10 @@
             3000
           ]
         ]
+      },
+      "visual": {
+        "mesh_ref": "skeleton_awd_ev",
+        "node": "SVJ::body::upright_fl"
       }
     },
     "FR": {
@@ -425,6 +433,10 @@
             3000
           ]
         ]
+      },
+      "visual": {
+        "mesh_ref": "skeleton_awd_ev",
+        "node": "SVJ::body::upright_fr"
       }
     },
     "RL": {
@@ -550,6 +562,10 @@
             3000
           ]
         ]
+      },
+      "visual": {
+        "mesh_ref": "skeleton_awd_ev",
+        "node": "SVJ::body::upright_rl"
       }
     },
     "RR": {
@@ -675,6 +691,10 @@
             3000
           ]
         ]
+      },
+      "visual": {
+        "mesh_ref": "skeleton_awd_ev",
+        "node": "SVJ::body::upright_rr"
       }
     }
   },
@@ -795,5 +815,14 @@
       "blend_with_hydraulic": true,
       "coast_regen": 40
     }
+  },
+  "assets": {
+    "meshes": [
+      {
+        "id": "skeleton_awd_ev",
+        "uri": "meshes/skeleton_awd_ev.glb",
+        "description": "AWD EV dual motor skeleton \u2014 chassis and double wishbone geometry"
+      }
+    ]
   }
 }

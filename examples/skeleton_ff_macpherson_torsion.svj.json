@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.96",
+    "version": "0.97",
     "description": "Skeleton: FF hatchback \u2014 MacPherson strut front, torsion beam rear.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
@@ -174,7 +174,11 @@
         ],
         "parent": "chassis"
       }
-    ]
+    ],
+    "visual": {
+      "mesh_ref": "skeleton_ff",
+      "node": "SVJ::body::chassis"
+    }
   },
   "steering": {
     "type": "rack_and_pinion",
@@ -332,6 +336,10 @@
             2300
           ]
         ]
+      },
+      "visual": {
+        "mesh_ref": "skeleton_ff",
+        "node": "SVJ::body::upright_fl"
       }
     },
     "FR": {
@@ -478,6 +486,10 @@
             2300
           ]
         ]
+      },
+      "visual": {
+        "mesh_ref": "skeleton_ff",
+        "node": "SVJ::body::upright_fr"
       }
     },
     "RL": {
@@ -542,7 +554,11 @@
             -2.4,
             0.0,
             -0.2
-          ]
+          ],
+          "visual": {
+            "mesh_ref": "skeleton_ff",
+            "node": "SVJ::helper::torsion_beam_rear"
+          }
         }
       },
       "wheel": {
@@ -583,6 +599,10 @@
             1900
           ]
         ]
+      },
+      "visual": {
+        "mesh_ref": "skeleton_ff",
+        "node": "SVJ::body::upright_rl"
       }
     },
     "RR": {
@@ -647,7 +667,11 @@
             -2.4,
             0.0,
             -0.2
-          ]
+          ],
+          "visual": {
+            "mesh_ref": "skeleton_ff",
+            "node": "SVJ::helper::torsion_beam_rear"
+          }
         }
       },
       "wheel": {
@@ -688,6 +712,10 @@
             1900
           ]
         ]
+      },
+      "visual": {
+        "mesh_ref": "skeleton_ff",
+        "node": "SVJ::body::upright_rr"
       }
     }
   },
@@ -772,5 +800,14 @@
         }
       }
     }
+  },
+  "assets": {
+    "meshes": [
+      {
+        "id": "skeleton_ff",
+        "uri": "meshes/skeleton_ff.glb",
+        "description": "FWD MacPherson/torsion beam skeleton \u2014 chassis and suspension geometry"
+      }
+    ]
   }
 }

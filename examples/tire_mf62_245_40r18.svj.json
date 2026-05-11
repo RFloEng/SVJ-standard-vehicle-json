@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.96",
+    "version": "0.97",
     "description": "MF6.2 tire example \u2014 ultra-high performance summer 245/40R18 with full Pacejka coefficients.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
