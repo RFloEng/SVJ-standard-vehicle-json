@@ -2,18 +2,20 @@
 
 ## What This Is
 
-SVJ (Standard Vehicle JSON) is a universal exchange format for vehicle dynamics data — a "Rosetta Stone" that lets any simulator read the same vehicle definition. Current version: **v0.96**.
+SVJ (Standard Vehicle JSON) is a universal exchange format for vehicle dynamics data — a "Rosetta Stone" that lets any simulator read the same vehicle definition. Current version: **v0.97**.
 
 ## Repo Structure
 
 ```
-spec/SVJ_Spec.md                        THE specification (2184 lines, 124 sections)
-schema/svj.schema.json                  JSON Schema Draft-07 (3447 lines)
-templates/mazda_mx5_nd2_2024.svj.json   Full reference template (3555 lines)
-examples/                               7 examples (4 real cars + 3 skeletons)
-tools/validate.py                       Schema + consistency validation
-viewer/index.html                       Interactive SVJ file viewer (drag & drop)
+spec/SVJ_Spec.md                        THE specification (2213 lines, §1–§22)
+schema/svj.schema.json                  JSON Schema Draft-07
+examples/                               9 examples (real cars + skeletons + tire file)
+docs/naming_convention.md               SVJ::category::id glTF naming convention
+tools/validate.py                       Schema validation (v0.97)
+tools/integrity_check.py                glTF visual binding checks (v0.97)
+viewer/svj_viewer_v3.9.html             Interactive SVJ file viewer (drag & drop)
 svj-py/                                 Python parser library with CLI
+proposals/                              Historical design proposals (read-only)
 ```
 
 ## Key Conventions
@@ -27,28 +29,35 @@ svj-py/                                 Python parser library with CLI
 - **Estimates:** Marked with `_est: true`. Factory data has `_source` strings.
 - **Extensions:** `x_` prefix for simulator-specific data, `additionalProperties: true` everywhere.
 
-## Topology Coverage (9/10 with examples)
+## v0.97 — glTF Visual Binding Layer
 
-✅ double_wishbone (MX-5 front, Alfa 75, Corvette C3, AWD EV)
-✅ macpherson (BMW E30, FF hatch, 4WD truck)
-✅ multi_link (MX-5 rear)
+New in v0.97 (all optional, fully backward-compatible):
+
+- **`assets.meshes`** — top-level manifest declaring glTF/glb files used by the vehicle
+- **`visual` field** on any body object — binds physics body to a glTF node via `mesh_ref` + `node`
+- **`coordinate_system` object** — explicit axis declaration for glTF assets (Blender Y-up / -Z-forward)
+- **SVJ Naming Convention** — `SVJ::<category>::<id>` pattern for all glTF node names
+- **`tools/integrity_check.py`** — validates 4 binding rules: node pattern, id-suffix match, mesh_ref validity, uniqueness
+- **`tools/validate.py`** — validates any SVJ file against the JSON Schema
+
+## Topology Coverage (all 10 with examples)
+
+✅ double_wishbone (Alfa 75 front, Corvette C3 front, F1 front/rear, AWD EV)
+✅ macpherson (BMW E30 front, FF hatch front, 4WD truck front)
+✅ multi_link (skeleton AWD EV rear)
 ✅ chapman_strut (Corvette C3 rear)
 ✅ trailing_arm (Citroën 2CV front + rear)
 ✅ semi_trailing_arm (BMW E30 rear)
 ✅ torsion_beam (FF hatch rear)
 ✅ solid_axle (4WD truck rear)
 ✅ de_dion (Alfa 75 rear)
-⬜ custom (by design — no example needed)
-
-## MX-5 ND2 Template — Factory Data Sources
-
-17 factory-confirmed values: steering ratio 15.5:1, 2.7 turns L2L, gear ratios (5.087/3.063/2.028/1.522/1.241/1.000), final drive 2.866, track F/R 1495/1505, wheelbase 2310mm, kerb weight 1077kg, tire 205/45R17, brakes 280mm F/R ventilated, ABS 4-channel + EBD, asymmetric LSD (2024 Club). ~60 sections estimated, all marked `_est: true`.
+✅ custom (by design — no example needed)
 
 ## Pending / Roadmap
 
 ### Immediate (before v1.0 tag)
-- Parser development (`svj-py`) — separate project, uses spec+schema+template as inputs
-- Converter: Assetto Corsa ↔ SVJ (reads suspensions.ini, tyres.ini, engine.ini)
+- Parser development (`svj-py`) — separate project, uses spec + schema + examples as inputs
+- Converter: Assetto Corsa ↔ SVJ — separate repo (not in this spec repo)
 - Any ambiguities found during parser development become spec patches
 
 ### Future (v1.x)
@@ -75,20 +84,15 @@ These are load-bearing architectural choices. Changing them would break everythi
 
 Always run after any change:
 ```bash
-python tools/validate.py templates/mazda_mx5_nd2_2024.svj.json
-# Or for all files:
-for f in templates/*.svj.json examples/*.svj.json; do python tools/validate.py "$f"; done
+python tools/validate.py examples/formula_f1_2025_aero.svj.json
+# Or for all examples:
+for f in examples/*.svj.json; do python tools/validate.py "$f"; done
+# Check glTF bindings:
+python tools/integrity_check.py examples/formula_f1_2025_aero.svj.json --strict
 ```
-
-Schema validation catches structure. The validator script also checks:
-- mass_total ≈ Σ mass_bodies + Σ mass_unsprung_per_corner
-- CG.x between 0 and -wheelbase
-- Corner weight sum ≈ mass_total × g
 
 ## How to Work on This Project
 
 1. **Read the spec first** for any section you're modifying — it's the source of truth.
-2. **Change spec text → update schema → update template → validate** — always in this order.
-3. **Bump version in ALL files** when making changes: spec title, schema $id + version const, template _metadata.version, all examples.
-4. **Update CHANGELOG.md** with every version bump.
-5. **Test with deliberately broken input** after schema changes to verify error detection.
+2. **Change spec text → update schema → update examples → validate** — always in this order.
+3.
