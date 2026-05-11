@@ -1,4 +1,4 @@
-# Standard Vehicle JSON (SVJ) Specification v0.96
+# Standard Vehicle JSON (SVJ) Specification v0.97
 
 ## 1. Overview & Philosophy
 
@@ -2057,6 +2057,7 @@ These checks are the responsibility of higher-level tools or linters built on to
 | 0.4.0   | **Tires**: Top-level tire library (`tires.sets`) with Pacejka MF 5.2/6.2 coefficients, thermal model, wear model, relaxation lengths. Per-corner `tire` reference with pressure/temperature overrides. **Brakes**: Per-corner `brake` assembly (disc with mass/thermal, caliper, pad with μ curve). Top-level `brakes` system (master cylinder, bias, ABS, ESC). All new components carry physical mass and thermal properties. |
 | 0.4.1   | Tire set expanded: dimensions, rim specs, construction properties (mass, stiffness, ratings). Wheel vs tire_set relationship documented. |
 | 0.94   | **Multi-axle naming convention** (§21.1): formalized `A{n}{side}` corner naming (A1L, A2R, ...). FL/FR/RL/RR are aliases for A1L/A1R/A2L/A2R. Axle metadata array with `steered`, `driven`, `lift` flags. Multi-axle steering linkage with per-axle ratio and phase. Tyrrell P34 example. Backward compatibility rules. |
+| 0.97   | **glTF Visual Binding Layer** (§22): optional `assets.meshes` manifest, `visual` field on any body (`mesh_ref` + `node`), flexible `coordinate_system` object for Y-up/Z-forward glTF assets, SAE J670 ↔ Blender transform table. `SVJ::category::id` naming convention for glTF nodes (see `docs/naming_convention.md`). `tools/integrity_check.py` validates 4 binding rules. `tools/validate.py` validates any SVJ file against the JSON Schema. All additions optional — full backward compatibility. |
 | 0.96   | **Multibody topology extension**: Explicit joint types on links (`joint_type`, `inboard_joint_type`), body references (`body_ref`) linking suspension parts to chassis mass bodies, `orientation` quaternion definition, extended hardpoints accepting marker objects (position + orientation), oriented bushings with preload, mass body parent/markers hierarchy, oriented spring/damper mounts. All additions optional — full backward compatibility. |
 | 0.95   | **Aerodynamics extension**: 1D/2D lookup maps with interpolation/extrapolation, component-level modeling with cross-influences, wake/dirty air model, ground effect (underbody maps, tire squirt, sealing strips), enhanced active systems (DRS with activation conditions, PID-controlled active wings). **Data provenance**: `data_origin` field in metadata (type, detail, confidence). F1 aero reference example. |
 | 0.93   | **Coordinate & consistency fixes** (corrections by external audit): CG coordinates corrected to negative-X (SAE J670 origin at front axle). Tire dimensions removed from corner `wheel` (single source: tire library via `set_ref`). `alignment_convention` added (`relative_to_centerline`). Motion ratio and alignment vs hardpoint precedence documented. Transaxle efficiency warning. |
@@ -2076,6 +2077,130 @@ These checks are the responsibility of higher-level tools or linters built on to
 
 ---
 
+## 22. glTF Visual Binding Layer *(v0.97)*
+
+This section is **optional**. A file that omits all `visual` fields and the `assets` block is fully valid SVJ. Parsers that do not handle visual bindings MUST ignore these fields.
+
+### 22.1 Purpose
+
+SVJ physics bodies are pure data — mass, hardpoints, stiffness. The glTF Visual Binding Layer attaches each body to its 3D representation in a `.glb` or `.gltf` asset, enabling a single SVJ file to drive both the dynamics simulation and the visual renderer.
+
+### 22.2 Asset Manifest
+
+Declare the glTF files used by the vehicle in the top-level `assets` object:
+
+```json
+"assets": {
+  "meshes": [
+    { "id": "chassis_body", "uri": "meshes/car_body.glb" },
+    { "id": "wheel_set",    "uri": "meshes/wheels.glb" }
+  ]
+}
+```
+
+| Field | Type   | Required | Description |
+|-------|--------|----------|-------------|
+| `id`  | string | YES      | Short identifier referenced by `mesh_ref` in `visual` blocks |
+| `uri` | string | YES      | Relative path from the SVJ file to the glTF asset |
+
+The `uri` MUST be a relative path. Absolute paths and remote URLs are not permitted.
+
+### 22.3 Visual Binding
+
+Any body object in the SVJ file — `chassis`, a suspension upright, a wheel, an aero component — MAY carry a `visual` field:
+
+```json
+"chassis": {
+  "mass_total": 1077,
+  "visual": {
+    "mesh_ref": "chassis_body",
+    "node": "SVJ::body::chassis"
+  }
+}
+```
+
+| Field      | Type   | Required | Description |
+|------------|--------|----------|-------------|
+| `mesh_ref` | string | YES      | Must match an `id` in `assets.meshes` |
+| `node`     | string | YES      | glTF node name following the SVJ Naming Convention (§22.5) |
+
+### 22.4 Coordinate System Declaration
+
+Physics data uses SAE J670 (§2.1) by default. The glTF asset may use a different convention (Blender exports Y-up, -Z-forward by default). Both can be declared in the same file:
+
+```json
+"_metadata": {
+  "coordinate_system": { "up": "Y", "forward": "-Z", "handedness": "right" },
+  "units": "meters"
+}
+```
+
+When `coordinate_system` is an **object** (rather than the string `"SAE_J670"`), it specifies the glTF asset convention. The physics data coordinate system is always SAE J670 unless explicitly overridden.
+
+**SAE J670 → Blender (Y-up) transform:**
+
+| SVJ axis | Blender axis |
+|----------|-------------|
+| +X (forward) | −Z |
+| +Y (right)   | +X |
+| +Z (down)    | −Y |
+
+Converters reading glTF assets from Blender should apply this mapping when positioning visual nodes relative to physics hardpoints.
+
+### 22.5 SVJ Naming Convention
+
+All `node` values in `visual` fields MUST follow the pattern:
+
+```
+SVJ::<category>::<id>
+```
+
+| Part | Description |
+|------|-------------|
+| `SVJ` | Literal prefix |
+| `<category>` | One of: `body`, `wheel`, `suspension`, `aero`, `powertrain` |
+| `<id>` | Lowercase alphanumeric with underscores, e.g. `chassis`, `upright_fl`, `wheel_fl` |
+
+**Corner suffix rule:** Visual nodes for corner-specific bodies MUST end with `_fl`, `_fr`, `_rl`, or `_rr` (or the canonical `_a{n}l` / `_a{n}r` form for multi-axle vehicles). The `<id>` suffix must match the upright `id` field in the suspension topology.
+
+The `mesh_ref` suffix (last segment after `_`) must match the node `<id>`. See [`docs/naming_convention.md`](../docs/naming_convention.md) for the complete specification.
+
+**Examples:**
+
+| Body | `node` |
+|------|--------|
+| Main chassis | `SVJ::body::chassis` |
+| Front-left upright | `SVJ::suspension::upright_fl` |
+| Front-left wheel | `SVJ::wheel::wheel_fl` |
+| Front wing | `SVJ::aero::front_wing` |
+| Engine | `SVJ::powertrain::engine` |
+
+### 22.6 Integrity Checking
+
+The `tools/integrity_check.py` script validates all visual bindings before commit:
+
+```bash
+python tools/integrity_check.py path/to/vehicle.svj.json
+python tools/integrity_check.py path/to/vehicle.svj.json --strict
+```
+
+Rules checked:
+
+1. **Node pattern** — every `node` value matches `^SVJ::[a-z]+::[a-z0-9_]+$`
+2. **ID-suffix match** — the `node` `<id>` suffix (`_fl`, `_fr`, etc.) matches the upright `id` field in the topology
+3. **mesh_ref validity** — every `mesh_ref` resolves to an entry in `assets.meshes`
+4. **Uniqueness** — no two `visual` blocks share the same `node` value
+
+In default mode, rule violations are warnings. With `--strict`, any warning is a non-zero exit.
+
+### 22.7 Compatibility
+
+- Files without `assets` or `visual` fields are valid SVJ v0.97 — the visual binding layer is purely additive.
+- A v0.96 parser encountering `visual` or `assets` SHOULD ignore them (unknown-key policy, §20).
+- A v0.97 file without any `visual` fields is indistinguishable from a v0.96 file except for the `version` field.
+
+---
+
 ## 21. Roadmap
 
 | Section           | Version  | Status                                             |
@@ -2086,101 +2211,4 @@ These checks are the responsibility of higher-level tools or linters built on to
 | Suspension topology| v0.5.3  | ✅ Done — 10 system_types with full guide           |
 | Tires             | v0.4     | ✅ Done — Pacejka MF5.2/6.2, thermal, wear          |
 | Brakes            | v0.5.2   | ✅ Done — per-corner + full force chain              |
-| Aerodynamics      | v0.5     | ✅ Done — coefficients, maps, components, active     |
-| Drivetrain        | v0.6     | ✅ Done — layout, clutch, gearbox, TC, propshafts, diffs, half-shafts, CV joints |
-| Electric/Hybrid   | v0.7     | ✅ Done — motors (P0–P4), battery, inverters, regen  |
-| Cooling           | v0.7     | ✅ Done — thermal circuits, radiator, pump, thermostat |
-| **Multi-axle / Trucks** | **v1.x / Addendum** | **Planned** — see §20.1 |
-
-### 21.1 Multi-Axle & Commercial Vehicle Extension
-
-The current SVJ specification assumes a **4-corner vehicle** (FL, FR, RL, RR). This covers the vast majority of passenger cars, sports cars, and light vehicles. However, trucks, buses, trailers, and special vehicles require support for:
-
-- **N axles** with M wheels per axle (e.g. 6×4, 8×8, tandem rear)
-- **Steered rear axles** (all-wheel steering, trailer steering)
-- **Multi-steered-axle vehicles** (Tyrrell P34: two steered front axles)
-- **Lift axles** (raiseable non-driven axles)
-- **Articulated vehicles** (tractor + trailer with fifth wheel coupling)
-- **Multiple drive units** (tandem differentials, inter-axle diffs)
-
-This will be addressed as an **addendum to v1.x** (not a separate standard), extending the `suspension` and `powertrain` structures to use named axles and arbitrary corner counts while maintaining full backward compatibility with the 4-corner model.
-
-#### 21.1.1 Corner Naming Convention
-
-**Canonical form:** `A{axle_number}{side}`
-
-| Token | Meaning | Values |
-|-------|---------|--------|
-| `A`   | Literal prefix | Always `A` |
-| `{axle_number}` | Axle index, front to rear | `1`, `2`, `3`, ... |
-| `{side}` | Vehicle side | `L` (left/driver-side LHD), `R` (right/passenger-side LHD) |
-
-**Standard 2-axle aliases:** For standard 4-corner vehicles, `FL`/`FR`/`RL`/`RR` remain valid as aliases for `A1L`/`A1R`/`A2L`/`A2R`. A parser MUST accept both forms. When `axles[]` is absent, `FL`/`FR`/`RL`/`RR` is assumed.
-
-| Vehicle | Axle count | Corner names |
-|---------|-----------|--------------|
-| Standard car | 2 | A1L, A1R, A2L, A2R (or FL, FR, RL, RR) |
-| Tyrrell P34 (6-wheel F1) | 3 | A1L, A1R, A2L, A2R, A3L, A3R |
-| 6×4 truck | 3 | A1L, A1R, A2L, A2R, A3L, A3R |
-| 8×8 military | 4 | A1L, A1R, A2L, A2R, A3L, A3R, A4L, A4R |
-| Tractor + semi-trailer | Separate SVJ files, coupled via fifth-wheel reference |
-
-#### 21.1.2 `axles` Array
-
-The `axles` array is optional metadata that declares the axle topology. Each entry:
-
-| Key        | Type    | Required | Description                                              |
-|------------|---------|----------|----------------------------------------------------------|
-| `id`       | string  | YES      | Canonical axle name: `A1`, `A2`, `A3`, ...               |
-| `steered`  | boolean | no       | Whether this axle has steering input                     |
-| `driven`   | boolean | no       | Whether this axle receives drive torque                  |
-| `lift`     | boolean | no       | Whether this axle can be raised (tag axle)               |
-| `corners`  | array   | YES      | Corner keys: `["A1L", "A1R"]`                            |
-| `position_x` | number | no     | Axle center X position in vehicle frame (m)              |
-
-Example — Tyrrell P34:
-
-```json
-{
-  "suspension": {
-    "axles": [
-      { "id": "A1", "steered": true,  "driven": false, "corners": ["A1L", "A1R"], "position_x": 0.0 },
-      { "id": "A2", "steered": true,  "driven": false, "corners": ["A2L", "A2R"], "position_x": -0.60 },
-      { "id": "A3", "steered": false, "driven": true,  "corners": ["A3L", "A3R"], "position_x": -2.70 }
-    ],
-    "A1L": { "topology": { "system_type": "double_wishbone" }, "wheel": { "rim_diameter": 0.254, "set_ref": "front_10inch" } },
-    "A1R": { "..." : "mirror of A1L" },
-    "A2L": { "topology": { "system_type": "double_wishbone" }, "wheel": { "rim_diameter": 0.254, "set_ref": "front_10inch" } },
-    "A2R": { "..." : "mirror of A2L" },
-    "A3L": { "topology": { "system_type": "double_wishbone" }, "wheel": { "rim_diameter": 0.330, "set_ref": "rear_standard" } },
-    "A3R": { "..." : "mirror of A3L" }
-  }
-}
-```
-
-#### 21.1.3 Multi-Axle Steering
-
-When multiple axles are steered, the steering section extends to map rack input to each axle:
-
-```json
-{
-  "steering": {
-    "type": "rack_and_pinion",
-    "axle_steering": [
-      { "axle_ref": "A1", "ratio": 12.0, "phase": 1.0 },
-      { "axle_ref": "A2", "ratio": 14.0, "phase": 1.0 },
-      { "axle_ref": "A3", "ratio": 18.0, "phase": -1.0 }
-    ]
-  }
-}
-```
-
-Where `phase` = 1.0 means same direction as driver input (front-steer), `phase` = -1.0 means counter-steer (rear-steer for tight turning). Each steered axle can have a different ratio.
-
-#### 21.1.4 Backward Compatibility
-
-A parser reading a multi-axle file SHOULD fall back gracefully:
-- If `axles` is absent and only `FL`/`FR`/`RL`/`RR` keys exist, treat as standard 2-axle.
-- If `axles` is present, use it to discover the topology and corner names.
-- A 2-axle file with `axles` present is redundant but valid — the `axles` array simply confirms the FL/FR/RL/RR layout.
-- A parser that does not support multi-axle SHOULD warn and process only corners it recognizes (FL/FR/RL/RR), ignoring the rest.
+| Aerodynamics      | v0.5  
