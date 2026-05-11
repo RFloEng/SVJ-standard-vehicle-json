@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SVJ 3D Vehicle Inspector v3.8</title>
+<title>SVJ 3D Vehicle Inspector v3.9</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
 :root{--bg:#08090c;--s1:#0f1117;--s2:#161a24;--s3:#1c2130;--brd:#252b3a;--brdL:#333b50;--tx:#dfe3ed;--txD:#6e7a96;--txM:#404c66;--ac:#ff5131;--acD:#ff513130;--bl:#4d9fff;--gn:#34d27b;--yl:#f0b429;--pr:#b06aff;--cy:#2dd4bf;--rd:#f0524f;--og:#ff8c42}
@@ -84,12 +84,12 @@ body{background:var(--bg);color:var(--tx);font-family:'DM Sans',system-ui,sans-s
 </head>
 <body>
 
-<div id="drop-overlay">Drop .svj.json</div>
+<div id="drop-overlay">Drop .svj.json, .glb, or a vehicle folder</div>
 
 <div id="topbar">
   <div style="display:flex;align-items:center">
     <span class="logo mono">SVJ</span>
-    <span class="subtitle mono">3D Inspector v3.8 — Editor</span>
+    <span class="subtitle mono">3D Inspector v3.9 — Editor · v0.97</span>
     <span class="filename mono" id="file-name">MX-5 ND2 Club 6MT (v0.96 demo)</span>
   </div>
   <div style="display:flex;gap:4px;align-items:center">
@@ -97,8 +97,10 @@ body{background:var(--bg);color:var(--tx);font-family:'DM Sans',system-ui,sans-s
     <button class="btn" id="btn-toggle-panel">◁ Panel</button>
     <button class="btn" id="btn-export" style="border-color:var(--gn);color:var(--gn)" title="Save vehicle data as .svj.json">↓ Save SVJ</button>
     <button class="btn" onclick="exportSTEP()" style="border-color:#2dd4bf;color:#2dd4bf" title="Export suspension geometry as .step for CAD">↓ Export STEP</button>
-    <button class="btn btn-ac" id="btn-load">Load</button>
-    <input type="file" id="file-input" accept=".json" style="display:none">
+    <button class="btn" id="btn-load-glb" style="border-color:var(--pr);color:var(--pr)" title="Load .glb/.gltf mesh file(s) to overlay on physics geometry">⬡ Mesh</button>
+    <button class="btn btn-ac" id="btn-load">SVJ</button>
+    <input type="file" id="file-input" accept=".json,.glb,.gltf" multiple style="display:none">
+    <input type="file" id="glb-file-input" accept=".glb,.gltf" multiple style="display:none">
   </div>
 </div>
 
@@ -121,7 +123,7 @@ body{background:var(--bg);color:var(--tx);font-family:'DM Sans',system-ui,sans-s
       <button class="btn" onclick="setView('right')" title="Right">▽ Right</button>
       <button class="btn" onclick="setView('top')" title="Top">◻ Top</button>
     </div>
-    <div id="controls-hint">LMB: Orbit · RMB: Pan · Scroll: Zoom · Hover: Inspect · 1-4: Corner · 0: All · R: Reset · I/F/B/L/T: Views</div>
+    <div id="controls-hint">LMB: Orbit / Click Mesh to select · RMB: Pan · Scroll: Zoom · Hover: Inspect · [G]rab [E]rotate [S]cale [Esc]deselect · R: Reset cam</div>
   </div>
   <div id="sidebar">
     <div id="panel-tabs"></div>
@@ -132,13 +134,17 @@ body{background:var(--bg);color:var(--tx);font-family:'DM Sans',system-ui,sans-s
 <script type="importmap">
 {
   "imports": {
-    "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js"
+    "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js",
+    "three/examples/jsm/loaders/GLTFLoader.js": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/loaders/GLTFLoader.js",
+    "three/examples/jsm/controls/TransformControls.js": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/controls/TransformControls.js"
   }
 }
 </script>
 
 <script type="module">
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 
 /* ═══════════════════════════════════════════════════
    DEMO DATA
@@ -153,13 +159,20 @@ let activePanel = 'overview';
 let sideOpen = true;
 let highlightCorner = null;
 let suspCorner = 'FL';
-const layers = {grid:true,axes:true,chassis:true,suspension:true,springs:true,steering:true,drivetrain:true,massBodies:true,wheels:true,brakeDiscs:true};
+const layers = {grid:true,axes:true,chassis:true,suspension:true,springs:true,steering:true,drivetrain:true,massBodies:true,wheels:true,brakeDiscs:true,meshes:true};
+let loadedMeshes  = {};   // id → { group: THREE.Group, file: string }
+let meshAssets    = [];   // DATA.assets.meshes snapshot
+let selectedMeshId = null; // id of the currently selected loaded mesh
+let meshOpacity    = 1.0;  // 0.0–1.0 global mesh opacity (1 = fully opaque)
+let transformCtrl  = null; // THREE.TransformControls instance
+let gizmoDragging  = false; // suppress orbit/pan while gizmo is active
 const layerDefs = [
   {key:'grid',label:'Grid',color:'#3a4560'},{key:'axes',label:'Axes',color:'#ff3333'},
   {key:'chassis',label:'Chassis / CG',color:'#ff5131'},{key:'suspension',label:'Suspension',color:'#4d9fff'},
   {key:'springs',label:'Springs',color:'#34d27b'},{key:'steering',label:'Steering',color:'#2dd4bf'},
   {key:'drivetrain',label:'Drivetrain',color:'#ff8c42'},{key:'massBodies',label:'Mass Bodies',color:'#b06aff'},
-  {key:'wheels',label:'Tires & Rims',color:'#333d4f'},{key:'brakeDiscs',label:'Brake Discs',color:'#666677'}
+  {key:'wheels',label:'Tires & Rims',color:'#333d4f'},{key:'brakeDiscs',label:'Brake Discs',color:'#666677'},
+  {key:'meshes',label:'3D Meshes (glTF)',color:'#c8b4ff'}
 ];
 const cornerDefs = [{key:null,label:'All',color:null},{key:'FL',label:'FL',color:'#4d9fff'},{key:'FR',label:'FR',color:'#34d27b'},{key:'RL',label:'RL',color:'#f0b429'},{key:'RR',label:'RR',color:'#b06aff'}];
 const panelDefs = [{id:'overview',label:'Overview'},{id:'suspension',label:'Suspension'},{id:'powertrain',label:'Powertrain'},{id:'brakes',label:'Brakes'},{id:'tires',label:'Tires'},{id:'aero',label:'Aero'},{id:'thermal',label:'Thermal'}];
@@ -288,13 +301,49 @@ function buildScene() {
   vp.insertBefore(renderer.domElement, vp.firstChild);
 
   scene.add(new THREE.AmbientLight(0x8899bb, 0.6));
+
+  // Transform gizmo — single instance reused across mesh selections
+  if (transformCtrl) { transformCtrl.dispose(); transformCtrl = null; }
+  transformCtrl = new TransformControls(camera, renderer.domElement);
+  transformCtrl.setSize(0.7);
+  transformCtrl.addEventListener('dragging-changed', e => {
+    gizmoDragging = e.value;
+  });
+  transformCtrl.addEventListener('objectChange', () => {
+    if (!selectedMeshId) return;
+    const obj = transformCtrl.object;
+    if (!obj) return;
+    // Write transform back into DATA.assets.meshes[i].x_transform
+    const meshList = DATA?.assets?.meshes;
+    if (meshList) {
+      const entry = meshList.find(m => m.id === selectedMeshId);
+      if (entry) {
+        const pos = obj.position;
+        const rot = obj.rotation;
+        const sc  = obj.scale;
+        const xf  = entry.x_transform || (entry.x_transform = {});
+        xf.position = [pos.x, pos.y, pos.z];
+        xf.rotation = [rot.x, rot.y, rot.z];
+        xf.scale    = [sc.x, sc.y, sc.z];
+        // Mark as changed so save-bar activates
+        const path = 'assets.meshes.' + meshList.indexOf(entry) + '.x_transform';
+        changeLog.push({path, oldVal: null, newVal: xf, timestamp: Date.now()});
+        updateSaveBar();
+      }
+    }
+    updateMeshTransformHUD();
+  });
+  scene.add(transformCtrl);
+
   const d1 = new THREE.DirectionalLight(0xffffff, 0.9); d1.position.set(3,5,4); scene.add(d1);
   const d2 = new THREE.DirectionalLight(0x6688cc, 0.3); d2.position.set(-2,3,-3); scene.add(d2);
 
   groups = {};
-  ['grid','axes','chassis','suspension','springs','steering','drivetrain','massBodies','wheels','brakeDiscs'].forEach(k => {
+  ['grid','axes','chassis','suspension','springs','steering','drivetrain','massBodies','wheels','brakeDiscs','meshes'].forEach(k => {
     groups[k] = new THREE.Group(); scene.add(groups[k]);
   });
+  // Re-attach already-loaded mesh groups when scene is rebuilt
+  Object.values(loadedMeshes).forEach(entry => groups.meshes.add(entry.group));
   pickables = [];
 
   const addP = (m, label, corner=null) => { m.userData = {label, corner}; pickables.push(m); };
@@ -601,6 +650,10 @@ function updateCamera() {
 function applyLayers() {
   if(!groups)return;
   Object.entries(layers).forEach(([k,v])=>{if(groups[k])groups[k].visible=v;});
+  // Re-apply opacity in case layer was just toggled back on
+  if(layers.meshes) applyMeshOpacity(null, meshOpacity);
+  // Hide gizmo when meshes layer is off
+  if(transformCtrl) transformCtrl.visible = layers.meshes && !!selectedMeshId;
 }
 
 function applyCornerHighlight() {
@@ -623,13 +676,17 @@ function setupControls() {
   let isDrag=false, isPan=false, prevX=0, prevY=0;
 
   cv.addEventListener('mousedown', e => {
-    if(e.button===0)isDrag=true; if(e.button===2)isPan=true;
+    if(e.button===0) {
+      // Try mesh pick first; if it hits, don't start orbit drag
+      if(!pickMesh(e)) isDrag=true;
+    }
+    if(e.button===2)isPan=true;
     prevX=e.clientX;prevY=e.clientY;e.preventDefault();
   });
   cv.addEventListener('mousemove', e => {
     const dx=e.clientX-prevX,dy=e.clientY-prevY;prevX=e.clientX;prevY=e.clientY;
-    if(isDrag){spherical.theta-=dx*0.005;spherical.phi-=dy*0.005;spherical.phi=Math.max(0.1,Math.min(Math.PI-0.1,spherical.phi));updateCamera();}
-    if(isPan){const ps=0.002*spherical.radius;const r=new THREE.Vector3().setFromMatrixColumn(camera.matrix,0);const u=new THREE.Vector3().setFromMatrixColumn(camera.matrix,1);target.add(r.multiplyScalar(-dx*ps));target.add(u.multiplyScalar(dy*ps));updateCamera();}
+    if(isDrag && !gizmoDragging){spherical.theta-=dx*0.005;spherical.phi-=dy*0.005;spherical.phi=Math.max(0.1,Math.min(Math.PI-0.1,spherical.phi));updateCamera();}
+    if(isPan && !gizmoDragging){const ps=0.002*spherical.radius;const r=new THREE.Vector3().setFromMatrixColumn(camera.matrix,0);const u=new THREE.Vector3().setFromMatrixColumn(camera.matrix,1);target.add(r.multiplyScalar(-dx*ps));target.add(u.multiplyScalar(dy*ps));updateCamera();}
     // Raycast
     const rect=cv.getBoundingClientRect();
     const mouse=new THREE.Vector2(((e.clientX-rect.left)/rect.width)*2-1,-((e.clientY-rect.top)/rect.height)*2+1);
@@ -823,6 +880,48 @@ function renderOverview(el, data) {
     <div class="mono" style="font-size:11px;color:var(--txD);margin-bottom:6px">${vi.variant||''} · ${vi.year||''}</div>
     <div class="flex-wrap mb10">${tag(vi.drive_type||'?')} ${tag('SVJ v'+(data._metadata?.version||'?'),'var(--bl)')} ${e?.configuration?tag(e.configuration+' '+e.displacement+'L','var(--gn)'):''}</div>
     ${data._metadata?.data_origin?'<div style="font-size:10px;color:var(--txD);margin-bottom:6px;padding:4px 6px;background:var(--bl)08;border-radius:3px;border-left:2px solid var(--bl)40"><b>Data Origin:</b> '+(data._metadata.data_origin.type||'?')+' — '+(data._metadata.data_origin.confidence?'<span style=\"color:var(--yl)\">'+data._metadata.data_origin.confidence+' confidence</span>':'')+(data._metadata.data_origin.detail?' · <span style=\"font-size:9px\">'+data._metadata.data_origin.detail.slice(0,120)+(data._metadata.data_origin.detail.length>120?'...':'')+'</span>':'')+'</div>':''}
+    ${(()=>{
+      const ver  = data._metadata?.version;
+      const asMeshes = data.assets?.meshes;
+      const cs   = data._metadata?.coordinate_system;
+      if(!asMeshes?.length && ver !== '0.97') return '';
+      let h = '<div style="background:rgba(200,180,255,0.04);border:1px solid rgba(200,180,255,0.2);border-radius:4px;padding:7px 10px;margin-bottom:8px;font-size:9px;font-family:JetBrains Mono,monospace">';
+      h += '<div style="color:#c8b4ff;font-weight:700;margin-bottom:4px;letter-spacing:.5px">&#9656; glTF VISUAL BINDING LAYER (SVJ v0.97)</div>';
+      if(cs) {
+        const csStr = (typeof cs === 'object') ? (cs.up||'?')+'-up / '+(cs.forward||'?')+'-fwd / '+(cs.handedness||'?')+'-handed' : cs;
+        h += '<div style="color:var(--txD)">Coord system: <span style="color:var(--cy)">'+csStr+'</span></div>';
+      }
+      if(asMeshes?.length) {
+        h += '<div style="margin-top:4px;color:var(--txD)">'+asMeshes.length+' mesh file'+(asMeshes.length>1?'s':'')+':</div>';
+        h += '<div style="margin-top:2px">' + asMeshes.map(function(m){
+          const loaded = !!loadedMeshes[m.id];
+          return '<div style="display:flex;align-items:center;gap:5px;padding:1px 0">' +
+            '<div style="width:6px;height:6px;border-radius:50%;background:'+(loaded?'var(--gn)':'#444')+';flex-shrink:0"></div>' +
+            '<span style="color:'+(loaded?'var(--gn)':'var(--tx)')+';font-weight:600">'+m.id+'</span>' +
+            (m.uri ? '<span style="color:var(--txM);font-size:8px"> '+m.uri+'</span>' : '') +
+            '</div>';
+        }).join('') + '</div>';
+        const bindings = [];
+        if(data.chassis && data.chassis.visual) bindings.push(Object.assign({body:'chassis'},data.chassis.visual));
+        ['FL','FR','RL','RR'].forEach(function(cn){
+          const u=data.suspension&&data.suspension[cn]&&data.suspension[cn].topology&&data.suspension[cn].topology.upright;
+          if(u&&u.visual) bindings.push(Object.assign({body:cn+' upright'},u.visual));
+        });
+        (data.aerodynamics&&data.aerodynamics.components||[]).forEach(function(c){ if(c.visual) bindings.push(Object.assign({body:c.name||c.type||'aero'},c.visual)); });
+        if(bindings.length) {
+          h += '<div style="margin-top:4px;color:var(--txD)">'+bindings.length+' visual binding'+(bindings.length>1?'s':'')+':</div>';
+          h += '<div style="margin-top:2px;max-height:80px;overflow:auto">' + bindings.map(function(b){
+            return '<div style="font-size:8px;padding:1px 0;color:var(--txD)">'+
+              '<span style="color:var(--bl)">'+b.body+'</span> &rarr; '+
+              '<span style="color:var(--tx)">'+(b.node||'?')+'</span>'+
+              (b.mesh_ref?'<span style="color:#c8b4ff"> ['+b.mesh_ref+']</span>':'')+
+              '</div>';
+          }).join('') + '</div>';
+        }
+      }
+      h += '</div>';
+      return h;
+    })()}
     <div class="grid2 mb10">
       ${editStat('Mass','chassis.mass_total','kg',0)}
       ${editStat('Wheelbase','chassis.wheelbase','m',3)}
@@ -1329,9 +1428,24 @@ function renderAero(el, data) {
    ═══════════════════════════════════════════════════ */
 function buildLayerUI() {
   const list = document.getElementById('layer-list');
-  list.innerHTML = layerDefs.map(l =>
-    `<div class="layer-row" data-layer="${l.key}"><div class="layer-dot" style="background:${layers[l.key]?l.color:l.color+'30'};border:1px solid ${layers[l.key]?l.color:l.color}40"></div><span style="color:${layers[l.key]?'var(--tx)':'var(--txM)'}">${l.label}</span></div>`
-  ).join('');
+  list.innerHTML = layerDefs.map(l => {
+    let extra = '';
+    if (l.key === 'meshes') {
+      const cnt = Object.keys(loadedMeshes).length;
+      extra = cnt
+        ? ` <span style="color:var(--gn);font-size:8px">(${cnt})</span>`
+        : ` <span style="color:var(--txM);font-size:8px">—</span>`;
+    }
+    return `<div class="layer-row" data-layer="${l.key}"><div class="layer-dot" style="background:${layers[l.key]?l.color:l.color+'30'};border:1px solid ${layers[l.key]?l.color:l.color}40"></div><span style="color:${layers[l.key]?'var(--tx)':'var(--txM)'}">${l.label}${extra}</span></div>`;
+  }).join('') +
+  // Mesh opacity slider (only meaningful when meshes layer exists)
+  `<div style="display:flex;align-items:center;gap:5px;padding:3px 0;margin-top:2px;border-top:1px solid var(--brd)20">
+     <span style="font-size:8px;color:var(--txM);font-family:JetBrains Mono,monospace;white-space:nowrap">Opacity</span>
+     <input type="range" min="0" max="1" step="0.01" value="${meshOpacity}"
+       oninput="setMeshOpacity(this.value)"
+       style="flex:1;accent-color:var(--pr);height:3px;cursor:pointer">
+     <span id="mesh-opacity-lbl" style="font-size:8px;color:var(--txD);font-family:JetBrains Mono,monospace;min-width:28px;text-align:right">${Math.round(meshOpacity*100)}%</span>
+   </div>`;
   list.querySelectorAll('.layer-row').forEach(row => {
     row.addEventListener('click', ()=>{
       const k=row.dataset.layer; layers[k]=!layers[k]; buildLayerUI(); applyLayers();
@@ -1359,9 +1473,321 @@ function buildPanelTabs() {
   });
 }
 
+/* ═══════════════════════════════════════════════════
+   MESH TRANSFORM  (select → gizmo → save to SVJ)
+   ═══════════════════════════════════════════════════ */
+
+function applyStoredTransform(obj, meshId) {
+  const meshList = DATA?.assets?.meshes;
+  if (!meshList) return;
+  const entry = meshList.find(m => m.id === meshId);
+  const xf = entry?.x_transform;
+  if (!xf) return;
+  if (xf.position) obj.position.set(...xf.position);
+  if (xf.rotation) obj.rotation.set(...xf.rotation);
+  if (xf.scale)    obj.scale.set(...xf.scale);
+}
+
+function selectMesh(meshId) {
+  if (!transformCtrl) return;
+  selectedMeshId = meshId;
+  const entry = loadedMeshes[meshId];
+  if (entry) {
+    transformCtrl.attach(entry.group);
+    transformCtrl.visible = layers.meshes;
+  }
+  showMeshTransformToolbar(meshId);
+  updateMeshTransformHUD();
+}
+
+function deselectMesh() {
+  if (transformCtrl) { transformCtrl.detach(); transformCtrl.visible = false; }
+  selectedMeshId = null;
+  const tb = document.getElementById('mesh-tb');
+  if (tb) tb.style.display = 'none';
+  const hud = document.getElementById('mesh-hud');
+  if (hud) hud.style.display = 'none';
+}
+
+function showMeshTransformToolbar(meshId) {
+  let tb = document.getElementById('mesh-tb');
+  if (!tb) {
+    tb = document.createElement('div');
+    tb.id = 'mesh-tb';
+    tb.style.cssText = 'position:absolute;bottom:50px;left:50%;transform:translateX(-50%);display:flex;gap:3px;background:rgba(12,14,20,0.94);border:1px solid var(--brdL);border-radius:5px;padding:4px 6px;z-index:100;backdrop-filter:blur(6px);font-family:JetBrains Mono,monospace';
+    document.getElementById('viewport').appendChild(tb);
+  }
+  tb.innerHTML =
+    '<span style="font-size:9px;color:var(--txD);align-self:center;margin-right:4px" id="mesh-tb-label"></span>' +
+    ['Translate|G','Rotate|E','Scale|S'].map(s => {
+      const [label, key] = s.split('|');
+      const mode = label.toLowerCase();
+      return `<button onclick="setGizmoMode('${mode}')" id="gizmo-btn-${mode}" style="padding:2px 8px;border-radius:3px;border:1px solid var(--brd);background:transparent;color:var(--txD);font-family:JetBrains Mono,monospace;font-size:9px;cursor:pointer" title="${key} key">${label} [${key}]</button>`;
+    }).join('') +
+    '<div style="width:1px;background:var(--brd);margin:0 3px"></div>' +
+    '<button onclick="resetMeshTransform()" style="padding:2px 8px;border-radius:3px;border:1px solid var(--brd);background:transparent;color:var(--yl);font-family:JetBrains Mono,monospace;font-size:9px;cursor:pointer" title="Reset to origin">⟲ Reset</button>' +
+    '<button onclick="deselectMesh()" style="padding:2px 8px;border-radius:3px;border:1px solid var(--brd);background:transparent;color:var(--txD);font-family:JetBrains Mono,monospace;font-size:9px;cursor:pointer" title="Deselect (Esc)">✕</button>';
+  document.getElementById('mesh-tb-label').textContent = meshId;
+  tb.style.display = 'flex';
+  setGizmoMode('translate'); // default
+}
+
+window.setGizmoMode = function(mode) {
+  if (!transformCtrl) return;
+  transformCtrl.setMode(mode);
+  ['translate','rotate','scale'].forEach(m => {
+    const btn = document.getElementById('gizmo-btn-' + m);
+    if (!btn) return;
+    btn.style.borderColor  = m === mode ? 'var(--ac)' : 'var(--brd)';
+    btn.style.color        = m === mode ? 'var(--ac)' : 'var(--txD)';
+    btn.style.background   = m === mode ? 'var(--acD)' : 'transparent';
+    btn.style.fontWeight   = m === mode ? '700' : '400';
+  });
+};
+
+window.resetMeshTransform = function() {
+  if (!selectedMeshId || !transformCtrl?.object) return;
+  const obj = transformCtrl.object;
+  obj.position.set(0, 0, 0);
+  obj.rotation.set(0, 0, 0);
+  obj.scale.set(1, 1, 1);
+  // Clear stored transform
+  const meshList = DATA?.assets?.meshes;
+  if (meshList) {
+    const entry = meshList.find(m => m.id === selectedMeshId);
+    if (entry) {
+      delete entry.x_transform;
+      const path = 'assets.meshes.' + meshList.indexOf(entry) + '.x_transform';
+      changeLog.push({path, oldVal: entry.x_transform, newVal: null, timestamp: Date.now()});
+      updateSaveBar();
+    }
+  }
+  updateMeshTransformHUD();
+};
+
+function updateMeshTransformHUD() {
+  let hud = document.getElementById('mesh-hud');
+  if (!selectedMeshId || !transformCtrl?.object) {
+    if (hud) hud.style.display = 'none';
+    return;
+  }
+  if (!hud) {
+    hud = document.createElement('div');
+    hud.id = 'mesh-hud';
+    hud.style.cssText = 'position:absolute;bottom:90px;right:10px;background:rgba(12,14,20,0.90);border:1px solid var(--brd);border-radius:4px;padding:5px 9px;font-family:JetBrains Mono,monospace;font-size:9px;color:var(--txD);z-index:60;pointer-events:none;line-height:1.7';
+    document.getElementById('viewport').appendChild(hud);
+  }
+  const obj = transformCtrl.object;
+  const p = obj.position, r = obj.rotation, s = obj.scale;
+  hud.innerHTML =
+    `<div style="color:var(--ac);font-weight:700;margin-bottom:2px">${selectedMeshId}</div>` +
+    `<div><span style="color:var(--rd)">P</span> ${p.x.toFixed(4)} / ${p.y.toFixed(4)} / ${p.z.toFixed(4)}</div>` +
+    `<div><span style="color:var(--gn)">R</span> ${r.x.toFixed(4)} / ${r.y.toFixed(4)} / ${r.z.toFixed(4)}</div>` +
+    `<div><span style="color:var(--bl)">S</span> ${s.x.toFixed(4)} / ${s.y.toFixed(4)} / ${s.z.toFixed(4)}</div>`;
+  hud.style.display = 'block';
+}
+
+// Mesh picking: click in viewport to select a loaded mesh
+function pickMesh(e) {
+  if (gizmoDragging) return;
+  const cv   = renderer.domElement;
+  const rect = cv.getBoundingClientRect();
+  const mouse = new THREE.Vector2(
+    ((e.clientX - rect.left) / rect.width)  * 2 - 1,
+    -((e.clientY - rect.top) / rect.height) * 2 + 1
+  );
+  const rc = new THREE.Raycaster();
+  rc.setFromCamera(mouse, camera);
+  // Collect all mesh children from loaded groups
+  const candidates = [];
+  Object.entries(loadedMeshes).forEach(([id, entry]) => {
+    entry.group.traverse(child => { if (child.isMesh) candidates.push({id, mesh: child}); });
+  });
+  const meshObjs = candidates.map(c => c.mesh);
+  const hits = rc.intersectObjects(meshObjs, false);
+  if (hits.length) {
+    const hitMesh = hits[0].object;
+    const found   = candidates.find(c => c.mesh === hitMesh);
+    if (found) {
+      if (selectedMeshId !== found.id) selectMesh(found.id);
+      return true; // consumed
+    }
+  }
+  return false;
+}
+
+/* ═══════════════════════════════════════════════════
+   MESH OPACITY CONTROL
+   ═══════════════════════════════════════════════════ */
+function applyMeshOpacity(modelOrAll, alpha) {
+  const targets = modelOrAll ? [modelOrAll] : Object.values(loadedMeshes).map(e => e.group);
+  targets.forEach(model => {
+    model.traverse(child => {
+      if (!child.isMesh) return;
+      const mats = Array.isArray(child.material) ? child.material : [child.material];
+      mats.forEach(m => {
+        const origOpacity = m.userData._origOpacity ?? 1.0;
+        const finalOpacity = origOpacity * alpha;
+        m.opacity      = finalOpacity;
+        m.transparent  = finalOpacity < 1.0 || (m.userData._origTransparent && alpha === 1.0);
+        m.depthWrite   = finalOpacity >= 0.99;
+      });
+    });
+  });
+}
+
+window.setMeshOpacity = function(val) {
+  meshOpacity = parseFloat(val);
+  applyMeshOpacity(null, meshOpacity); // apply to all loaded meshes
+  const lbl = document.getElementById('mesh-opacity-lbl');
+  if (lbl) lbl.textContent = Math.round(meshOpacity * 100) + '%';
+};
+
+/* ═══════════════════════════════════════════════════
+   GLTF / MESH LOADING  (SVJ v0.97)
+   ═══════════════════════════════════════════════════ */
+const _gltfLoader = new GLTFLoader();
+
+// glTF default (Y-up, -Z-forward) is native Three.js space, so no extra
+// rotation is needed. Physics data was converted by sae2three(), so the
+// procedural geometry and loaded meshes share the same Three.js space.
+
+function loadGLTFBlob(meshId, url, fileName) {
+  _gltfLoader.load(url, (gltf) => {
+    URL.revokeObjectURL(url);
+    const model = gltf.scene;
+    // Clone materials to allow per-session opacity control, preserve original settings
+    model.traverse(child => {
+      if (!child.isMesh) return;
+      child.material = Array.isArray(child.material)
+        ? child.material.map(m => m.clone())
+        : child.material.clone();
+      // Store original opacity/transparent so the slider can restore them
+      const mats = Array.isArray(child.material) ? child.material : [child.material];
+      mats.forEach(m => {
+        m.userData._origOpacity     = m.opacity;
+        m.userData._origTransparent = m.transparent;
+        m.userData._origDepthWrite  = m.depthWrite;
+      });
+    });
+    // Apply current global mesh opacity setting
+    applyMeshOpacity(model, meshOpacity);
+    if (loadedMeshes[meshId]) groups.meshes.remove(loadedMeshes[meshId].group);
+    loadedMeshes[meshId] = { group: model, file: fileName };
+    // Apply stored transform if present in DATA.assets.meshes
+    applyStoredTransform(model, meshId);
+    groups.meshes.add(model);
+
+    // ── Register in DATA.assets.meshes if not already there ──
+    if (DATA) {
+      if (!DATA.assets)        DATA.assets = {};
+      if (!DATA.assets.meshes) DATA.assets.meshes = [];
+      const existing = DATA.assets.meshes.find(m => m.id === meshId);
+      if (!existing) {
+        DATA.assets.meshes.push({ id: meshId, uri: fileName });
+        // Bump version to 0.97 if it was lower
+        if (DATA._metadata) {
+          const v = parseFloat(DATA._metadata.version || '0');
+          if (v < 0.97) DATA._metadata.version = '0.97';
+        }
+        meshAssets = DATA.assets.meshes;
+        // Reflect new asset in changelog so Save SVJ captures it
+        changeLog.push({
+          path: 'assets.meshes',
+          oldVal: null,
+          newVal: DATA.assets.meshes,
+          timestamp: Date.now()
+        });
+        updateSaveBar();
+        // Refresh overview panel to show the new asset block
+        if (activePanel === 'overview') renderPanel();
+      }
+    }
+
+    applyLayers();
+    buildLayerUI();
+    updateMeshBanner(DATA);
+    showMeshToast('✓ ' + fileName + '  →  "' + meshId + '"');
+  }, undefined, () => {
+    URL.revokeObjectURL(url);
+    showMeshToast('✕ Failed to load ' + fileName, true);
+  });
+}
+
+function handleGLBFile(file) {
+  const url = URL.createObjectURL(file);
+  const base = file.name.replace(/\.(glb|gltf)$/i, '');
+  let meshId = base;
+  if (meshAssets.length) {
+    const hit = meshAssets.find(a =>
+      (a.uri || '').split('/').pop().replace(/\.(glb|gltf)$/i, '') === base ||
+      a.id === base
+    );
+    if (hit) meshId = hit.id;
+  }
+  loadGLTFBlob(meshId, url, file.name);
+}
+
+window.clearAllMeshes = function clearAllMeshes() {
+  Object.values(loadedMeshes).forEach(e => groups.meshes.remove(e.group));
+  loadedMeshes = {};
+  buildLayerUI();
+  updateMeshBanner(DATA);
+  showMeshToast('All meshes cleared');
+}
+
+function showMeshToast(msg, isError = false) {
+  let t = document.getElementById('mesh-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'mesh-toast';
+    t.style.cssText = 'position:absolute;top:48px;left:50%;transform:translateX(-50%);background:rgba(12,14,20,0.96);border-radius:4px;padding:5px 14px;font-family:JetBrains Mono,monospace;font-size:10px;z-index:300;pointer-events:none;transition:opacity .5s;white-space:nowrap';
+    document.getElementById('viewport').appendChild(t);
+  }
+  t.style.border = '1px solid ' + (isError ? 'var(--rd)' : 'var(--pr)');
+  t.style.color = isError ? 'var(--rd)' : 'var(--pr)';
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.style.opacity = '0'; }, 2800);
+}
+
+function updateMeshBanner(data) {
+  let banner = document.getElementById('mesh-banner');
+  const meshList = data?.assets?.meshes;
+  if (!meshList?.length) { if (banner) banner.remove(); return; }
+  meshAssets = meshList;
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'mesh-banner';
+    banner.style.cssText = 'position:absolute;top:48px;right:10px;background:rgba(12,14,20,0.93);border:1px solid var(--pr);border-radius:5px;padding:7px 10px;font-family:JetBrains Mono,monospace;font-size:9px;color:var(--pr);z-index:60;max-width:230px;backdrop-filter:blur(8px)';
+    document.getElementById('viewport').appendChild(banner);
+  }
+  banner.innerHTML =
+    '<div style="font-weight:700;margin-bottom:3px;letter-spacing:.5px;display:flex;justify-content:space-between">' +
+      '<span>glTF ASSETS (v0.97)</span>' +
+      '<button onclick="clearAllMeshes()" style="background:none;border:none;color:var(--txM);cursor:pointer;font-size:9px;padding:0;font-family:JetBrains Mono,monospace" title="Clear all loaded meshes">✕ clear</button>' +
+    '</div>' +
+    meshList.map(m => {
+      const loaded = !!loadedMeshes[m.id];
+      return '<div style="display:flex;align-items:center;gap:4px;padding:1px 0">' +
+        '<div style="width:6px;height:6px;border-radius:50%;background:' + (loaded ? 'var(--gn)' : 'var(--txM)') + ';flex-shrink:0"></div>' +
+        '<span style="color:' + (loaded ? 'var(--gn)' : 'var(--txD)') + ';font-weight:600">' + m.id + '</span>' +
+        (m.uri ? '<span style="color:var(--txM);font-size:8px;overflow:hidden;text-overflow:ellipsis"> ' + m.uri.split('/').pop() + '</span>' : '') +
+        '</div>';
+    }).join('') +
+    '<div style="margin-top:5px;display:flex;gap:4px;align-items:center">' +
+    '<button onclick="document.getElementById(\'glb-file-input\').click()" ' +
+    'style="flex:1;padding:3px 6px;border-radius:3px;border:1px solid var(--pr);background:var(--pr)15;color:var(--pr);font-family:JetBrains Mono,monospace;font-size:8px;cursor:pointer;font-weight:700">' +
+    '📂 Find meshes…</button>' +
+    '</div>' +
+    '<div style="margin-top:3px;color:var(--txM);font-size:8px">or drop folder / .glb files here</div>';
+}
+
 function loadData(json) {
   DATA = json;
   changeLog.length = 0; updateSaveBar();
+  meshAssets = json?.assets?.meshes || [];
   // Auto-validate on load
   const w = runValidation(json);
   if(w.length) console.warn('SVJ Validation:', w);
@@ -1370,6 +1796,11 @@ function loadData(json) {
   buildLayerUI();
   buildPanelTabs();
   renderPanel();
+  updateMeshBanner(json);
+  // Auto-hint: show "Find meshes" prominently if SVJ has assets but none loaded yet
+  if (json?.assets?.meshes?.length && Object.keys(loadedMeshes).length === 0) {
+    showMeshToast('SVJ v0.97: ' + json.assets.meshes.length + ' mesh file(s) declared — drop .glb or use 📂 Find meshes');
+  }
 }
 
 /* ═══════════════════════════════════════════════════
@@ -1377,14 +1808,14 @@ function loadData(json) {
    ═══════════════════════════════════════════════════ */
 document.getElementById('btn-export').addEventListener('click', saveFile);
 document.getElementById('btn-load').addEventListener('click', ()=>document.getElementById('file-input').click());
+document.getElementById('btn-load-glb').addEventListener('click', ()=>document.getElementById('glb-file-input').click());
+document.getElementById('glb-file-input').addEventListener('change', e=>{
+  processDroppedFiles(Array.from(e.target.files));
+  e.target.value = '';
+});
 document.getElementById('file-input').addEventListener('change', e=>{
-  const file=e.target.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    try{loadData(JSON.parse(ev.target.result));document.getElementById('file-name').textContent=file.name;}
-    catch(err){alert('Invalid JSON: '+err.message);}
-  };
-  reader.readAsText(file);
+  processDroppedFiles(Array.from(e.target.files));
+  e.target.value='';
 });
 document.getElementById('btn-reset-cam').addEventListener('click', ()=>{
   target.set(0, 0.25, 1.15);
@@ -1403,11 +1834,68 @@ document.body.addEventListener('dragover', e=>{e.preventDefault();document.getEl
 document.body.addEventListener('dragleave', e=>{if(e.target===document.getElementById('drop-overlay'))document.getElementById('drop-overlay').style.display='none';});
 document.body.addEventListener('drop', e=>{
   e.preventDefault();document.getElementById('drop-overlay').style.display='none';
-  const file=e.dataTransfer?.files?.[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=ev=>{try{loadData(JSON.parse(ev.target.result));document.getElementById('file-name').textContent=file.name;}catch(err){alert('Invalid JSON: '+err.message);}};
-  reader.readAsText(file);
+
+  // ── Folder drop: use webkitGetAsEntry to recurse the directory ──
+  const items = e.dataTransfer?.items;
+  if (items?.length) {
+    const entries = Array.from(items).map(i => i.webkitGetAsEntry?.()).filter(Boolean);
+    const hasDir  = entries.some(en => en.isDirectory);
+    if (hasDir) {
+      collectDroppedFiles(entries).then(files => processDroppedFiles(files));
+      return;
+    }
+  }
+
+  // ── Flat file drop (existing behaviour) ──
+  const files = e.dataTransfer?.files;
+  if(files?.length) processDroppedFiles(Array.from(files));
 });
+
+// Recursively collect File objects from a DataTransferEntry array
+async function collectDroppedFiles(entries) {
+  const out = [];
+  async function walk(entry) {
+    if (entry.isFile) {
+      out.push(await new Promise(res => entry.file(res)));
+    } else if (entry.isDirectory) {
+      const reader = entry.createReader();
+      const batch  = await new Promise(res => reader.readEntries(res));
+      for (const child of batch) await walk(child);
+    }
+  }
+  for (const en of entries) await walk(en);
+  return out;
+}
+
+// Process a mixed array of File objects (JSON + GLB)
+async function processDroppedFiles(files) {
+  // 1. Load SVJ first so meshAssets is populated before GLBs
+  const jsonFiles = files.filter(f => /\.json$/i.test(f.name));
+  const glbFiles  = files.filter(f => /\.(glb|gltf)$/i.test(f.name));
+
+  for (const file of jsonFiles) {
+    await new Promise(res => {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try { loadData(JSON.parse(ev.target.result)); document.getElementById('file-name').textContent = file.name; }
+        catch(err) { alert('Invalid JSON: ' + err.message); }
+        res();
+      };
+      reader.readAsText(file);
+    });
+  }
+
+  // 2. Load GLBs (now meshAssets is up-to-date if an SVJ was just loaded)
+  for (const file of glbFiles) handleGLBFile(file);
+
+  // 3. If SVJ was loaded and has assets.meshes but no matching GLBs were dropped,
+  //    try to auto-match by filename from ALL dropped files
+  if (jsonFiles.length && meshAssets.length && !glbFiles.length) {
+    const allGlbInDrop = files.filter(f => /\.(glb|gltf)$/i.test(f.name));
+    allGlbInDrop.forEach(f => handleGLBFile(f));
+  }
+}
+
 
 // Resize
 window.addEventListener('resize', ()=>{
@@ -1441,7 +1929,10 @@ document.addEventListener('keydown', e => {
   const map = {'1':'FL','2':'FR','3':'RL','4':'RR','0':null};
   if(map.hasOwnProperty(e.key)){highlightCorner=map[e.key];buildLayerUI();applyCornerHighlight();}
   if(e.key==='i')setView('iso');if(e.key==='f')setView('front');if(e.key==='b')setView('rear');if(e.key==='l')setView('left');if(e.key==='t')setView('top');
-  if(e.key==='r'||e.key==='R'){target.set(0,0.25,1.15);spherical.set(4.5,Math.PI/4,Math.PI/6);updateCamera();}
+  if(e.key==='r'||e.key==='R'){if(!selectedMeshId){target.set(0,0.25,1.15);spherical.set(4.5,Math.PI/4,Math.PI/6);updateCamera();}else setGizmoMode('rotate');}
+  if(e.key==='g'||e.key==='G'){if(selectedMeshId) setGizmoMode('translate');}
+  if(e.key==='s'||e.key==='S'){if(selectedMeshId) setGizmoMode('scale');}
+  if(e.key==='Escape'){deselectMesh();}
 });
 
 
@@ -1911,4 +2402,3 @@ animate();
 </div>
 </body>
 </html>
-
