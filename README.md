@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/logoSVJ.png" alt="SVJ — Standard Vehicle JSON" width="200"/>
+</p>
+
 # SVJ — Standard Vehicle JSON
 
 **A Rosetta Stone for vehicle simulation.**
@@ -171,11 +175,4 @@ spec/
   └── SVJ_Spec.md                  Human-readable specification
 svj-py/                            Python library
 viewer/
-  └── svj_viewer_v3.9.html         Browser-based SVJ viewer
-```
-
----
-
-## License
-
-See [`LICENSE`](LICENSE).
+  └─�
