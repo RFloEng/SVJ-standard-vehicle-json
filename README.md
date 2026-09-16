@@ -48,7 +48,18 @@ Everything is optional. A file with just metadata and suspension is valid — us
 
 ---
 
-## v0.99 — Multi-Axle Vehicles *(new)*
+## v0.99.1 — Real-Vehicle Data Patch *(new)*
+
+Added while building the first real multi-axle example, because published truck data didn't fit v0.99:
+
+- **`axle_groups`**: loads per axle group (design, legal and unladen), since makers publish "front axles 14 200 kg", not per-axle figures.
+- **`chassis.plated_masses`**: gross vehicle and combination masses, design vs legal.
+- **`wheelbase_reference`**: new values `bogie_centres`, `first_rear_axle`, `theoretical` and `explicit` (with `wheelbase_from` / `wheelbase_to`), because every maker measures "wheelbase" differently on multi-axle vehicles.
+- **First real-vehicle multi-axle example:** `man_tgs_32_430_8x4_twin_steer_tipper.svj.json`, built from MAN's UK body-builder chassis sheet.
+
+---
+
+## v0.99 — Multi-Axle Vehicles
 
 SVJ now describes trucks, trailers and special vehicles, not just four-corner cars. All additions are optional; existing `FL/FR/RL/RR` files are unchanged.
 
@@ -209,6 +220,12 @@ All example files validate against the current schema (`tools/validate.py`). The
 | `skeleton_awd_ev_dual_motor.svj.json` | AWD | `double_wishbone` | `double_wishbone` |
 | `skeleton_4wd_solid_axle.svj.json` | 4WD | `macpherson` | `solid_axle` |
 | `tire_mf62_245_40r18.svj.json` | — | Standalone Pacejka MF 6.2 tire file | — |
+
+**Real multi-axle vehicle (v0.99.1)** — published manufacturer data plus marked estimates:
+
+| File | Wheel formula | Suspension types | Published data used |
+|---|---|---|---|
+| `man_tgs_32_430_8x4_twin_steer_tipper.svj.json` | 8x4/4 | `solid_axle` leaf on all four axles | Axle spacings, overhangs, group loads (design/legal/unladen), tyres, rims, suspension type, engine, gearbox ratios, axle ratio, turning circle |
 
 **Multi-axle skeletons (v0.99)** — representative estimates, not production data:
 

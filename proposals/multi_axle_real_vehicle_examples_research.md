@@ -4,7 +4,7 @@
 - **Date:** 2026-09-16
 - **Target Specification:** SVJ v0.99
 - **Proposal Type:** Research — candidate real vehicles for `examples/`
-- **Status:** Draft — shortlist ready; no example files built yet
+- **Status:** In progress — §4 patches landed in v0.99.1; A1 (MAN TGS 8x4 twin-steer) built as `examples/man_tgs_32_430_8x4_twin_steer_tipper.svj.json`
 
 ---
 

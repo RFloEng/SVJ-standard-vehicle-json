@@ -85,9 +85,9 @@ def validate_file(svj_path: str, schema: dict, strict: bool) -> bool:
 
     # Version advisory
     version = doc.get("_metadata", {}).get("version", "unknown")
-    if version not in ("0.99",):
+    if version not in ("0.99", "0.99.1"):
         warnings.append(
-            f"_metadata.version is '{version}' — current spec is '0.99' "
+            f"_metadata.version is '{version}' — current spec is '0.99.1' "
             "(multi-axle vehicles)"
         )
 

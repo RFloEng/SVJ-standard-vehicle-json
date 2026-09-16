@@ -94,6 +94,9 @@ def _cmd_info(args: argparse.Namespace) -> None:
         for a in vehicle.axles:
             flags = ", ".join(f for f in ("steered", "driven", "liftable") if a.get(f))
             print(f"  {a.get('id')}: x={a.get('position_x', '?')} m  track={a.get('track', '?')} m  {flags}")
+    for g in vehicle.axle_groups:
+        kg = lambda n: f"{n / 9.80665:.0f} kg" if isinstance(n, (int, float)) else "?"
+        print(f"  group {g.get('id')}: {g.get('axle_refs')}  design {kg(g.get('max_load_design'))}  legal {kg(g.get('max_load_legal'))}  kerb {kg(g.get('kerb_load'))}")
     if vehicle.suspension_couplings:
         print(f"Couplings:")
         for c in vehicle.suspension_couplings:

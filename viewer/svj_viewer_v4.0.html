@@ -89,7 +89,7 @@ body{background:var(--bg);color:var(--tx);font-family:'DM Sans',system-ui,sans-s
 <div id="topbar">
   <div style="display:flex;align-items:center">
     <span class="logo mono">SVJ</span>
-    <span class="subtitle mono">3D Inspector v4.0 — Editor · SVJ v0.99</span>
+    <span class="subtitle mono">3D Inspector v4.0 — Editor · SVJ v0.99.1</span>
     <span class="filename mono" id="file-name">MX-5 ND2 Club 6MT (v0.96 demo)</span>
   </div>
   <div style="display:flex;gap:4px;align-items:center">
@@ -914,7 +914,22 @@ function renderPanel() {
 
 function renderOverview(el, data) {
   const vi=data.vehicle_info||{};const ch=data.chassis||{};const cg=ch.center_of_gravity||[];
-  const wb=ch.wheelbase||0;const fb=wb>0?((wb-Math.abs(cg[0]))/wb*100).toFixed(1):'—';
+  const wb=ch.wheelbase||0;let fb=wb>0?((wb-Math.abs(cg[0]))/wb*100).toFixed(1):'—';
+  { const ax=(data.axles||[]).filter(a=>typeof a.position_x==='number').sort((a,b)=>b.position_x-a.position_x);
+    const grp=id=>(data.axle_groups||[]).find(g=>(g.axle_refs||[]).includes(id));
+    if(ax.length>=2){
+      const kl=(data.axle_groups||[]).map(g=>g.kerb_load);
+      const fg=grp(ax[0].id);
+      if(fg && kl.length && kl.every(x=>typeof x==='number')){ fb=(fg.kerb_load/kl.reduce((p,c)=>p+c,0)*100).toFixed(1); }
+      else if(cg){
+        const pos=Object.fromEntries(ax.map(a=>[a.id,a.position_x]));
+        const xs=ax.map(a=>a.position_x); let cut=1,best=-1; for(let i=0;i<xs.length-1;i++){const gp=xs[i]-xs[i+1]; if(gp>best){best=gp;cut=i+1;}}
+        const fIds=(grp(ax[0].id)?.axle_refs)||ax.slice(0,cut).map(a=>a.id), rIds=(grp(ax[ax.length-1].id)?.axle_refs)||ax.slice(cut).map(a=>a.id);
+        const mean=ids=>ids.reduce((p,c)=>p+(pos[c]??0),0)/ids.length; const xf=mean(fIds), xr=mean(rIds);
+        if(xf!==xr) fb=((cg[0]-xr)/(xf-xr)*100).toFixed(1);
+      }
+    }
+  }
   const e=data.powertrain?.engine;
   const warnings = runValidation(data);
   el.innerHTML = `
@@ -977,6 +992,7 @@ function renderOverview(el, data) {
     ${ch.inertia?section('Inertia (kg·m²)',`<div class="grid2">${['Ixx','Iyy','Izz','Ixz'].filter(k=>ch.inertia[k]!=null).map(k=>stat(k,fmtN(ch.inertia[k],0))).join('')}</div>`):''}
     ${ch.mass_unsprung_per_corner?section('Unsprung Mass (kg)',`<div class="grid4">${stationKeys(ch.mass_unsprung_per_corner).map(c=>stat(c,fmtN(ch.mass_unsprung_per_corner[c],1),'kg')).join('')}</div>`):''}
     ${data.axles?.length?section('Axles ('+data.axles.length+')'+(data.vehicle_info?.wheel_formula?' · '+data.vehicle_info.wheel_formula:''),data.axles.map(a=>`<div class="kv-row"><span class="kv-key">${a.id}${a.label?' · '+a.label:''}</span><span class="kv-val">x ${fmtN(a.position_x,3)} m · track ${fmtN(a.track,3)} m${a.steered?' · steer':''}${a.driven?' · drive':''}${a.liftable?' · lift':''}</span></div>`).join('')):''}
+    ${data.axle_groups?.length?section('Axle Groups ('+data.axle_groups.length+')',data.axle_groups.map(g=>`<div class="kv-row"><span class="kv-key">${g.id} · ${(g.axle_refs||[]).join('+')}</span><span class="kv-val">${g.max_load_design?'design '+fmtN(g.max_load_design/9.80665,0)+' kg':''}${g.max_load_legal?' · legal '+fmtN(g.max_load_legal/9.80665,0)+' kg':''}${g.kerb_load?' · kerb '+fmtN(g.kerb_load/9.80665,0)+' kg':''}</span></div>`).join('')):''}
     ${data.suspension_couplings?.length?section('Suspension Couplings ('+data.suspension_couplings.length+')',data.suspension_couplings.map(c=>`<div class="kv-row"><span class="kv-key">${c.id}</span><span class="kv-val">${(c.type||'').replace(/_/g,' ')}${c.axle_refs?' · '+c.axle_refs.join('+'):''}${c.members?' · '+c.members.join(', '):''}</span></div>`).join('')):''}
     ${ch.mass_bodies?.length?section('Mass Bodies ('+ch.mass_bodies.length+')',`<div style="max-height:200px;overflow:auto">${ch.mass_bodies.map(mb=>`<div class="kv-row"><span class="kv-key">${mb.id}</span><span class="kv-val">${mb.mass} kg</span></div>`).join('')}</div>`):''}
   

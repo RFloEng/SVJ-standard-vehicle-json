@@ -1,4 +1,4 @@
-# Standard Vehicle JSON (SVJ) Specification v0.99
+# Standard Vehicle JSON (SVJ) Specification v0.99.1
 
 ## 1. Overview & Philosophy
 
@@ -195,7 +195,9 @@ Every top-level key except `_metadata` is OPTIONAL. A file containing only `_met
 | `mass_total`               | number     | YES      | Total vehicle mass including fluids (kg)                |
 | `mass_unsprung_per_corner` | object     | no       | Per station, same keys as `suspension`: `{"FL": n, ...}` or `{"A1L": n, ...}` (kg) |
 | `wheelbase`                | number     | YES      | Front axle to rear axle distance (m). Multi-axle: `A1` to last axle (§23.6) |
-| `wheelbase_reference`      | string     | no       | `"last_axle"` (default) or `"bogie_centre"` (§23.6)     |
+| `wheelbase_reference`      | string     | no       | How `wheelbase` is measured: `"last_axle"` (default), `"bogie_centre"`, `"bogie_centres"`, `"first_rear_axle"`, `"theoretical"`, `"explicit"` (§23.6) |
+| `wheelbase_from` / `wheelbase_to` | string | no     | Axle id or `axle_groups` id bounding the wheelbase when `wheelbase_reference` is `"explicit"` (§23.6) |
+| `plated_masses`            | object     | no       | Plated masses in kg: `gross_vehicle_mass_design`, `gross_vehicle_mass_legal`, `gross_combination_mass_design`, `gross_combination_mass_legal`, `payload`, `jurisdiction` *(v0.99.1)* |
 | `track_front`              | number     | YES      | Front track width, center-to-center contact patches (m) — track at `A1` |
 | `track_rear`               | number     | YES      | Rear track width (m) — track at the last axle; `0` for a single centreline wheel |
 | `center_of_gravity`        | [x, y, z]  | YES      | CG position in vehicle reference frame (m)              |
@@ -2288,6 +2290,7 @@ This section is **optional**. It provides a standard place to record performance
 
 | Version | Changes                                                                                    |
 |---------|--------------------------------------------------------------------------------------------|
+| 0.99.1  | **Real-vehicle data patch** (from `proposals/multi_axle_real_vehicle_examples_research.md`): `axle_groups` with design/legal/kerb loads per group (§23.2.1); `chassis.plated_masses`; `wheelbase_reference` gains `bogie_centres`, `first_rear_axle`, `theoretical`, `explicit` (+ `wheelbase_from`/`wheelbase_to`) with a definition table (§23.6); checker rules for both. First real-vehicle multi-axle example: MAN TGS 32.430 8x4 BB twin-steer tipper. Additive — all 0.99 files remain valid. |
 | 0.99    | **Multi-axle vehicles** (§23): `A{n}{L\|R\|C}` station naming with `FL/FR/RL/RR` as aliases; `axles` metadata (position, track, steered, driven, lift); multi-axle steering `steering.additional_axles` (§8.6); multiple wheels per station (`wheel.multiplicity`, `positions`); `suspension_couplings` (equalizer rocker, walking beam, trunnion spring, pneumatic and hydraulic circuits). New `system_type`s `swing_axle`, `parallelogram`, `pendulum_axle`; new spring types `rubber_torsion`, `rubber_block`, `hydropneumatic`, `hydraulic`, `none` with leaf end type/friction and hydropneumatic data; damper types `hydraulic_strut`, `none`; portal axle and pendulum fields on `axle_body`; `torque_rod` and `pivot` link types; `vehicle_info.wheel_formula`/`vehicle_class`; `inter_axle` differentials. `tools/multiaxle_check.py` cross-reference rules. Ten multi-axle skeleton examples. `svj-py` 0.2.0 and viewer v4.0 are multi-axle aware. Schema fixes from the audit: truck tyre `size_code`s, `_` metadata keys in pacejka groups. Existing files remain valid. |
 | 0.98    | **Override files** (§3.4): `*.svj-override.json` — `base` + RFC 7396 JSON Merge Patch `patch`, for DOE variants and partial-disclosure supplier hand-offs, validated with `tools/validate_override.py`. **`validation`** (§20a): vehicle-level correlation status against physical test data. **`benchmarks`** (§20b): array of target/measured/simulated KPI entries. All additions optional — full backward compatibility. |
 | 0.1     | Initial draft. Metadata, chassis, basic suspension topology, powertrain.                   |
@@ -2506,6 +2509,34 @@ Optional top-level array. Ids match the corner prefix.
 
 > **Static description only.** Whether a lift axle is currently raised is operating state, not vehicle data. Describe the lifted and lowered configurations with an override file (§3.4) if both are needed.
 
+### 23.2.1 `axle_groups` — Loads per Axle Group *(v0.99.1)*
+
+Manufacturers usually publish loads for **groups** of axles, not for each axle: "front axles 14 200 kg", "rear bogie 21 000 kg", unladen "front axle 6 359 / rear axle 3 073 kg". Splitting those figures per axle would invent data, so SVJ stores them at group level.
+
+| Key               | Type   | Required | Description                                                     |
+|-------------------|--------|----------|-----------------------------------------------------------------|
+| `id`              | string | YES      | Group id, e.g. `"front_axles"`, `"rear_bogie"`                  |
+| `axle_refs`       | array  | YES      | Axles in the group, e.g. `["A1", "A2"]`                         |
+| `label`           | string | no       | Free text, e.g. `"twin steer"`, `"tandem drive"`, `"tridem"`    |
+| `max_load_design` | number | no       | Technical (design) load limit of the group (N)                  |
+| `max_load_legal`  | number | no       | Legal plated load limit of the group (N)                        |
+| `kerb_load`       | number | no       | Published unladen load on the group (N)                         |
+| `jurisdiction`    | string | no       | Where `max_load_legal` applies, e.g. `"UK"`, `"EU"`, `"US-FHWA"` |
+
+Rules:
+
+- An axle SHOULD belong to at most one group. A single axle may form its own group.
+- Loads are forces in N like `axles[].max_load`; convert published kg with g = 9.80665 m/s² and keep the original figure in `_source`.
+- Group `kerb_load`s SHOULD sum to `chassis.mass_total × g` (trailers: minus the king-pin/drawbar load). Validators warn above 3 % difference.
+- Vehicle-level plated figures (GVM, GCM, design vs legal) go in `chassis.plated_masses` (kg).
+
+```json
+"axle_groups": [
+  { "id": "front_axles", "label": "twin steer", "axle_refs": ["A1", "A2"], "max_load_design": 139254, "kerb_load": 62359, "_source": "14200 kg design; 6359 kg unladen" },
+  { "id": "rear_bogie",  "label": "tandem drive", "axle_refs": ["A3", "A4"], "max_load_design": 205940, "max_load_legal": 186326, "jurisdiction": "UK", "kerb_load": 30136 }
+]
+```
+
 ### 23.3 Steering on Several Axles
 
 See §8.6 (`steering.axle_ref`, `steering.additional_axles`). Mark each steered axle `steered: true` in `axles`; tie rods and steering arms stay in the corner hardpoints as usual.
@@ -2635,7 +2666,7 @@ Type-specific fields:
 
 | Field                         | Meaning for N axles                                                              |
 |-------------------------------|----------------------------------------------------------------------------------|
-| `chassis.wheelbase`           | `A1` to last axle (default), or `A1` to rear bogie centre when `chassis.wheelbase_reference` is `"bogie_centre"` |
+| `chassis.wheelbase`           | Measured as declared by `chassis.wheelbase_reference` (table below). `axles[].position_x` is authoritative whenever present; `wheelbase` is the published headline figure |
 | `chassis.track_front`         | Track at `A1`                                                                     |
 | `chassis.track_rear`          | Track at the last axle (`0` for a `C` station). Per-axle values: `axles[].track`  |
 | `chassis.mass_unsprung_per_corner` | Keyed by station name; includes all wheels at the station                  |
@@ -2643,11 +2674,26 @@ Type-specific fields:
 | `powertrain.layout`           | `"multi_axle"`; the driveline is defined by `driveshafts`, `differentials` (`axle_ref`, `location: "inter_axle"`, `through_drive`) and `half_shafts` |
 | `vehicle_info.wheel_formula`  | e.g. `"6x4"`, `"8x8/4"` (stations × driven / steered)                           |
 
+**Wheelbase definitions.** Makers measure "wheelbase" differently on multi-axle vehicles. Declare which one the file uses:
+
+| `wheelbase_reference` | Measured from → to | Typical use |
+|-----------------------|--------------------|-------------|
+| `"last_axle"` (default) | `A1` → last axle | Two-axle vehicles; many trailer sheets |
+| `"bogie_centre"` | `A1` → centre of the rear axle group | EU tandem-drive rigids and tractors |
+| `"bogie_centres"` | Centre of the front axle group → centre of the rear axle group | US / military practice (e.g. HEMTT) |
+| `"first_rear_axle"` | Last axle of the front group → first axle of the rear group | UK body-builder sheets for twin-steer rigids (MAN "L1") |
+| `"theoretical"` | Maker's load-equivalent wheelbase; not checked geometrically | Volvo "theoretical wheelbase", ISO 612 derived values |
+| `"explicit"` | `chassis.wheelbase_from` → `chassis.wheelbase_to` (axle ids or `axle_groups` ids; a group means its centre) | Anything else |
+
+Front and rear groups are taken from `axle_groups` (the group containing `A1`, and the group containing the last axle). Without `axle_groups`, the vehicle is split at the largest gap between consecutive axles: axles ahead of it form the front group, axles behind it the rear group (a two-axle vehicle gives `A1` and `A2`).
+
 ### 23.7 Validation Rules
 
 `tools/validate.py` runs the JSON Schema and then `tools/multiaxle_check.py`, which enforces the rules above that a schema cannot express (the same rules ship in `svj-py` as `svj/multiaxle.py`):
 
 - **Errors:** mixed naming forms; incomplete legacy set; non-contiguous axle indices; `C` together with `L`/`R` on one axle; `axles[]` id without stations; `wheel.positions` length ≠ `multiplicity`; unresolved `coupling_ref`, `axle_refs`, `members`, `connections`, `torque_rod_refs`; `axle_body` id shared across axles; `mass_unsprung_per_corner` / `half_shafts` keys without a matching station or in a different naming form; `steering.additional_axles` referring to a missing or the primary axle; `differentials[].axle_ref` missing.
+- **v0.99.1 errors:** `axle_groups` ids duplicated or referring to missing axles; `wheelbase_from`/`wheelbase_to` missing or unresolved when `wheelbase_reference` is `"explicit"`.
+- **v0.99.1 warnings:** an axle in more than one group; `chassis.wheelbase` differing from the declared definition by more than 10 mm; group `kerb_load`s differing from `mass_total × g` by more than 3 % (not for trailers).
 - **Warnings:** stations without `axles[]` entry (or no `axles[]` on 3+ axles); `position_x` not decreasing; `system_type` expecting `axle_body` without one; `pendulum_axle` without `pendulum_pivot`; `spring.type: "none"` without `coupling_ref`; circuit members with the wrong spring type; wheelbase inconsistent with `axles[].position_x`; single-sided axles.
 
 ### 23.8 Not Covered Yet
@@ -2677,5 +2723,6 @@ Type-specific fields:
 | glTF visual binding | v0.97  | ✅ Done                                             |
 | Validation, benchmarks, overrides | v0.98 | ✅ Done                                 |
 | Multi-axle vehicles | v0.99  | ✅ Done — §23, 13 system_types, suspension couplings |
+| Axle groups, plated masses, wheelbase definitions | v0.99.1 | ✅ Done — first real multi-axle example (MAN TGS 8x4) |
 | Articulated combinations (tractor/trailer/dolly) | — | Planned (§23.8)            |
 | v1.0 freeze       | —        | After converter feedback on v0.99                   |
