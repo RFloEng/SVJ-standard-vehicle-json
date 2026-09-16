@@ -275,3 +275,16 @@ class TestRealMultiAxle:
             assert v.weight_distribution_front == pytest.approx(6359 / 9432, abs=0.01)
         finally:
             v.data["axle_groups"] = groups
+
+
+MAN_TRIDEM = EXAMPLES_DIR / "man_tgs_36_430_8x4_4_tridem_lift_tag.svj.json"
+
+
+@pytest.mark.skipif(not MAN_TRIDEM.exists(), reason="MAN tridem example not found")
+def test_man_tridem_lift_tag():
+    v = load(MAN_TRIDEM, validate_on_load=False)
+    assert v.axle("A4")["liftable"] and v.axle("A4")["steered"]
+    assert v.wheel_count("A4L") == 1 and v.wheel_count("A2L") == 2
+    assert v.weight_distribution_front == pytest.approx(4853 / 9858, rel=1e-3)
+    with open(MAN_TRIDEM) as f:
+        assert validate(json.load(f), schema_path=SCHEMA) == []

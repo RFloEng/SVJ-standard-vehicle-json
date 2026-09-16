@@ -10,7 +10,7 @@
 | Checker | Group ids/refs, axle in two groups, kerb-load sum vs mass_total, wheelbase vs declared definition; default front/rear groups split at the largest axle gap |
 | svj-py | `axle_groups`, `plated_masses`; `weight_distribution_front` uses group kerb loads or front/rear group centres (was wrong on multi-axle vehicles); CLI lists groups; tests |
 | Viewer | Axle groups panel; F/R bias correct for multi-axle vehicles |
-| Examples | `man_tgs_32_430_8x4_twin_steer_tipper.svj.json` — first real multi-axle vehicle, from MAN's UK body-builder chassis sheet |
+| Examples | `man_tgs_32_430_8x4_twin_steer_tipper.svj.json` — first real multi-axle vehicle, from MAN's UK body-builder chassis sheet; `man_tgs_36_430_8x4_4_tridem_lift_tag.svj.json` — air-sprung tridem with steered lift tag axle |
 
 ---
 

@@ -10,7 +10,7 @@ SVJ (Standard Vehicle JSON) is a universal exchange format for vehicle dynamics 
 spec/SVJ_Spec.md                        THE specification (§1–§23)
 schema/svj.schema.json                  JSON Schema Draft-07 (v0.99)
 schema/svj-override.schema.json         Override file structure (v0.98)
-examples/                               20 examples (real cars, 2-axle skeletons, 10 multi-axle skeletons, 1 real multi-axle truck, tire file)
+examples/                               21 examples (real cars, 2-axle skeletons, 10 multi-axle skeletons, 2 real multi-axle trucks, tire file)
 docs/naming_convention.md               SVJ::category::id glTF naming convention
 tools/validate.py                       Schema + multi-axle validation
 tools/multiaxle_check.py                Multi-axle cross-reference rules (v0.99)
@@ -107,7 +107,7 @@ Spec §23, all optional and backward-compatible:
 ### Future (v1.x)
 - Articulated combinations addendum (tractor/semi-trailer, dolly, ADT) — §23.8
 - Known data issues: `examples/formula_f1_2025_aero.svj.json` breaks SAE conventions (CG.x/Z positive, left wheels at +Y, rear axle at -2.8 vs wheelbase 3.6); Mazda template mass_bodies + unsprung (1145 kg) ≠ mass_total (1077 kg)
-- Real-vehicle multi-axle examples — ✅ MAN TGS 8x4 twin-steer done; next MAN TGS 8x4-4 tridem, Oshkosh HEMTT A4, Tatra T815-7 (shortlist: `proposals/multi_axle_real_vehicle_examples_research.md`)
+- Real-vehicle multi-axle examples — ✅ MAN TGS 8x4 twin-steer, ✅ MAN TGS 8x4-4 tridem; next Oshkosh HEMTT A4, Tatra T815-7 (shortlist: `proposals/multi_axle_real_vehicle_examples_research.md`)
 - BeamNG converter
 - rFactor2 converter
 
