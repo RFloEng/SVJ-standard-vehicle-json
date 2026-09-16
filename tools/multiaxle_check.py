@@ -187,12 +187,69 @@ def check(doc):
         if dfl.get("axle_ref") and not axle_exists(dfl["axle_ref"]):
             errors.append(f"powertrain.differentials '{dfl.get('id')}': axle_ref {dfl['axle_ref']} not present")
 
-    # ── 8. composite fields ───────────────────────────────────────────────
+    # ── 8. axle groups (v0.99.1) ──────────────────────────────────────────
+    groups = doc.get("axle_groups") or []
+    gids = [g.get("id") for g in groups]
+    if len(gids) != len(set(gids)):
+        errors.append("axle_groups contains duplicate ids (§23.2.1)")
+    seen_in = {}
+    for g in groups:
+        for aid in g.get("axle_refs", []):
+            if not axle_exists(aid):
+                errors.append(f"axle_groups '{g.get('id')}': axle_ref {aid} not present in suspension")
+            if aid in seen_in:
+                warnings.append(f"axle {aid} is in more than one axle group ('{seen_in[aid]}', '{g.get('id')}') (§23.2.1)")
+            seen_in.setdefault(aid, g.get("id"))
+
     ch = doc.get("chassis") or {}
-    if len(xs) >= 2 and "wheelbase" in ch and ch.get("wheelbase_reference", "last_axle") == "last_axle":
-        wb = xs[0] - xs[-1]
-        if abs(wb - ch["wheelbase"]) > 0.01:
-            warnings.append(f"chassis.wheelbase {ch['wheelbase']} differs from A1→last axle distance {wb:.3f} (§23.6)")
+    trailer = (doc.get("vehicle_info") or {}).get("vehicle_class") in ("trailer", "semi_trailer")
+    kerb = [g["kerb_load"] for g in groups if isinstance(g.get("kerb_load"), (int, float))]
+    if kerb and len(kerb) == len(groups) and ch.get("mass_total") and not trailer:
+        total = ch["mass_total"] * 9.80665
+        if abs(sum(kerb) - total) > 0.03 * total:
+            warnings.append(f"axle_groups kerb_load sum {sum(kerb):.0f} N differs from mass_total × g {total:.0f} N by more than 3 % (§23.2.1)")
+
+    # ── 9. wheelbase definition (§23.6) ───────────────────────────────────
+    pos = {a["id"]: a["position_x"] for a in axles if isinstance(a.get("position_x"), (int, float))}
+    ref = ch.get("wheelbase_reference", "last_axle")
+
+    def centre(ident):
+        if ident in pos:
+            return pos[ident]
+        g = next((g for g in groups if g.get("id") == ident), None)
+        if g and g.get("axle_refs") and all(a in pos for a in g["axle_refs"]):
+            return sum(pos[a] for a in g["axle_refs"]) / len(g["axle_refs"])
+        return None
+
+    if ref == "explicit":
+        f, t = ch.get("wheelbase_from"), ch.get("wheelbase_to")
+        if not f or not t:
+            errors.append("chassis.wheelbase_reference 'explicit' requires wheelbase_from and wheelbase_to (§23.6)")
+        elif pos and (centre(f) is None or centre(t) is None):
+            errors.append(f"chassis.wheelbase_from/to '{f}'/'{t}' do not resolve to axles or axle_groups with position_x (§23.6)")
+
+    if len(pos) >= 2 and "wheelbase" in ch and ref != "theoretical":
+        order = sorted(pos, key=lambda a: int(a[1:]))
+        xs_sorted = [pos[a] for a in order]
+        def group_of(aid):
+            g = next((g for g in groups if aid in g.get("axle_refs", [])), None)
+            if g:
+                return sorted(g["axle_refs"], key=lambda a: int(a[1:]))
+            gaps = [xs_sorted[i] - xs_sorted[i + 1] for i in range(len(xs_sorted) - 1)]
+            cut = gaps.index(max(gaps)) + 1
+            return order[:cut] if aid in order[:cut] else order[cut:]
+        front, rear = group_of(order[0]), group_of(order[-1])
+        mean = lambda ids: sum(pos[a] for a in ids if a in pos) / len(ids)
+        expected = {
+            "last_axle": xs_sorted[0] - xs_sorted[-1],
+            "bogie_centre": xs_sorted[0] - mean(rear),
+            "bogie_centres": mean(front) - mean(rear),
+            "first_rear_axle": pos[front[-1]] - pos[rear[0]] if front[-1] in pos and rear[0] in pos else None,
+        }.get(ref)
+        if ref == "explicit" and centre(ch.get("wheelbase_from", "")) is not None and centre(ch.get("wheelbase_to", "")) is not None:
+            expected = centre(ch["wheelbase_from"]) - centre(ch["wheelbase_to"])
+        if expected is not None and abs(expected - ch["wheelbase"]) > 0.01:
+            warnings.append(f"chassis.wheelbase {ch['wheelbase']} differs from the '{ref}' distance {expected:.3f} computed from axles[].position_x (§23.6)")
 
     return errors, warnings
 

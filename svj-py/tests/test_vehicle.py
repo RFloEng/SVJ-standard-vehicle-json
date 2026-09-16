@@ -247,3 +247,31 @@ class TestMultiAxle:
         tools_copy = REPO_ROOT / "tools" / "multiaxle_check.py"
         lib_copy = REPO_ROOT / "svj-py" / "svj" / "multiaxle.py"
         assert tools_copy.read_text() == lib_copy.read_text(), "tools/multiaxle_check.py and svj/multiaxle.py differ"
+
+
+MAN_TIPPER = EXAMPLES_DIR / "man_tgs_32_430_8x4_twin_steer_tipper.svj.json"
+
+
+@pytest.mark.skipif(not MAN_TIPPER.exists(), reason="MAN example not found")
+class TestRealMultiAxle:
+    """First real-vehicle multi-axle example (v0.99.1: axle_groups, wheelbase_reference)."""
+
+    def test_groups_and_weight_share(self):
+        v = load(MAN_TIPPER, validate_on_load=False)
+        assert [g["id"] for g in v.axle_groups] == ["front_axles", "rear_bogie"]
+        # Published unladen: 6359 kg front axles / 9432 kg total
+        assert v.weight_distribution_front == pytest.approx(6359 / 9432, rel=1e-3)
+        assert v.plated_masses["gross_vehicle_mass_legal"] == 32000
+
+    def test_validates_clean(self):
+        with open(MAN_TIPPER) as f:
+            data = json.load(f)
+        assert validate(data, schema_path=SCHEMA) == []
+
+    def test_cg_based_share_matches_groups(self):
+        v = load(MAN_TIPPER, validate_on_load=False)
+        groups = v.data.pop("axle_groups")
+        try:
+            assert v.weight_distribution_front == pytest.approx(6359 / 9432, abs=0.01)
+        finally:
+            v.data["axle_groups"] = groups

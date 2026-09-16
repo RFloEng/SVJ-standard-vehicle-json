@@ -392,13 +392,58 @@ class Vehicle:
     # ── Computed properties ───────────────────────────────────────────
 
     @property
+    def axle_groups(self) -> list[dict[str, Any]]:
+        """The `axle_groups` array (v0.99.1), e.g. twin-steer front axles, rear bogie."""
+        return self.data.get("axle_groups", [])
+
+    @property
+    def plated_masses(self) -> dict[str, Any]:
+        return self.chassis.get("plated_masses", {})
+
+    def _front_rear_groups(self) -> tuple[list[str], list[str]] | None:
+        """Front and rear axle groups as used by spec §23.6 (needs axles[].position_x)."""
+        pos = {a["id"]: a["position_x"] for a in self.axles if isinstance(a.get("position_x"), (int, float))}
+        if len(pos) < 2:
+            return None
+        order = sorted(pos, key=lambda a: int(a[1:]))
+
+        def group_of(aid: str) -> list[str]:
+            g = next((g for g in self.axle_groups if aid in g.get("axle_refs", [])), None)
+            if g:
+                return [a for a in g["axle_refs"] if a in pos]
+            xs = [pos[a] for a in order]
+            gaps = [xs[i] - xs[i + 1] for i in range(len(xs) - 1)]
+            cut = gaps.index(max(gaps)) + 1
+            return order[:cut] if aid in order[:cut] else order[cut:]
+
+        return group_of(order[0]), group_of(order[-1])
+
+    @property
     def weight_distribution_front(self) -> float | None:
-        """Front weight distribution (0-1) estimated from CG position."""
+        """Share (0-1) of the unladen weight on the front axle group.
+
+        Uses, in order: published `axle_groups[].kerb_load`; the CG between the
+        front and rear group centres (multi-axle); 1 + CG.x / wheelbase (two axles).
+        """
+        groups = self.axle_groups
+        loads = [g.get("kerb_load") for g in groups]
+        fr = self._front_rear_groups()
+        if groups and fr and all(isinstance(l, (int, float)) for l in loads):
+            front = next((g for g in groups if fr[0][0] in g.get("axle_refs", [])), None)
+            if front:
+                return front["kerb_load"] / sum(loads)
         cg_x = self.cg[0] if self.cg else None
+        if cg_x is None:
+            return None
+        if fr:
+            pos = {a["id"]: a["position_x"] for a in self.axles}
+            xf = sum(pos[a] for a in fr[0]) / len(fr[0])
+            xr = sum(pos[a] for a in fr[1]) / len(fr[1])
+            if xf != xr:
+                return (cg_x - xr) / (xf - xr)
         wb = self.wheelbase
-        if cg_x is not None and wb > 0:
-            # CG.x is negative (behind front axle) in SAE J670.
-            # Multi-axle: share on A1 vs. the rest, using wheelbase A1 -> last axle.
+        if wb > 0:
+            # CG.x is negative (behind front axle) in SAE J670
             return 1.0 + (cg_x / wb)
         return None
 

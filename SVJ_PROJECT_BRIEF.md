@@ -2,7 +2,7 @@
 
 ## What This Is
 
-SVJ (Standard Vehicle JSON) is a universal exchange format for vehicle dynamics data — a "Rosetta Stone" that lets any simulator read the same vehicle definition. Current version: **v0.99**.
+SVJ (Standard Vehicle JSON) is a universal exchange format for vehicle dynamics data — a "Rosetta Stone" that lets any simulator read the same vehicle definition. Current version: **v0.99.1**.
 
 ## Repo Structure
 
@@ -10,7 +10,7 @@ SVJ (Standard Vehicle JSON) is a universal exchange format for vehicle dynamics 
 spec/SVJ_Spec.md                        THE specification (§1–§23)
 schema/svj.schema.json                  JSON Schema Draft-07 (v0.99)
 schema/svj-override.schema.json         Override file structure (v0.98)
-examples/                               19 examples (real cars, 2-axle skeletons, 10 multi-axle skeletons, tire file)
+examples/                               20 examples (real cars, 2-axle skeletons, 10 multi-axle skeletons, 1 real multi-axle truck, tire file)
 docs/naming_convention.md               SVJ::category::id glTF naming convention
 tools/validate.py                       Schema + multi-axle validation
 tools/multiaxle_check.py                Multi-axle cross-reference rules (v0.99)
@@ -73,6 +73,14 @@ Spec §23, all optional and backward-compatible:
 - **Schema fixes found during v0.99 audit:** truck tyre `size_code`s; `_` metadata keys allowed in pacejka groups (Mazda template now validates)
 - Note: the v0.94 changelog entry described a multi-axle convention (§21.1) that never landed in the spec; §23 is the real implementation.
 
+## v0.99.1 — Real-Vehicle Data Patch
+
+- **`axle_groups`** (§23.2.1) — `axle_refs`, `max_load_design`, `max_load_legal`, `kerb_load` (N), `jurisdiction`
+- **`chassis.plated_masses`** — GVM/GCM design and legal (kg)
+- **`wheelbase_reference`** — `last_axle`, `bogie_centre`, `bogie_centres`, `first_rear_axle`, `theoretical`, `explicit` (+ `wheelbase_from`/`wheelbase_to`); definition table in §23.6. Groups default to a split at the largest axle gap
+- `gearbox.type: "amt"`; checker validates groups, kerb-load sum and the declared wheelbase; svj-py `axle_groups`, `plated_masses`, weight share from group loads or front/rear group centres; viewer axle-groups panel and correct F/R bias on multi-axle vehicles
+- **`examples/man_tgs_32_430_8x4_twin_steer_tipper.svj.json`** — first real multi-axle vehicle (MAN UK body-builder sheet, May 2022)
+
 ## Topology Coverage (all 13 with examples)
 
 ✅ double_wishbone (Alfa 75 front, Corvette C3 front, F1 front/rear, AWD EV)
@@ -99,7 +107,7 @@ Spec §23, all optional and backward-compatible:
 ### Future (v1.x)
 - Articulated combinations addendum (tractor/semi-trailer, dolly, ADT) — §23.8
 - Known data issues: `examples/formula_f1_2025_aero.svj.json` breaks SAE conventions (CG.x/Z positive, left wheels at +Y, rear axle at -2.8 vs wheelbase 3.6); Mazda template mass_bodies + unsprung (1145 kg) ≠ mass_total (1077 kg)
-- Real-vehicle multi-axle examples with published data — shortlist and sources in `proposals/multi_axle_real_vehicle_examples_research.md` (MAN TGS 8x4 twin-steer and tridem, Oshkosh HEMTT A4, Tatra T815-7); needs `wheelbase_reference` values and `axle_groups` loads first
+- Real-vehicle multi-axle examples — ✅ MAN TGS 8x4 twin-steer done; next MAN TGS 8x4-4 tridem, Oshkosh HEMTT A4, Tatra T815-7 (shortlist: `proposals/multi_axle_real_vehicle_examples_research.md`)
 - BeamNG converter
 - rFactor2 converter
 

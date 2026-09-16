@@ -34,9 +34,10 @@
             "0.96",
             "0.97",
             "0.98",
-            "0.99"
+            "0.99",
+            "0.99.1"
           ],
-          "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations)."
+          "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations). '0.99.1' adds axle_groups, plated masses and explicit wheelbase definitions."
         },
         "description": {
           "type": "string"
@@ -326,9 +327,52 @@
           "type": "string",
           "enum": [
             "last_axle",
-            "bogie_centre"
+            "bogie_centre",
+            "bogie_centres",
+            "first_rear_axle",
+            "theoretical",
+            "explicit"
           ],
-          "default": "last_axle"
+          "default": "last_axle",
+          "description": "How chassis.wheelbase is measured (spec \u00a723.6). 'explicit' uses wheelbase_from / wheelbase_to."
+        },
+        "wheelbase_from": {
+          "type": "string",
+          "description": "Axle id (A2) or axle_groups id where the wheelbase starts; group = centre of its axles. Used with wheelbase_reference 'explicit'."
+        },
+        "wheelbase_to": {
+          "type": "string",
+          "description": "Axle id or axle_groups id where the wheelbase ends."
+        },
+        "plated_masses": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Plated vehicle masses (kg). Design = manufacturer technical limit; legal = registration limit in 'jurisdiction'.",
+          "properties": {
+            "gross_vehicle_mass_design": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "gross_vehicle_mass_legal": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "gross_combination_mass_design": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "gross_combination_mass_legal": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "payload": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "jurisdiction": {
+              "type": "string"
+            }
+          }
         }
       }
     },
@@ -635,6 +679,53 @@
         }
       }
     },
+    "axle_groups": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Axle groups (front twin-steer pair, rear bogie, tridem ...) for loads published per group rather than per axle (spec \u00a723.2.1).",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "axle_refs"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "axle_refs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^A([1-9][0-9]?)$"
+            },
+            "minItems": 1
+          },
+          "max_load_design": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Technical (design) load limit of the group (N)."
+          },
+          "max_load_legal": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Legal plated load limit of the group (N)."
+          },
+          "kerb_load": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Measured/published unladen load on the group (N)."
+          },
+          "jurisdiction": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "suspension_couplings": {
       "type": "array",
       "items": {
@@ -790,8 +881,10 @@
                 "sequential",
                 "dct",
                 "auto",
-                "cvt"
-              ]
+                "cvt",
+                "amt"
+              ],
+              "description": "'amt' = automated manual transmission (e.g. MAN TipMatic, Volvo I-Shift)."
             },
             "ratios": {
               "type": "array",

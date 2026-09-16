@@ -1,0 +1,1401 @@
+{
+  "_metadata": {
+    "specification": "SVJ",
+    "version": "0.99.1",
+    "coordinate_system": "SAE_J670",
+    "units": "SI",
+    "description": "MAN TGS 32.430 8x4 BB CH twin-steer tipper chassis (UK, 2022, NN cab, wheelbase 3205). First real-vehicle multi-axle example: axle positions, weights, tyres, suspension types, turning circle and driveline are published; geometry details and rates are estimates.",
+    "author": "RFloEng",
+    "alignment_convention": "relative_to_centerline",
+    "data_origin": {
+      "type": "mixed",
+      "confidence": "medium",
+      "detail": "Published by MAN (body-builder chassis sheet): axle spacings L1/L2/L3, overhangs, width across rear tyres, frame height, unladen and plated group loads, tyres, rims, suspension types, engine, gearbox ratios, axle ratio, turning circle. Estimated (_est): hardpoints, tracks, CG, spring/damper/stabiliser rates, masses of axles, twin-steer ratio, steering gear geometry."
+    },
+    "x_sources": [
+      {
+        "title": "MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022",
+        "url": "https://www.man-bodybuilder.co.uk/specs/pdf/2022/TGS/8x4-Normal-Height-Tipper.pdf",
+        "accessed": "2026-09-16"
+      }
+    ]
+  },
+  "vehicle_info": {
+    "make": "MAN",
+    "model": "TGS 32.430 8x4 BB CH",
+    "year": 2022,
+    "variant": "Normal height tipper chassis, NN cab, WB 3205",
+    "drive_type": "RWD",
+    "wheel_formula": "8x4/4",
+    "vehicle_class": "heavy_truck"
+  },
+  "chassis": {
+    "mass_total": 9432,
+    "_mass_total_source": "Unladen weight 9432 kg (front axles 6359 + rear axle 3073), standard specification, full fuel and AdBlue, incl. driver, ±2.5 %",
+    "wheelbase": 3.205,
+    "wheelbase_reference": "first_rear_axle",
+    "_wheelbase_source": "L1 'Wheelbase' 3205 mm, measured from the second steer axle to the first drive axle in MAN's dimension drawing",
+    "track_front": 2.04,
+    "track_rear": 1.837,
+    "_track_note": "Estimated. track_rear derived from published B1 width across rear tyres 2462 mm minus tyre section width and estimated dual spacing.",
+    "center_of_gravity": [
+      -2.462,
+      0.0,
+      -1.1
+    ],
+    "_cg_note": "x derived from published group kerb loads assuming an even split within each group; height estimated for the bare chassis-cab.",
+    "mass_unsprung_per_corner": {
+      "A1L": 340,
+      "A1R": 340,
+      "A2L": 340,
+      "A2R": 340,
+      "A3L": 520,
+      "A3R": 520,
+      "A4L": 520,
+      "A4R": 520,
+      "_est": true
+    },
+    "plated_masses": {
+      "gross_vehicle_mass_design": 34000,
+      "gross_vehicle_mass_legal": 32000,
+      "jurisdiction": "UK",
+      "payload": 22568,
+      "_source": "Plated/operating weights: GVW 34000 kg design, 32000 kg UK legal"
+    },
+    "chassis_stiffness": {
+      "measurement_method": "estimated",
+      "torsional_stiffness": 1500,
+      "_note": "Ladder frame S500MC, 270 x 85 x 7 mm, 942-762 mm waisted (published); torsional stiffness is a low estimate typical of truck ladder frames"
+    }
+  },
+  "steering": {
+    "type": "recirculating_ball",
+    "rack_position": [
+      0.55,
+      -0.42,
+      -0.95
+    ],
+    "rack_travel": 0.1,
+    "overall_ratio": 21.0,
+    "lock_to_lock": 32.673,
+    "turning_circle": 20.1,
+    "axle_ref": "A1",
+    "power_assist": {
+      "type": "hydraulic"
+    },
+    "additional_axles": [
+      {
+        "axle_ref": "A2",
+        "type": "mechanical_link",
+        "ratio": 0.78,
+        "phase": "same",
+        "_est": true,
+        "_note": "Second steer axle driven by relay arm and drag link; ratio estimated from the 1795 mm axle spread"
+      }
+    ],
+    "_source": "Hydraulically assisted steering; kerb-to-kerb turning circle 20.1 m (WB 3205). Gear type, ratio and lock-to-lock estimated."
+  },
+  "suspension": {
+    "A1L": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "leaf_located",
+        "upright": {
+          "id": "hub_A1L",
+          "hardpoints": {
+            "wheel_center": [
+              0.0,
+              -1.02,
+              -0.49
+            ],
+            "spring_pad": [
+              0.0,
+              -0.45,
+              -0.62
+            ],
+            "damper_outboard": [
+              0.1,
+              -0.42,
+              -0.51
+            ],
+            "steering_tie_rod_end": [
+              -0.22,
+              -0.86,
+              -0.45
+            ]
+          },
+          "_est": true
+        },
+        "links": [
+          {
+            "name": "leaf_spring",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.8,
+                -0.45,
+                -0.8
+              ],
+              [
+                -0.8,
+                -0.45,
+                -0.8
+              ]
+            ],
+            "outboard_ref": "hardpoints.spring_pad",
+            "_est": true
+          }
+        ],
+        "axle_body": {
+          "id": "A1_drop_beam",
+          "mass": 360,
+          "position": [
+            0.0,
+            0,
+            -0.49
+          ],
+          "_est": true
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "set_ref": "man_295_80r22_5",
+        "_source": "Rims: steel 9.00 x 22.5; tyres 295/80R22.5 (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022)"
+      },
+      "spring": {
+        "type": "leaf",
+        "leaf_count": 3,
+        "rate": 380000,
+        "end_type_front": "eye",
+        "end_type_rear": "shackle",
+        "hysteresis_force": 1800,
+        "_est": true,
+        "_source": "Three-leaf parabolic springs (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate, ends and hysteresis estimated"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            9000
+          ],
+          [
+            0.5,
+            27000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            18000
+          ],
+          [
+            0.5,
+            54000
+          ]
+        ],
+        "_est": true
+      },
+      "arb": {
+        "bar_id": "stabiliser_A1",
+        "bar_rate": 180000,
+        "_est": true,
+        "_source": "Stabiliser fitted on steer axles and rear bogie (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate estimated"
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0017,
+        "caster": 0.0611,
+        "_est": true
+      }
+    },
+    "A1R": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "leaf_located",
+        "upright": {
+          "id": "hub_A1R",
+          "hardpoints": {
+            "wheel_center": [
+              0.0,
+              1.02,
+              -0.49
+            ],
+            "spring_pad": [
+              0.0,
+              0.45,
+              -0.62
+            ],
+            "damper_outboard": [
+              0.1,
+              0.42,
+              -0.51
+            ],
+            "steering_tie_rod_end": [
+              -0.22,
+              0.86,
+              -0.45
+            ]
+          },
+          "_est": true
+        },
+        "links": [
+          {
+            "name": "leaf_spring",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.8,
+                0.45,
+                -0.8
+              ],
+              [
+                -0.8,
+                0.45,
+                -0.8
+              ]
+            ],
+            "outboard_ref": "hardpoints.spring_pad",
+            "_est": true
+          }
+        ],
+        "axle_body": {
+          "id": "A1_drop_beam",
+          "mass": 360,
+          "position": [
+            0.0,
+            0,
+            -0.49
+          ],
+          "_est": true
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "set_ref": "man_295_80r22_5",
+        "_source": "Rims: steel 9.00 x 22.5; tyres 295/80R22.5 (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022)"
+      },
+      "spring": {
+        "type": "leaf",
+        "leaf_count": 3,
+        "rate": 380000,
+        "end_type_front": "eye",
+        "end_type_rear": "shackle",
+        "hysteresis_force": 1800,
+        "_est": true,
+        "_source": "Three-leaf parabolic springs (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate, ends and hysteresis estimated"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            9000
+          ],
+          [
+            0.5,
+            27000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            18000
+          ],
+          [
+            0.5,
+            54000
+          ]
+        ],
+        "_est": true
+      },
+      "arb": {
+        "bar_id": "stabiliser_A1",
+        "bar_rate": 180000,
+        "_est": true,
+        "_source": "Stabiliser fitted on steer axles and rear bogie (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate estimated"
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0017,
+        "caster": 0.0611,
+        "_est": true
+      }
+    },
+    "A2L": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "leaf_located",
+        "upright": {
+          "id": "hub_A2L",
+          "hardpoints": {
+            "wheel_center": [
+              -1.795,
+              -1.02,
+              -0.49
+            ],
+            "spring_pad": [
+              -1.795,
+              -0.45,
+              -0.62
+            ],
+            "damper_outboard": [
+              -1.695,
+              -0.42,
+              -0.51
+            ],
+            "steering_tie_rod_end": [
+              -2.015,
+              -0.86,
+              -0.45
+            ]
+          },
+          "_est": true
+        },
+        "links": [
+          {
+            "name": "leaf_spring",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -0.995,
+                -0.45,
+                -0.8
+              ],
+              [
+                -2.595,
+                -0.45,
+                -0.8
+              ]
+            ],
+            "outboard_ref": "hardpoints.spring_pad",
+            "_est": true
+          }
+        ],
+        "axle_body": {
+          "id": "A2_drop_beam",
+          "mass": 360,
+          "position": [
+            -1.795,
+            0,
+            -0.49
+          ],
+          "_est": true
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "set_ref": "man_295_80r22_5",
+        "_source": "Rims: steel 9.00 x 22.5; tyres 295/80R22.5 (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022)"
+      },
+      "spring": {
+        "type": "leaf",
+        "leaf_count": 3,
+        "rate": 380000,
+        "end_type_front": "eye",
+        "end_type_rear": "shackle",
+        "hysteresis_force": 1800,
+        "_est": true,
+        "_source": "Three-leaf parabolic springs (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate, ends and hysteresis estimated"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            9000
+          ],
+          [
+            0.5,
+            27000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            18000
+          ],
+          [
+            0.5,
+            54000
+          ]
+        ],
+        "_est": true
+      },
+      "arb": {
+        "bar_id": "stabiliser_A2",
+        "bar_rate": 180000,
+        "_est": true,
+        "_source": "Stabiliser fitted on steer axles and rear bogie (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate estimated"
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0017,
+        "caster": 0.0611,
+        "_est": true
+      }
+    },
+    "A2R": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "leaf_located",
+        "upright": {
+          "id": "hub_A2R",
+          "hardpoints": {
+            "wheel_center": [
+              -1.795,
+              1.02,
+              -0.49
+            ],
+            "spring_pad": [
+              -1.795,
+              0.45,
+              -0.62
+            ],
+            "damper_outboard": [
+              -1.695,
+              0.42,
+              -0.51
+            ],
+            "steering_tie_rod_end": [
+              -2.015,
+              0.86,
+              -0.45
+            ]
+          },
+          "_est": true
+        },
+        "links": [
+          {
+            "name": "leaf_spring",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -0.995,
+                0.45,
+                -0.8
+              ],
+              [
+                -2.595,
+                0.45,
+                -0.8
+              ]
+            ],
+            "outboard_ref": "hardpoints.spring_pad",
+            "_est": true
+          }
+        ],
+        "axle_body": {
+          "id": "A2_drop_beam",
+          "mass": 360,
+          "position": [
+            -1.795,
+            0,
+            -0.49
+          ],
+          "_est": true
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "set_ref": "man_295_80r22_5",
+        "_source": "Rims: steel 9.00 x 22.5; tyres 295/80R22.5 (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022)"
+      },
+      "spring": {
+        "type": "leaf",
+        "leaf_count": 3,
+        "rate": 380000,
+        "end_type_front": "eye",
+        "end_type_rear": "shackle",
+        "hysteresis_force": 1800,
+        "_est": true,
+        "_source": "Three-leaf parabolic springs (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate, ends and hysteresis estimated"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            9000
+          ],
+          [
+            0.5,
+            27000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            18000
+          ],
+          [
+            0.5,
+            54000
+          ]
+        ],
+        "_est": true
+      },
+      "arb": {
+        "bar_id": "stabiliser_A2",
+        "bar_rate": 180000,
+        "_est": true,
+        "_source": "Stabiliser fitted on steer axles and rear bogie (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate estimated"
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0017,
+        "caster": 0.0611,
+        "_est": true
+      }
+    },
+    "A3L": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "leaf_located",
+        "upright": {
+          "id": "hub_A3L",
+          "hardpoints": {
+            "wheel_center": [
+              -5.0,
+              -0.9185,
+              -0.49
+            ],
+            "spring_pad": [
+              -5.0,
+              -0.48,
+              -0.62
+            ],
+            "damper_outboard": [
+              -4.9,
+              -0.45,
+              -0.51
+            ]
+          },
+          "_est": true
+        },
+        "links": [
+          {
+            "name": "leaf_spring",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -4.4,
+                -0.48,
+                -0.8
+              ],
+              [
+                -5.6,
+                -0.48,
+                -0.8
+              ]
+            ],
+            "outboard_ref": "hardpoints.spring_pad",
+            "_est": true
+          }
+        ],
+        "axle_body": {
+          "id": "A3_drive_housing",
+          "mass": 620,
+          "position": [
+            -5.0,
+            0,
+            -0.49
+          ],
+          "_est": true
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "set_ref": "man_295_80r22_5",
+        "_source": "Rims: steel 9.00 x 22.5; tyres 295/80R22.5 (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022)",
+        "multiplicity": 2,
+        "dual_spacing": 0.33,
+        "positions": [
+          {
+            "label": "inner",
+            "offset_outboard": -0.165
+          },
+          {
+            "label": "outer",
+            "offset_outboard": 0.165
+          }
+        ],
+        "_est_fields": [
+          "dual_spacing"
+        ]
+      },
+      "spring": {
+        "type": "leaf",
+        "leaf_count": 3,
+        "rate": 460000,
+        "end_type_front": "eye",
+        "end_type_rear": "slipper",
+        "hysteresis_force": 1800,
+        "_est": true,
+        "_source": "Three-leaf parabolic springs (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate, ends and hysteresis estimated"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            9000
+          ],
+          [
+            0.5,
+            27000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            18000
+          ],
+          [
+            0.5,
+            54000
+          ]
+        ],
+        "_est": true
+      },
+      "arb": {
+        "bar_id": "stabiliser_A3",
+        "bar_rate": 260000,
+        "_est": true,
+        "_source": "Stabiliser fitted on steer axles and rear bogie (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate estimated"
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0,
+        "caster": 0.0,
+        "_est": true
+      },
+      "static_setup": {
+        "ride_height": 1.046,
+        "_source": "H3 frame height at centre rear wheels, unladen 1046 mm (laden 966 mm)"
+      }
+    },
+    "A3R": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "leaf_located",
+        "upright": {
+          "id": "hub_A3R",
+          "hardpoints": {
+            "wheel_center": [
+              -5.0,
+              0.9185,
+              -0.49
+            ],
+            "spring_pad": [
+              -5.0,
+              0.48,
+              -0.62
+            ],
+            "damper_outboard": [
+              -4.9,
+              0.45,
+              -0.51
+            ]
+          },
+          "_est": true
+        },
+        "links": [
+          {
+            "name": "leaf_spring",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -4.4,
+                0.48,
+                -0.8
+              ],
+              [
+                -5.6,
+                0.48,
+                -0.8
+              ]
+            ],
+            "outboard_ref": "hardpoints.spring_pad",
+            "_est": true
+          }
+        ],
+        "axle_body": {
+          "id": "A3_drive_housing",
+          "mass": 620,
+          "position": [
+            -5.0,
+            0,
+            -0.49
+          ],
+          "_est": true
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "set_ref": "man_295_80r22_5",
+        "_source": "Rims: steel 9.00 x 22.5; tyres 295/80R22.5 (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022)",
+        "multiplicity": 2,
+        "dual_spacing": 0.33,
+        "positions": [
+          {
+            "label": "inner",
+            "offset_outboard": -0.165
+          },
+          {
+            "label": "outer",
+            "offset_outboard": 0.165
+          }
+        ],
+        "_est_fields": [
+          "dual_spacing"
+        ]
+      },
+      "spring": {
+        "type": "leaf",
+        "leaf_count": 3,
+        "rate": 460000,
+        "end_type_front": "eye",
+        "end_type_rear": "slipper",
+        "hysteresis_force": 1800,
+        "_est": true,
+        "_source": "Three-leaf parabolic springs (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate, ends and hysteresis estimated"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            9000
+          ],
+          [
+            0.5,
+            27000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            18000
+          ],
+          [
+            0.5,
+            54000
+          ]
+        ],
+        "_est": true
+      },
+      "arb": {
+        "bar_id": "stabiliser_A3",
+        "bar_rate": 260000,
+        "_est": true,
+        "_source": "Stabiliser fitted on steer axles and rear bogie (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate estimated"
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0,
+        "caster": 0.0,
+        "_est": true
+      },
+      "static_setup": {
+        "ride_height": 1.046,
+        "_source": "H3 frame height at centre rear wheels, unladen 1046 mm (laden 966 mm)"
+      }
+    },
+    "A4L": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "leaf_located",
+        "upright": {
+          "id": "hub_A4L",
+          "hardpoints": {
+            "wheel_center": [
+              -6.4,
+              -0.9185,
+              -0.49
+            ],
+            "spring_pad": [
+              -6.4,
+              -0.48,
+              -0.62
+            ],
+            "damper_outboard": [
+              -6.3,
+              -0.45,
+              -0.51
+            ]
+          },
+          "_est": true
+        },
+        "links": [
+          {
+            "name": "leaf_spring",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -5.8,
+                -0.48,
+                -0.8
+              ],
+              [
+                -7.0,
+                -0.48,
+                -0.8
+              ]
+            ],
+            "outboard_ref": "hardpoints.spring_pad",
+            "_est": true
+          }
+        ],
+        "axle_body": {
+          "id": "A4_drive_housing",
+          "mass": 620,
+          "position": [
+            -6.4,
+            0,
+            -0.49
+          ],
+          "_est": true
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "set_ref": "man_295_80r22_5",
+        "_source": "Rims: steel 9.00 x 22.5; tyres 295/80R22.5 (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022)",
+        "multiplicity": 2,
+        "dual_spacing": 0.33,
+        "positions": [
+          {
+            "label": "inner",
+            "offset_outboard": -0.165
+          },
+          {
+            "label": "outer",
+            "offset_outboard": 0.165
+          }
+        ],
+        "_est_fields": [
+          "dual_spacing"
+        ]
+      },
+      "spring": {
+        "type": "leaf",
+        "leaf_count": 3,
+        "rate": 460000,
+        "end_type_front": "eye",
+        "end_type_rear": "slipper",
+        "hysteresis_force": 1800,
+        "_est": true,
+        "_source": "Three-leaf parabolic springs (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate, ends and hysteresis estimated"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            9000
+          ],
+          [
+            0.5,
+            27000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            18000
+          ],
+          [
+            0.5,
+            54000
+          ]
+        ],
+        "_est": true
+      },
+      "arb": {
+        "bar_id": "stabiliser_A4",
+        "bar_rate": 260000,
+        "_est": true,
+        "_source": "Stabiliser fitted on steer axles and rear bogie (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate estimated"
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0,
+        "caster": 0.0,
+        "_est": true
+      },
+      "static_setup": {
+        "ride_height": 1.046,
+        "_source": "H3 frame height at centre rear wheels, unladen 1046 mm (laden 966 mm)"
+      }
+    },
+    "A4R": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "leaf_located",
+        "upright": {
+          "id": "hub_A4R",
+          "hardpoints": {
+            "wheel_center": [
+              -6.4,
+              0.9185,
+              -0.49
+            ],
+            "spring_pad": [
+              -6.4,
+              0.48,
+              -0.62
+            ],
+            "damper_outboard": [
+              -6.3,
+              0.45,
+              -0.51
+            ]
+          },
+          "_est": true
+        },
+        "links": [
+          {
+            "name": "leaf_spring",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -5.8,
+                0.48,
+                -0.8
+              ],
+              [
+                -7.0,
+                0.48,
+                -0.8
+              ]
+            ],
+            "outboard_ref": "hardpoints.spring_pad",
+            "_est": true
+          }
+        ],
+        "axle_body": {
+          "id": "A4_drive_housing",
+          "mass": 620,
+          "position": [
+            -6.4,
+            0,
+            -0.49
+          ],
+          "_est": true
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "set_ref": "man_295_80r22_5",
+        "_source": "Rims: steel 9.00 x 22.5; tyres 295/80R22.5 (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022)",
+        "multiplicity": 2,
+        "dual_spacing": 0.33,
+        "positions": [
+          {
+            "label": "inner",
+            "offset_outboard": -0.165
+          },
+          {
+            "label": "outer",
+            "offset_outboard": 0.165
+          }
+        ],
+        "_est_fields": [
+          "dual_spacing"
+        ]
+      },
+      "spring": {
+        "type": "leaf",
+        "leaf_count": 3,
+        "rate": 460000,
+        "end_type_front": "eye",
+        "end_type_rear": "slipper",
+        "hysteresis_force": 1800,
+        "_est": true,
+        "_source": "Three-leaf parabolic springs (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate, ends and hysteresis estimated"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            9000
+          ],
+          [
+            0.5,
+            27000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            18000
+          ],
+          [
+            0.5,
+            54000
+          ]
+        ],
+        "_est": true
+      },
+      "arb": {
+        "bar_id": "stabiliser_A4",
+        "bar_rate": 260000,
+        "_est": true,
+        "_source": "Stabiliser fitted on steer axles and rear bogie (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate estimated"
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0,
+        "caster": 0.0,
+        "_est": true
+      },
+      "static_setup": {
+        "ride_height": 1.046,
+        "_source": "H3 frame height at centre rear wheels, unladen 1046 mm (laden 966 mm)"
+      }
+    }
+  },
+  "axles": [
+    {
+      "id": "A1",
+      "label": "steer 1",
+      "position_x": 0.0,
+      "track": 2.04,
+      "steered": true,
+      "driven": false
+    },
+    {
+      "id": "A2",
+      "label": "steer 2",
+      "position_x": -1.795,
+      "track": 2.04,
+      "steered": true,
+      "driven": false
+    },
+    {
+      "id": "A3",
+      "label": "drive 1",
+      "position_x": -5.0,
+      "track": 1.837,
+      "steered": false,
+      "driven": true
+    },
+    {
+      "id": "A4",
+      "label": "drive 2",
+      "position_x": -6.4,
+      "track": 1.837,
+      "steered": false,
+      "driven": true
+    }
+  ],
+  "axle_groups": [
+    {
+      "id": "front_axles",
+      "label": "twin steer (drop beam)",
+      "axle_refs": [
+        "A1",
+        "A2"
+      ],
+      "max_load_design": 139254.4,
+      "max_load_legal": 139254.4,
+      "jurisdiction": "UK",
+      "kerb_load": 62360.5,
+      "_source": "Front axles 14200 kg design and UK legal (15000 kg upgrade available); unladen 6359 kg"
+    },
+    {
+      "id": "rear_bogie",
+      "label": "tandem drive, single reduction, cross-axle and inter-axle diff locks",
+      "axle_refs": [
+        "A3",
+        "A4"
+      ],
+      "max_load_design": 205939.6,
+      "max_load_legal": 186326.3,
+      "jurisdiction": "UK",
+      "kerb_load": 30135.8,
+      "_source": "Rear bogie 21000 kg design / 19000 kg UK legal; unladen 3073 kg"
+    }
+  ],
+  "tires": {
+    "sets": {
+      "man_295_80r22_5": {
+        "description": "295/80R22.5 steer and drive tyre as fitted by MAN (brand not specified)",
+        "source": "manufacturer",
+        "size_code": "295/80R22.5",
+        "dimensions": {
+          "section_width": 0.295,
+          "aspect_ratio": 0.8,
+          "overall_diameter": 1.0435
+        },
+        "_note": "Only the size is published; overall diameter derived from the size code."
+      }
+    }
+  },
+  "powertrain": {
+    "layout": "multi_axle",
+    "engine": {
+      "configuration": "I6",
+      "displacement": 12.419,
+      "max_rpm": 1800,
+      "torque_curve": [
+        [
+          600,
+          1500
+        ],
+        [
+          930,
+          2200
+        ],
+        [
+          1350,
+          2200
+        ],
+        [
+          1800,
+          1678
+        ]
+      ],
+      "_source": "D2676LFAJ Euro 6: 430 PS at 1800 rpm, 2200 Nm at 930-1350 rpm, 12419 cc, 6 cylinders. 600 rpm point estimated; 1800 rpm torque derived from rated power (316 kW)."
+    },
+    "clutch": {
+      "type": "single_plate",
+      "_source": "Single plate 430 mm diameter"
+    },
+    "gearbox": {
+      "type": "amt",
+      "ratios": [
+        12.92,
+        9.98,
+        7.67,
+        5.94,
+        4.57,
+        3.53,
+        2.83,
+        2.19,
+        1.68,
+        1.3,
+        1.0,
+        0.77
+      ],
+      "reverse_ratios": [
+        12.03,
+        9.92
+      ],
+      "_source": "12-speed TipMatic automated gearbox ratios (published)"
+    },
+    "driveshafts": [
+      {
+        "id": "prop_main",
+        "from": "gearbox",
+        "to": "diff_A3",
+        "_est": true
+      },
+      {
+        "id": "prop_interaxle",
+        "from": "diff_A3",
+        "to": "diff_A4",
+        "_est": true
+      }
+    ],
+    "differentials": [
+      {
+        "id": "diff_interaxle",
+        "location": "inter_axle",
+        "type": "open",
+        "final_drive": 1.0,
+        "axle_ref": "A3",
+        "_note": "Inter-axle differential with lock (published); modelled with unity ratio"
+      },
+      {
+        "id": "diff_A3",
+        "location": "rear",
+        "type": "open",
+        "final_drive": 3.7,
+        "axle_ref": "A3",
+        "through_drive": true,
+        "_source": "Axle ratio 3.70:1, cross-axle lock"
+      },
+      {
+        "id": "diff_A4",
+        "location": "rear",
+        "type": "open",
+        "final_drive": 3.7,
+        "axle_ref": "A4",
+        "_source": "Axle ratio 3.70:1, cross-axle lock"
+      }
+    ],
+    "half_shafts": {
+      "A3L": {
+        "diff_ref": "diff_A3"
+      },
+      "A3R": {
+        "diff_ref": "diff_A3"
+      },
+      "A4L": {
+        "diff_ref": "diff_A4"
+      },
+      "A4R": {
+        "diff_ref": "diff_A4"
+      }
+    }
+  },
+  "validation": {
+    "status": "unvalidated",
+    "method": "other",
+    "notes": "Published MAN chassis data combined with engineering estimates; not correlated against vehicle tests."
+  },
+  "benchmarks": [
+    {
+      "id": "turning_circle_kerb_to_kerb",
+      "value": 20.1,
+      "unit": "m",
+      "type": "measured",
+      "source": "MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022"
+    },
+    {
+      "id": "turning_circle_wall_to_wall",
+      "value": 21.8,
+      "unit": "m",
+      "type": "measured",
+      "source": "MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022"
+    },
+    {
+      "id": "geared_road_speed",
+      "value": 75,
+      "unit": "mph",
+      "type": "target",
+      "source": "MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022 (at 32000 kg)"
+    },
+    {
+      "id": "starting_grade",
+      "value": 33,
+      "unit": "%",
+      "type": "target",
+      "source": "MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022 (33%+ at 32000 kg)"
+    }
+  ],
+  "x_man_bodybuilder_dimensions_mm": {
+    "_note": "Dimension table as published for WB 3205 (second column: WB 3505)",
+    "L1_wheelbase": [
+      3205,
+      3505
+    ],
+    "L2_rear_bogie_spread": [
+      1400,
+      1400
+    ],
+    "L3_front_axle_spread": [
+      1795,
+      1759
+    ],
+    "L5_front_overhang": [
+      1475,
+      1475
+    ],
+    "L7_rear_overhang": [
+      800,
+      800
+    ],
+    "L9_front_axle_to_back_of_cab": [
+      490,
+      490
+    ],
+    "L10_back_of_cab_to_body": [
+      60,
+      60
+    ],
+    "B1_width_across_rear_tyres": [
+      2462,
+      2462
+    ],
+    "B2_cab_width_over_wings": [
+      2499,
+      2499
+    ],
+    "H1_cab_height_laden_unladen": [
+      3095,
+      3158
+    ],
+    "H3_frame_height_at_rear_wheels_laden_unladen": [
+      966,
+      1046
+    ],
+    "fuel_tank_litres": 300,
+    "adblue_tank_litres": 35
+  }
+}

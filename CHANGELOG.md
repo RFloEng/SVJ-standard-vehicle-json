@@ -2,6 +2,18 @@
 
 ---
 
+## v0.99.1 — Real-Vehicle Data Patch
+
+| Area | Change |
+|---|---|
+| Schema / spec | `axle_groups` (§23.2.1); `chassis.plated_masses`; `wheelbase_reference` values `bogie_centres`, `first_rear_axle`, `theoretical`, `explicit` + `wheelbase_from`/`wheelbase_to` (§23.6); `gearbox.type` `amt`; version `0.99.1` |
+| Checker | Group ids/refs, axle in two groups, kerb-load sum vs mass_total, wheelbase vs declared definition; default front/rear groups split at the largest axle gap |
+| svj-py | `axle_groups`, `plated_masses`; `weight_distribution_front` uses group kerb loads or front/rear group centres (was wrong on multi-axle vehicles); CLI lists groups; tests |
+| Viewer | Axle groups panel; F/R bias correct for multi-axle vehicles |
+| Examples | `man_tgs_32_430_8x4_twin_steer_tipper.svj.json` — first real multi-axle vehicle, from MAN's UK body-builder chassis sheet |
+
+---
+
 ## v0.99 — Multi-Axle Vehicles
 
 ### Summary
