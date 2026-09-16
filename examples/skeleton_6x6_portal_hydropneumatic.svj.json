@@ -1,0 +1,705 @@
+{
+  "_metadata": {
+    "specification": "SVJ",
+    "version": "0.99",
+    "description": "6x6 special off-road vehicle skeleton — portal beam axles with hub reduction, hydropneumatic struts, front roll interconnection and per-side pitch interconnection across the rear tandem.",
+    "coordinate_system": "SAE_J670",
+    "units": "SI",
+    "author": "RFloEng",
+    "data_origin": {
+      "type": "calculated",
+      "detail": "Skeleton example for the v0.99 multi-axle layer. Geometry, masses and rates are representative engineering estimates, not data for a specific production vehicle.",
+      "confidence": "low"
+    },
+    "alignment_convention": "relative_to_centerline"
+  },
+  "vehicle_info": {
+    "make": "Generic",
+    "model": "6x6 portal-axle skeleton",
+    "drive_type": "AWD",
+    "wheel_formula": "6x6/2",
+    "vehicle_class": "special"
+  },
+  "chassis": {
+    "mass_total": 11500,
+    "wheelbase": 4.3,
+    "track_front": 1.95,
+    "track_rear": 1.95,
+    "center_of_gravity": [
+      -2.3,
+      0,
+      -1.2
+    ],
+    "mass_unsprung_per_corner": {
+      "A1L": 420,
+      "A1R": 420,
+      "A2L": 420,
+      "A2R": 420,
+      "A3L": 420,
+      "A3R": 420
+    }
+  },
+  "steering": {
+    "type": "recirculating_ball",
+    "rack_position": [
+      0.35,
+      -0.55,
+      -0.95
+    ],
+    "rack_travel": 0.12,
+    "overall_ratio": 22.0,
+    "lock_to_lock": 34.558,
+    "axle_ref": "A1",
+    "power_assist": {
+      "type": "hydraulic"
+    }
+  },
+  "suspension": {
+    "A1L": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "torque_rods",
+        "upright": {
+          "id": "hub_A1L",
+          "hardpoints": {
+            "wheel_center": [
+              0.0,
+              -0.975,
+              -0.55
+            ],
+            "lower_rod_end": [
+              0.0,
+              -0.45,
+              -0.43
+            ],
+            "upper_rod_end": [
+              0.0,
+              -0.25,
+              -0.8
+            ],
+            "steering_tie_rod_end": [
+              -0.2,
+              -0.8,
+              -0.55
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "lower_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                0.62,
+                -0.45,
+                -0.5
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_rod_end"
+          },
+          {
+            "name": "upper_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                0.55,
+                -0.12,
+                -0.9
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_rod_end"
+          }
+        ],
+        "axle_body": {
+          "id": "A1_housing",
+          "mass": 380,
+          "position": [
+            0.0,
+            0,
+            -0.55
+          ],
+          "portal_drop": 0.14,
+          "hub_reduction_ratio": 1.95
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.305,
+        "mass": 180,
+        "set_ref": "offroad_365_80r20"
+      },
+      "spring": {
+        "type": "hydropneumatic",
+        "rate": 150000,
+        "hydropneumatic": {
+          "gas_precharge_pressure": 3000000.0,
+          "gas_volume": 0.0018,
+          "polytropic_index": 1.3,
+          "piston_area": 0.005,
+          "rod_area": 0.002,
+          "static_pressure": 6500000.0
+        }
+      },
+      "damper": {
+        "type": "hydraulic_strut"
+      }
+    },
+    "A1R": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "torque_rods",
+        "upright": {
+          "id": "hub_A1R",
+          "hardpoints": {
+            "wheel_center": [
+              0.0,
+              0.975,
+              -0.55
+            ],
+            "lower_rod_end": [
+              0.0,
+              0.45,
+              -0.43
+            ],
+            "upper_rod_end": [
+              0.0,
+              0.25,
+              -0.8
+            ],
+            "steering_tie_rod_end": [
+              -0.2,
+              0.8,
+              -0.55
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "lower_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                0.62,
+                0.45,
+                -0.5
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_rod_end"
+          },
+          {
+            "name": "upper_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                0.55,
+                0.12,
+                -0.9
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_rod_end"
+          }
+        ],
+        "axle_body": {
+          "id": "A1_housing",
+          "mass": 380,
+          "position": [
+            0.0,
+            0,
+            -0.55
+          ],
+          "portal_drop": 0.14,
+          "hub_reduction_ratio": 1.95
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.305,
+        "mass": 180,
+        "set_ref": "offroad_365_80r20"
+      },
+      "spring": {
+        "type": "hydropneumatic",
+        "rate": 150000,
+        "hydropneumatic": {
+          "gas_precharge_pressure": 3000000.0,
+          "gas_volume": 0.0018,
+          "polytropic_index": 1.3,
+          "piston_area": 0.005,
+          "rod_area": 0.002,
+          "static_pressure": 6500000.0
+        }
+      },
+      "damper": {
+        "type": "hydraulic_strut"
+      }
+    },
+    "A2L": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "torque_rods",
+        "upright": {
+          "id": "hub_A2L",
+          "hardpoints": {
+            "wheel_center": [
+              -3.0,
+              -0.975,
+              -0.55
+            ],
+            "lower_rod_end": [
+              -3.0,
+              -0.45,
+              -0.43
+            ],
+            "upper_rod_end": [
+              -3.0,
+              -0.25,
+              -0.8
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "lower_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                -2.38,
+                -0.45,
+                -0.5
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_rod_end"
+          },
+          {
+            "name": "upper_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                -2.45,
+                -0.12,
+                -0.9
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_rod_end"
+          }
+        ],
+        "axle_body": {
+          "id": "A2_housing",
+          "mass": 380,
+          "position": [
+            -3.0,
+            0,
+            -0.55
+          ],
+          "portal_drop": 0.14,
+          "hub_reduction_ratio": 1.95
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.305,
+        "mass": 180,
+        "set_ref": "offroad_365_80r20"
+      },
+      "spring": {
+        "type": "hydropneumatic",
+        "rate": 150000,
+        "hydropneumatic": {
+          "gas_precharge_pressure": 3000000.0,
+          "gas_volume": 0.0018,
+          "polytropic_index": 1.3,
+          "piston_area": 0.005,
+          "rod_area": 0.002,
+          "static_pressure": 6500000.0
+        }
+      },
+      "damper": {
+        "type": "hydraulic_strut"
+      }
+    },
+    "A2R": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "torque_rods",
+        "upright": {
+          "id": "hub_A2R",
+          "hardpoints": {
+            "wheel_center": [
+              -3.0,
+              0.975,
+              -0.55
+            ],
+            "lower_rod_end": [
+              -3.0,
+              0.45,
+              -0.43
+            ],
+            "upper_rod_end": [
+              -3.0,
+              0.25,
+              -0.8
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "lower_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                -2.38,
+                0.45,
+                -0.5
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_rod_end"
+          },
+          {
+            "name": "upper_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                -2.45,
+                0.12,
+                -0.9
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_rod_end"
+          }
+        ],
+        "axle_body": {
+          "id": "A2_housing",
+          "mass": 380,
+          "position": [
+            -3.0,
+            0,
+            -0.55
+          ],
+          "portal_drop": 0.14,
+          "hub_reduction_ratio": 1.95
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.305,
+        "mass": 180,
+        "set_ref": "offroad_365_80r20"
+      },
+      "spring": {
+        "type": "hydropneumatic",
+        "rate": 150000,
+        "hydropneumatic": {
+          "gas_precharge_pressure": 3000000.0,
+          "gas_volume": 0.0018,
+          "polytropic_index": 1.3,
+          "piston_area": 0.005,
+          "rod_area": 0.002,
+          "static_pressure": 6500000.0
+        }
+      },
+      "damper": {
+        "type": "hydraulic_strut"
+      }
+    },
+    "A3L": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "torque_rods",
+        "upright": {
+          "id": "hub_A3L",
+          "hardpoints": {
+            "wheel_center": [
+              -4.3,
+              -0.975,
+              -0.55
+            ],
+            "lower_rod_end": [
+              -4.3,
+              -0.45,
+              -0.43
+            ],
+            "upper_rod_end": [
+              -4.3,
+              -0.25,
+              -0.8
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "lower_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                -3.68,
+                -0.45,
+                -0.5
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_rod_end"
+          },
+          {
+            "name": "upper_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                -3.75,
+                -0.12,
+                -0.9
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_rod_end"
+          }
+        ],
+        "axle_body": {
+          "id": "A3_housing",
+          "mass": 380,
+          "position": [
+            -4.3,
+            0,
+            -0.55
+          ],
+          "portal_drop": 0.14,
+          "hub_reduction_ratio": 1.95
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.305,
+        "mass": 180,
+        "set_ref": "offroad_365_80r20"
+      },
+      "spring": {
+        "type": "hydropneumatic",
+        "rate": 150000,
+        "hydropneumatic": {
+          "gas_precharge_pressure": 3000000.0,
+          "gas_volume": 0.0018,
+          "polytropic_index": 1.3,
+          "piston_area": 0.005,
+          "rod_area": 0.002,
+          "static_pressure": 6500000.0
+        }
+      },
+      "damper": {
+        "type": "hydraulic_strut"
+      }
+    },
+    "A3R": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "torque_rods",
+        "upright": {
+          "id": "hub_A3R",
+          "hardpoints": {
+            "wheel_center": [
+              -4.3,
+              0.975,
+              -0.55
+            ],
+            "lower_rod_end": [
+              -4.3,
+              0.45,
+              -0.43
+            ],
+            "upper_rod_end": [
+              -4.3,
+              0.25,
+              -0.8
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "lower_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                -3.68,
+                0.45,
+                -0.5
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_rod_end"
+          },
+          {
+            "name": "upper_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                -3.75,
+                0.12,
+                -0.9
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_rod_end"
+          }
+        ],
+        "axle_body": {
+          "id": "A3_housing",
+          "mass": 380,
+          "position": [
+            -4.3,
+            0,
+            -0.55
+          ],
+          "portal_drop": 0.14,
+          "hub_reduction_ratio": 1.95
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.305,
+        "mass": 180,
+        "set_ref": "offroad_365_80r20"
+      },
+      "spring": {
+        "type": "hydropneumatic",
+        "rate": 150000,
+        "hydropneumatic": {
+          "gas_precharge_pressure": 3000000.0,
+          "gas_volume": 0.0018,
+          "polytropic_index": 1.3,
+          "piston_area": 0.005,
+          "rod_area": 0.002,
+          "static_pressure": 6500000.0
+        }
+      },
+      "damper": {
+        "type": "hydraulic_strut"
+      }
+    }
+  },
+  "axles": [
+    {
+      "id": "A1",
+      "label": "steer",
+      "position_x": 0.0,
+      "track": 1.95,
+      "steered": true,
+      "driven": true
+    },
+    {
+      "id": "A2",
+      "label": "drive",
+      "position_x": -3.0,
+      "track": 1.95,
+      "steered": false,
+      "driven": true
+    },
+    {
+      "id": "A3",
+      "label": "drive",
+      "position_x": -4.3,
+      "track": 1.95,
+      "steered": false,
+      "driven": true
+    }
+  ],
+  "suspension_couplings": [
+    {
+      "id": "front_roll",
+      "type": "hydraulic_circuit",
+      "support_scheme": "cross_connected",
+      "interconnection": "roll",
+      "members": [
+        "A1L",
+        "A1R"
+      ],
+      "orifice_diameter": 0.004,
+      "accumulator": {
+        "gas_volume": 0.001,
+        "gas_precharge_pressure": 3000000.0,
+        "polytropic_index": 1.3
+      }
+    },
+    {
+      "id": "rear_pitch_L",
+      "type": "hydraulic_circuit",
+      "support_scheme": "cross_connected",
+      "interconnection": "pitch",
+      "members": [
+        "A2L",
+        "A3L"
+      ],
+      "orifice_diameter": 0.005,
+      "accumulator": null
+    },
+    {
+      "id": "rear_pitch_R",
+      "type": "hydraulic_circuit",
+      "support_scheme": "cross_connected",
+      "interconnection": "pitch",
+      "members": [
+        "A2R",
+        "A3R"
+      ],
+      "orifice_diameter": 0.005,
+      "accumulator": null
+    }
+  ],
+  "tires": {
+    "sets": {
+      "offroad_365_80r20": {
+        "description": "Off-road tyre",
+        "source": "estimated",
+        "size_code": "365/80R20",
+        "pressure": 400000,
+        "dimensions": {
+          "section_width": 0.365,
+          "aspect_ratio": 0.8,
+          "overall_diameter": 1.092
+        }
+      }
+    }
+  },
+  "powertrain": {
+    "layout": "multi_axle",
+    "differentials": [
+      {
+        "id": "diff_A1",
+        "location": "front",
+        "type": "locked",
+        "final_drive": 3.2,
+        "axle_ref": "A1",
+        "through_drive": false
+      },
+      {
+        "id": "diff_A2",
+        "location": "rear",
+        "type": "locked",
+        "final_drive": 3.2,
+        "axle_ref": "A2",
+        "through_drive": true
+      },
+      {
+        "id": "diff_A3",
+        "location": "rear",
+        "type": "locked",
+        "final_drive": 3.2,
+        "axle_ref": "A3",
+        "through_drive": false
+      }
+    ],
+    "half_shafts": {
+      "A1L": {
+        "diff_ref": "diff_A1"
+      },
+      "A1R": {
+        "diff_ref": "diff_A1"
+      },
+      "A2L": {
+        "diff_ref": "diff_A2"
+      },
+      "A2R": {
+        "diff_ref": "diff_A2"
+      },
+      "A3L": {
+        "diff_ref": "diff_A3"
+      },
+      "A3R": {
+        "diff_ref": "diff_A3"
+      }
+    }
+  }
+}

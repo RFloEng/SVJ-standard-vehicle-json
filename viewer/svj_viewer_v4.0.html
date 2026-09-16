@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SVJ 3D Vehicle Inspector v3.9</title>
+<title>SVJ 3D Vehicle Inspector v4.0</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
 :root{--bg:#08090c;--s1:#0f1117;--s2:#161a24;--s3:#1c2130;--brd:#252b3a;--brdL:#333b50;--tx:#dfe3ed;--txD:#6e7a96;--txM:#404c66;--ac:#ff5131;--acD:#ff513130;--bl:#4d9fff;--gn:#34d27b;--yl:#f0b429;--pr:#b06aff;--cy:#2dd4bf;--rd:#f0524f;--og:#ff8c42}
@@ -89,7 +89,7 @@ body{background:var(--bg);color:var(--tx);font-family:'DM Sans',system-ui,sans-s
 <div id="topbar">
   <div style="display:flex;align-items:center">
     <span class="logo mono">SVJ</span>
-    <span class="subtitle mono">3D Inspector v3.9 — Editor · v0.97</span>
+    <span class="subtitle mono">3D Inspector v4.0 — Editor · SVJ v0.99</span>
     <span class="filename mono" id="file-name">MX-5 ND2 Club 6MT (v0.96 demo)</span>
   </div>
   <div style="display:flex;gap:4px;align-items:center">
@@ -174,7 +174,7 @@ const layerDefs = [
   {key:'wheels',label:'Tires & Rims',color:'#333d4f'},{key:'brakeDiscs',label:'Brake Discs',color:'#666677'},
   {key:'meshes',label:'3D Meshes (glTF)',color:'#c8b4ff'}
 ];
-const cornerDefs = [{key:null,label:'All',color:null},{key:'FL',label:'FL',color:'#4d9fff'},{key:'FR',label:'FR',color:'#34d27b'},{key:'RL',label:'RL',color:'#f0b429'},{key:'RR',label:'RR',color:'#b06aff'}];
+let cornerDefs = [{key:null,label:'All',color:null},{key:'FL',label:'FL',color:'#4d9fff'},{key:'FR',label:'FR',color:'#34d27b'},{key:'RL',label:'RL',color:'#f0b429'},{key:'RR',label:'RR',color:'#b06aff'}];
 const panelDefs = [{id:'overview',label:'Overview'},{id:'suspension',label:'Suspension'},{id:'powertrain',label:'Powertrain'},{id:'brakes',label:'Brakes'},{id:'tires',label:'Tires'},{id:'aero',label:'Aero'},{id:'thermal',label:'Thermal'}];
 
 /* ═══════════════════════════════════════════════════
@@ -196,6 +196,30 @@ function resolveTireDims(corn, data) {
   }
   return { secW: secW || 0.205, aspect: aspect || 0.45 };
 }
+
+// ── Wheel stations (SVJ v0.99): FL/FR/RL/RR or A{n}{L|R|C} ──
+const SVJ_STATION_RE = /^(FL|FR|RL|RR|A([1-9][0-9]?)(L|R|C))$/;
+const LEGACY_STATIONS = {FL:[1,0],FR:[1,2],RL:[2,0],RR:[2,2]};
+function stationOrder(k){ if(LEGACY_STATIONS[k]) return LEGACY_STATIONS[k]; const m=k.match(/^A(\d+)(L|R|C)$/); return m?[+m[1],{L:0,C:1,R:2}[m[2]]]:[999,0]; }
+function stationKeys(obj){ return Object.keys(obj||{}).filter(k=>SVJ_STATION_RE.test(k)).sort((a,b)=>{const x=stationOrder(a),y=stationOrder(b);return x[0]-y[0]||x[1]-y[1];}); }
+const LEGACY_STATION_COLORS = {FL:'#4d9fff',FR:'#34d27b',RL:'#f0b429',RR:'#b06aff'};
+const STATION_PALETTE = ['#4d9fff','#34d27b','#f0b429','#b06aff','#ff6b6b','#2dd4bf','#f472b6','#a3e635','#fb923c','#60a5fa','#c084fc','#facc15'];
+function stationColor(k){ if(LEGACY_STATION_COLORS[k]) return LEGACY_STATION_COLORS[k]; const o=stationOrder(k); return STATION_PALETTE[((o[0]-1)*2+(o[1]===2?1:0))%STATION_PALETTE.length]; }
+function stationColorHex(k){ return parseInt(stationColor(k).slice(1),16); }
+function wheelPositions(w){
+  if(Array.isArray(w?.positions)&&w.positions.length) return w.positions.map(p=>({off:+p.offset_outboard||0,tire:p.tire||null,label:p.label||''}));
+  const n=w?.multiplicity||1; if(n<=1) return [{off:0,tire:null,label:''}];
+  const sp=w.dual_spacing||0.33; return Array.from({length:n},(_,i)=>({off:(i-(n-1)/2)*sp,tire:null,label:'#'+(i+1)}));
+}
+function viewFit(){
+  const d=DATA||{}, ch=d.chassis||{}, wb=ch.wheelbase||2.31;
+  const ax=(d.axles||[]).map(a=>a.position_x).filter(v=>typeof v==='number');
+  const xF=ax.length?Math.max(...ax):0, xR=ax.length?Math.min(...ax):-wb;
+  const tr=Math.max(ch.track_front||1.5, ch.track_rear||0, ...(d.axles||[]).map(a=>a.track||0));
+  return {tz:-(xF+xR)/2, s:Math.max(1,((xF-xR)+tr)/3.81)};
+}
+function fitCamera(){ try{ const f=viewFit(); target.set(0,0.25,f.tz); spherical.set(4.5*f.s,Math.PI/4,Math.PI/6); updateCamera(); }catch(e){} }
+function rebuildCornerDefs(){ cornerDefs=[{key:null,label:'All',color:null}].concat(stationKeys(DATA?.suspension).map(k=>({key:k,label:k,color:stationColor(k)}))); }
 
 
 function tag(text, color='var(--ac)') {
@@ -422,8 +446,9 @@ function buildScene() {
   const tr = ch.track_rear || 1.5;
 
   // Grid
-  const grid = new THREE.GridHelper(6, 30, 0x1a2235, 0x111825);
-  grid.position.set(0, 0, 1.15); groups.grid.add(grid);
+  const _fit = viewFit();
+  const grid = new THREE.GridHelper(6*Math.ceil(_fit.s), 30*Math.ceil(_fit.s), 0x1a2235, 0x111825);
+  grid.position.set(0, 0, _fit.tz); groups.grid.add(grid);
 
   // Axes
   const ao = sae2three([0,0,0]);
@@ -436,7 +461,10 @@ function buildScene() {
   const cgS = mkS(cgP, 0.035, 0xff5131);
   addP(cgS, `CG: [${(ch.center_of_gravity||[]).map(v=>v.toFixed(3)).join(', ')}]`);
   groups.chassis.add(cgS);
-  groups.chassis.add(mkBox(sae2three([-wb/2,0,-0.35]), Math.max(tf,tr)+0.1, 0.45, wb+0.5, 0x2a3550));
+  const axX=(data.axles||[]).map(a=>a.position_x).filter(v=>typeof v==='number');
+  const xF=axX.length?Math.max(...axX):0, xR=axX.length?Math.min(...axX):-wb;
+  const trMax=Math.max(tf,tr,...(data.axles||[]).map(a=>a.track||0));
+  groups.chassis.add(mkBox(sae2three([(xF+xR)/2,0,-0.35]), trMax+0.1, 0.45, (xF-xR)+0.5, 0x2a3550));
 
   // Aero CoP
   if (data.aerodynamics?.center_of_pressure) {
@@ -458,10 +486,9 @@ function buildScene() {
   });
 
   // Suspension
-  const cC = {FL:0x4d9fff,FR:0x34d27b,RL:0xf0b429,RR:0xb06aff};
-  ['FL','FR','RL','RR'].forEach(cn => {
+  stationKeys(data.suspension).forEach(cn => {
     const corn = data.suspension?.[cn]; if(!corn?.topology) return;
-    const col = cC[cn]; const hp = corn.topology.upright?.hardpoints||{}; const links = corn.topology.links||[];
+    const col = stationColorHex(cn); const hp = corn.topology.upright?.hardpoints||{}; const links = corn.topology.links||[];
 
     Object.entries(hp).forEach(([name,coord]) => {
       const p3 = sae2three(coord);
@@ -519,13 +546,17 @@ function buildScene() {
       const rimR = rimDia / 2;
       const isLeft = wc[1] < 0;
 
+      wheelPositions(w).forEach(wp => {
+      const P = wcP.clone(); P.x += wp.off * (isLeft ? -1 : 1);
+      const tdp = wp.tire ? resolveTireDims(Object.assign({}, corn, {tire: wp.tire}), data) : td;
+      const secW = tdp.secW, aspect = tdp.aspect, tireDia = rimDia + 2 * secW * aspect, tireR = tireDia / 2;
       // Tire outer cylinder (dark rubber)
       const tireGeo = new THREE.CylinderGeometry(tireR, tireR, secW, 32, 1, false);
       const tireMat = new THREE.MeshPhongMaterial({color:0x1a1a1a, transparent:true, opacity:0.55, shininess:5});
       const tireMesh = new THREE.Mesh(tireGeo, tireMat);
-      tireMesh.position.copy(wcP);
+      tireMesh.position.copy(P);
       tireMesh.rotation.z = Math.PI/2; // cylinder axis along Three.X = SAE Y (lateral)
-      tireMesh.userData = {label: cn + ' tire: ' + (secW*1000).toFixed(0) + '/' + (aspect*100).toFixed(0) + 'R' + Math.round(rimDia/0.0254) + '\nOD: ' + (tireDia*1000).toFixed(0) + 'mm  W: ' + (secW*1000).toFixed(0) + 'mm', corner: cn};
+      tireMesh.userData = {label: cn + (wp.label?' '+wp.label:'') + ' tire: ' + (secW*1000).toFixed(0) + '/' + (aspect*100).toFixed(0) + 'R' + Math.round(rimDia/0.0254) + '\nOD: ' + (tireDia*1000).toFixed(0) + 'mm  W: ' + (secW*1000).toFixed(0) + 'mm', corner: cn};
       pickables.push(tireMesh);
       groups.wheels.add(tireMesh);
 
@@ -534,7 +565,7 @@ function buildScene() {
       const swMat = new THREE.MeshPhongMaterial({color:0x222222, transparent:true, opacity:0.5});
       [-1,1].forEach(side => {
         const sw = new THREE.Mesh(swGeo, swMat);
-        sw.position.copy(wcP);
+        sw.position.copy(P);
         sw.position.x += side * secW/2; // offset laterally
         sw.rotation.y = Math.PI/2;
         groups.wheels.add(sw);
@@ -544,9 +575,9 @@ function buildScene() {
       const rimGeo = new THREE.CylinderGeometry(rimR, rimR, rimW, 32, 1, false);
       const rimMat = new THREE.MeshPhongMaterial({color:0x888899, transparent:true, opacity:0.4, shininess:80, specular:0xaaaacc});
       const rimMesh = new THREE.Mesh(rimGeo, rimMat);
-      rimMesh.position.copy(wcP);
+      rimMesh.position.copy(P);
       rimMesh.rotation.z = Math.PI/2;
-      rimMesh.userData = {label: cn + ' rim: ' + Math.round(rimDia/0.0254) + '" x ' + (rimW/0.0254).toFixed(1) + '"\nDia: ' + (rimDia*1000).toFixed(0) + 'mm  W: ' + (rimW*1000).toFixed(0) + 'mm', corner: cn};
+      rimMesh.userData = {label: cn + (wp.label?' '+wp.label:'') + ' rim: ' + Math.round(rimDia/0.0254) + '" x ' + (rimW/0.0254).toFixed(1) + '"\nDia: ' + (rimDia*1000).toFixed(0) + 'mm  W: ' + (rimW*1000).toFixed(0) + 'mm', corner: cn};
       pickables.push(rimMesh);
       groups.wheels.add(rimMesh);
 
@@ -555,7 +586,7 @@ function buildScene() {
       const discMat = new THREE.MeshPhongMaterial({color:col, transparent:true, opacity:0.3, side:THREE.DoubleSide});
       [-1,1].forEach(side => {
         const disc = new THREE.Mesh(discGeo, discMat);
-        disc.position.copy(wcP);
+        disc.position.copy(P);
         disc.position.x += side * rimW/2;
         disc.rotation.y = Math.PI/2;
         groups.wheels.add(disc);
@@ -566,10 +597,12 @@ function buildScene() {
       const lipMat = new THREE.MeshPhongMaterial({color:0xaaaabb, transparent:true, opacity:0.5, shininess:100});
       [-1,1].forEach(side => {
         const lip = new THREE.Mesh(lipGeo, lipMat);
-        lip.position.copy(wcP);
+        lip.position.copy(P);
         lip.position.x += side * rimW/2;
         lip.rotation.y = Math.PI/2;
         groups.wheels.add(lip);
+      });
+
       });
 
       // Brake disc (if data available)
@@ -590,6 +623,15 @@ function buildScene() {
       groups.brakeDiscs.add(brkMesh);
       }
     }
+  });
+
+  // Suspension couplings (SVJ v0.99): pivots and beam/rocker/trunnion ends
+  (data.suspension_couplings||[]).forEach(cp => {
+    const cpCol = 0xff9f1c;
+    const piv = cp.pivot_position ? sae2three(cp.pivot_position) : null;
+    if(piv){ const ps=mkS(piv,0.02,cpCol); addP(ps, `${cp.id} (${cp.type}) pivot\n[${cp.pivot_position.map(v=>v.toFixed(3)).join(', ')}]`); groups.suspension.add(ps); }
+    const ends=(cp.end_points||cp.end_seats||[]).concat((cp.connections||[]).map(c=>c.attach_point).filter(Boolean));
+    ends.forEach(e => { const p=sae2three(e); const es=mkS(p,0.012,cpCol); addP(es, `${cp.id} end\n[${e.map(v=>v.toFixed(3)).join(', ')}]`); groups.suspension.add(es); if(piv){ const t=mkT(piv,p,0.008,cpCol); if(t) groups.suspension.add(t); } });
   });
 
   // Steering
@@ -698,7 +740,7 @@ function setupControls() {
   });
   cv.addEventListener('mouseup', ()=>{isDrag=false;isPan=false;});
   cv.addEventListener('mouseleave', ()=>{isDrag=false;isPan=false;document.getElementById('tooltip').style.display='none';});
-  cv.addEventListener('wheel', e=>{spherical.radius*=(1+e.deltaY*0.001);spherical.radius=Math.max(0.5,Math.min(15,spherical.radius));updateCamera();e.preventDefault();},{passive:false});
+  cv.addEventListener('wheel', e=>{spherical.radius*=(1+e.deltaY*0.001);spherical.radius=Math.max(0.5,Math.min(40,spherical.radius));updateCamera();e.preventDefault();},{passive:false});
   cv.addEventListener('contextmenu', e=>e.preventDefault());
 
   // Touch
@@ -710,7 +752,7 @@ function setupControls() {
   cv.addEventListener('touchmove', e=>{
     e.preventDefault();
     if(e.touches.length===1&&isDrag){const dx=e.touches[0].clientX-prevX,dy=e.touches[0].clientY-prevY;prevX=e.touches[0].clientX;prevY=e.touches[0].clientY;spherical.theta-=dx*0.005;spherical.phi-=dy*0.005;spherical.phi=Math.max(0.1,Math.min(Math.PI-0.1,spherical.phi));updateCamera();}
-    if(e.touches.length===2){const dx=e.touches[1].clientX-e.touches[0].clientX,dy=e.touches[1].clientY-e.touches[0].clientY;const nd=Math.sqrt(dx*dx+dy*dy);spherical.radius*=(touchDist/nd);spherical.radius=Math.max(0.5,Math.min(15,spherical.radius));touchDist=nd;updateCamera();}
+    if(e.touches.length===2){const dx=e.touches[1].clientX-e.touches[0].clientX,dy=e.touches[1].clientY-e.touches[0].clientY;const nd=Math.sqrt(dx*dx+dy*dy);spherical.radius*=(touchDist/nd);spherical.radius=Math.max(0.5,Math.min(40,spherical.radius));touchDist=nd;updateCamera();}
   },{passive:false});
   cv.addEventListener('touchend', ()=>{isDrag=false;});
 }
@@ -803,13 +845,13 @@ function renderThermal(el, data) {
   // Brake thermal per corner
   h += '<div class="section-title">Brake Thermal</div>';
   let hasBrakeThermal = false;
-  ['FL','FR','RL','RR'].forEach(cn => {
+  stationKeys(data.suspension).forEach(cn => {
     const bt = data.suspension?.[cn]?.brake?.thermal_dynamics || data.suspension?.[cn]?.brake?.disc;
     if(bt?.specific_heat || bt?.disc_to_air_conductance) hasBrakeThermal = true;
   });
   if(hasBrakeThermal) {
     h += '<div class="grid2">';
-    ['FL','FR','RL','RR'].forEach(cn => {
+    stationKeys(data.suspension).forEach(cn => {
       const br = data.suspension?.[cn]?.brake;
       if(!br) return;
       const disc = br.disc||{};
@@ -835,7 +877,8 @@ function runValidation(data) {
   const wb = ch.wheelbase;
   if(cg && wb) {
     // CG should be between front (X=0) and rear (X=-wb) axle
-    if(cg[0] > 0.5 || cg[0] < -(wb+0.5)) {
+    const semiTrailer = ['semi_trailer','trailer'].includes(data.vehicle_info?.vehicle_class);
+    if((cg[0] > 0.5 && !semiTrailer) || cg[0] < -(wb+0.5)) {
       warnings.push('CG X='+cg[0].toFixed(3)+' is outside wheelbase [0, -'+wb.toFixed(2)+']. Check X sign convention.');
     }
     // CG Z should be negative (above ground in SAE Z-down)
@@ -903,7 +946,7 @@ function renderOverview(el, data) {
         }).join('') + '</div>';
         const bindings = [];
         if(data.chassis && data.chassis.visual) bindings.push(Object.assign({body:'chassis'},data.chassis.visual));
-        ['FL','FR','RL','RR'].forEach(function(cn){
+        stationKeys(data.suspension).forEach(function(cn){
           const u=data.suspension&&data.suspension[cn]&&data.suspension[cn].topology&&data.suspension[cn].topology.upright;
           if(u&&u.visual) bindings.push(Object.assign({body:cn+' upright'},u.visual));
         });
@@ -932,7 +975,9 @@ function renderOverview(el, data) {
     </div>
     ${section('CG Position (editable)','<div class="grid3">'+editStat('X (fwd)','chassis.center_of_gravity.0','m',3)+editStat('Y (right)','chassis.center_of_gravity.1','m',3)+editStat('Z (down)','chassis.center_of_gravity.2','m',3)+'</div>')}
     ${ch.inertia?section('Inertia (kg·m²)',`<div class="grid2">${['Ixx','Iyy','Izz','Ixz'].filter(k=>ch.inertia[k]!=null).map(k=>stat(k,fmtN(ch.inertia[k],0))).join('')}</div>`):''}
-    ${ch.mass_unsprung_per_corner?section('Unsprung Mass (kg)',`<div class="grid4">${['FL','FR','RL','RR'].map(c=>stat(c,fmtN(ch.mass_unsprung_per_corner[c],1),'kg')).join('')}</div>`):''}
+    ${ch.mass_unsprung_per_corner?section('Unsprung Mass (kg)',`<div class="grid4">${stationKeys(ch.mass_unsprung_per_corner).map(c=>stat(c,fmtN(ch.mass_unsprung_per_corner[c],1),'kg')).join('')}</div>`):''}
+    ${data.axles?.length?section('Axles ('+data.axles.length+')'+(data.vehicle_info?.wheel_formula?' · '+data.vehicle_info.wheel_formula:''),data.axles.map(a=>`<div class="kv-row"><span class="kv-key">${a.id}${a.label?' · '+a.label:''}</span><span class="kv-val">x ${fmtN(a.position_x,3)} m · track ${fmtN(a.track,3)} m${a.steered?' · steer':''}${a.driven?' · drive':''}${a.liftable?' · lift':''}</span></div>`).join('')):''}
+    ${data.suspension_couplings?.length?section('Suspension Couplings ('+data.suspension_couplings.length+')',data.suspension_couplings.map(c=>`<div class="kv-row"><span class="kv-key">${c.id}</span><span class="kv-val">${(c.type||'').replace(/_/g,' ')}${c.axle_refs?' · '+c.axle_refs.join('+'):''}${c.members?' · '+c.members.join(', '):''}</span></div>`).join('')):''}
     ${ch.mass_bodies?.length?section('Mass Bodies ('+ch.mass_bodies.length+')',`<div style="max-height:200px;overflow:auto">${ch.mass_bodies.map(mb=>`<div class="kv-row"><span class="kv-key">${mb.id}</span><span class="kv-val">${mb.mass} kg</span></div>`).join('')}</div>`):''}
   
     ${data.steering?section('Steering',`<div class="grid2">${stat('Type',(data.steering.type||'').replace(/_/g,' '))}${stat('Ratio',fmtN(data.steering.overall_ratio,1))}${data.steering.lock_to_lock_turns?stat('Lock-Lock',fmtN(data.steering.lock_to_lock_turns,1),'turns'):data.steering.lock_to_lock?stat('Lock-Lock',fmtN(data.steering.lock_to_lock,2),'rad'):''}${data.steering.turning_circle?stat('Turn Circle',fmtN(data.steering.turning_circle,1),'m'):''}${data.steering.power_assist?.type?stat('Assist',data.steering.power_assist.type):''}${data.steering.ackermann!=null?stat('Ackermann',fmtN(data.steering.ackermann*100,0),'%'):''}</div>`):''}
@@ -945,7 +990,7 @@ function renderSuspension(el, data) {
   const chartId = 'damper-chart-'+Math.random().toString(36).slice(2,8);
   const muId = 'mu-chart-'+Math.random().toString(36).slice(2,8);
   el.innerHTML = `
-    <div class="flex-wrap mb8">${['FL','FR','RL','RR'].map(c=>`<button class="corner-sel ${c===suspCorner?'active':''}" data-corner="${c}">${c}</button>`).join('')}</div>
+    <div class="flex-wrap mb8">${stationKeys(data.suspension).map(c=>`<button class="corner-sel ${c===suspCorner?'active':''}" data-corner="${c}">${c}</button>`).join('')}</div>
     <div class="flex-wrap mb6">${tag(s.topology?.system_type?.replace(/_/g,' ')||'?')} ${s.spring?tag(s.spring.rate+' N/m','var(--gn)'):''} ${s.damper?tag(s.damper.type||'damper','var(--bl)'):''}</div>
     ${s.topology?.links?.some(function(l){return l.joint_type||l.inboard_joint_type||l.body_ref;})?section('Link Topology (v0.96)',s.topology.links.filter(function(l){return l.joint_type||l.inboard_joint_type||l.body_ref;}).map(function(l){return '<div class="kv-row" style="padding:2px 0"><span class="kv-key" style="font-size:10px">'+l.name+'</span><span class="kv-val" style="font-size:10px">'+(l.joint_type?'out: '+l.joint_type:'')+(l.inboard_joint_type?' in: '+l.inboard_joint_type:'')+(l.body_ref?' body: '+l.body_ref:'')+'</span></div>';}).join('')):''}
     ${section('Hardpoints (editable)', hardpointEditor(suspCorner))}
@@ -1376,7 +1421,7 @@ function renderBrakes(el, data) {
   const pedal=b.pedal||{};const booster=b.booster||{};const mc=b.master_cylinder||{};
   el.innerHTML=`
     <div class="flex-wrap mb8">${tag('Bias: '+((b.bias||0)*100).toFixed(0)+'% F')} ${tag(b.circuit_type||'','var(--bl)')} ${b.abs?.enabled?tag('ABS '+(b.abs.type||''),'var(--gn)'):''} ${b.esc?.enabled?tag('ESC','var(--pr)'):''}</div>
-    <div class="grid2 mb8">${['FL','FR','RL','RR'].map(c=>{const br=data.suspension?.[c]?.brake;return`<div class="stat-box"><div style="font-size:10px;font-weight:700;color:var(--ac);font-family:var(--mono)">${c}</div><div style="font-size:9px;color:var(--txD)">${br?.disc?.type||'?'} \u00d8${fmtN(br?.disc?.outer_diameter?br.disc.outer_diameter*1000:null,0)}mm \u00b7 \u00b5=${fmtN(br?.pad?.mu_cold,2)}</div>${br?.disc?.mass?'<div style="font-size:9px;color:var(--txD)">Disc: '+fmtN(br.disc.mass,1)+' kg \u00b7 '+(br.disc.thickness?fmtN(br.disc.thickness*1000,1):'-')+' mm</div>':''}${br?.caliper?'<div style="font-size:9px;color:var(--txD)">'+(br.caliper.type||'')+' \u00b7 '+(br.caliper.pistons||'?')+' piston</div>':''}</div>`;}).join('')}</div>
+    <div class="grid2 mb8">${stationKeys(data.suspension).map(c=>{const br=data.suspension?.[c]?.brake;return`<div class="stat-box"><div style="font-size:10px;font-weight:700;color:var(--ac);font-family:var(--mono)">${c}</div><div style="font-size:9px;color:var(--txD)">${br?.disc?.type||'?'} \u00d8${fmtN(br?.disc?.outer_diameter?br.disc.outer_diameter*1000:null,0)}mm \u00b7 \u00b5=${fmtN(br?.pad?.mu_cold,2)}</div>${br?.disc?.mass?'<div style="font-size:9px;color:var(--txD)">Disc: '+fmtN(br.disc.mass,1)+' kg \u00b7 '+(br.disc.thickness?fmtN(br.disc.thickness*1000,1):'-')+' mm</div>':''}${br?.caliper?'<div style="font-size:9px;color:var(--txD)">'+(br.caliper.type||'')+' \u00b7 '+(br.caliper.pistons||'?')+' piston</div>':''}</div>`;}).join('')}</div>
     ${pedal.ratio||booster.type?section('Hydraulics','<div class="grid2">'+
       (pedal.ratio?stat('Pedal Ratio',fmtN(pedal.ratio,1)):'')+
       (booster.type?stat('Booster',booster.type):'')+
@@ -1786,6 +1831,10 @@ function updateMeshBanner(data) {
 
 function loadData(json) {
   DATA = json;
+  const _st = stationKeys(json?.suspension);
+  if(_st.length && !_st.includes(suspCorner)) suspCorner = _st[0];
+  if(highlightCorner && !_st.includes(highlightCorner)) highlightCorner = null;
+  rebuildCornerDefs();
   changeLog.length = 0; updateSaveBar();
   meshAssets = json?.assets?.meshes || [];
   // Auto-validate on load
@@ -1793,6 +1842,7 @@ function loadData(json) {
   if(w.length) console.warn('SVJ Validation:', w);
   buildScene();
   setupControls();
+  fitCamera();
   buildLayerUI();
   buildPanelTabs();
   renderPanel();
@@ -1817,11 +1867,7 @@ document.getElementById('file-input').addEventListener('change', e=>{
   processDroppedFiles(Array.from(e.target.files));
   e.target.value='';
 });
-document.getElementById('btn-reset-cam').addEventListener('click', ()=>{
-  target.set(0, 0.25, 1.15);
-  spherical.set(4.5, Math.PI/4, Math.PI/6);
-  updateCamera();
-});
+document.getElementById('btn-reset-cam').addEventListener('click', ()=>{ fitCamera(); });
 document.getElementById('btn-toggle-panel').addEventListener('click', ()=>{
   sideOpen=!sideOpen;
   document.getElementById('sidebar').classList.toggle('hidden',!sideOpen);
@@ -1919,17 +1965,18 @@ const VIEWS = {
 };
 window.setView = function(name) {
   const v = VIEWS[name]; if(!v) return;
-  spherical.set(v.r, v.phi, v.theta);
-  target.set(0, 0.25, 1.15);
+  const f = viewFit();
+  spherical.set(v.r*f.s, v.phi, v.theta);
+  target.set(0, 0.25, f.tz);
   updateCamera();
 }
 
 // Keyboard shortcuts
 document.addEventListener('keydown', e => {
-  const map = {'1':'FL','2':'FR','3':'RL','4':'RR','0':null};
+  const map = {'0':null}; stationKeys(DATA?.suspension).slice(0,9).forEach((k,i)=>{map[String(i+1)]=k;});
   if(map.hasOwnProperty(e.key)){highlightCorner=map[e.key];buildLayerUI();applyCornerHighlight();}
   if(e.key==='i')setView('iso');if(e.key==='f')setView('front');if(e.key==='b')setView('rear');if(e.key==='l')setView('left');if(e.key==='t')setView('top');
-  if(e.key==='r'||e.key==='R'){if(!selectedMeshId){target.set(0,0.25,1.15);spherical.set(4.5,Math.PI/4,Math.PI/6);updateCamera();}else setGizmoMode('rotate');}
+  if(e.key==='r'||e.key==='R'){if(!selectedMeshId){fitCamera();}else setGizmoMode('rotate');}
   if(e.key==='g'||e.key==='G'){if(selectedMeshId) setGizmoMode('translate');}
   if(e.key==='s'||e.key==='S'){if(selectedMeshId) setGizmoMode('scale');}
   if(e.key==='Escape'){deselectMesh();}
@@ -2246,7 +2293,7 @@ window.exportSTEP = function() {
   }
 
   // Suspension corners
-  ['FL','FR','RL','RR'].forEach(function(cn) {
+  stationKeys(data.suspension).forEach(function(cn) {
     const corn = data.suspension ? data.suspension[cn] : null;
     if(!corn || !corn.topology) return;
     const hp = (corn.topology.upright && corn.topology.upright.hardpoints) || {};

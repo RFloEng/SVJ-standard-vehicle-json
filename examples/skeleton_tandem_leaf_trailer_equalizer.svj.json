@@ -1,0 +1,426 @@
+{
+  "_metadata": {
+    "specification": "SVJ",
+    "version": "0.99",
+    "description": "Tandem-axle leaf-spring trailer skeleton — double-eye/slipper leaf springs joined by an equalizer rocker on each side, no dampers.",
+    "coordinate_system": "SAE_J670",
+    "units": "SI",
+    "author": "RFloEng",
+    "data_origin": {
+      "type": "calculated",
+      "detail": "Skeleton example for the v0.99 multi-axle layer. Geometry, masses and rates are representative engineering estimates, not data for a specific production vehicle.",
+      "confidence": "low"
+    },
+    "alignment_convention": "relative_to_centerline"
+  },
+  "vehicle_info": {
+    "make": "Generic",
+    "model": "tandem leaf trailer skeleton",
+    "drive_type": "none",
+    "vehicle_class": "trailer"
+  },
+  "chassis": {
+    "mass_total": 4500,
+    "wheelbase": 0.89,
+    "track_front": 1.75,
+    "track_rear": 1.75,
+    "center_of_gravity": [
+      1.2,
+      0,
+      -0.85
+    ]
+  },
+  "suspension": {
+    "A1L": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "leaf_located",
+        "upright": {
+          "id": "hub_A1L",
+          "hardpoints": {
+            "wheel_center": [
+              0.0,
+              -0.875,
+              -0.36
+            ],
+            "spring_pad": [
+              0.0,
+              -0.45,
+              -0.48
+            ],
+            "damper_outboard": [
+              0.0,
+              -0.4,
+              -0.36
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "leaf_spring",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.37,
+                -0.45,
+                -0.56
+              ],
+              [
+                -0.37,
+                -0.45,
+                -0.56
+              ]
+            ],
+            "outboard_ref": "hardpoints.spring_pad"
+          }
+        ],
+        "axle_body": {
+          "id": "A1_beam",
+          "mass": 75,
+          "position": [
+            0.0,
+            0,
+            -0.36
+          ]
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.4064,
+        "rim_width": 0.1524,
+        "set_ref": "trailer_st235_80r16"
+      },
+      "spring": {
+        "type": "leaf",
+        "rate": 95000,
+        "leaf_count": 4,
+        "end_type_front": "eye",
+        "end_type_rear": "slipper",
+        "end_friction": 0.3,
+        "hysteresis_force": 400
+      },
+      "damper": {
+        "type": "none"
+      }
+    },
+    "A1R": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "leaf_located",
+        "upright": {
+          "id": "hub_A1R",
+          "hardpoints": {
+            "wheel_center": [
+              0.0,
+              0.875,
+              -0.36
+            ],
+            "spring_pad": [
+              0.0,
+              0.45,
+              -0.48
+            ],
+            "damper_outboard": [
+              0.0,
+              0.4,
+              -0.36
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "leaf_spring",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.37,
+                0.45,
+                -0.56
+              ],
+              [
+                -0.37,
+                0.45,
+                -0.56
+              ]
+            ],
+            "outboard_ref": "hardpoints.spring_pad"
+          }
+        ],
+        "axle_body": {
+          "id": "A1_beam",
+          "mass": 75,
+          "position": [
+            0.0,
+            0,
+            -0.36
+          ]
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.4064,
+        "rim_width": 0.1524,
+        "set_ref": "trailer_st235_80r16"
+      },
+      "spring": {
+        "type": "leaf",
+        "rate": 95000,
+        "leaf_count": 4,
+        "end_type_front": "eye",
+        "end_type_rear": "slipper",
+        "end_friction": 0.3,
+        "hysteresis_force": 400
+      },
+      "damper": {
+        "type": "none"
+      }
+    },
+    "A2L": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "leaf_located",
+        "upright": {
+          "id": "hub_A2L",
+          "hardpoints": {
+            "wheel_center": [
+              -0.89,
+              -0.875,
+              -0.36
+            ],
+            "spring_pad": [
+              -0.89,
+              -0.45,
+              -0.48
+            ],
+            "damper_outboard": [
+              -0.89,
+              -0.4,
+              -0.36
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "leaf_spring",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -0.52,
+                -0.45,
+                -0.56
+              ],
+              [
+                -1.26,
+                -0.45,
+                -0.56
+              ]
+            ],
+            "outboard_ref": "hardpoints.spring_pad"
+          }
+        ],
+        "axle_body": {
+          "id": "A2_beam",
+          "mass": 75,
+          "position": [
+            -0.89,
+            0,
+            -0.36
+          ]
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.4064,
+        "rim_width": 0.1524,
+        "set_ref": "trailer_st235_80r16"
+      },
+      "spring": {
+        "type": "leaf",
+        "rate": 95000,
+        "leaf_count": 4,
+        "end_type_front": "slipper",
+        "end_type_rear": "slipper",
+        "end_friction": 0.3,
+        "hysteresis_force": 400
+      },
+      "damper": {
+        "type": "none"
+      }
+    },
+    "A2R": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "leaf_located",
+        "upright": {
+          "id": "hub_A2R",
+          "hardpoints": {
+            "wheel_center": [
+              -0.89,
+              0.875,
+              -0.36
+            ],
+            "spring_pad": [
+              -0.89,
+              0.45,
+              -0.48
+            ],
+            "damper_outboard": [
+              -0.89,
+              0.4,
+              -0.36
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "leaf_spring",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -0.52,
+                0.45,
+                -0.56
+              ],
+              [
+                -1.26,
+                0.45,
+                -0.56
+              ]
+            ],
+            "outboard_ref": "hardpoints.spring_pad"
+          }
+        ],
+        "axle_body": {
+          "id": "A2_beam",
+          "mass": 75,
+          "position": [
+            -0.89,
+            0,
+            -0.36
+          ]
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.4064,
+        "rim_width": 0.1524,
+        "set_ref": "trailer_st235_80r16"
+      },
+      "spring": {
+        "type": "leaf",
+        "rate": 95000,
+        "leaf_count": 4,
+        "end_type_front": "slipper",
+        "end_type_rear": "slipper",
+        "end_friction": 0.3,
+        "hysteresis_force": 400
+      },
+      "damper": {
+        "type": "none"
+      }
+    }
+  },
+  "axles": [
+    {
+      "id": "A1",
+      "label": "trailer",
+      "position_x": 0.0,
+      "track": 1.75,
+      "steered": false,
+      "driven": false
+    },
+    {
+      "id": "A2",
+      "label": "trailer",
+      "position_x": -0.89,
+      "track": 1.75,
+      "steered": false,
+      "driven": false
+    }
+  ],
+  "suspension_couplings": [
+    {
+      "id": "equalizer_L",
+      "type": "equalizer_rocker",
+      "side": "L",
+      "rocker_shape": "medium_triangle",
+      "pivot_position": [
+        -0.445,
+        -0.45,
+        -0.66
+      ],
+      "mass": 2.5,
+      "connections": [
+        {
+          "corner_ref": "A1L",
+          "spring_end": "rear",
+          "attach_point": [
+            -0.37,
+            -0.45,
+            -0.58
+          ],
+          "arm_length": 0.075,
+          "shackle_length": 0.08
+        },
+        {
+          "corner_ref": "A2L",
+          "spring_end": "front",
+          "attach_point": [
+            -0.52,
+            -0.45,
+            -0.58
+          ],
+          "arm_length": 0.075,
+          "shackle_length": 0.08
+        }
+      ]
+    },
+    {
+      "id": "equalizer_R",
+      "type": "equalizer_rocker",
+      "side": "R",
+      "rocker_shape": "medium_triangle",
+      "pivot_position": [
+        -0.445,
+        0.45,
+        -0.66
+      ],
+      "mass": 2.5,
+      "connections": [
+        {
+          "corner_ref": "A1R",
+          "spring_end": "rear",
+          "attach_point": [
+            -0.37,
+            0.45,
+            -0.58
+          ],
+          "arm_length": 0.075,
+          "shackle_length": 0.08
+        },
+        {
+          "corner_ref": "A2R",
+          "spring_end": "front",
+          "attach_point": [
+            -0.52,
+            0.45,
+            -0.58
+          ],
+          "arm_length": 0.075,
+          "shackle_length": 0.08
+        }
+      ]
+    }
+  ],
+  "tires": {
+    "sets": {
+      "trailer_st235_80r16": {
+        "description": "Trailer tyre",
+        "source": "estimated",
+        "size_code": "ST235/80R16",
+        "pressure": 550000,
+        "dimensions": {
+          "section_width": 0.235,
+          "aspect_ratio": 0.8,
+          "overall_diameter": 0.782
+        }
+      }
+    }
+  }
+}

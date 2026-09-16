@@ -5,7 +5,7 @@
 - **Companion to:** `proposals/multi_axle_multi_wheel_research.md` (axle naming, `axles` array, dual wheels)
 - **Target Specification:** post-v0.98 multi-axle addendum
 - **Proposal Type:** Research — suspension taxonomy for trucks, trailers and special vehicles
-- **Status:** Draft — for discussion before schema work
+- **Status:** Implemented in v0.99 (spec §9.2.1, §9.3, §23.5; schema; `tools/multiaxle_check.py`; 10 skeleton examples)
 
 ---
 
@@ -226,3 +226,18 @@ Notes on the sketch:
 - [Hydraulic modular trailer specs & designs — Anster Trailer](https://anstertrailer.com/hydraulic-modular-trailer-specs-designs/)
 - [Equalising beam — Wikipedia](https://en.wikipedia.org/wiki/Equalising_beam)
 - [Tandem twin axle bogie vs uncompensated — MechGuru](https://mechguru.com/how-it-works/how-tandem-twin-axle-bogie-suspension-system-heavy-duty-truck-works/)
+
+---
+
+## Implementation notes (v0.99)
+
+Implemented as proposed, with these refinements:
+
+- Coupling reference: corners point to a coupling with `spring.coupling_ref`; stations sprung only by the coupling use `spring.type: "none"`.
+- Leaf spring ends are split into `end_type_front` / `end_type_rear` (one leaf has two different ends, e.g. eye + slipper).
+- Rocker `connections[]` name the `spring_end` (`front`/`rear`) instead of `spring_refs`.
+- Added `hydraulic` spring type (fluid column without gas) next to `hydropneumatic`, and damper types `hydraulic_strut` / `none`.
+- Added link types `torque_rod` and `pivot`, `lateral_location` values `torque_rods` and `pendulum_pin`.
+- Added a centreline station side `C` (trikes, special rigs) beyond the original L/R plan.
+- Truck tyre `size_code` pattern widened — the old pattern rejected every 22.5" truck size.
+- Not implemented (unchanged from §6): Tier-2 torque-reaction scalar, inter-leaf hysteresis beyond a single `hysteresis_force`, articulated combinations.

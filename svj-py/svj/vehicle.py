@@ -7,13 +7,40 @@ Wraps the parsed JSON dict and provides typed accessors for every section.
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any, Iterator
 
-# Corner identifiers
+# Legacy two-axle corner identifiers (aliases of A1L/A1R/A2L/A2R since SVJ v0.99)
 CORNERS = ("FL", "FR", "RL", "RR")
 FRONT_CORNERS = ("FL", "FR")
 REAR_CORNERS = ("RL", "RR")
+LEGACY_ALIASES = {"FL": "A1L", "FR": "A1R", "RL": "A2L", "RR": "A2R"}
+STATION_RE = re.compile(r"^(FL|FR|RL|RR|A([1-9][0-9]?)(L|R|C))$")
+_SIDE_ORDER = {"L": 0, "C": 1, "R": 2}
+
+
+def is_station(key: str) -> bool:
+    """True if key is a valid wheel-station name (FL/FR/RL/RR or A{n}{L|R|C})."""
+    return bool(STATION_RE.match(key))
+
+
+def canonical_station(key: str) -> str:
+    """Map a station name to A-notation: FL -> A1L, A3R -> A3R."""
+    return LEGACY_ALIASES.get(key, key)
+
+
+def station_axle(key: str) -> int:
+    """1-based axle index of a station name (FL -> 1, RR -> 2, A3L -> 3)."""
+    m = re.match(r"^A(\d+)", canonical_station(key))
+    if not m:
+        raise ValueError(f"Invalid wheel station: {key}")
+    return int(m.group(1))
+
+
+def _station_sort_key(key: str) -> tuple[int, int]:
+    c = canonical_station(key)
+    return int(c[1:-1]), _SIDE_ORDER[c[-1]]
 
 
 class Vehicle:
@@ -63,6 +90,10 @@ class Vehicle:
     @property
     def drive_type(self) -> str:
         return self.vehicle_info.get("drive_type", "")
+
+    @property
+    def vehicle_class(self) -> str:
+        return self.vehicle_info.get("vehicle_class", "")
 
     @property
     def name(self) -> str:
@@ -117,25 +148,93 @@ class Vehicle:
     def suspension(self) -> dict[str, Any]:
         return self.data.get("suspension", {})
 
+    @property
+    def stations(self) -> list[str]:
+        """Wheel-station names present in the file, front to back, left to right.
+
+        Legacy files return FL/FR/RL/RR; multi-axle files return A1L, A1R, A2L, ...
+        """
+        return sorted((k for k in self.suspension if is_station(k)), key=_station_sort_key)
+
     def corner(self, corner_id: str) -> dict[str, Any]:
-        """Get full suspension data for a corner (FL, FR, RL, RR)."""
-        if corner_id not in CORNERS:
-            raise ValueError(f"Invalid corner: {corner_id}. Must be one of {CORNERS}")
-        return self.suspension.get(corner_id, {})
+        """Get full suspension data for a wheel station.
+
+        Accepts legacy names (FL, FR, RL, RR) or A-notation (A1L, A3R, A2C).
+        Aliases resolve both ways: corner("A1L") finds a legacy "FL" entry and
+        corner("FL") finds an "A1L" entry.
+        """
+        if not is_station(corner_id):
+            raise ValueError(f"Invalid wheel station: {corner_id}. Use FL/FR/RL/RR or A{{n}}{{L|R|C}}")
+        if corner_id in self.suspension:
+            return self.suspension[corner_id]
+        target = canonical_station(corner_id)
+        for key in self.suspension:
+            if is_station(key) and canonical_station(key) == target:
+                return self.suspension[key]
+        return {}
 
     def corners(self) -> Iterator[tuple[str, dict[str, Any]]]:
-        """Iterate over all available corners as (id, data) pairs."""
-        for c in CORNERS:
-            if c in self.suspension:
-                yield c, self.suspension[c]
+        """Iterate over all wheel stations as (id, data) pairs, front to back."""
+        for c in self.stations:
+            yield c, self.suspension[c]
 
     def topology(self, corner_id: str) -> str:
-        """Get the suspension system_type for a corner."""
+        """Get the suspension system_type for a wheel station."""
         return self.corner(corner_id).get("topology", {}).get("system_type", "")
 
     def topologies(self) -> dict[str, str]:
-        """Get all suspension types as {corner: system_type}."""
-        return {c: self.topology(c) for c in CORNERS if c in self.suspension}
+        """Get all suspension types as {station: system_type}."""
+        return {c: self.topology(c) for c in self.stations}
+
+    # ── Multi-axle (SVJ v0.99) ────────────────────────────────────────
+
+    @property
+    def axles(self) -> list[dict[str, Any]]:
+        """The `axles` metadata array (may be empty)."""
+        return self.data.get("axles", [])
+
+    @property
+    def axle_count(self) -> int:
+        """Number of axles, from the wheel stations (falls back to `axles`)."""
+        if self.stations:
+            return len({station_axle(k) for k in self.stations})
+        return len(self.axles)
+
+    @property
+    def is_multi_axle(self) -> bool:
+        return self.axle_count > 2
+
+    def axle(self, axle_id: str | int) -> dict[str, Any]:
+        """Get `axles` metadata by id ("A2") or index (2)."""
+        aid = axle_id if isinstance(axle_id, str) else f"A{axle_id}"
+        return next((a for a in self.axles if a.get("id") == aid), {})
+
+    def stations_on_axle(self, axle: int) -> list[str]:
+        return [k for k in self.stations if station_axle(k) == axle]
+
+    @property
+    def suspension_couplings(self) -> list[dict[str, Any]]:
+        return self.data.get("suspension_couplings", [])
+
+    def wheel_count(self, corner_id: str) -> int:
+        """Wheels mounted at a station (2 for duals)."""
+        return int(self.corner(corner_id).get("wheel", {}).get("multiplicity", 1))
+
+    @property
+    def tyre_count(self) -> int:
+        """Total tyres on the vehicle, counting dual wheels."""
+        return sum(self.wheel_count(k) for k in self.stations)
+
+    @property
+    def wheel_formula(self) -> str:
+        """vehicle_info.wheel_formula, or derived '<stations>x<driven>' from axles."""
+        wf = self.vehicle_info.get("wheel_formula")
+        if wf:
+            return wf
+        if not self.axles or not self.stations:
+            return ""
+        driven = sum(len(self.stations_on_axle(int(a["id"][1:]))) for a in self.axles if a.get("driven"))
+        return f"{len(self.stations)}x{driven}"
 
     def hardpoints(self, corner_id: str) -> dict[str, list[float]]:
         """Get all hardpoints for a suspension corner.
@@ -298,7 +397,8 @@ class Vehicle:
         cg_x = self.cg[0] if self.cg else None
         wb = self.wheelbase
         if cg_x is not None and wb > 0:
-            # CG.x is negative (behind front axle) in SAE J670
+            # CG.x is negative (behind front axle) in SAE J670.
+            # Multi-axle: share on A1 vs. the rest, using wheelbase A1 -> last axle.
             return 1.0 + (cg_x / wb)
         return None
 

@@ -2,32 +2,37 @@
 
 ## What This Is
 
-SVJ (Standard Vehicle JSON) is a universal exchange format for vehicle dynamics data — a "Rosetta Stone" that lets any simulator read the same vehicle definition. Current version: **v0.97**.
+SVJ (Standard Vehicle JSON) is a universal exchange format for vehicle dynamics data — a "Rosetta Stone" that lets any simulator read the same vehicle definition. Current version: **v0.99**.
 
 ## Repo Structure
 
 ```
-spec/SVJ_Spec.md                        THE specification (2213 lines, §1–§22)
-schema/svj.schema.json                  JSON Schema Draft-07
-examples/                               9 examples (real cars + skeletons + tire file)
+spec/SVJ_Spec.md                        THE specification (§1–§23)
+schema/svj.schema.json                  JSON Schema Draft-07 (v0.99)
+schema/svj-override.schema.json         Override file structure (v0.98)
+examples/                               19 examples (real cars, 2-axle skeletons, 10 multi-axle skeletons, tire file)
 docs/naming_convention.md               SVJ::category::id glTF naming convention
-tools/validate.py                       Schema validation (v0.97)
+tools/validate.py                       Schema + multi-axle validation
+tools/multiaxle_check.py                Multi-axle cross-reference rules (v0.99)
+tools/validate_override.py              Override resolution + validation (v0.98)
 tools/integrity_check.py                glTF visual binding checks (v0.97)
-viewer/svj_viewer_v3.9.html             Interactive SVJ file viewer (drag & drop)
-svj-py/                                 Python parser library with CLI
+viewer/svj_viewer_v4.0.html             Interactive SVJ viewer/editor, multi-axle aware (drag & drop)
+svj-py/                                 Python parser library with CLI (0.2.0, multi-axle aware)
+templates/mazda_mx5_nd2_2024.svj.json   Full vehicle template
 proposals/                              Historical design proposals (read-only)
 ```
 
 ## Key Conventions
 
-- **Coordinates:** SAE J670 — X forward, Y right, Z down. Origin at front axle center. CG.x is NEGATIVE (behind front axle).
+- **Coordinates:** SAE J670 — X forward, Y right, Z down. Origin at front axle (A1) center, ground level. CG.x is NEGATIVE (behind front axle) — except trailers/semi-trailers, whose CG sits ahead of A1.
 - **Units:** SI everywhere (m, kg, N, rad, Pa, s). No exceptions.
 - **Alignment:** `alignment_convention: "relative_to_centerline"` — negative camber = inward on BOTH sides.
 - **Tire data:** Tire dimensions live ONLY in `tires.sets`. Corner `wheel` has rim + `set_ref`, NO tire dimensions.
 - **Inertia:** Full 6-component tensor (Ixx, Iyy, Izz, Ixz, Ixy, Iyz), about component's own CG, in vehicle frame axes.
 - **Mass:** `mass_bodies` = sprung decomposition. `mass_unsprung_per_corner` = unsprung. `mass_total` = everything. No double counting.
 - **Estimates:** Marked with `_est: true`. Factory data has `_source` strings.
-- **Extensions:** `x_` prefix for simulator-specific data, `additionalProperties: true` everywhere.
+- **Extensions:** `x_` prefix for simulator-specific data, `additionalProperties: true` everywhere. `_`-prefixed keys (`_est`, `_note`, `_source_detail`) are allowed metadata, including inside station-keyed objects and pacejka groups.
+- **Wheel stations:** FL/FR/RL/RR (two axles) or A{n}{L|R|C}; one station = one hub (duals via `wheel.multiplicity`).
 
 ## v0.97 — glTF Visual Binding Layer
 
@@ -51,7 +56,24 @@ New in v0.98 (all optional, fully backward-compatible; prompted by a review of V
 - **`tools/validate_override.py`** — resolves `base` + `patch` and validates the result against `schema/svj.schema.json`
 - **`examples/bmw_e30_325i_stiffer_front.svj-override.json`** — example override; `examples/bmw_e30_325i_semi_trailing.svj.json` demonstrates `validation` + `benchmarks`
 
-## Topology Coverage (all 10 with examples)
+## v0.99 — Multi-Axle Vehicles
+
+Spec §23, all optional and backward-compatible:
+
+- **Station naming** `A{n}{L|R|C}`; `FL/FR/RL/RR` = aliases of `A1L/A1R/A2L/A2R`, two-axle vehicles only; forms never mixed
+- **`axles`** array (position_x, track, steered, driven, liftable/lift, max_load)
+- **`wheel.multiplicity` / `dual_spacing` / `positions`** — dual wheels on one hub (one station = one hub)
+- **`steering.axle_ref` / `additional_axles`** (§8.6) — mechanical_link, self_steer, command_steer, hydraulic, active
+- **`suspension_couplings`** (§23.5) — equalizer_rocker, walking_beam, trunnion_spring, pneumatic_circuit, hydraulic_circuit, custom; corners reference them via `spring.coupling_ref`
+- **New system_types** swing_axle, parallelogram, pendulum_axle; **spring types** rubber_torsion, rubber_block, hydropneumatic, hydraulic, none (+ leaf end type/friction, hydropneumatic block); **damper types** hydraulic_strut, none; **axle_body** portal_drop, hub_reduction_ratio, pendulum fields; **link types** torque_rod, pivot
+- `vehicle_info.wheel_formula` / `vehicle_class`; `differentials[].axle_ref`, `location: inter_axle`, `through_drive`; truck tyre `size_code`s
+- **`tools/multiaxle_check.py`** — cross-reference rules (§23.7), run by `validate.py` and `validate_override.py`; identical copy in `svj-py/svj/multiaxle.py` (a test enforces sync)
+- **`svj-py` 0.2.0** — `stations`, alias-aware `corner()`, `axles`, `axle_count`, `wheel_count`, `tyre_count`, `wheel_formula`, `suspension_couplings`; CLI `info` shows axles and couplings
+- **Viewer v4.0** — renders any station set, dual wheels and coupling pivots/beams; axles and couplings panels; camera fits vehicle length
+- **Schema fixes found during v0.99 audit:** truck tyre `size_code`s; `_` metadata keys allowed in pacejka groups (Mazda template now validates)
+- Note: the v0.94 changelog entry described a multi-axle convention (§21.1) that never landed in the spec; §23 is the real implementation.
+
+## Topology Coverage (all 13 with examples)
 
 ✅ double_wishbone (Alfa 75 front, Corvette C3 front, F1 front/rear, AWD EV)
 ✅ macpherson (BMW E30 front, FF hatch front, 4WD truck front)
@@ -62,6 +84,9 @@ New in v0.98 (all optional, fully backward-compatible; prompted by a review of V
 ✅ torsion_beam (FF hatch rear)
 ✅ solid_axle (4WD truck rear)
 ✅ de_dion (Alfa 75 rear)
+✅ swing_axle (8x8 backbone truck)
+✅ parallelogram (8x4 pusher lift axle)
+✅ pendulum_axle (modular trailer)
 ✅ custom (by design — no example needed)
 
 ## Pending / Roadmap
@@ -72,7 +97,9 @@ New in v0.98 (all optional, fully backward-compatible; prompted by a review of V
 - Any ambiguities found during parser development become spec patches
 
 ### Future (v1.x)
-- Multi-axle addendum implementation (currently documented in §21.1, not in schema)
+- Articulated combinations addendum (tractor/semi-trailer, dolly, ADT) — §23.8
+- Known data issues: `examples/formula_f1_2025_aero.svj.json` breaks SAE conventions (CG.x/Z positive, left wheels at +Y, rear axle at -2.8 vs wheelbase 3.6); Mazda template mass_bodies + unsprung (1145 kg) ≠ mass_total (1077 kg)
+- Real-vehicle multi-axle examples with published data — shortlist and sources in `proposals/multi_axle_real_vehicle_examples_research.md` (MAN TGS 8x4 twin-steer and tridem, Oshkosh HEMTT A4, Tatra T815-7); needs `wheelbase_reference` values and `axle_groups` loads first
 - BeamNG converter
 - rFactor2 converter
 
@@ -80,7 +107,7 @@ New in v0.98 (all optional, fully backward-compatible; prompted by a review of V
 
 These are load-bearing architectural choices. Changing them would break everything:
 
-1. **4-corner model (FL/FR/RL/RR)** for standard vehicles. Multi-axle is an addendum, not a replacement.
+1. **Station model** — FL/FR/RL/RR for standard two-axle vehicles, `A{n}{L|R|C}` for everything else (§23). Multi-axle is an addendum, not a replacement; inter-axle links live in `suspension_couplings`, never in merged corners.
 2. **SAE J670 coordinates** with origin at front axle center.
 3. **`$ref` for modular files** — JSON Pointer or relative file paths.
 4. **`x_` prefix** for extensions — never in the core spec.
@@ -97,9 +124,13 @@ Always run after any change:
 ```bash
 python tools/validate.py examples/formula_f1_2025_aero.svj.json
 # Or for all examples:
-for f in examples/*.svj.json; do python tools/validate.py "$f"; done
+for f in examples/*.svj.json; do python tools/validate.py "$f"; done   # includes multiaxle_check
 # Check glTF bindings:
 python tools/integrity_check.py examples/formula_f1_2025_aero.svj.json --strict
+# Override files:
+python tools/validate_override.py examples/bmw_e30_325i_stiffer_front.svj-override.json
+# Python library tests (also checks tools/ and svj-py checker copies are in sync):
+cd svj-py && python -m pytest -q
 ```
 
 ## How to Work on This Project

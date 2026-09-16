@@ -34,6 +34,26 @@ errors = svj.validate(car.data, schema_path="schema/svj.schema.json")
 car.save("my_car.svj.json")
 ```
 
+### Multi-axle vehicles (SVJ v0.99)
+
+Wheel stations can be the legacy `FL/FR/RL/RR` or `A{n}{L|R|C}` for any number of axles. `corner()` resolves the aliases both ways (`"FL"` ⇄ `"A1L"`).
+
+```python
+truck = svj.load("examples/skeleton_6x4_walking_beam_dump_truck.svj.json")
+
+truck.stations              # ['A1L', 'A1R', 'A2L', 'A2R', 'A3L', 'A3R']
+truck.axle_count            # 3
+truck.axle("A1")            # {'id': 'A1', 'steered': True, ...}
+truck.stations_on_axle(3)   # ['A3L', 'A3R']
+truck.wheel_count("A2L")    # 2  (dual wheels)
+truck.tyre_count            # 10
+truck.wheel_formula         # '6x4'
+truck.topology("A3R")       # 'solid_axle'
+truck.suspension_couplings  # walking beams, rockers, air/hydraulic circuits
+```
+
+`svj.validate()` runs the multi-axle cross-reference rules (spec §23.7). They live in `svj/multiaxle.py`, an exact copy of `tools/multiaxle_check.py` in the spec repo — a test fails if the two drift apart.
+
 ## CLI
 
 ```bash

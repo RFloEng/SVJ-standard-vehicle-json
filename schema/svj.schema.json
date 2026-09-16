@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "urn:svj:schema:v0.97",
+  "$id": "urn:svj:schema:v0.99",
   "title": "Standard Vehicle JSON (SVJ)",
-  "description": "Schema for SVJ v0.97 \u2014 universal vehicle dynamics exchange format. v0.97 adds glTF visual binding: flexible coordinate_system and units declarations, optional assets block (mesh manifest), visual_binding definition, and visual fields on chassis and suspension bodies. All v0.96 files are valid v0.97 without changes.",
+  "description": "Schema for SVJ v0.99 \u2014 universal vehicle dynamics exchange format. v0.99 adds multi-axle vehicles: A{n}{L|R|C} wheel stations (FL/FR/RL/RR remain valid), axles metadata, dual wheels, multi-axle steering, suspension_couplings, new suspension/spring types. v0.98 added validation/benchmarks, v0.97 glTF visual binding. All v0.96\u2013v0.98 files remain valid. Cross-reference rules: tools/multiaxle_check.py.",
   "type": "object",
   "required": [
     "_metadata"
@@ -33,9 +33,10 @@
           "enum": [
             "0.96",
             "0.97",
-            "0.98"
+            "0.98",
+            "0.99"
           ],
-          "description": "SVJ specification version. Use '0.97' for files that include glTF visual binding. Use '0.98' for files that include validation/benchmarks metadata."
+          "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations)."
         },
         "description": {
           "type": "string"
@@ -185,7 +186,30 @@
             "FWD",
             "RWD",
             "AWD",
-            "4WD"
+            "4WD",
+            "none"
+          ]
+        },
+        "wheel_formula": {
+          "type": "string",
+          "pattern": "^[0-9]+x[0-9]+(/[0-9]+)?$",
+          "description": "Wheel formula counting wheel stations (hubs), not tyres: total x driven[/steered], e.g. '6x4', '8x8/4'."
+        },
+        "vehicle_class": {
+          "type": "string",
+          "enum": [
+            "passenger_car",
+            "race_car",
+            "light_truck",
+            "heavy_truck",
+            "tractor_unit",
+            "trailer",
+            "semi_trailer",
+            "modular_trailer",
+            "bus",
+            "off_highway",
+            "military",
+            "special"
           ]
         }
       }
@@ -207,43 +231,31 @@
         },
         "mass_unsprung_per_corner": {
           "type": "object",
-          "required": [
-            "FL",
-            "FR",
-            "RL",
-            "RR"
-          ],
-          "properties": {
-            "FL": {
+          "description": "Unsprung mass per wheel station (kg). Keys use the same corner names as `suspension` (FL/FR/RL/RR or A{n}{L|R|C}).",
+          "patternProperties": {
+            "^(FL|FR|RL|RR|A([1-9][0-9]?)(L|R|C))$": {
               "type": "number",
               "exclusiveMinimum": 0
             },
-            "FR": {
-              "type": "number",
-              "exclusiveMinimum": 0
-            },
-            "RL": {
-              "type": "number",
-              "exclusiveMinimum": 0
-            },
-            "RR": {
-              "type": "number",
-              "exclusiveMinimum": 0
-            }
+            "^x_": {},
+            "^_": {}
           },
-          "additionalProperties": true
+          "additionalProperties": false
         },
         "wheelbase": {
           "type": "number",
-          "exclusiveMinimum": 0
+          "exclusiveMinimum": 0,
+          "description": "Distance from A1 to the last axle (m), or to the rear bogie centre when wheelbase_reference is 'bogie_centre'."
         },
         "track_front": {
           "type": "number",
-          "exclusiveMinimum": 0
+          "exclusiveMinimum": 0,
+          "description": "Track at axle A1 (m)."
         },
         "track_rear": {
           "type": "number",
-          "exclusiveMinimum": 0
+          "minimum": 0,
+          "description": "Track at the last axle (m). 0 for a single centreline wheel (A{n}C)."
         },
         "center_of_gravity": {
           "$ref": "#/definitions/vec3"
@@ -309,6 +321,14 @@
         "visual": {
           "$ref": "#/definitions/visual_binding",
           "description": "Optional glTF visual binding for the main chassis body."
+        },
+        "wheelbase_reference": {
+          "type": "string",
+          "enum": [
+            "last_axle",
+            "bogie_centre"
+          ],
+          "default": "last_axle"
         }
       }
     },
@@ -452,32 +472,175 @@
           "type": "number",
           "minimum": 0,
           "description": "Steering rack assembly mass (kg)"
+        },
+        "axle_ref": {
+          "type": "string",
+          "pattern": "^A([1-9][0-9]?)$",
+          "default": "A1",
+          "description": "Axle driven directly by the primary steering gear."
+        },
+        "additional_axles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "axle_ref",
+              "type"
+            ],
+            "additionalProperties": true,
+            "properties": {
+              "axle_ref": {
+                "type": "string",
+                "pattern": "^A([1-9][0-9]?)$"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "mechanical_link",
+                  "self_steer",
+                  "command_steer",
+                  "hydraulic",
+                  "active"
+                ]
+              },
+              "ratio": {
+                "type": "number",
+                "description": "Road-wheel angle of this axle per road-wheel angle of the primary axle (dimensionless)."
+              },
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "same",
+                  "opposed"
+                ]
+              },
+              "max_steer_angle": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "speed_lockout": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "Speed above which the axle is locked straight (m/s)."
+              },
+              "lock_in_reverse": {
+                "type": "boolean"
+              },
+              "caster": {
+                "type": "number",
+                "description": "self_steer: castor angle that produces the self-steering moment (rad)."
+              },
+              "centering_stiffness": {
+                "type": "number",
+                "minimum": 0,
+                "description": "self_steer: return-to-centre stiffness (Nm/rad)."
+              },
+              "linkage_points": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/vec3"
+                }
+              }
+            }
+          }
         }
       }
     },
     "suspension": {
       "type": "object",
-      "required": [
-        "FL",
-        "FR",
-        "RL",
-        "RR"
-      ],
-      "additionalProperties": false,
-      "properties": {
-        "FL": {
+      "description": "Wheel stations keyed FL/FR/RL/RR (2-axle vehicles) or A{n}{L|R|C} (any axle count). The two forms must not be mixed.",
+      "minProperties": 1,
+      "patternProperties": {
+        "^(FL|FR|RL|RR|A([1-9][0-9]?)(L|R|C))$": {
           "$ref": "#/definitions/suspension_corner"
         },
-        "FR": {
-          "$ref": "#/definitions/suspension_corner"
-        },
-        "RL": {
-          "$ref": "#/definitions/suspension_corner"
-        },
-        "RR": {
-          "$ref": "#/definitions/suspension_corner"
+        "^x_": {},
+        "^_": {}
+      },
+      "additionalProperties": false
+    },
+    "axles": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Per-axle metadata for any axle count. Ids match the A{n} prefix of corner names (FL/FR = A1, RL/RR = A2).",
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^A([1-9][0-9]?)$"
+          },
+          "label": {
+            "type": "string",
+            "description": "e.g. 'steer', 'drive', 'tag', 'pusher'"
+          },
+          "position_x": {
+            "type": "number",
+            "description": "Axle centreline X in vehicle frame (m)."
+          },
+          "track": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Track at this axle (m), to station wheel_center (centre of duals)."
+          },
+          "steered": {
+            "type": "boolean"
+          },
+          "driven": {
+            "type": "boolean"
+          },
+          "liftable": {
+            "type": "boolean"
+          },
+          "lift": {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "mechanism": {
+                "type": "string",
+                "enum": [
+                  "air_lift_spring",
+                  "hydraulic",
+                  "mechanical"
+                ]
+              },
+              "placement": {
+                "type": "string",
+                "enum": [
+                  "pusher",
+                  "tag",
+                  "trailer"
+                ]
+              },
+              "travel": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "Lift height, ground to lifted tyre (m)."
+              },
+              "lift_spring_area": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            }
+          },
+          "max_load": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Rated axle load (N)."
+          }
         }
       }
+    },
+    "suspension_couplings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/suspension_coupling"
+      },
+      "description": "Inter-axle load-sharing elements (rockers, walking beams, trunnion springs, pneumatic/hydraulic circuits). See spec \u00a723.5."
     },
     "powertrain": {
       "type": "object",
@@ -491,7 +654,8 @@
             "MR",
             "RR",
             "AWD",
-            "4WD"
+            "4WD",
+            "multi_axle"
           ]
         },
         "engine": {
@@ -792,23 +956,14 @@
         },
         "half_shafts": {
           "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/half_shaft_obj"
+          "patternProperties": {
+            "^(FL|FR|RL|RR|A([1-9][0-9]?)(L|R|C))$": {
+              "$ref": "#/definitions/half_shaft_obj"
+            },
+            "^x_": {},
+            "^_": {}
           },
-          "properties": {
-            "FL": {
-              "$ref": "#/definitions/half_shaft_obj"
-            },
-            "FR": {
-              "$ref": "#/definitions/half_shaft_obj"
-            },
-            "RL": {
-              "$ref": "#/definitions/half_shaft_obj"
-            },
-            "RR": {
-              "$ref": "#/definitions/half_shaft_obj"
-            }
-          }
+          "additionalProperties": false
         }
       }
     },
@@ -2223,6 +2378,9 @@
                 "torsion_beam",
                 "solid_axle",
                 "de_dion",
+                "swing_axle",
+                "parallelogram",
+                "pendulum_axle",
                 "custom"
               ]
             },
@@ -2312,7 +2470,9 @@
                     "enum": [
                       "arm",
                       "rod",
-                      "strut"
+                      "strut",
+                      "torque_rod",
+                      "pivot"
                     ],
                     "default": "arm"
                   },
@@ -2456,6 +2616,28 @@
                 },
                 "beam_position": {
                   "$ref": "#/definitions/vec3"
+                },
+                "portal_drop": {
+                  "type": "number",
+                  "description": "Portal axle: vertical distance from axle tube centreline down to wheel centre (m, positive = wheel centre lower)."
+                },
+                "hub_reduction_ratio": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "description": "Hub / portal gear reduction ratio (input speed / wheel speed)."
+                },
+                "pendulum_pivot": {
+                  "$ref": "#/definitions/vec3",
+                  "description": "pendulum_axle: point on the longitudinal oscillation axis (m)."
+                },
+                "pendulum_axis": {
+                  "$ref": "#/definitions/vec3",
+                  "description": "pendulum_axle: unit direction of the oscillation axis; default [1,0,0]."
+                },
+                "roll_limit": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "description": "pendulum_axle: max oscillation angle each way (rad)."
                 }
               }
             },
@@ -2466,7 +2648,9 @@
                 "watts_link",
                 "track_bar",
                 "leaf_located",
-                "a_arm"
+                "a_arm",
+                "torque_rods",
+                "pendulum_pin"
               ]
             }
           }
@@ -2505,81 +2689,63 @@
             "set_ref": {
               "type": "string",
               "description": "Reference to a tire set id in tires.sets. Authoritative source for tire dimensions."
+            },
+            "multiplicity": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4,
+              "default": 1,
+              "description": "Number of wheels mounted at this station (2 = dual/twin wheels)."
+            },
+            "dual_spacing": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Centre-to-centre lateral spacing of dual wheels (m), symmetric about wheel_center."
+            },
+            "positions": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 4,
+              "items": {
+                "type": "object",
+                "required": [
+                  "offset_outboard"
+                ],
+                "additionalProperties": true,
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "description": "e.g. 'inner', 'outer'"
+                  },
+                  "offset_outboard": {
+                    "type": "number",
+                    "description": "Lateral offset of this wheel's centreplane from the station wheel_center (m); positive = outboard."
+                  },
+                  "tire": {
+                    "$ref": "#/definitions/tire_corner_ref"
+                  },
+                  "rim_offset": {
+                    "type": "number"
+                  },
+                  "mass": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "rotational_inertia": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                }
+              }
             }
           }
         },
         "spring": {
-          "type": "object",
-          "required": [
-            "type",
-            "rate"
-          ],
-          "additionalProperties": true,
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "coil",
-                "torsion_bar",
-                "leaf",
-                "air",
-                "coilover"
-              ]
-            },
-            "rate": {
-              "type": "number",
-              "exclusiveMinimum": 0
-            },
-            "rate_curve": {
-              "$ref": "#/definitions/curve2d"
-            },
-            "free_length": {
-              "type": "number",
-              "exclusiveMinimum": 0
-            },
-            "preload": {
-              "type": "number",
-              "minimum": 0
-            },
-            "motion_ratio": {
-              "type": "number",
-              "exclusiveMinimum": 0
-            },
-            "inboard_mount": {
-              "description": "Spring inboard mount. Plain vec3 or marker with optional orientation for multibody tools.",
-              "oneOf": [
-                {
-                  "$ref": "#/definitions/vec3"
-                },
-                {
-                  "$ref": "#/definitions/marker"
-                }
-              ]
-            },
-            "outboard_mount": {
-              "description": "Spring outboard mount. Plain vec3 or marker with optional orientation for multibody tools.",
-              "oneOf": [
-                {
-                  "$ref": "#/definitions/vec3"
-                },
-                {
-                  "$ref": "#/definitions/marker"
-                }
-              ]
-            },
-            "mass": {
-              "type": "number",
-              "minimum": 0,
-              "description": "Spring mass (kg). Typically 50% sprung, 50% unsprung."
-            }
-          }
+          "$ref": "#/definitions/spring_obj"
         },
         "damper": {
           "type": "object",
-          "required": [
-            "bump_curve",
-            "rebound_curve"
-          ],
+          "required": [],
           "additionalProperties": true,
           "properties": {
             "type": {
@@ -2588,7 +2754,9 @@
                 "monotube",
                 "twin_tube",
                 "adjustable",
-                "mrd"
+                "mrd",
+                "hydraulic_strut",
+                "none"
               ]
             },
             "bump_curve": {
@@ -2628,7 +2796,31 @@
               "minimum": 0,
               "description": "Damper mass (kg). Body = sprung, rod+piston \u2248 unsprung."
             }
-          }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "none",
+                      "hydraulic_strut"
+                    ]
+                  }
+                },
+                "required": [
+                  "type"
+                ]
+              },
+              "then": {},
+              "else": {
+                "required": [
+                  "bump_curve",
+                  "rebound_curve"
+                ]
+              }
+            }
+          ]
         },
         "arb": {
           "type": "object",
@@ -2982,42 +3174,60 @@
               "additionalProperties": {
                 "type": "number"
               },
-              "description": "Pacejka lateral (Fy) coefficients: pCy1, pDy1-3, pEy1-5, pKy1-7, pHy1-3, pVy1-4, pPy1-5."
+              "description": "Pacejka lateral (Fy) coefficients: pCy1, pDy1-3, pEy1-5, pKy1-7, pHy1-3, pVy1-4, pPy1-5.",
+              "patternProperties": {
+                "^_": {}
+              }
             },
             "longitudinal": {
               "type": "object",
               "additionalProperties": {
                 "type": "number"
               },
-              "description": "Pacejka longitudinal (Fx) coefficients: pCx1, pDx1-3, pEx1-4, pKx1-3, pHx1-2, pVx1-2, pPx1-4."
+              "description": "Pacejka longitudinal (Fx) coefficients: pCx1, pDx1-3, pEx1-4, pKx1-3, pHx1-2, pVx1-2, pPx1-4.",
+              "patternProperties": {
+                "^_": {}
+              }
             },
             "aligning": {
               "type": "object",
               "additionalProperties": {
                 "type": "number"
               },
-              "description": "Self-aligning torque (Mz) coefficients: qBz1-10, qCz1, qDz1-11, qEz1-5, qHz1-4."
+              "description": "Self-aligning torque (Mz) coefficients: qBz1-10, qCz1, qDz1-11, qEz1-5, qHz1-4.",
+              "patternProperties": {
+                "^_": {}
+              }
             },
             "overturning": {
               "type": "object",
               "additionalProperties": {
                 "type": "number"
               },
-              "description": "Overturning moment (Mx) coefficients: qsx1-14."
+              "description": "Overturning moment (Mx) coefficients: qsx1-14.",
+              "patternProperties": {
+                "^_": {}
+              }
             },
             "rolling_resistance": {
               "type": "object",
               "additionalProperties": {
                 "type": "number"
               },
-              "description": "Rolling resistance (My) coefficients: qsy1-8."
+              "description": "Rolling resistance (My) coefficients: qsy1-8.",
+              "patternProperties": {
+                "^_": {}
+              }
             },
             "combined": {
               "type": "object",
               "additionalProperties": {
                 "type": "number"
               },
-              "description": "Combined slip weighting: rBx1-3, rCx1, rHx1, rBy1-4, rCy1, rHy1, rVy1-6."
+              "description": "Combined slip weighting: rBx1-3, rCx1, rHx1, rBy1-4, rCy1, rHy1, rVy1-6.",
+              "patternProperties": {
+                "^_": {}
+              }
             }
           }
         },
@@ -3101,8 +3311,8 @@
         },
         "size_code": {
           "type": "string",
-          "description": "Standard tire size notation, e.g. '245/35R19'.",
-          "pattern": "^\\d{3}/\\d{2}[RBD]\\d{2}$"
+          "description": "Standard tire size notation, e.g. '245/35R19'. Accepts metric (245/40R18), truck half-inch rims (315/80R22.5), LT/ST/P/T prefixes and flotation sizes (14.00R20).",
+          "pattern": "^(P|LT|ST|T)?(\\d{3}(/\\d{2})?|\\d{1,2}\\.\\d{2})[RBD]\\d{2}(\\.5)?$"
         },
         "dimensions": {
           "type": "object",
@@ -3847,7 +4057,8 @@
           "enum": [
             "rear",
             "front",
-            "center"
+            "center",
+            "inter_axle"
           ]
         },
         "type": {
@@ -3934,6 +4145,15 @@
               "minimum": 0
             }
           }
+        },
+        "axle_ref": {
+          "type": "string",
+          "pattern": "^A([1-9][0-9]?)$",
+          "description": "Axle driven by this differential (A1, A2, ...)."
+        },
+        "through_drive": {
+          "type": "boolean",
+          "description": "True if this axle's carrier passes drive through to a following axle (tandem through-drive)."
         }
       }
     },
@@ -4266,6 +4486,505 @@
           "description": "glTF node name in SVJ::category::name format. For body/lod, name suffix must equal the body id."
         }
       }
+    },
+    "spring_obj": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "coil",
+            "torsion_bar",
+            "leaf",
+            "air",
+            "coilover",
+            "rubber_torsion",
+            "rubber_block",
+            "hydropneumatic",
+            "hydraulic",
+            "none"
+          ]
+        },
+        "rate": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "rate_curve": {
+          "$ref": "#/definitions/curve2d"
+        },
+        "free_length": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "preload": {
+          "type": "number",
+          "minimum": 0
+        },
+        "motion_ratio": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "inboard_mount": {
+          "description": "Spring inboard mount. Plain vec3 or marker with optional orientation for multibody tools.",
+          "oneOf": [
+            {
+              "$ref": "#/definitions/vec3"
+            },
+            {
+              "$ref": "#/definitions/marker"
+            }
+          ]
+        },
+        "outboard_mount": {
+          "description": "Spring outboard mount. Plain vec3 or marker with optional orientation for multibody tools.",
+          "oneOf": [
+            {
+              "$ref": "#/definitions/vec3"
+            },
+            {
+              "$ref": "#/definitions/marker"
+            }
+          ]
+        },
+        "mass": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Spring mass (kg). Typically 50% sprung, 50% unsprung."
+        },
+        "coupling_ref": {
+          "type": "string",
+          "description": "id of a suspension_couplings entry that provides this station's springing (walking beam, trunnion spring, ...). Use with type 'none' or alongside a corner spring."
+        },
+        "end_type_front": {
+          "type": "string",
+          "enum": [
+            "eye",
+            "slipper",
+            "shackle",
+            "fixed"
+          ],
+          "description": "Leaf spring front end attachment."
+        },
+        "end_type_rear": {
+          "type": "string",
+          "enum": [
+            "eye",
+            "slipper",
+            "shackle",
+            "fixed"
+          ],
+          "description": "Leaf spring rear end attachment."
+        },
+        "end_friction": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Coulomb friction coefficient at sliding (slipper) spring ends."
+        },
+        "hysteresis_force": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Equivalent Coulomb friction / hysteresis force at the wheel (N), e.g. inter-leaf friction."
+        },
+        "leaf_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "effective_area": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Air spring / cylinder effective area (m^2)."
+        },
+        "nominal_pressure": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Air spring pressure at design ride height (Pa)."
+        },
+        "torsional_rate": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "rubber_torsion / torsion_bar rate at the arm pivot (Nm/rad)."
+        },
+        "arm_length": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "rubber_torsion arm length, pivot to wheel centre (m)."
+        },
+        "arm_start_angle": {
+          "type": "number",
+          "description": "rubber_torsion arm angle below horizontal at zero load (rad)."
+        },
+        "hydropneumatic": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "gas_precharge_pressure": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Pa"
+            },
+            "gas_volume": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Gas volume at precharge (m^3)"
+            },
+            "polytropic_index": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 1.67
+            },
+            "piston_area": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "m^2"
+            },
+            "rod_area": {
+              "type": "number",
+              "minimum": 0,
+              "description": "m^2"
+            },
+            "static_pressure": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Pa at design ride height"
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "enum": [
+                  "none",
+                  "hydraulic",
+                  "hydropneumatic"
+                ]
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {},
+          "else": {
+            "required": [
+              "rate"
+            ]
+          }
+        }
+      ]
+    },
+    "suspension_coupling": {
+      "type": "object",
+      "required": [
+        "id",
+        "type"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "equalizer_rocker",
+            "walking_beam",
+            "trunnion_spring",
+            "pneumatic_circuit",
+            "hydraulic_circuit",
+            "custom"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "side": {
+          "type": "string",
+          "enum": [
+            "L",
+            "R",
+            "C",
+            "both"
+          ]
+        },
+        "axle_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^A([1-9][0-9]?)$"
+          },
+          "minItems": 2
+        },
+        "pivot_position": {
+          "$ref": "#/definitions/vec3"
+        },
+        "mass": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Mass of the coupling element itself (beam, rocker, trunnion spring) (kg)."
+        },
+        "inertia": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "connections": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "required": [
+              "corner_ref"
+            ],
+            "additionalProperties": true,
+            "properties": {
+              "corner_ref": {
+                "type": "string",
+                "pattern": "^(FL|FR|RL|RR|A([1-9][0-9]?)(L|R|C))$"
+              },
+              "spring_end": {
+                "type": "string",
+                "enum": [
+                  "front",
+                  "rear"
+                ]
+              },
+              "attach_point": {
+                "$ref": "#/definitions/vec3"
+              },
+              "arm_length": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "shackle_length": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          }
+        },
+        "rocker_shape": {
+          "type": "string",
+          "enum": [
+            "straight",
+            "medium_triangle",
+            "tall_triangle",
+            "other"
+          ]
+        },
+        "beam_length": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "pivot_type": {
+          "type": "string",
+          "enum": [
+            "fixed",
+            "floating"
+          ]
+        },
+        "centre_spring": {
+          "$ref": "#/definitions/spring_obj"
+        },
+        "end_points": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/vec3"
+          },
+          "minItems": 2
+        },
+        "end_bushings": {
+          "$ref": "#/definitions/bushing_obj"
+        },
+        "spring": {
+          "$ref": "#/definitions/spring_obj"
+        },
+        "end_seats": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/vec3"
+          },
+          "minItems": 2
+        },
+        "torque_rod_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^(FL|FR|RL|RR|A[1-9][0-9]?(L|R|C))\\.links\\.[A-Za-z0-9_]+$"
+          }
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^(FL|FR|RL|RR|A([1-9][0-9]?)(L|R|C))$"
+          },
+          "minItems": 1
+        },
+        "levelling_valves": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "ride_height_setpoint": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "orifice_diameter": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Interconnecting line restriction (m)."
+        },
+        "supply_pressure": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "support_scheme": {
+          "type": "string",
+          "enum": [
+            "3_point",
+            "4_point",
+            "individual",
+            "cross_connected"
+          ]
+        },
+        "group": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "interconnection": {
+          "type": "string",
+          "enum": [
+            "heave",
+            "roll",
+            "pitch",
+            "warp",
+            "load_group"
+          ]
+        },
+        "fluid_bulk_modulus": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "accumulator": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "gas_volume": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "gas_precharge_pressure": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "polytropic_index": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 1.67
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "equalizer_rocker"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "pivot_position",
+              "connections"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "walking_beam"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "axle_refs",
+              "pivot_position",
+              "side"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "trunnion_spring"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "axle_refs",
+              "pivot_position",
+              "spring",
+              "side"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "pneumatic_circuit"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "members"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "hydraulic_circuit"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "members"
+            ]
+          }
+        }
+      ]
     }
   }
 }

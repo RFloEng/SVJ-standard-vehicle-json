@@ -2562,7 +2562,7 @@
       "front_205_45r17": {
         "description": "High-performance summer 205/45R17 — Pacejka MF5.2 fitted from user AC model (front)",
         "size_code": "205/45R17",
-        "source": "user_ac_fit",
+        "source": "fitted",
         "dimensions": {
           "section_width": 0.205,
           "aspect_ratio": 0.45,
@@ -2837,12 +2837,13 @@
           "ideal_psi": 29.0,
           "d_gain": 0.0045,
           "flex_gain": 0.4
-        }
+        },
+        "_source_detail": "user_ac_fit — fitted by the owner from Assetto Corsa tyre data"
       },
       "rear_205_45r17": {
         "description": "High-performance summer 205/45R17 — Pacejka MF5.2 fitted from user AC model (rear)",
         "size_code": "205/45R17",
-        "source": "user_ac_fit",
+        "source": "fitted",
         "dimensions": {
           "section_width": 0.205,
           "aspect_ratio": 0.45,
@@ -3117,7 +3118,8 @@
           "ideal_psi": 29.0,
           "d_gain": 0.0045,
           "flex_gain": 0.4
-        }
+        },
+        "_source_detail": "user_ac_fit — fitted by the owner from Assetto Corsa tyre data"
       }
     }
   },

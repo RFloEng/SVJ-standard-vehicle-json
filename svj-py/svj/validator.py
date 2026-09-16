@@ -11,6 +11,9 @@ import math
 from pathlib import Path
 from typing import Any
 
+from svj.multiaxle import check as multiaxle_check
+from svj.vehicle import STATION_RE
+
 
 def validate(
     data: dict[str, Any],
@@ -101,7 +104,9 @@ def _consistency_checks(data: dict) -> list[str]:
     wheelbase = chassis.get("wheelbase", 0)
     if cg and len(cg) >= 1 and wheelbase > 0:
         cg_x = cg[0]
-        if cg_x > 0:
+        # Trailers carry part of their weight on the king-pin / drawbar ahead of A1 (§23.1)
+        trailer = data.get("vehicle_info", {}).get("vehicle_class") in ("semi_trailer", "trailer")
+        if cg_x > 0 and not trailer:
             warnings.append(
                 f"consistency: CG.x={cg_x} is positive — should be negative "
                 f"(behind front axle) per SAE J670"
@@ -114,8 +119,9 @@ def _consistency_checks(data: dict) -> list[str]:
 
     # ── ARB consistency ──
     susp = data.get("suspension", {})
+    stations = [k for k in susp if STATION_RE.match(k)]
     arb_map: dict[str, float] = {}
-    for corner in ("FL", "FR", "RL", "RR"):
+    for corner in stations:
         arb = susp.get(corner, {}).get("arb", {})
         if "bar_id" in arb and "bar_rate" in arb:
             bid = arb["bar_id"]
@@ -129,13 +135,15 @@ def _consistency_checks(data: dict) -> list[str]:
     # ── Tire set_ref validation ──
     tire_sets = set(data.get("tires", {}).get("sets", {}).keys())
     if tire_sets:
-        for corner in ("FL", "FR", "RL", "RR"):
-            tire = susp.get(corner, {}).get("tire", {})
-            ref = tire.get("set_ref", "")
-            if ref and ref not in tire_sets:
-                warnings.append(
-                    f"consistency: {corner}.tire.set_ref='{ref}' not in tires.sets"
-                )
+        for corner in stations:
+            c = susp.get(corner, {})
+            refs = [c.get("tire", {}).get("set_ref", ""), c.get("wheel", {}).get("set_ref", "")]
+            refs += [p.get("tire", {}).get("set_ref", "") for p in c.get("wheel", {}).get("positions", [])]
+            for ref in refs:
+                if ref and ref not in tire_sets:
+                    warnings.append(
+                        f"consistency: {corner} tire set_ref='{ref}' not in tires.sets"
+                    )
 
     # ── Steering derived fields ──
     steering = data.get("steering", {})
@@ -150,5 +158,9 @@ def _consistency_checks(data: dict) -> list[str]:
                     f"consistency: max_steer_angle={actual_max:.4f} "
                     f"≠ derived {expected_max:.4f}"
                 )
+
+    # ── Multi-axle cross-references (spec §23.7) ──
+    ma_errors, _ma_warnings = multiaxle_check(data)
+    warnings.extend(f"multi-axle: {e}" for e in ma_errors)
 
     return warnings

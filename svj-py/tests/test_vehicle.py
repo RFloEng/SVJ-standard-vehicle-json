@@ -20,7 +20,7 @@ class TestVehicleFromString:
     MINIMAL = json.dumps({
         "_metadata": {
             "specification": "SVJ",
-            "version": "0.94",
+            "version": "0.99",
             "coordinate_system": "SAE_J670",
             "units": "SI",
         },
@@ -66,7 +66,7 @@ class TestVehicleFromString:
     def test_repr(self):
         v = loads(self.MINIMAL)
         assert "Test Car 2024" in repr(v)
-        assert "SVJ v0.94" in repr(v)
+        assert "SVJ v0.99" in repr(v)
 
     def test_get_dotpath(self):
         v = loads(self.MINIMAL)
@@ -152,7 +152,7 @@ class TestValidation:
         data = {
             "_metadata": {
                 "specification": "SVJ",
-                "version": "0.94",
+                "version": "0.99",
                 "coordinate_system": "SAE_J670",
                 "units": "SI",
             }
@@ -194,4 +194,56 @@ class TestExamples:
         for f in EXAMPLES_DIR.glob("*.svj.json"):
             v = load(f, validate_on_load=False)
             assert v.version, f"No version in {f.name}"
-            assert len(list(v.corners())) > 0, f"No corners in {f.name}"
+            if "suspension" in v.data:
+                assert len(list(v.corners())) > 0, f"No corners in {f.name}"
+
+
+MULTI_AXLE = EXAMPLES_DIR / "skeleton_6x4_walking_beam_dump_truck.svj.json"
+
+
+@pytest.mark.skipif(not MULTI_AXLE.exists(), reason="Multi-axle example not found")
+class TestMultiAxle:
+    """SVJ v0.99 wheel stations, axles, dual wheels and couplings."""
+
+    def test_stations_ordered(self):
+        v = load(MULTI_AXLE, validate_on_load=False)
+        assert v.stations == ["A1L", "A1R", "A2L", "A2R", "A3L", "A3R"]
+        assert [c for c, _ in v.corners()] == v.stations
+
+    def test_axles_and_counts(self):
+        v = load(MULTI_AXLE, validate_on_load=False)
+        assert v.axle_count == 3 and v.is_multi_axle
+        assert v.axle("A1")["steered"] is True
+        assert v.stations_on_axle(3) == ["A3L", "A3R"]
+        assert v.wheel_count("A2L") == 2
+        assert v.tyre_count == 10
+        assert v.wheel_formula == "6x4"
+
+    def test_topologies_and_couplings(self):
+        v = load(MULTI_AXLE, validate_on_load=False)
+        assert v.topology("A3R") == "solid_axle"
+        assert {c["type"] for c in v.suspension_couplings} == {"walking_beam"}
+
+    def test_example_validates(self):
+        with open(MULTI_AXLE) as f:
+            data = json.load(f)
+        assert validate(data, schema_path=SCHEMA) == []
+
+    def test_legacy_aliases(self):
+        v = loads(json.dumps({"suspension": {"FL": {"topology": {"system_type": "macpherson"}}}}))
+        assert v.topology("A1L") == "macpherson"
+        v2 = loads(json.dumps({"suspension": {"A1L": {"topology": {"system_type": "macpherson"}}}}))
+        assert v2.topology("FL") == "macpherson"
+        with pytest.raises(ValueError):
+            v.corner("XX")
+
+    def test_mixed_naming_rejected(self):
+        data = {"_metadata": {"specification": "SVJ", "version": "0.99", "coordinate_system": "SAE_J670", "units": "SI"},
+                "suspension": {"FL": {}, "A2L": {}}}
+        errors = validate(data)
+        assert any("mixes legacy corner names" in e for e in errors)
+
+    def test_multiaxle_checker_in_sync(self):
+        tools_copy = REPO_ROOT / "tools" / "multiaxle_check.py"
+        lib_copy = REPO_ROOT / "svj-py" / "svj" / "multiaxle.py"
+        assert tools_copy.read_text() == lib_copy.read_text(), "tools/multiaxle_check.py and svj/multiaxle.py differ"

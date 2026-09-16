@@ -1,0 +1,876 @@
+{
+  "_metadata": {
+    "specification": "SVJ",
+    "version": "0.99",
+    "description": "6x4 tractor unit skeleton — trunnion ('camelback') tandem: one inverted leaf pack per side pivoting between the drive axles, slipper ends on axle seats, torque rods in a parallelogram.",
+    "coordinate_system": "SAE_J670",
+    "units": "SI",
+    "author": "RFloEng",
+    "data_origin": {
+      "type": "calculated",
+      "detail": "Skeleton example for the v0.99 multi-axle layer. Geometry, masses and rates are representative engineering estimates, not data for a specific production vehicle.",
+      "confidence": "low"
+    },
+    "alignment_convention": "relative_to_centerline"
+  },
+  "vehicle_info": {
+    "make": "Generic",
+    "model": "6x4 camelback tractor skeleton",
+    "drive_type": "RWD",
+    "wheel_formula": "6x4",
+    "vehicle_class": "tractor_unit"
+  },
+  "chassis": {
+    "mass_total": 9800,
+    "wheelbase": 4.335,
+    "track_front": 2.05,
+    "track_rear": 1.86,
+    "center_of_gravity": [
+      -1.9,
+      0,
+      -1.05
+    ],
+    "wheelbase_reference": "bogie_centre"
+  },
+  "steering": {
+    "type": "recirculating_ball",
+    "rack_position": [
+      0.35,
+      -0.55,
+      -0.95
+    ],
+    "rack_travel": 0.12,
+    "overall_ratio": 22.0,
+    "lock_to_lock": 34.558,
+    "axle_ref": "A1",
+    "power_assist": {
+      "type": "hydraulic"
+    }
+  },
+  "suspension": {
+    "A1L": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "leaf_located",
+        "upright": {
+          "id": "hub_A1L",
+          "hardpoints": {
+            "wheel_center": [
+              0.0,
+              -1.025,
+              -0.51
+            ],
+            "spring_pad": [
+              0.0,
+              -0.45,
+              -0.63
+            ],
+            "damper_outboard": [
+              0.0,
+              -0.4,
+              -0.51
+            ],
+            "steering_tie_rod_end": [
+              -0.18,
+              -0.905,
+              -0.46
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "leaf_spring",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.75,
+                -0.45,
+                -0.73
+              ],
+              [
+                -0.75,
+                -0.45,
+                -0.73
+              ]
+            ],
+            "outboard_ref": "hardpoints.spring_pad"
+          }
+        ],
+        "axle_body": {
+          "id": "A1_beam",
+          "mass": 320,
+          "position": [
+            0.0,
+            0,
+            -0.51
+          ]
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "mass": 110,
+        "set_ref": "steer_385_65r22_5"
+      },
+      "spring": {
+        "type": "leaf",
+        "rate": 250000,
+        "end_type_front": "eye",
+        "end_type_rear": "shackle"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            6000
+          ],
+          [
+            0.5,
+            18000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            12000
+          ],
+          [
+            0.5,
+            30000
+          ]
+        ]
+      }
+    },
+    "A1R": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "leaf_located",
+        "upright": {
+          "id": "hub_A1R",
+          "hardpoints": {
+            "wheel_center": [
+              0.0,
+              1.025,
+              -0.51
+            ],
+            "spring_pad": [
+              0.0,
+              0.45,
+              -0.63
+            ],
+            "damper_outboard": [
+              0.0,
+              0.4,
+              -0.51
+            ],
+            "steering_tie_rod_end": [
+              -0.18,
+              0.905,
+              -0.46
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "leaf_spring",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.75,
+                0.45,
+                -0.73
+              ],
+              [
+                -0.75,
+                0.45,
+                -0.73
+              ]
+            ],
+            "outboard_ref": "hardpoints.spring_pad"
+          }
+        ],
+        "axle_body": {
+          "id": "A1_beam",
+          "mass": 320,
+          "position": [
+            0.0,
+            0,
+            -0.51
+          ]
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "mass": 110,
+        "set_ref": "steer_385_65r22_5"
+      },
+      "spring": {
+        "type": "leaf",
+        "rate": 250000,
+        "end_type_front": "eye",
+        "end_type_rear": "shackle"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            6000
+          ],
+          [
+            0.5,
+            18000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            12000
+          ],
+          [
+            0.5,
+            30000
+          ]
+        ]
+      }
+    },
+    "A2L": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "torque_rods",
+        "upright": {
+          "id": "hub_A2L",
+          "hardpoints": {
+            "wheel_center": [
+              -3.7,
+              -0.93,
+              -0.51
+            ],
+            "lower_rod_end": [
+              -3.7,
+              -0.45,
+              -0.39
+            ],
+            "upper_rod_end": [
+              -3.7,
+              -0.25,
+              -0.76
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "lower_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                -3.08,
+                -0.45,
+                -0.46
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_rod_end"
+          },
+          {
+            "name": "upper_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                -3.15,
+                -0.12,
+                -0.86
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_rod_end"
+          }
+        ],
+        "axle_body": {
+          "id": "A2_housing",
+          "mass": 420,
+          "position": [
+            -3.7,
+            0,
+            -0.51
+          ]
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "mass": 180,
+        "multiplicity": 2,
+        "dual_spacing": 0.33,
+        "positions": [
+          {
+            "label": "inner",
+            "offset_outboard": -0.165,
+            "tire": {
+              "set_ref": "drive_315_80r22_5",
+              "pressure": 850000
+            }
+          },
+          {
+            "label": "outer",
+            "offset_outboard": 0.165,
+            "tire": {
+              "set_ref": "drive_315_80r22_5",
+              "pressure": 850000
+            }
+          }
+        ]
+      },
+      "spring": {
+        "type": "none",
+        "coupling_ref": "camelback_L"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            5000
+          ],
+          [
+            0.5,
+            15000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            9000
+          ],
+          [
+            0.5,
+            26000
+          ]
+        ]
+      }
+    },
+    "A2R": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "torque_rods",
+        "upright": {
+          "id": "hub_A2R",
+          "hardpoints": {
+            "wheel_center": [
+              -3.7,
+              0.93,
+              -0.51
+            ],
+            "lower_rod_end": [
+              -3.7,
+              0.45,
+              -0.39
+            ],
+            "upper_rod_end": [
+              -3.7,
+              0.25,
+              -0.76
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "lower_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                -3.08,
+                0.45,
+                -0.46
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_rod_end"
+          },
+          {
+            "name": "upper_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                -3.15,
+                0.12,
+                -0.86
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_rod_end"
+          }
+        ],
+        "axle_body": {
+          "id": "A2_housing",
+          "mass": 420,
+          "position": [
+            -3.7,
+            0,
+            -0.51
+          ]
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "mass": 180,
+        "multiplicity": 2,
+        "dual_spacing": 0.33,
+        "positions": [
+          {
+            "label": "inner",
+            "offset_outboard": -0.165,
+            "tire": {
+              "set_ref": "drive_315_80r22_5",
+              "pressure": 850000
+            }
+          },
+          {
+            "label": "outer",
+            "offset_outboard": 0.165,
+            "tire": {
+              "set_ref": "drive_315_80r22_5",
+              "pressure": 850000
+            }
+          }
+        ]
+      },
+      "spring": {
+        "type": "none",
+        "coupling_ref": "camelback_R"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            5000
+          ],
+          [
+            0.5,
+            15000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            9000
+          ],
+          [
+            0.5,
+            26000
+          ]
+        ]
+      }
+    },
+    "A3L": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "torque_rods",
+        "upright": {
+          "id": "hub_A3L",
+          "hardpoints": {
+            "wheel_center": [
+              -4.97,
+              -0.93,
+              -0.51
+            ],
+            "lower_rod_end": [
+              -4.97,
+              -0.45,
+              -0.39
+            ],
+            "upper_rod_end": [
+              -4.97,
+              -0.25,
+              -0.76
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "lower_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                -4.35,
+                -0.45,
+                -0.46
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_rod_end"
+          },
+          {
+            "name": "upper_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                -4.42,
+                -0.12,
+                -0.86
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_rod_end"
+          }
+        ],
+        "axle_body": {
+          "id": "A3_housing",
+          "mass": 420,
+          "position": [
+            -4.97,
+            0,
+            -0.51
+          ]
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "mass": 180,
+        "multiplicity": 2,
+        "dual_spacing": 0.33,
+        "positions": [
+          {
+            "label": "inner",
+            "offset_outboard": -0.165,
+            "tire": {
+              "set_ref": "drive_315_80r22_5",
+              "pressure": 850000
+            }
+          },
+          {
+            "label": "outer",
+            "offset_outboard": 0.165,
+            "tire": {
+              "set_ref": "drive_315_80r22_5",
+              "pressure": 850000
+            }
+          }
+        ]
+      },
+      "spring": {
+        "type": "none",
+        "coupling_ref": "camelback_L"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            5000
+          ],
+          [
+            0.5,
+            15000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            9000
+          ],
+          [
+            0.5,
+            26000
+          ]
+        ]
+      }
+    },
+    "A3R": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "torque_rods",
+        "upright": {
+          "id": "hub_A3R",
+          "hardpoints": {
+            "wheel_center": [
+              -4.97,
+              0.93,
+              -0.51
+            ],
+            "lower_rod_end": [
+              -4.97,
+              0.45,
+              -0.39
+            ],
+            "upper_rod_end": [
+              -4.97,
+              0.25,
+              -0.76
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "lower_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                -4.35,
+                0.45,
+                -0.46
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_rod_end"
+          },
+          {
+            "name": "upper_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                -4.42,
+                0.12,
+                -0.86
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_rod_end"
+          }
+        ],
+        "axle_body": {
+          "id": "A3_housing",
+          "mass": 420,
+          "position": [
+            -4.97,
+            0,
+            -0.51
+          ]
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "mass": 180,
+        "multiplicity": 2,
+        "dual_spacing": 0.33,
+        "positions": [
+          {
+            "label": "inner",
+            "offset_outboard": -0.165,
+            "tire": {
+              "set_ref": "drive_315_80r22_5",
+              "pressure": 850000
+            }
+          },
+          {
+            "label": "outer",
+            "offset_outboard": 0.165,
+            "tire": {
+              "set_ref": "drive_315_80r22_5",
+              "pressure": 850000
+            }
+          }
+        ]
+      },
+      "spring": {
+        "type": "none",
+        "coupling_ref": "camelback_R"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            5000
+          ],
+          [
+            0.5,
+            15000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            9000
+          ],
+          [
+            0.5,
+            26000
+          ]
+        ]
+      }
+    }
+  },
+  "axles": [
+    {
+      "id": "A1",
+      "label": "steer",
+      "position_x": 0.0,
+      "track": 2.05,
+      "steered": true,
+      "driven": false
+    },
+    {
+      "id": "A2",
+      "label": "drive",
+      "position_x": -3.7,
+      "track": 1.86,
+      "steered": false,
+      "driven": true
+    },
+    {
+      "id": "A3",
+      "label": "drive",
+      "position_x": -4.97,
+      "track": 1.86,
+      "steered": false,
+      "driven": true
+    }
+  ],
+  "suspension_couplings": [
+    {
+      "id": "camelback_L",
+      "type": "trunnion_spring",
+      "side": "L",
+      "axle_refs": [
+        "A2",
+        "A3"
+      ],
+      "pivot_position": [
+        -4.335,
+        -0.55,
+        -0.79
+      ],
+      "mass": 210,
+      "spring": {
+        "type": "leaf",
+        "rate": 1200000,
+        "leaf_count": 8,
+        "end_type_front": "slipper",
+        "end_type_rear": "slipper",
+        "end_friction": 0.35
+      },
+      "end_seats": [
+        [
+          -3.7,
+          -0.55,
+          -0.65
+        ],
+        [
+          -4.97,
+          -0.55,
+          -0.65
+        ]
+      ],
+      "torque_rod_refs": [
+        "A2L.links.upper_torque_rod",
+        "A3L.links.upper_torque_rod",
+        "A2L.links.lower_torque_rod",
+        "A3L.links.lower_torque_rod"
+      ]
+    },
+    {
+      "id": "camelback_R",
+      "type": "trunnion_spring",
+      "side": "R",
+      "axle_refs": [
+        "A2",
+        "A3"
+      ],
+      "pivot_position": [
+        -4.335,
+        0.55,
+        -0.79
+      ],
+      "mass": 210,
+      "spring": {
+        "type": "leaf",
+        "rate": 1200000,
+        "leaf_count": 8,
+        "end_type_front": "slipper",
+        "end_type_rear": "slipper",
+        "end_friction": 0.35
+      },
+      "end_seats": [
+        [
+          -3.7,
+          0.55,
+          -0.65
+        ],
+        [
+          -4.97,
+          0.55,
+          -0.65
+        ]
+      ],
+      "torque_rod_refs": [
+        "A2R.links.upper_torque_rod",
+        "A3R.links.upper_torque_rod",
+        "A2R.links.lower_torque_rod",
+        "A3R.links.lower_torque_rod"
+      ]
+    }
+  ],
+  "tires": {
+    "sets": {
+      "steer_385_65r22_5": {
+        "description": "Steer axle tyre, single",
+        "source": "estimated",
+        "size_code": "385/65R22.5",
+        "pressure": 850000,
+        "dimensions": {
+          "section_width": 0.385,
+          "aspect_ratio": 0.65,
+          "overall_diameter": 1.072
+        }
+      },
+      "drive_315_80r22_5": {
+        "description": "Drive/trailer axle tyre, dual fitment",
+        "source": "estimated",
+        "size_code": "315/80R22.5",
+        "pressure": 850000,
+        "dimensions": {
+          "section_width": 0.315,
+          "aspect_ratio": 0.8,
+          "overall_diameter": 1.076
+        }
+      }
+    }
+  }
+}
