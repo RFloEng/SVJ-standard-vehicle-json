@@ -32,9 +32,10 @@
           "type": "string",
           "enum": [
             "0.96",
-            "0.97"
+            "0.97",
+            "0.98"
           ],
-          "description": "SVJ specification version. Use '0.97' for files that include glTF visual binding."
+          "description": "SVJ specification version. Use '0.97' for files that include glTF visual binding. Use '0.98' for files that include validation/benchmarks metadata."
         },
         "description": {
           "type": "string"
@@ -2083,6 +2084,86 @@
                 "type": "string"
               }
             }
+          }
+        }
+      }
+    },
+    "validation": {
+      "description": "Optional record of the assembled vehicle's correlation status against physical test data. Metadata only; not consumed by solvers.",
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "unvalidated",
+            "simulation_only",
+            "correlated",
+            "partially_correlated"
+          ]
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "physical_test",
+            "peer_reference",
+            "fem",
+            "other"
+          ]
+        },
+        "test_reference": {
+          "type": "string"
+        },
+        "correlated_channels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "correlation_quality": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "benchmarks": {
+      "description": "Optional array of performance KPI entries (targets, measured, or simulated) recorded alongside the vehicle model.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "value",
+          "unit",
+          "type"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Free-form KPI identifier, e.g. 'skidpad_lateral_g'."
+          },
+          "value": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "target",
+              "measured",
+              "simulated"
+            ]
+          },
+          "source": {
+            "type": "string"
           }
         }
       }

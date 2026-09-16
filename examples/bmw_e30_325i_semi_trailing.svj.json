@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.97",
+    "version": "0.98",
     "description": "BMW E30 325i (1987) \u2014 MacPherson front, semi-trailing arm rear. Factory specs from BMW.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
@@ -817,5 +817,32 @@
         "description": "BMW E30 325i \u2014 chassis and suspension geometry"
       }
     ]
-  }
+  },
+  "validation": {
+    "status": "partially_correlated",
+    "method": "peer_reference",
+    "test_reference": "Cross-checked against period road-test skidpad/slalom figures (Auto Motor und Sport, 1987)",
+    "correlated_channels": [
+      "lateral_accel"
+    ],
+    "correlation_quality": "fair",
+    "date": "2026-09-16",
+    "notes": "Mass/wheelbase/track from factory spec (high confidence); suspension hardpoints and spring/damper rates are engineering estimates, not yet correlated against instrumented test data."
+  },
+  "benchmarks": [
+    {
+      "id": "skidpad_lateral_g",
+      "value": 0.78,
+      "unit": "g",
+      "type": "target",
+      "source": "period road test, Auto Motor und Sport 1987"
+    },
+    {
+      "id": "accel_0_100kph",
+      "value": 7.6,
+      "unit": "s",
+      "type": "measured",
+      "source": "factory spec sheet"
+    }
+  ]
 }

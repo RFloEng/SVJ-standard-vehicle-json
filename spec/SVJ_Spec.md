@@ -98,6 +98,40 @@ A conforming parser MUST:
 
 A single file MAY contain some sections inline and others as `$ref`. This is the expected workflow: start inline, split to modules as the project grows.
 
+### 3.4 Override Files *(v0.98)*
+
+`$ref` (§3.2) replaces a key with an **entire** external file — useful for splitting a vehicle into modules, but not for describing a small variant of an existing vehicle (a DOE parameter sweep, a supplier hand-off that should only disclose a subset of changed values, a "stiffer front spring" setup sheet). Duplicating the whole file for a one-field change is error-prone and makes diffs unreadable.
+
+An **override file** (`*.svj-override.json`) is a separate file type that names a `base` SVJ file and a `patch` object applied on top of it using **JSON Merge Patch** semantics ([RFC 7396](https://www.rfc-editor.org/rfc/rfc7396)).
+
+```json
+{
+  "_metadata": {
+    "specification": "SVJ-OVERRIDE",
+    "version": "0.98",
+    "base": "./mazda_mx5_nd2_2024.svj.json",
+    "description": "Stiffer front spring, DOE variant 3"
+  },
+  "patch": {
+    "suspension": {
+      "FL": { "spring": { "rate": 32000 } },
+      "FR": { "spring": { "rate": 32000 } }
+    }
+  }
+}
+```
+
+**Resolution rules:**
+
+1. `base` is resolved relative to the override file's own location, using the same relative-path rule as `$ref` (§3.2).
+2. The resolved base document (with its own `$ref` entries already expanded) is the starting document.
+3. `patch` is applied as an RFC 7396 JSON Merge Patch: any key present in `patch` replaces the corresponding key in the base; `null` deletes a key; objects are merged recursively; arrays are replaced wholesale (merge patch does not diff array elements).
+4. The result is a complete, standalone SVJ document and MUST validate against `svj.schema.json` like any other SVJ file.
+
+**Why merge patch and not a custom diff format:** RFC 7396 is a formal, minimal standard with existing library support in every language, consistent with SVJ's "validatable" design principle (§1) — no bespoke patch semantics to document or get wrong.
+
+**On IP protection:** SVJ is plain, human-readable JSON by design (§1, Design Principles) and does not define an encryption scheme. An override file provides a practical, low-friction alternative for supplier collaboration: a supplier can ship only the `patch` for the subsystem they were asked to tune, without ever receiving (or disclosing) the full vehicle. Encrypting the base or patch file itself, if required, is a transport/storage concern outside this spec.
+
 ---
 
 ## 4. Top-Level Structure
@@ -113,6 +147,8 @@ A single file MAY contain some sections inline and others as `$ref`. This is the
   "brakes": { },
   "powertrain": { },
   "aerodynamics": { },
+  "validation": { },
+  "benchmarks": [ ],
   "x_<simulator>": { }
 }
 ```
@@ -2039,6 +2075,63 @@ These checks are the responsibility of higher-level tools or linters built on to
 
 ---
 
+## 20a. `validation` — Model Correlation Status *(v0.98)*
+
+This section is **optional**. It has no bearing on kinematics, dynamics, or any solved quantity — it is a provenance record answering "has this assembled model been checked against a real car, and how well?"
+
+Field-level provenance already exists (`_est: true`, `_source` strings, per PROJECT_BRIEF conventions) but says nothing about the **assembled vehicle's** correlation status. Two SVJ files with identical topology are otherwise indistinguishable in trustworthiness — one may be a first guess, the other correlated against instrumented test data.
+
+| Key                   | Type   | Required | Description                                                        |
+|-----------------------|--------|----------|----------------------------------------------------------------------|
+| `status`              | string | no       | `"unvalidated"`, `"simulation_only"`, `"correlated"`, `"partially_correlated"` |
+| `method`              | string | no       | `"physical_test"`, `"peer_reference"`, `"fem"`, `"other"`            |
+| `test_reference`      | string | no       | Free-text pointer to the test/report this was correlated against    |
+| `correlated_channels` | array  | no       | Array of strings naming the channels checked (e.g. `"lateral_accel"`, `"yaw_rate"`) |
+| `correlation_quality` | string | no       | Free-text or `"good"` / `"fair"` / `"poor"`                          |
+| `date`                | string | no       | ISO 8601 date of the correlation exercise                            |
+| `notes`               | string | no       | Free-text caveats (e.g. operating range where correlation is valid)  |
+
+```json
+"validation": {
+  "status": "correlated",
+  "method": "physical_test",
+  "test_reference": "Skidpad 2026-03, run log SK-0417",
+  "correlated_channels": ["lateral_accel", "yaw_rate", "roll_angle"],
+  "correlation_quality": "good",
+  "date": "2026-03-12",
+  "notes": "Correlated at 0.85g steady-state; not validated for transient >0.9g"
+}
+```
+
+> **Not a computation.** Nothing in this block is checked by a solver — it's metadata for humans and pipelines deciding whether a model is trustworthy enough for a given use (e.g. gating "virtual sign-off" on `status: "correlated"`).
+
+---
+
+## 20b. `benchmarks` — Performance KPI Targets *(v0.98)*
+
+This section is **optional**. It provides a standard place to record performance KPIs — targets, factory-spec measurements, or simulation results — alongside the model that's supposed to reproduce them, instead of a side-channel spreadsheet.
+
+`benchmarks` is an array of entries:
+
+| Key      | Type   | Required | Description                                                    |
+|----------|--------|----------|------------------------------------------------------------------|
+| `id`     | string | YES      | Free-form KPI identifier (e.g. `"skidpad_lateral_g"`, `"accel_0_100kph"`) |
+| `value`  | number | YES      | The KPI value                                                    |
+| `unit`   | string | YES      | Unit of the value (e.g. `"g"`, `"s"`, `"km/h"`)                  |
+| `type`   | string | YES      | `"target"`, `"measured"`, or `"simulated"`                       |
+| `source` | string | no       | Where the value came from (test report, spec sheet, sim run id) |
+
+```json
+"benchmarks": [
+  { "id": "skidpad_lateral_g", "value": 0.95, "unit": "g", "type": "target" },
+  { "id": "accel_0_100kph", "value": 6.2, "unit": "s", "type": "measured", "source": "factory spec sheet" }
+]
+```
+
+> `id` is deliberately free-form rather than an enum, consistent with the `x_` extension philosophy (§17) of not over-constraining what teams choose to track.
+
+---
+
 ## 20. Versioning & Compatibility
 
 - **Major version (1.x):** Breaking changes. Parsers for v0.x are NOT required to read v1.x.
@@ -2049,6 +2142,7 @@ These checks are the responsibility of higher-level tools or linters built on to
 
 | Version | Changes                                                                                    |
 |---------|--------------------------------------------------------------------------------------------|
+| 0.98    | **Override files** (§3.4): `*.svj-override.json` — `base` + RFC 7396 JSON Merge Patch `patch`, for DOE variants and partial-disclosure supplier hand-offs, validated with `tools/validate_override.py`. **`validation`** (§20a): vehicle-level correlation status against physical test data. **`benchmarks`** (§20b): array of target/measured/simulated KPI entries. All additions optional — full backward compatibility. |
 | 0.1     | Initial draft. Metadata, chassis, basic suspension topology, powertrain.                   |
 | 0.2     | Entity-based upright/link model. AC conversion logic. Extension prefix `x_`.               |
 | 0.3     | Hybrid file structure (`$ref`). Four-corner suspension. Springs, dampers, ARB, alignment, bump stops. Inertia renamed to ISO convention. Differential added. `outboard_ref` simplified. |

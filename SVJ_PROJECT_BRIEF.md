@@ -40,6 +40,17 @@ New in v0.97 (all optional, fully backward-compatible):
 - **`tools/integrity_check.py`** — validates 4 binding rules: node pattern, id-suffix match, mesh_ref validity, uniqueness
 - **`tools/validate.py`** — validates any SVJ file against the JSON Schema
 
+## v0.98 — Validation, Benchmarks & Override Files
+
+New in v0.98 (all optional, fully backward-compatible; prompted by a review of VI-Grade's VI-CarRealTime white paper — see `proposals/vi_carrealtime_whitepaper_insights.md`):
+
+- **`validation`** — vehicle-level correlation status against physical test data (`status`, `method`, `test_reference`, `correlated_channels`, `correlation_quality`, `date`, `notes`)
+- **`benchmarks`** — array of KPI entries (`id`, `value`, `unit`, `type: target|measured|simulated`, `source`)
+- **Override files** (`*.svj-override.json`) — `base` file path + RFC 7396 JSON Merge Patch `patch`, for DOE variants and partial-disclosure supplier hand-offs. Spec §3.4.
+- **`schema/svj-override.schema.json`** — structural schema for override files
+- **`tools/validate_override.py`** — resolves `base` + `patch` and validates the result against `schema/svj.schema.json`
+- **`examples/bmw_e30_325i_stiffer_front.svj-override.json`** — example override; `examples/bmw_e30_325i_semi_trailing.svj.json` demonstrates `validation` + `benchmarks`
+
 ## Topology Coverage (all 10 with examples)
 
 ✅ double_wishbone (Alfa 75 front, Corvette C3 front, F1 front/rear, AWD EV)

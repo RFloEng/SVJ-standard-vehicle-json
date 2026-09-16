@@ -103,6 +103,40 @@ python tools/integrity_check.py path/to/vehicle.svj.json --strict
 
 ---
 
+## v0.98 — Validation, Benchmarks & Override Files *(new)*
+
+Three additive, optional pieces of metadata/tooling:
+
+- **`validation`** — records whether/how the assembled vehicle has been correlated against physical test data (`status`, `method`, `test_reference`, `correlation_quality`, ...). Field-level provenance already existed (`_est`, `_source`); this adds the same idea at the vehicle level.
+- **`benchmarks`** — an array of KPI entries (`id`, `value`, `unit`, `type: target|measured|simulated`) so performance targets travel with the model instead of a side spreadsheet.
+- **Override files** (`*.svj-override.json`) — a `base` + RFC 7396 JSON Merge Patch `patch`, for DOE variants and partial-disclosure supplier hand-offs without duplicating the whole vehicle. See [`spec/SVJ_Spec.md` §3.4](spec/SVJ_Spec.md#34-override-files-v098).
+
+```json
+"validation": {
+  "status": "correlated",
+  "method": "physical_test",
+  "correlation_quality": "good"
+},
+"benchmarks": [
+  { "id": "skidpad_lateral_g", "value": 0.95, "unit": "g", "type": "target" }
+]
+```
+
+```json
+{
+  "_metadata": { "specification": "SVJ-OVERRIDE", "version": "0.98", "base": "./mazda_mx5_nd2_2024.svj.json" },
+  "patch": { "suspension": { "FL": { "spring": { "rate": 32000 } } } }
+}
+```
+
+Validate an override file (resolves `base` + `patch`, then validates the result against the standard schema):
+
+```bash
+python tools/validate_override.py examples/bmw_e30_325i_stiffer_front.svj-override.json
+```
+
+---
+
 ## Design Principles
 
 - **Explicit over implicit** — every value is stated, no hidden defaults
@@ -129,6 +163,7 @@ python tools/validate.py examples/formula_f1_2025_aero.svj.json
 |---|---|
 | `tools/validate.py` | Validates any SVJ file against the JSON Schema. Accepts one or more files, exits non-zero on errors. |
 | `tools/integrity_check.py` | Validates glTF visual bindings: node naming pattern, id-suffix match, mesh_ref validity, uniqueness. Use `--strict` to also fail on warnings. |
+| `tools/validate_override.py` | Resolves an `*.svj-override.json` file's `base` + `patch` (new in v0.98) and validates the resulting document against the standard schema. |
 
 ---
 
@@ -175,4 +210,4 @@ spec/
   └── SVJ_Spec.md                  Human-readable specification
 svj-py/                            Python library
 viewer/
-  └─�
+  └─�
