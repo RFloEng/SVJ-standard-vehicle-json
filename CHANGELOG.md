@@ -2,6 +2,45 @@
 
 ---
 
+## v0.99 — Multi-Axle Vehicles
+
+### Summary
+
+SVJ can now describe trucks, trailers and special vehicles with any number of axles, multiple wheels per hub, several steered axles and inter-axle load sharing. Fully backward-compatible: every v0.96–v0.98 file validates unchanged.
+
+### New in this release
+
+| Area | Change |
+|---|---|
+| Naming | `A{n}{L\|R\|C}` wheel stations; `FL/FR/RL/RR` kept as two-axle aliases (§23.1) |
+| `axles` | Per-axle position, track, steered, driven, lift axle data (§23.2) |
+| Steering | `steering.axle_ref`, `steering.additional_axles` (§8.6) |
+| Wheels | `wheel.multiplicity`, `dual_spacing`, `positions` for dual wheels (§23.4) |
+| `suspension_couplings` | `equalizer_rocker`, `walking_beam`, `trunnion_spring`, `pneumatic_circuit`, `hydraulic_circuit`, `custom` (§23.5) |
+| Suspension types | `swing_axle`, `parallelogram`, `pendulum_axle`; `trailing_arm` may locate a beam axle |
+| Springs / dampers | `rubber_torsion`, `rubber_block`, `hydropneumatic`, `hydraulic`, `none`; leaf end type & friction; `hydropneumatic` block; damper `hydraulic_strut`, `none` |
+| Axle body / links | `portal_drop`, `hub_reduction_ratio`, `pendulum_pivot`/`pendulum_axis`/`roll_limit`; link types `torque_rod`, `pivot` |
+| Other | `vehicle_info.wheel_formula`, `vehicle_class`, `drive_type: none`; `chassis.wheelbase_reference`; differential `axle_ref`, `inter_axle`, `through_drive`; `layout: multi_axle`; truck tyre size codes (`315/80R22.5`, `ST235/80R16`, `14.00R20`) |
+| Tools | New `tools/multiaxle_check.py` (run by `validate.py` and `validate_override.py`); `integrity_check.py` handles any station name |
+| svj-py 0.2.0 | Station-aware `Vehicle` (`stations`, alias-aware `corner()`, `axles`, `axle_count`, `wheel_count`, `tyre_count`, `wheel_formula`, `suspension_couplings`); validator runs the multi-axle rules and checks tire refs on every station and dual-wheel position; CLI `info` lists axles and couplings; trailers exempt from the CG-ahead-of-front-axle check; new tests |
+| Viewer v4.0 | `svj_viewer_v3.9.html` → `svj_viewer_v4.0.html`: any number of stations with generated colours, dual wheels, coupling pivots/beams, axles and couplings panels, camera and grid fitted to vehicle length, number-key station highlight for up to 9 stations |
+| Schema fixes | Truck tyre `size_code`s; `_` metadata keys allowed in pacejka coefficient groups; `$id`/description updated to v0.99; override schema accepts version `0.99` |
+| Data | Mazda template tyre `source` corrected to the schema value `fitted` (detail kept in `_source_detail`) — the template now validates |
+| Examples | 10 multi-axle skeletons (see README) |
+
+### Compatibility
+
+- `suspension`, `mass_unsprung_per_corner` and `half_shafts` accept any valid station name instead of exactly FL/FR/RL/RR. Files that mix naming forms, or use only some legacy names, are rejected by the cross-reference check.
+- `spring.rate` is no longer required for `none`, `hydraulic`, `hydropneumatic`; damper curves are not required for `none`, `hydraulic_strut`.
+
+---
+
+## v0.98 — Validation, Benchmarks & Override Files
+
+- `validation` block (§20a), `benchmarks` array (§20b), override files `*.svj-override.json` with RFC 7396 merge patch (§3.4), `tools/validate_override.py`.
+
+---
+
 ## AC → SVJ Converter  v0.9.1  (tools/ac_converter/)
 
 ### Summary

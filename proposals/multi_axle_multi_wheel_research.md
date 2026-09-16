@@ -4,7 +4,7 @@
 - **Date:** 2026-09-16
 - **Target Specification:** SVJ v0.98 → future (likely v0.99/v1.0-track — see §6)
 - **Proposal Type:** Research / gap analysis (no schema changes yet)
-- **Status:** Draft — for discussion before implementation
+- **Status:** Implemented in v0.99 (spec §23) — see `multi_axle_suspension_types.md` for the coupling model that replaced the `bogies` sketch
 
 ---
 
@@ -31,7 +31,7 @@ These are two **independent** axes of variation — a vehicle can have extra axl
 - There is no `§21.1` — `## 21. Roadmap` exists but the file ends mid-table right after it (line 2307, no further content).
 - No `A1L`/`A2R`/`axle_metadata` pattern appears anywhere in `spec/`, `schema/`, or `examples/`.
 - No Tyrrell P34 example exists.
-- `schema/svj.schema.json` hard-requires exactly `["FL", "FR", "RL", "RR"]` on `suspension`, `chassis.mass_unsprung_per_corner`, and `powertrain.half_shafts` — `additionalProperties: false` on all three, so a 5th corner isn't even legal today.
+- `schema/svj.schema.json` hard-requires exactly `["FL", "FR", "RL", "RR"]` on `suspension` (closed object) and `chassis.mass_unsprung_per_corner` (required keys). *(Correction: `powertrain.half_shafts` already allowed extra keys.)*
 
 So the naming convention that this proposal was going to build on doesn't exist — it looks like the §21.1 content was written up in someone's head (or a prior session) and the changelog/brief were updated to describe it, but it never got committed to the actual spec/schema files. This research doc writes that section for real, from scratch, informed by the intent the changelog describes.
 
@@ -47,7 +47,7 @@ So the naming convention that this proposal was going to build on doesn't exist 
 |---|---|
 | `schema.properties.suspension` | `required: [FL,FR,RL,RR]`, `additionalProperties: false` |
 | `schema.properties.chassis.properties.mass_unsprung_per_corner` | same |
-| `schema.properties.powertrain.properties.half_shafts` | same (object, not array, keyed FL/FR/RL/RR) |
+| `schema.properties.powertrain.properties.half_shafts` | keyed FL/FR/RL/RR by convention (schema already allowed extra keys — correction after implementation) |
 | §9.8 `wheel` (per corner) | exactly one rim + one `tire.set_ref` — no concept of a second tire at the same station |
 | §9.2.4 `axle_body` (solid_axle/de_dion/torsion_beam) | shared rigid body between exactly **two** corners (hardcoded pair, not N) |
 | `steering` | one rack, `tie_rod_inboard.{left,right}` — one steered axle only |

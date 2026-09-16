@@ -1,4 +1,4 @@
-# Standard Vehicle JSON (SVJ) Specification v0.97
+# Standard Vehicle JSON (SVJ) Specification v0.99
 
 ## 1. Overview & Philosophy
 
@@ -48,7 +48,7 @@ SVJ is a **modular, entity-based exchange format** for vehicle dynamics data. It
 
 **Origin:** Midpoint of the front axle at ground level, projected onto the vehicle centerline.
 
-> **Note:** All hardpoint coordinates are expressed in the **vehicle reference frame** (global body-fixed). Corner-specific data (FL, FR, RL, RR) uses the appropriate Y sign for each side: negative Y = left, positive Y = right.
+> **Note:** All hardpoint coordinates are expressed in the **vehicle reference frame** (global body-fixed). Station-specific data (FL, FR, RL, RR, or `A{n}L`/`A{n}R`/`A{n}C`, §23.1) uses the appropriate Y sign for each side: negative Y = left, positive Y = right, Y ≈ 0 for a centreline station.
 
 ---
 
@@ -143,6 +143,8 @@ An **override file** (`*.svj-override.json`) is a separate file type that names 
   "chassis": { },
   "steering": { },
   "suspension": { },
+  "axles": [ ],
+  "suspension_couplings": [ ],
   "tires": { },
   "brakes": { },
   "powertrain": { },
@@ -180,7 +182,9 @@ Every top-level key except `_metadata` is OPTIONAL. A file containing only `_met
 | `model`      | string  | no       | Model name                                          |
 | `year`       | integer | no       | Model year                                          |
 | `variant`    | string  | no       | Trim/variant (e.g. `"GT3 RS"`)                     |
-| `drive_type` | string  | no       | One of: `"FWD"`, `"RWD"`, `"AWD"`, `"4WD"`         |
+| `drive_type` | string  | no       | One of: `"FWD"`, `"RWD"`, `"AWD"`, `"4WD"`, `"none"` (trailers) |
+| `wheel_formula` | string | no     | Stations × driven[/steered], e.g. `"6x4"`, `"8x8/4"` — counts hubs, not tyres (§23.6) |
+| `vehicle_class` | string | no     | `"passenger_car"`, `"race_car"`, `"light_truck"`, `"heavy_truck"`, `"tractor_unit"`, `"trailer"`, `"semi_trailer"`, `"modular_trailer"`, `"bus"`, `"off_highway"`, `"military"`, `"special"` |
 
 ---
 
@@ -189,10 +193,11 @@ Every top-level key except `_metadata` is OPTIONAL. A file containing only `_met
 | Key                        | Type       | Required | Description                                            |
 |----------------------------|------------|----------|--------------------------------------------------------|
 | `mass_total`               | number     | YES      | Total vehicle mass including fluids (kg)                |
-| `mass_unsprung_per_corner` | object     | no       | `{"FL": n, "FR": n, "RL": n, "RR": n}` (kg)           |
-| `wheelbase`                | number     | YES      | Front axle to rear axle distance (m)                    |
-| `track_front`              | number     | YES      | Front track width, center-to-center contact patches (m) |
-| `track_rear`               | number     | YES      | Rear track width (m)                                    |
+| `mass_unsprung_per_corner` | object     | no       | Per station, same keys as `suspension`: `{"FL": n, ...}` or `{"A1L": n, ...}` (kg) |
+| `wheelbase`                | number     | YES      | Front axle to rear axle distance (m). Multi-axle: `A1` to last axle (§23.6) |
+| `wheelbase_reference`      | string     | no       | `"last_axle"` (default) or `"bogie_centre"` (§23.6)     |
+| `track_front`              | number     | YES      | Front track width, center-to-center contact patches (m) — track at `A1` |
+| `track_rear`               | number     | YES      | Rear track width (m) — track at the last axle; `0` for a single centreline wheel |
 | `center_of_gravity`        | [x, y, z]  | YES      | CG position in vehicle reference frame (m)              |
 | `inertia`                  | object     | no       | See §7.1                                                |
 
@@ -303,6 +308,8 @@ The steering system defines how driver input translates to wheel angle. Tie rod 
 | `power_assist`       | object  | no       | See §8.2                                                           |
 | `column`             | object  | no       | See §8.3                                                           |
 | `tie_rod_inboard`    | object  | no       | See §8.4                                                           |
+| `axle_ref`           | string  | no       | Axle driven by the primary steering gear. Default `"A1"` (§8.6)    |
+| `additional_axles`   | array   | no       | Further steered axles (§8.6)                                       |
 
 ### 8.2 `power_assist`
 
@@ -344,11 +351,36 @@ Physical properties of the steering wheel itself.
 
 > **Derived fields:** `max_steer_angle` can be computed as `(lock_to_lock / 2) / overall_ratio`. `lock_to_lock_turns` = `lock_to_lock / (2 × π)`. These convenience fields avoid repeated calculations in parsers.
 
+### 8.6 `additional_axles` — Multi-Axle Steering *(v0.99)*
+
+The rack/box in §8.1 steers `steering.axle_ref` (default `A1`). Every other steered axle is listed here. Each must also be `steered: true` in `axles` (§23.2).
+
+| Key                   | Type    | Required | Description                                                          |
+|-----------------------|---------|----------|----------------------------------------------------------------------|
+| `axle_ref`            | string  | YES      | `"A2"`, `"A3"`, …                                                    |
+| `type`                | string  | YES      | See below                                                            |
+| `ratio`               | number  | no       | Road-wheel angle of this axle per road-wheel angle of the primary axle (dimensionless, positive magnitude) |
+| `phase`               | string  | no       | `"same"` (turns the same way as the primary axle) or `"opposed"` (counter-steer) |
+| `max_steer_angle`     | number  | no       | Maximum road-wheel angle on this axle (rad)                          |
+| `speed_lockout`       | number  | no       | Axle is locked straight above this speed (m/s)                       |
+| `lock_in_reverse`     | boolean | no       | Axle is locked straight in reverse (typical of self-steer axles)     |
+| `caster`              | number  | no       | `self_steer`: caster angle producing the self-steering moment (rad)  |
+| `centering_stiffness` | number  | no       | `self_steer`: return-to-centre stiffness (Nm/rad)                    |
+| `linkage_points`      | array   | no       | `[x,y,z]` points of the drag links / relay arms, if known            |
+
+| `type`             | Meaning                                                                         | Examples |
+|--------------------|---------------------------------------------------------------------------------|----------|
+| `mechanical_link`  | Driven from the primary gear by drag links and relay levers; `ratio` is fixed  | Twin-steer 8×4 trucks, Tatra 8×8, Tyrrell P34 |
+| `self_steer`       | Passive: follows the path through caster; no link to the steering wheel; `ratio` is nominal | Steerable lift axles, trailer self-tracking axles |
+| `command_steer`    | Linked to trailer articulation angle or a separate mechanism                   | Command-steer semi-trailers |
+| `hydraulic`        | Hydraulic master/slave cylinders                                               | Modular trailers, cranes |
+| `active`           | Electronically controlled; `ratio` and `phase` describe the nominal map        | Rear-wheel steering, rear-steer axles |
+
 ---
 
 ## 9. `suspension`
 
-The suspension object contains exactly four corner entries:
+The suspension object contains one entry per wheel station. A two-axle vehicle uses the four legacy names:
 
 ```json
 {
@@ -361,7 +393,9 @@ The suspension object contains exactly four corner entries:
 }
 ```
 
-Each corner is a **complete, independent definition**. There is no inheritance or mirroring between corners.
+Vehicles with any number of axles use `A{n}{L|R|C}` names (`A1L`, `A1R`, `A2L`, … `A3R`); `FL/FR/RL/RR` are aliases of `A1L/A1R/A2L/A2R`. The two forms must not be mixed. See §23.1.
+
+Each corner is a **complete, independent definition**. There is no inheritance or mirroring between corners. Load sharing between axles (walking beams, rockers, air/hydraulic circuits) is described in `suspension_couplings` (§23.5), not by merging corners.
 
 ### 9.1 Corner Object
 
@@ -407,7 +441,12 @@ Each `system_type` defines the kinematic arrangement of the suspension. The tabl
 | `"torsion_beam"`      | Semi-independent | Twist beam connecting trailing arms (axle_body required) |
 | `"solid_axle"`        | Dependent        | Live axle housing with integral differential (axle_body required) |
 | `"de_dion"`           | Dependent        | Dead tube connecting wheels, diff on chassis (axle_body required) |
+| `"swing_axle"`        | Independent      | Half-axle pivoting near the vehicle centreline *(v0.99)* |
+| `"parallelogram"`     | Dependent        | Beam axle located by parallel upper/lower beams (lift axles) — axle_body required *(v0.99)* |
+| `"pendulum_axle"`     | Dependent        | Beam axle oscillating about a longitudinal pivot — axle_body required *(v0.99)* |
 | `"custom"`            | —                | Non-standard; describe in `x_` extension               |
+
+> **Trailing arms locating a beam axle.** `trailing_arm` may be combined with an `axle_body` when both arms clamp one rigid axle (typical air-sprung trailer and tag axles). The arms then locate the axle longitudinally and vertically; the axle body makes the two sides dependent.
 
 ---
 
@@ -633,6 +672,65 @@ Plus lateral location (same options as `solid_axle`): `panhard_rod`, `watts_link
 
 ---
 
+##### `swing_axle` — Swing Axle / Swing Half-Axle *(v0.99)*
+
+Each wheel is carried on a rigid half-axle (or arm) that pivots about an axis close to the vehicle centreline, usually at or near the differential. The wheel moves on an arc about that pivot, so camber changes strongly with travel and the roll centre is high. A low pivot reduces jacking.
+
+**Minimum links:**
+
+| Link name | type | inboard_points | outboard_ref | Notes |
+|-----------|------|---------------|--------------|-------|
+| `swing_arm` | `arm` | 1 point (single pivot) or 2 points (pivot axis) | `hardpoints.wheel_center` | Pivot near centreline; for 2 points the axis is usually longitudinal |
+
+**Minimum hardpoints:** `wheel_center`, `damper_outboard`.
+
+**Driveline:** the half-shaft has a single inboard joint at (or close to) the pivot and no outer CV joint; `half_shafts.<corner>.cv_inner.position` SHOULD coincide with the swing pivot.
+
+**Examples:** Tatra 815 (all axles, half-axles on a central backbone tube), VW Beetle (rear, early), Triumph Herald/Spitfire (rear), Mercedes-Benz low-pivot swing axle.
+
+---
+
+##### `parallelogram` — Parallelogram Beam Axle *(v0.99)*
+
+A beam axle located by an upper and a lower longitudinal beam on each side, of (nearly) equal length and parallel, forming a four-bar linkage. The axle translates vertically without changing pitch, so caster stays constant — essential for steerable lift axles.
+
+**`axle_body` REQUIRED.**
+
+**Minimum links per side:**
+
+| Link name | type | inboard_points | outboard_ref | Notes |
+|-----------|------|---------------|--------------|-------|
+| `upper_beam` | `arm` or `rod` | 1–2 points (frame hanger) | `hardpoints.upper_beam_end` | |
+| `lower_beam` | `arm` or `rod` | 1–2 points (frame hanger) | `hardpoints.lower_beam_end` | Parallel to `upper_beam` |
+
+**Minimum hardpoints:** `upper_beam_end`, `lower_beam_end`, `wheel_center`.
+
+**Lift:** lift and load air springs are described with `axles[].liftable` / `axles[].lift` (§23.2); the corner `spring` is the load spring.
+
+**Examples:** Hendrickson COMPOSILITE / TOUGHLIFT and Link lift axles (pusher and tag).
+
+---
+
+##### `pendulum_axle` — Pendulum / Oscillating Axle *(v0.99)*
+
+A rigid beam axle that rotates about a single longitudinal pivot at its centre. Relative to its carrier it has only a roll degree of freedom. It may be unsprung (loaders, articulated haulers) or supported by a hydraulic cylinder (modular trailer axle lines).
+
+**`axle_body` REQUIRED**, with `pendulum_pivot` (and optionally `pendulum_axis`, `roll_limit`).
+
+**Minimum links:**
+
+| Link name | type | inboard_points | outboard_ref | Notes |
+|-----------|------|---------------|--------------|-------|
+| `pendulum_pin` | `pivot` | 2 points defining the pivot axis (carrier side) | `hardpoints.pendulum_pivot` | Revolute joint; may appear on one corner only |
+
+**Minimum hardpoints:** `wheel_center`, `pendulum_pivot`.
+
+**Springing:** unsprung → `spring.type: "none"`, `damper.type: "none"`; hydraulically supported → `spring.type: "hydraulic"` plus a `hydraulic_circuit` coupling (§23.5). `lateral_location: "pendulum_pin"`.
+
+**Examples:** Hydraulic modular trailers and SPMT axle lines, articulated dump truck front axle, wheel loader rear axle.
+
+---
+
 ##### `custom`
 
 For suspension systems that do not fit any standard type. All kinematics must be fully described via `links` and `hardpoints`. Use `x_` extensions to provide additional metadata about the custom design.
@@ -675,7 +773,7 @@ Each link is a rigid rod or arm connecting the chassis (inboard) to the upright 
 | Key             | Type    | Required | Description                                            |
 |-----------------|---------|----------|--------------------------------------------------------|
 | `name`             | string  | YES      | Descriptive name (e.g. `"upper_wishbone"`, `"toe_link"`)|
-| `type`             | string  | no       | `"arm"` (default), `"rod"`, `"strut"`                  |
+| `type`             | string  | no       | `"arm"` (default), `"rod"`, `"strut"`, `"torque_rod"` (reacts drive/brake torque on a beam axle), `"pivot"` (zero-length revolute, e.g. `pendulum_pin`) |
 | `inboard_points`   | array   | YES      | Array of `[x, y, z]` chassis-side pickup points        |
 | `outboard_ref`     | string  | YES      | Dot-path to an upright hardpoint (see §9.2.3.1)       |
 | `mass`             | number  | no       | Link total mass (kg)                                   |
@@ -699,7 +797,7 @@ This resolves to: `suspension.<corner>.topology.upright.hardpoints.upper_ball_jo
 
 #### 9.2.4 `axle_body` — Shared Rigid Body
 
-Required for `torsion_beam`, `solid_axle`, and `de_dion` suspension types. Represents the rigid element that couples or connects both sides of the axle.
+Required for `torsion_beam`, `solid_axle`, `de_dion`, `parallelogram` and `pendulum_axle`; optional for `trailing_arm` locating a beam axle. Represents the rigid element that couples or connects both sides of **one** axle.
 
 | Key                    | Type    | Required | Description                                              |
 |------------------------|---------|----------|----------------------------------------------------------|
@@ -710,8 +808,15 @@ Required for `torsion_beam`, `solid_axle`, and `de_dion` suspension types. Repre
 | `torsional_stiffness`  | number  | no       | Beam torsional stiffness (Nm/rad) — `torsion_beam` only  |
 | `beam_type`            | string  | no       | `"open_section"`, `"closed_section"`, `"tubular"` — `torsion_beam` only |
 | `beam_position`        | [x,y,z] | no      | Center of cross-beam (m) — `torsion_beam` only           |
+| `portal_drop`          | number  | no      | Portal axle: wheel centre below axle tube centreline (m, positive = lower) *(v0.99)* |
+| `hub_reduction_ratio`  | number  | no      | Hub or portal gear reduction (input speed / wheel speed) *(v0.99)* |
+| `pendulum_pivot`       | [x,y,z] | no      | `pendulum_axle`: point on the oscillation axis (m) *(v0.99)* |
+| `pendulum_axis`        | [x,y,z] | no      | `pendulum_axle`: unit axis direction, default `[1,0,0]` *(v0.99)* |
+| `roll_limit`           | number  | no      | `pendulum_axle`: maximum oscillation each way (rad) *(v0.99)* |
 
-> **Coupling rule:** Both corners sharing the same `axle_body.id` are mechanically coupled. A kinematic solver MUST constrain the two uprights accordingly: rigidly for `solid_axle`/`de_dion`, torsionally for `torsion_beam`. The `axle_body.mass` contributes to unsprung mass and should be included (split 50/50) in `mass_unsprung_per_corner`.
+> **Coupling rule:** Both corners sharing the same `axle_body.id` are mechanically coupled. A kinematic solver MUST constrain the two uprights accordingly: rigidly for `solid_axle`/`de_dion`, torsionally for `torsion_beam`. The `axle_body.mass` contributes to unsprung mass and should be included (split 50/50) in `mass_unsprung_per_corner`. An `axle_body.id` MUST NOT be shared by corners of different axles — inter-axle links are `suspension_couplings` (§23.5).
+
+> **Portal axles:** with `portal_drop > 0` the wheel centre (`hardpoints.wheel_center`) is below the axle tube; ground clearance under the axle increases by `portal_drop`. `hub_reduction_ratio` multiplies the differential `final_drive` for the torque at the wheel and SHOULD be included in the inertia chain (§10.9).
 
 #### 9.2.5 `bushing` — Joint Compliance (Tier 3)
 
@@ -775,7 +880,7 @@ The actual as-installed state at rest on a flat surface, including corner weight
 
 > **Ride height measurement:** Measured from the ground plane to a defined chassis reference point (typically the rocker panel or subframe rail). The measurement point should be documented in `x_` extensions if not obvious.
 
-> **Corner weights:** The four corner weights SHOULD sum to `mass_total × g`. Cross-weight percentage = (FL + RR) / (mass_total × g) × 100%. A value of 50% indicates perfect diagonal balance.
+> **Corner weights:** The corner weights of all stations SHOULD sum to `mass_total × g` (for trailers, minus the load carried at the king-pin or drawbar). For two-axle vehicles, cross-weight percentage = (FL + RR) / (mass_total × g) × 100%; 50% indicates perfect diagonal balance.
 
 ---
 
@@ -785,8 +890,20 @@ The actual as-installed state at rest on a flat surface, including corner weight
 
 | Key              | Type    | Required | Description                                              |
 |------------------|---------|----------|----------------------------------------------------------|
-| `type`           | string  | YES      | `"coil"`, `"torsion_bar"`, `"leaf"`, `"air"`, `"coilover"` |
-| `rate`           | number  | YES      | Wheel-rate stiffness (N/m) OR see `rate_curve`           |
+| `type`           | string  | YES      | `"coil"`, `"torsion_bar"`, `"leaf"`, `"air"`, `"coilover"`, `"rubber_torsion"`, `"rubber_block"`, `"hydropneumatic"`, `"hydraulic"`, `"none"` |
+| `rate`           | number  | YES*     | Wheel-rate stiffness (N/m) OR see `rate_curve`. *Not required for `none`, `hydraulic`, `hydropneumatic` |
+| `coupling_ref`   | string  | no       | id of the `suspension_couplings` entry that springs this station (§23.5) |
+| `end_type_front` | string  | no       | Leaf: `"eye"`, `"slipper"`, `"shackle"`, `"fixed"`       |
+| `end_type_rear`  | string  | no       | Leaf: `"eye"`, `"slipper"`, `"shackle"`, `"fixed"`       |
+| `end_friction`   | number  | no       | Coulomb friction coefficient at sliding (slipper) ends   |
+| `hysteresis_force` | number | no      | Equivalent friction/hysteresis force at the wheel (N) — inter-leaf friction, rubber hysteresis |
+| `leaf_count`     | integer | no       | Number of leaves                                         |
+| `effective_area` | number  | no       | Air spring / cylinder effective area (m²)                |
+| `nominal_pressure` | number | no      | Air spring pressure at design ride height (Pa)           |
+| `torsional_rate` | number  | no       | `rubber_torsion` / `torsion_bar` rate at the pivot (Nm/rad) |
+| `arm_length`     | number  | no       | `rubber_torsion`: pivot to wheel centre (m)              |
+| `arm_start_angle`| number  | no       | `rubber_torsion`: arm angle below horizontal at zero load (rad) |
+| `hydropneumatic` | object  | no       | Gas-over-oil strut data (below)                          |
 | `mass`           | number  | no       | Spring mass (kg). Convention: ~50% sprung, ~50% unsprung |
 | `rate_curve`     | array   | no       | Non-linear: `[[displacement_m, force_N], ...]`           |
 | `free_length`    | number  | no       | Uncompressed spring length (m)                           |
@@ -799,15 +916,38 @@ The actual as-installed state at rest on a flat surface, including corner weight
 
 > **Non-linear springs:** When `rate_curve` is present, it takes precedence over `rate`. The curve is an ordered array of `[displacement, force]` pairs. Displacement is measured from free length (compression positive in SAE Z-down).
 
+**Spring types added in v0.99:**
+
+| Type             | Description | Notes |
+|------------------|-------------|-------|
+| `rubber_torsion` | Rubber cords compressed in a square tube, loaded in torsion by a short trailing arm (Torflex-type trailer axles) | Give `torsional_rate`, `arm_length`, `arm_start_angle`; `rate` is the equivalent wheel rate |
+| `rubber_block`   | Solid elastomer bolster / shear springs (walking-beam and vocational suspensions) | Strongly progressive — prefer `rate_curve` |
+| `hydropneumatic` | Gas-over-oil strut; stiffness from gas compression | Use the `hydropneumatic` object; `rate` optional (linearised) |
+| `hydraulic`      | Fluid column in a cylinder; compliance and load sharing come from the circuit | Pair with a `hydraulic_circuit` coupling |
+| `none`           | No spring at this station: unsprung (e.g. oscillating axle) or sprung through a coupling | Set `coupling_ref` when a coupling carries the load |
+
+`hydropneumatic` object:
+
+| Key                     | Type   | Description                                  |
+|-------------------------|--------|----------------------------------------------|
+| `gas_precharge_pressure`| number | Pa                                           |
+| `gas_volume`            | number | Gas volume at precharge (m³)                 |
+| `polytropic_index`      | number | 1.0 (isothermal) … 1.4 (adiabatic)           |
+| `piston_area`           | number | m²                                           |
+| `rod_area`              | number | m² (annulus side)                            |
+| `static_pressure`       | number | Pa at design ride height                     |
+
+> **Leaf springs in bogies:** measured load equalisation of leaf-spring tandems depends heavily on friction at the spring ends. Fill `end_type_front`, `end_type_rear` and `end_friction` when the spring sits on a rocker or trunnion (§23.5).
+
 ---
 
 ### 9.4 `damper`
 
 | Key                | Type    | Required | Description                                           |
 |--------------------|---------|----------|-------------------------------------------------------|
-| `type`             | string  | no       | `"monotube"`, `"twin_tube"`, `"adjustable"`, `"mrd"` (magneto-rheological) |
-| `bump_curve`       | array   | YES      | `[[velocity_m_s, force_N], ...]` (compression)        |
-| `rebound_curve`    | array   | YES      | `[[velocity_m_s, force_N], ...]` (extension)          |
+| `type`             | string  | no       | `"monotube"`, `"twin_tube"`, `"adjustable"`, `"mrd"` (magneto-rheological), `"hydraulic_strut"` (damping inside a hydraulic/hydropneumatic spring), `"none"` |
+| `bump_curve`       | array   | YES*     | `[[velocity_m_s, force_N], ...]` (compression). *Not required for `none` / `hydraulic_strut` |
+| `rebound_curve`    | array   | YES*     | `[[velocity_m_s, force_N], ...]` (extension). *Not required for `none` / `hydraulic_strut` |
 | `motion_ratio`     | number  | no       | Damper velocity / wheel velocity (dimensionless)      |
 | `mass`             | number  | no       | Damper mass (kg). Body ≈ sprung, rod+piston ≈ unsprung |
 | `inboard_mount`    | [x,y,z] | no      | Chassis-side damper mount point                       |
@@ -887,6 +1027,9 @@ Physical geometry of the wheel and fitted tire carcass at this corner. This sect
 | `loaded_radius`     | number | no       | Static loaded radius under vehicle weight (m)                     |
 | `mass`              | number | no       | Total wheel + tire mass (kg). This is part of unsprung mass.      |
 | `rotational_inertia`| number | no       | Spin inertia about the wheel axis (kg·m²)                        |
+| `multiplicity`      | integer| no       | Wheels on this hub (2 = duals). Default 1 (§23.4) *(v0.99)*       |
+| `dual_spacing`      | number | no       | Centre-to-centre spacing of multiple wheels (m) (§23.4)           |
+| `positions`         | array  | no       | Per-wheel offset and tire assignment (§23.4)                      |
 
 > **Tire size shorthand:** A tire labeled "255/35R19" maps to: `tire_section_width: 0.255`, `tire_aspect_ratio: 0.35`, `rim_diameter: 0.4826` (19 × 0.0254).
 
@@ -1010,6 +1153,7 @@ Defines how power flows from the engine/motor to the wheels.
 | `"RR"`  | Rear engine, rear drive — rear transaxle                            |
 | `"AWD"` | All-wheel drive — transfer case + front and rear diffs              |
 | `"4WD"` | Part-time four-wheel drive — selectable transfer case               |
+| `"multi_axle"` | Three or more axles; use `vehicle_info.wheel_formula` and §23.6 *(v0.99)* |
 
 > **Convention:** `layout` is informational. The actual torque path is fully determined by the `driveshafts`, `differentials`, and `half_shafts` entries. A parser SHOULD validate that the topology matches the stated layout.
 
@@ -1145,7 +1289,9 @@ Array of differential units. Each entry describes one differential with its loca
 | Key              | Type    | Required | Description                                          |
 |------------------|---------|----------|------------------------------------------------------|
 | `id`             | string  | YES      | Unique identifier (e.g. `"diff_rear"`, `"diff_front"`, `"diff_center"`) |
-| `location`       | string  | no       | `"rear"`, `"front"`, `"center"`                      |
+| `location`       | string  | no       | `"rear"`, `"front"`, `"center"`, `"inter_axle"` (between tandem drive axles) |
+| `axle_ref`       | string  | no       | Axle driven by this differential (`"A2"`, …) *(v0.99)* |
+| `through_drive`  | boolean | no       | Carrier passes drive through to the next axle (tandem through-drive) *(v0.99)* |
 | `type`           | string  | no       | `"open"`, `"locked"`, `"lsd_clutch"`, `"lsd_torsen"`, `"lsd_viscous"`, `"active"`, `"spool"` |
 | `final_drive`    | number  | YES      | Ring-and-pinion ratio (e.g. 2.866)                   |
 | `preload`        | number  | no       | LSD preload torque (Nm)                              |
@@ -1183,7 +1329,7 @@ Connects differential output flanges to the driven wheels via constant-velocity 
 }
 ```
 
-Only driven corners need entries. For a RWD car, only `RL` and `RR` are present.
+Only driven corners need entries. For a RWD car, only `RL` and `RR` are present. Multi-axle vehicles use the same station names as `suspension` (`A2L`, `A3R`, …, §23.1).
 
 | Key          | Type    | Required | Description                                           |
 |--------------|---------|----------|-------------------------------------------------------|
@@ -2071,7 +2217,7 @@ The JSON Schema does NOT validate:
 - Cross-corner consistency (e.g. matching `bar_id` and `bar_rate` on ARBs).
 - Physical plausibility (e.g. CG within wheelbase, positive masses).
 
-These checks are the responsibility of higher-level tools or linters built on top of the schema.
+These checks are the responsibility of higher-level tools or linters built on top of the schema. `tools/validate.py` runs `tools/multiaxle_check.py` after the schema for the multi-axle cross-reference rules (§23.7).
 
 ---
 
@@ -2142,6 +2288,7 @@ This section is **optional**. It provides a standard place to record performance
 
 | Version | Changes                                                                                    |
 |---------|--------------------------------------------------------------------------------------------|
+| 0.99    | **Multi-axle vehicles** (§23): `A{n}{L\|R\|C}` station naming with `FL/FR/RL/RR` as aliases; `axles` metadata (position, track, steered, driven, lift); multi-axle steering `steering.additional_axles` (§8.6); multiple wheels per station (`wheel.multiplicity`, `positions`); `suspension_couplings` (equalizer rocker, walking beam, trunnion spring, pneumatic and hydraulic circuits). New `system_type`s `swing_axle`, `parallelogram`, `pendulum_axle`; new spring types `rubber_torsion`, `rubber_block`, `hydropneumatic`, `hydraulic`, `none` with leaf end type/friction and hydropneumatic data; damper types `hydraulic_strut`, `none`; portal axle and pendulum fields on `axle_body`; `torque_rod` and `pivot` link types; `vehicle_info.wheel_formula`/`vehicle_class`; `inter_axle` differentials. `tools/multiaxle_check.py` cross-reference rules. Ten multi-axle skeleton examples. `svj-py` 0.2.0 and viewer v4.0 are multi-axle aware. Schema fixes from the audit: truck tyre `size_code`s, `_` metadata keys in pacejka groups. Existing files remain valid. |
 | 0.98    | **Override files** (§3.4): `*.svj-override.json` — `base` + RFC 7396 JSON Merge Patch `patch`, for DOE variants and partial-disclosure supplier hand-offs, validated with `tools/validate_override.py`. **`validation`** (§20a): vehicle-level correlation status against physical test data. **`benchmarks`** (§20b): array of target/measured/simulated KPI entries. All additions optional — full backward compatibility. |
 | 0.1     | Initial draft. Metadata, chassis, basic suspension topology, powertrain.                   |
 | 0.2     | Entity-based upright/link model. AC conversion logic. Extension prefix `x_`.               |
@@ -2150,7 +2297,7 @@ This section is **optional**. It provides a standard place to record performance
 | 0.3.2   | Sprung mass decomposition (`mass_bodies` in §7.2). Chassis mass can be broken into individually positioned rigid bodies with own CG and inertia. Composite fields unchanged and required for backward compatibility. |
 | 0.4.0   | **Tires**: Top-level tire library (`tires.sets`) with Pacejka MF 5.2/6.2 coefficients, thermal model, wear model, relaxation lengths. Per-corner `tire` reference with pressure/temperature overrides. **Brakes**: Per-corner `brake` assembly (disc with mass/thermal, caliper, pad with μ curve). Top-level `brakes` system (master cylinder, bias, ABS, ESC). All new components carry physical mass and thermal properties. |
 | 0.4.1   | Tire set expanded: dimensions, rim specs, construction properties (mass, stiffness, ratings). Wheel vs tire_set relationship documented. |
-| 0.94   | **Multi-axle naming convention** (§21.1): formalized `A{n}{side}` corner naming (A1L, A2R, ...). FL/FR/RL/RR are aliases for A1L/A1R/A2L/A2R. Axle metadata array with `steered`, `driven`, `lift` flags. Multi-axle steering linkage with per-axle ratio and phase. Tyrrell P34 example. Backward compatibility rules. |
+| 0.94   | *(Planned, never landed in the spec file — superseded by §23 in v0.99.)* **Multi-axle naming convention** (§21.1): formalized `A{n}{side}` corner naming (A1L, A2R, ...). FL/FR/RL/RR are aliases for A1L/A1R/A2L/A2R. Axle metadata array with `steered`, `driven`, `lift` flags. Multi-axle steering linkage with per-axle ratio and phase. Tyrrell P34 example. Backward compatibility rules. |
 | 0.97   | **glTF Visual Binding Layer** (§22): optional `assets.meshes` manifest, `visual` field on any body (`mesh_ref` + `node`), flexible `coordinate_system` object for Y-up/Z-forward glTF assets, SAE J670 ↔ Blender transform table. `SVJ::category::id` naming convention for glTF nodes (see `docs/naming_convention.md`). `tools/integrity_check.py` validates 4 binding rules. `tools/validate.py` validates any SVJ file against the JSON Schema. All additions optional — full backward compatibility. |
 | 0.96   | **Multibody topology extension**: Explicit joint types on links (`joint_type`, `inboard_joint_type`), body references (`body_ref`) linking suspension parts to chassis mass bodies, `orientation` quaternion definition, extended hardpoints accepting marker objects (position + orientation), oriented bushings with preload, mass body parent/markers hierarchy, oriented spring/damper mounts. All additions optional — full backward compatibility. |
 | 0.95   | **Aerodynamics extension**: 1D/2D lookup maps with interpolation/extrapolation, component-level modeling with cross-influences, wake/dirty air model, ground effect (underbody maps, tire squirt, sealing strips), enhanced active systems (DRS with activation conditions, PID-controlled active wings). **Data provenance**: `data_origin` field in metadata (type, detail, confidence). F1 aero reference example. |
@@ -2255,7 +2402,7 @@ SVJ::<category>::<id>
 | `<category>` | One of: `body`, `wheel`, `suspension`, `aero`, `powertrain` |
 | `<id>` | Lowercase alphanumeric with underscores, e.g. `chassis`, `upright_fl`, `wheel_fl` |
 
-**Corner suffix rule:** Visual nodes for corner-specific bodies MUST end with `_fl`, `_fr`, `_rl`, or `_rr` (or the canonical `_a{n}l` / `_a{n}r` form for multi-axle vehicles). The `<id>` suffix must match the upright `id` field in the suspension topology.
+**Corner suffix rule:** Visual nodes for corner-specific bodies MUST end with `_fl`, `_fr`, `_rl`, or `_rr` (or the canonical `_a{n}l` / `_a{n}r` / `_a{n}c` form for multi-axle vehicles, §23.1). For dual wheels, append the position label: `wheel_a2l_inner`, `wheel_a2l_outer`. The `<id>` suffix must match the upright `id` field in the suspension topology.
 
 The `mesh_ref` suffix (last segment after `_`) must match the node `<id>`. See [`docs/naming_convention.md`](../docs/naming_convention.md) for the complete specification.
 
@@ -2295,6 +2442,221 @@ In default mode, rule violations are warnings. With `--strict`, any warning is a
 
 ---
 
+## 23. Multi-Axle Vehicles *(v0.99)*
+
+This section extends SVJ beyond the four-corner passenger car to trucks, trailers and special vehicles: any number of axles, more than one wheel per station, several steered axles, and suspensions that share load between axles. Everything here is **optional**. A two-axle file using `FL/FR/RL/RR` and none of the new keys is unchanged and fully valid.
+
+The design separates two levels:
+
+1. **Axle location** (per wheel station) — described with the existing corner vocabulary (§9): `system_type`, `upright`, `links`, `spring`, `damper`, `axle_body`.
+2. **Inter-axle coupling** — rockers, walking beams, trunnion springs, shared air or hydraulic circuits — described once in the top-level `suspension_couplings` array (§23.5) and referenced from the corners.
+
+### 23.1 Wheel Station Naming
+
+Corner keys follow the pattern **`A{n}{side}`**:
+
+| Part    | Meaning                                                                 |
+|---------|-------------------------------------------------------------------------|
+| `A{n}`  | Axle index, 1-based, counted from the front (`A1`, `A2`, … `A99`)       |
+| `L`     | Left station (negative Y)                                               |
+| `R`     | Right station (positive Y)                                              |
+| `C`     | Single wheel on the centreline (reverse trikes, three-wheelers, special rigs) |
+
+```json
+"suspension": { "A1L": { }, "A1R": { }, "A2L": { }, "A2R": { }, "A3L": { }, "A3R": { } }
+```
+
+**Legacy aliases.** `FL`, `FR`, `RL`, `RR` are aliases of `A1L`, `A1R`, `A2L`, `A2R`.
+
+Rules:
+
+1. A file MUST use one naming form throughout: either all four legacy names or A-notation. Mixing (`FL` with `A2L`) is invalid.
+2. Legacy names are only valid for two-axle vehicles. Any vehicle with three or more axles, or a centreline wheel, MUST use A-notation.
+3. Axle indices MUST be contiguous from `A1`.
+4. An axle has either side stations (`L` and `R`) or one centreline station (`C`), never both. An axle with only `L` or only `R` is allowed but produces a warning.
+5. The same keys are used everywhere a per-station object appears: `chassis.mass_unsprung_per_corner`, `powertrain.half_shafts`.
+6. A wheel station is one hub. Dual wheels on one hub are still one station (§23.4).
+
+**Reference frame for vehicles without a front steer axle** (semi-trailers, modular trailers): the origin is the centre of `A1` at ground level, exactly as for cars. A semi-trailer's or centre-axle trailer's CG normally lies ahead of `A1` (positive X) because part of its weight rests on the king-pin or drawbar; validators MUST NOT flag this when `vehicle_info.vehicle_class` is `"semi_trailer"` or `"trailer"`. Hitch/king-pin geometry and articulated combinations are not part of this section (§23.8).
+
+### 23.2 `axles` — Per-Axle Metadata
+
+Optional top-level array. Ids match the corner prefix.
+
+| Key           | Type    | Required | Description                                                         |
+|---------------|---------|----------|---------------------------------------------------------------------|
+| `id`          | string  | YES      | `"A1"`, `"A2"`, …                                                   |
+| `label`       | string  | no       | Free text: `"steer"`, `"drive"`, `"pusher"`, `"tag"`                |
+| `position_x`  | number  | no       | Axle centreline X in vehicle frame (m). Decreases rearwards.        |
+| `track`       | number  | no       | Track at this axle, between station `wheel_center`s (centre of duals) (m). `0` for a `C` station. |
+| `steered`     | boolean | no       | Wheels on this axle are steered (by any means, §8.6)                |
+| `driven`      | boolean | no       | Axle receives drive torque                                           |
+| `liftable`    | boolean | no       | Axle can be raised off the ground                                    |
+| `lift`        | object  | no       | Lift geometry (below)                                                |
+| `max_load`    | number  | no       | Rated axle load (N)                                                  |
+
+`lift` object:
+
+| Key                | Type   | Description                                                   |
+|--------------------|--------|---------------------------------------------------------------|
+| `mechanism`        | string | `"air_lift_spring"`, `"hydraulic"`, `"mechanical"`            |
+| `placement`        | string | `"pusher"` (ahead of drive axles), `"tag"` (behind), `"trailer"` |
+| `travel`           | number | Ground-to-tyre clearance when lifted (m)                      |
+| `lift_spring_area` | number | Effective area of the lift air spring(s) (m²)                 |
+
+> **Static description only.** Whether a lift axle is currently raised is operating state, not vehicle data. Describe the lifted and lowered configurations with an override file (§3.4) if both are needed.
+
+### 23.3 Steering on Several Axles
+
+See §8.6 (`steering.axle_ref`, `steering.additional_axles`). Mark each steered axle `steered: true` in `axles`; tie rods and steering arms stay in the corner hardpoints as usual.
+
+### 23.4 Multiple Wheels per Station
+
+A station can carry more than one wheel on the same hub: dual (twin) rear wheels on pickups, tractors and trailers, or four tyres per side on modular trailer axle lines. Suspension kinematics are unaffected — only `wheel` changes.
+
+| Key             | Type    | Required | Description                                                          |
+|-----------------|---------|----------|----------------------------------------------------------------------|
+| `multiplicity`  | integer | no       | Wheels at this station, 1–4. Default `1`.                            |
+| `dual_spacing`  | number  | no       | Centre-to-centre spacing of the wheels (m), symmetric about `wheel_center` |
+| `positions`     | array   | no       | Explicit per-wheel data; length MUST equal `multiplicity`            |
+
+`positions[]` entries:
+
+| Key                  | Type   | Required | Description                                                     |
+|----------------------|--------|----------|-----------------------------------------------------------------|
+| `offset_outboard`    | number | YES      | Lateral offset of this wheel's centreplane from the station `wheel_center` (m). Positive = outboard, on both sides. |
+| `label`              | string | no       | `"inner"`, `"outer"`, …                                        |
+| `tire`               | object | no       | Tire assignment for this wheel (§9.10). Overrides the corner `tire`. |
+| `rim_offset`         | number | no       | Rim offset of this wheel (m)                                    |
+| `mass`               | number | no       | Mass of this wheel + tyre (kg)                                  |
+| `rotational_inertia` | number | no       | Spin inertia of this wheel (kg·m²)                              |
+
+```json
+"wheel": {
+  "rim_diameter": 0.5715, "rim_width": 0.2286,
+  "multiplicity": 2,
+  "positions": [
+    { "label": "inner", "offset_outboard": -0.165, "tire": { "set_ref": "drive_315_80r22_5", "pressure": 850000 } },
+    { "label": "outer", "offset_outboard":  0.165, "tire": { "set_ref": "drive_315_80r22_5", "pressure": 850000 } }
+  ]
+}
+```
+
+Rules and conventions:
+
+- `wheel_center` is the centre of the wheel group (the midpoint of the duals). Track is measured between these points, which matches the usual truck definition.
+- If `positions` is absent and `dual_spacing` is given, the wheels are placed symmetrically at ±`dual_spacing`/2 and share the corner `tire`.
+- `wheel.mass` / `rotational_inertia`, when given at station level, are totals for all wheels. `mass_unsprung_per_corner` includes every wheel at the station.
+- One brake assembly (§9.9) and one half-shaft (§10.9) per station, regardless of wheel count.
+- A consuming solver runs one tire model per wheel and sums the forces at the hub. Inner and outer wheels may have different pressure, wear or radius.
+- Wheel formulas (`vehicle_info.wheel_formula`) count stations, not tyres: a 6×4 truck with duals has 10 tyres.
+
+### 23.5 `suspension_couplings` — Inter-Axle Load Sharing
+
+Optional top-level array. Each entry describes one element that makes the load on one axle depend on another. Corners stay complete definitions; couplings only reference them.
+
+Common fields:
+
+| Key            | Type   | Required | Description                                                          |
+|----------------|--------|----------|----------------------------------------------------------------------|
+| `id`           | string | YES      | Unique id, referenced by `spring.coupling_ref`                      |
+| `type`         | string | YES      | See table below                                                      |
+| `side`         | string | per type | `"L"`, `"R"`, `"C"`, `"both"` — mechanical bogies are usually one per side |
+| `axle_refs`    | array  | per type | Axles joined by the element (`["A2", "A3"]`)                        |
+| `pivot_position` | [x,y,z] | per type | Main pivot of the element (rocker pin, beam saddle, trunnion) (m) |
+| `mass`         | number | no       | Mass of the coupling element itself (kg)                            |
+| `inertia`      | object | no       | Inertia about its own CG (§7.1 format)                              |
+| `description`  | string | no       |                                                                      |
+
+| `type`               | Physical arrangement                                                    | Required fields |
+|----------------------|-------------------------------------------------------------------------|-----------------|
+| `equalizer_rocker`   | Adjacent leaf-spring ends hang from a rocker on a chassis hanger (tandem/triple leaf trailers, four-spring truck tandems, compensated twin-steer fronts) | `pivot_position`, `connections` |
+| `walking_beam`       | Axles at the ends of a longitudinal beam pivoting at its centre on a spring saddle (vocational trucks; also Tatra-style shared leaf and passive rocker-bogies) | `side`, `axle_refs`, `pivot_position` |
+| `trunnion_spring`    | One leaf pack per side pivoting on a trunnion between the axles, ends resting on axle seats, axles located by torque rods ("camelback") | `side`, `axle_refs`, `pivot_position`, `spring` |
+| `pneumatic_circuit`  | Air springs sharing a supply / levelling valve                          | `members` |
+| `hydraulic_circuit`  | Suspension cylinders plumbed together: 3- or 4-point support groups (modular trailers, SPMTs), hydropneumatic interconnection | `members` |
+| `custom`             | Anything else; describe with `x_` keys                                  | — |
+
+Type-specific fields:
+
+| Key                   | Type    | Used by              | Description |
+|-----------------------|---------|----------------------|-------------|
+| `connections`         | array   | `equalizer_rocker`   | Items `{corner_ref, spring_end: "front"\|"rear", attach_point, arm_length, shackle_length}` — one per spring end on the rocker |
+| `rocker_shape`        | string  | `equalizer_rocker`   | `"straight"`, `"medium_triangle"`, `"tall_triangle"`, `"other"` (informational — geometry is authoritative) |
+| `beam_length`         | number  | `walking_beam`       | Distance between beam end joints (m) |
+| `end_points`          | array   | `walking_beam`       | Beam end joint positions, one per axle in `axle_refs` order |
+| `end_bushings`        | object  | `walking_beam`       | Bushing at the beam ends (§9.2.5) |
+| `pivot_type`          | string  | `walking_beam`       | `"fixed"` centre bushing or `"floating"` (saddle without fixed pivot) |
+| `centre_spring`       | object  | `walking_beam`       | Spring between saddle and frame (§9.3 format); rate is at the saddle, not the wheel |
+| `spring`              | object  | `trunnion_spring`    | The trunnion leaf pack (§9.3 format), rate at the trunnion |
+| `end_seats`           | array   | `trunnion_spring`    | Spring end contact positions on the axles |
+| `torque_rod_refs`     | array   | `trunnion_spring`, `walking_beam` | Paths `"<corner>.links.<name>"` to the links that react drive/brake torque |
+| `members`             | array   | circuits             | Corner keys whose `spring` is part of the circuit |
+| `levelling_valves`    | integer | `pneumatic_circuit`  | Number of height control valves |
+| `ride_height_setpoint`| number  | `pneumatic_circuit`  | Controlled ride height (m) |
+| `supply_pressure`     | number  | circuits             | Pa |
+| `orifice_diameter`    | number  | circuits             | Restriction between members (m); governs dynamic (vs static) sharing |
+| `support_scheme`      | string  | `hydraulic_circuit`  | `"3_point"`, `"4_point"`, `"individual"`, `"cross_connected"` |
+| `group`               | integer | `hydraulic_circuit`  | Group number within the support scheme |
+| `interconnection`     | string  | `hydraulic_circuit`  | `"heave"`, `"roll"`, `"pitch"`, `"warp"`, `"load_group"` |
+| `accumulator`         | object  | `hydraulic_circuit`  | `{gas_volume, gas_precharge_pressure, polytropic_index}` or `null` |
+| `fluid_bulk_modulus`  | number  | `hydraulic_circuit`  | Pa |
+
+```json
+"suspension_couplings": [
+  {
+    "id": "rear_bogie_L", "type": "walking_beam", "side": "L",
+    "axle_refs": ["A2", "A3"],
+    "pivot_position": [-4.52, -0.55, -0.62],
+    "beam_length": 1.37, "pivot_type": "floating", "mass": 95,
+    "end_points": [[-3.835, -0.55, -0.50], [-5.205, -0.55, -0.50]],
+    "centre_spring": { "type": "rubber_block", "rate": 900000 },
+    "torque_rod_refs": ["A2L.links.lower_torque_rod", "A3L.links.lower_torque_rod"]
+  },
+  {
+    "id": "drive_air", "type": "pneumatic_circuit",
+    "members": ["A3L", "A3R", "A4L", "A4R"], "levelling_valves": 1
+  }
+]
+```
+
+**How corners refer to a coupling.** A station whose vertical support comes entirely from the coupling sets `spring.type: "none"` and `spring.coupling_ref: "<id>"`. A station with its own spring that is additionally coupled (leaf springs on a rocker, air springs on a circuit) keeps its spring and is referenced from the coupling (`connections`, `members`).
+
+**Mass accounting.** `mass` of a coupling element is not included in `mass_unsprung_per_corner`; it MUST be included in `chassis.mass_total`.
+
+**Engineering notes for converters:**
+
+- **Torque reaction.** In mechanical bogies, drive and brake torque can move load from one axle to the other ("bogie hop"). The torque rods that counteract this are ordinary corner `links` (type `"torque_rod"`); list them in `torque_rod_refs` so a solver knows the reaction path.
+- **Friction.** Load equalisation of leaf-spring bogies is strongly affected by friction at sliding spring ends. Use `spring.end_type_front` / `end_type_rear` and `spring.end_friction` (§9.3).
+- **Static vs dynamic sharing.** Pneumatic and hydraulic circuits equalise static load fully; dynamic sharing depends on `orifice_diameter`.
+- **Axle bodies stay per axle.** `axle_body` couples the two sides of one axle. It MUST NOT be shared across axles; inter-axle links belong here.
+
+### 23.6 Composite Fields on Multi-Axle Vehicles
+
+| Field                         | Meaning for N axles                                                              |
+|-------------------------------|----------------------------------------------------------------------------------|
+| `chassis.wheelbase`           | `A1` to last axle (default), or `A1` to rear bogie centre when `chassis.wheelbase_reference` is `"bogie_centre"` |
+| `chassis.track_front`         | Track at `A1`                                                                     |
+| `chassis.track_rear`          | Track at the last axle (`0` for a `C` station). Per-axle values: `axles[].track`  |
+| `chassis.mass_unsprung_per_corner` | Keyed by station name; includes all wheels at the station                  |
+| `static_setup.corner_weight`  | Per station; all stations SHOULD sum to `mass_total × g`                          |
+| `powertrain.layout`           | `"multi_axle"`; the driveline is defined by `driveshafts`, `differentials` (`axle_ref`, `location: "inter_axle"`, `through_drive`) and `half_shafts` |
+| `vehicle_info.wheel_formula`  | e.g. `"6x4"`, `"8x8/4"` (stations × driven / steered)                           |
+
+### 23.7 Validation Rules
+
+`tools/validate.py` runs the JSON Schema and then `tools/multiaxle_check.py`, which enforces the rules above that a schema cannot express (the same rules ship in `svj-py` as `svj/multiaxle.py`):
+
+- **Errors:** mixed naming forms; incomplete legacy set; non-contiguous axle indices; `C` together with `L`/`R` on one axle; `axles[]` id without stations; `wheel.positions` length ≠ `multiplicity`; unresolved `coupling_ref`, `axle_refs`, `members`, `connections`, `torque_rod_refs`; `axle_body` id shared across axles; `mass_unsprung_per_corner` / `half_shafts` keys without a matching station or in a different naming form; `steering.additional_axles` referring to a missing or the primary axle; `differentials[].axle_ref` missing.
+- **Warnings:** stations without `axles[]` entry (or no `axles[]` on 3+ axles); `position_x` not decreasing; `system_type` expecting `axle_body` without one; `pendulum_axle` without `pendulum_pivot`; `spring.type: "none"` without `coupling_ref`; circuit members with the wrong spring type; wheelbase inconsistent with `axles[].position_x`; single-sided axles.
+
+### 23.8 Not Covered Yet
+
+- **Articulated combinations** — tractor + semi-trailer, drawbar trailers, dollies, articulated dump trucks. These are several bodies joined by a fifth wheel, hitch or articulation joint and need a separate "vehicle units & couplings" addendum. Today, describe each unit in its own file.
+- **Operating state** — lift axle raised/lowered, hydraulic group re-plumbing, steering modes. Use override files (§3.4) for alternative configurations.
+
+---
+
 ## 21. Roadmap
 
 | Section           | Version  | Status                                             |
@@ -2306,3 +2668,14 @@ In default mode, rule violations are warnings. With `--strict`, any warning is a
 | Tires             | v0.4     | ✅ Done — Pacejka MF5.2/6.2, thermal, wear          |
 | Brakes            | v0.5.2   | ✅ Done — per-corner + full force chain              |
 | Aerodynamics      | v0.5  
+| Drivetrain        | v0.6.0   | ✅ Done — engine to half-shafts, AWD/4WD            |
+| Electric/Hybrid, cooling | v0.7.0 | ✅ Done                                      |
+| Compliance        | v0.8.0   | ✅ Done — 3-tier model                              |
+| Multi-model tires | v0.9.0   | ✅ Done — MF, TMeasy, brush, external               |
+| Aerodynamics extension | v0.95 | ✅ Done — maps, components, ground effect         |
+| Multibody topology| v0.96    | ✅ Done — joints, markers, body refs                |
+| glTF visual binding | v0.97  | ✅ Done                                             |
+| Validation, benchmarks, overrides | v0.98 | ✅ Done                                 |
+| Multi-axle vehicles | v0.99  | ✅ Done — §23, 13 system_types, suspension couplings |
+| Articulated combinations (tractor/trailer/dolly) | — | Planned (§23.8)            |
+| v1.0 freeze       | —        | After converter feedback on v0.99                   |

@@ -1,6 +1,6 @@
 # SVJ glTF Node Naming Convention
 
-> **Status:** Adopted in SVJ v0.97  
+> **Status:** Adopted in SVJ v0.97; wheel-station names extended in v0.99  
 > **Scope:** Applies to all glTF (`.glb` / `.gltf`) assets referenced from an SVJ file via the `assets.meshes` block.
 
 ---
@@ -55,6 +55,19 @@ svj_body.id  ==  glTF_node_name.split("::")[-1]
 | `wheel_fr` | `SVJ::body::wheel_fr` |
 | `wheel_rl` | `SVJ::body::wheel_rl` |
 | `wheel_rr` | `SVJ::body::wheel_rr` |
+
+### Wheel stations on multi-axle vehicles *(SVJ v0.99)*
+
+Two-axle vehicles keep the `_fl` / `_fr` / `_rl` / `_rr` suffixes. Vehicles written with A-notation stations (§23.1 of the spec) use the lowercase station name, and dual wheels append their `positions[].label`:
+
+| SVJ body id | Required glTF node name |
+|-------------|------------------------|
+| `upright_a1l` | `SVJ::body::upright_a1l` |
+| `wheel_a3r` | `SVJ::body::wheel_a3r` |
+| `wheel_a3r_inner` | `SVJ::body::wheel_a3r_inner` |
+| `wheel_a3r_outer` | `SVJ::body::wheel_a3r_outer` |
+| `wheel_a2c` (centreline wheel) | `SVJ::body::wheel_a2c` |
+| `rear_bogie_l` (walking beam) | `SVJ::body::rear_bogie_l` |
 
 For `helper` nodes the binding is looser — the name should be descriptive but does **not** need to match any SVJ id:
 

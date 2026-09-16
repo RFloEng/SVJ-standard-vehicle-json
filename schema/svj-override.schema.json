@@ -2,23 +2,35 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://svj-format.org/schema/svj-override.schema.json",
   "title": "SVJ Override File",
-  "description": "A delta file applying an RFC 7396 JSON Merge Patch on top of a base SVJ file (see SVJ_Spec.md §3.4).",
+  "description": "A delta file applying an RFC 7396 JSON Merge Patch on top of a base SVJ file (see SVJ_Spec.md \u00a73.4).",
   "type": "object",
-  "required": ["_metadata", "patch"],
+  "required": [
+    "_metadata",
+    "patch"
+  ],
   "additionalProperties": false,
   "properties": {
     "_metadata": {
       "type": "object",
-      "required": ["specification", "version", "base"],
+      "required": [
+        "specification",
+        "version",
+        "base"
+      ],
       "additionalProperties": true,
       "properties": {
         "specification": {
           "type": "string",
-          "enum": ["SVJ-OVERRIDE"]
+          "enum": [
+            "SVJ-OVERRIDE"
+          ]
         },
         "version": {
           "type": "string",
-          "enum": ["0.98"]
+          "enum": [
+            "0.98",
+            "0.99"
+          ]
         },
         "base": {
           "type": "string",
@@ -31,7 +43,7 @@
     },
     "patch": {
       "type": "object",
-      "description": "RFC 7396 JSON Merge Patch applied over the resolved base document. additionalProperties is intentionally unrestricted — the patch may touch any key in the base schema."
+      "description": "RFC 7396 JSON Merge Patch applied over the resolved base document. additionalProperties is intentionally unrestricted \u2014 the patch may touch any key in the base schema."
     }
   }
 }

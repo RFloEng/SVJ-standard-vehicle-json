@@ -8,8 +8,11 @@ Usage:
 
 Options:
     --schema PATH   Override the schema file path (default: schema/svj.schema.json)
-    --strict        Exit non-zero even on warnings (currently: version < 0.98)
+    --strict        Exit non-zero even on warnings (currently: version < 0.99, multi-axle warnings)
     -h, --help      Show this help text and exit.
+
+In addition to the JSON Schema, runs the multi-axle cross-reference rules in
+tools/multiaxle_check.py (spec §23.7).
 """
 
 import copy
@@ -17,6 +20,9 @@ import json
 import sys
 import warnings as _warnings
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from multiaxle_check import check as multiaxle_check  # noqa: E402
 
 try:
     import jsonschema
@@ -72,12 +78,17 @@ def validate_file(svj_path: str, schema: dict, strict: bool) -> bool:
             path_str = " → ".join(str(p) for p in err.absolute_path) if err.absolute_path else "<root>"
             errors.append(f"[{path_str}] {err.message}")
 
+    # Multi-axle cross-reference rules (spec §23.7)
+    ma_errors, ma_warnings = multiaxle_check(doc)
+    errors.extend(ma_errors)
+    warnings.extend(ma_warnings)
+
     # Version advisory
     version = doc.get("_metadata", {}).get("version", "unknown")
-    if version not in ("0.98",):
+    if version not in ("0.99",):
         warnings.append(
-            f"_metadata.version is '{version}' — consider upgrading to '0.98' "
-            "for validation/benchmarks metadata support"
+            f"_metadata.version is '{version}' — current spec is '0.99' "
+            "(multi-axle vehicles)"
         )
 
     for w in warnings:
@@ -90,7 +101,7 @@ def validate_file(svj_path: str, schema: dict, strict: bool) -> bool:
     elif not errors:
         print(f"  OK     Valid SVJ {version} — {len(warnings)} warning(s)")
     else:
-        print(f"  FAILED {len(errors)} schema error(s)")
+        print(f"  FAILED {len(errors)} error(s)")
 
     return len(errors) == 0 and (not strict or len(warnings) == 0)
 

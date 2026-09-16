@@ -1,0 +1,258 @@
+{
+  "_metadata": {
+    "specification": "SVJ",
+    "version": "0.99",
+    "description": "Tandem trailer skeleton — independent rubber torsion (Torflex-type) axles, no inter-axle coupling. Two axles written in A-notation.",
+    "coordinate_system": "SAE_J670",
+    "units": "SI",
+    "author": "RFloEng",
+    "data_origin": {
+      "type": "calculated",
+      "detail": "Skeleton example for the v0.99 multi-axle layer. Geometry, masses and rates are representative engineering estimates, not data for a specific production vehicle.",
+      "confidence": "low"
+    },
+    "alignment_convention": "relative_to_centerline"
+  },
+  "vehicle_info": {
+    "make": "Generic",
+    "model": "tandem torsion-axle trailer skeleton",
+    "drive_type": "none",
+    "vehicle_class": "trailer"
+  },
+  "chassis": {
+    "mass_total": 3200,
+    "wheelbase": 0.84,
+    "track_front": 1.68,
+    "track_rear": 1.68,
+    "center_of_gravity": [
+      1.4,
+      0,
+      -0.75
+    ],
+    "mass_unsprung_per_corner": {
+      "A1L": 45,
+      "A1R": 45,
+      "A2L": 45,
+      "A2R": 45
+    }
+  },
+  "suspension": {
+    "A1L": {
+      "topology": {
+        "system_type": "trailing_arm",
+        "upright": {
+          "id": "hub_A1L",
+          "hardpoints": {
+            "wheel_center": [
+              0.0,
+              -0.84,
+              -0.33
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "torsion_arm",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.19,
+                -0.62,
+                -0.4
+              ]
+            ],
+            "outboard_ref": "hardpoints.wheel_center",
+            "joint_type": "fixed"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.381,
+        "rim_width": 0.1524,
+        "set_ref": "trailer_st205_75r15"
+      },
+      "spring": {
+        "type": "rubber_torsion",
+        "rate": 55000,
+        "torsional_rate": 2300,
+        "arm_length": 0.2,
+        "arm_start_angle": 0.3927,
+        "hysteresis_force": 300
+      },
+      "damper": {
+        "type": "none"
+      }
+    },
+    "A1R": {
+      "topology": {
+        "system_type": "trailing_arm",
+        "upright": {
+          "id": "hub_A1R",
+          "hardpoints": {
+            "wheel_center": [
+              0.0,
+              0.84,
+              -0.33
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "torsion_arm",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.19,
+                0.62,
+                -0.4
+              ]
+            ],
+            "outboard_ref": "hardpoints.wheel_center",
+            "joint_type": "fixed"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.381,
+        "rim_width": 0.1524,
+        "set_ref": "trailer_st205_75r15"
+      },
+      "spring": {
+        "type": "rubber_torsion",
+        "rate": 55000,
+        "torsional_rate": 2300,
+        "arm_length": 0.2,
+        "arm_start_angle": 0.3927,
+        "hysteresis_force": 300
+      },
+      "damper": {
+        "type": "none"
+      }
+    },
+    "A2L": {
+      "topology": {
+        "system_type": "trailing_arm",
+        "upright": {
+          "id": "hub_A2L",
+          "hardpoints": {
+            "wheel_center": [
+              -0.84,
+              -0.84,
+              -0.33
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "torsion_arm",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -0.65,
+                -0.62,
+                -0.4
+              ]
+            ],
+            "outboard_ref": "hardpoints.wheel_center",
+            "joint_type": "fixed"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.381,
+        "rim_width": 0.1524,
+        "set_ref": "trailer_st205_75r15"
+      },
+      "spring": {
+        "type": "rubber_torsion",
+        "rate": 55000,
+        "torsional_rate": 2300,
+        "arm_length": 0.2,
+        "arm_start_angle": 0.3927,
+        "hysteresis_force": 300
+      },
+      "damper": {
+        "type": "none"
+      }
+    },
+    "A2R": {
+      "topology": {
+        "system_type": "trailing_arm",
+        "upright": {
+          "id": "hub_A2R",
+          "hardpoints": {
+            "wheel_center": [
+              -0.84,
+              0.84,
+              -0.33
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "torsion_arm",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -0.65,
+                0.62,
+                -0.4
+              ]
+            ],
+            "outboard_ref": "hardpoints.wheel_center",
+            "joint_type": "fixed"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.381,
+        "rim_width": 0.1524,
+        "set_ref": "trailer_st205_75r15"
+      },
+      "spring": {
+        "type": "rubber_torsion",
+        "rate": 55000,
+        "torsional_rate": 2300,
+        "arm_length": 0.2,
+        "arm_start_angle": 0.3927,
+        "hysteresis_force": 300
+      },
+      "damper": {
+        "type": "none"
+      }
+    }
+  },
+  "axles": [
+    {
+      "id": "A1",
+      "label": "trailer",
+      "position_x": 0.0,
+      "track": 1.68,
+      "steered": false,
+      "driven": false
+    },
+    {
+      "id": "A2",
+      "label": "trailer",
+      "position_x": -0.84,
+      "track": 1.68,
+      "steered": false,
+      "driven": false
+    }
+  ],
+  "tires": {
+    "sets": {
+      "trailer_st205_75r15": {
+        "description": "Trailer tyre",
+        "source": "estimated",
+        "size_code": "ST205/75R15",
+        "pressure": 450000,
+        "dimensions": {
+          "section_width": 0.205,
+          "aspect_ratio": 0.75,
+          "overall_diameter": 0.689
+        }
+      }
+    }
+  }
+}

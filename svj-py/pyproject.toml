@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "svj"
-version = "0.1.0"
+version = "0.2.0"
 description = "Parser and toolkit for SVJ (Standard Vehicle JSON) vehicle dynamics files"
 readme = "README.md"
 license = "Apache-2.0"
@@ -12,7 +12,7 @@ requires-python = ">=3.10"
 authors = [
     { name = "RFloEng" }
 ]
-keywords = ["vehicle", "dynamics", "simulation", "json", "automotive", "suspension"]
+keywords = ["vehicle", "dynamics", "simulation", "json", "automotive", "suspension", "truck", "trailer", "multi-axle"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",

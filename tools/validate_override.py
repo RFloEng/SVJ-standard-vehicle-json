@@ -18,6 +18,9 @@ import json
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from multiaxle_check import check as multiaxle_check  # noqa: E402
+
 try:
     import jsonschema
 except ImportError:
@@ -105,6 +108,7 @@ def main(argv):
         print(json.dumps(resolved, indent=2))
 
     resolved_errors = validate_resolved_schema(resolved, base_schema_path)
+    resolved_errors += multiaxle_check(resolved)[0]
     if resolved_errors:
         for e in resolved_errors:
             print(f"  ERROR  {e}")

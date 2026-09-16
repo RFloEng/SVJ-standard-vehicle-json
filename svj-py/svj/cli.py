@@ -87,6 +87,18 @@ def _cmd_info(args: argparse.Namespace) -> None:
     print(f"Mass:         {vehicle.mass_total} kg")
     print(f"Wheelbase:    {vehicle.wheelbase} m")
     print(f"Track F/R:    {vehicle.track_front} / {vehicle.track_rear} m")
+    if vehicle.vehicle_class:
+        print(f"Class:        {vehicle.vehicle_class}")
+    if vehicle.axles or vehicle.is_multi_axle:
+        print(f"Axles:        {vehicle.axle_count}  (wheel formula {vehicle.wheel_formula or '?'}, {vehicle.tyre_count} tyres)")
+        for a in vehicle.axles:
+            flags = ", ".join(f for f in ("steered", "driven", "liftable") if a.get(f))
+            print(f"  {a.get('id')}: x={a.get('position_x', '?')} m  track={a.get('track', '?')} m  {flags}")
+    if vehicle.suspension_couplings:
+        print(f"Couplings:")
+        for c in vehicle.suspension_couplings:
+            refs = c.get("axle_refs") or c.get("members") or [x.get("corner_ref") for x in c.get("connections", [])]
+            print(f"  {c.get('id')}: {c.get('type')} {refs}")
 
     wd = vehicle.weight_distribution_front
     if wd is not None:

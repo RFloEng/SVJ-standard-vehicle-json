@@ -64,7 +64,7 @@ def collect_bindings(data: dict) -> list[dict]:
 
     # Suspension corners (upright visual)
     suspension = data.get("suspension", {})
-    for corner_key in ("FL", "FR", "RL", "RR"):
+    for corner_key in [k for k in suspension if not k.startswith(("x_", "_"))]:
         corner = suspension.get(corner_key, {})
         if "visual" in corner:
             upright_id = corner.get("upright_id", f"upright_{corner_key.lower()}")

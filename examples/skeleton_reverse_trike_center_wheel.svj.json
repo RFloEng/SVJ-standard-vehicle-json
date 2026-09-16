@@ -1,0 +1,427 @@
+{
+  "_metadata": {
+    "specification": "SVJ",
+    "version": "0.99",
+    "description": "Reverse trike skeleton — double-wishbone steered front axle, single centreline rear wheel on a swingarm (A2C station).",
+    "coordinate_system": "SAE_J670",
+    "units": "SI",
+    "author": "RFloEng",
+    "data_origin": {
+      "type": "calculated",
+      "detail": "Skeleton example for the v0.99 multi-axle layer. Geometry, masses and rates are representative engineering estimates, not data for a specific production vehicle.",
+      "confidence": "low"
+    },
+    "alignment_convention": "relative_to_centerline"
+  },
+  "vehicle_info": {
+    "make": "Generic",
+    "model": "reverse trike skeleton",
+    "drive_type": "RWD",
+    "wheel_formula": "3x1",
+    "vehicle_class": "special"
+  },
+  "chassis": {
+    "mass_total": 620,
+    "wheelbase": 2.45,
+    "track_front": 1.52,
+    "track_rear": 0,
+    "center_of_gravity": [
+      -0.95,
+      0,
+      -0.42
+    ],
+    "mass_unsprung_per_corner": {
+      "A1L": 28,
+      "A1R": 28,
+      "A2C": 34
+    }
+  },
+  "steering": {
+    "type": "rack_and_pinion",
+    "rack_position": [
+      -0.15,
+      0,
+      -0.32
+    ],
+    "rack_travel": 0.13,
+    "overall_ratio": 12.0,
+    "lock_to_lock": 13.823
+  },
+  "suspension": {
+    "A1L": {
+      "topology": {
+        "system_type": "double_wishbone",
+        "upright": {
+          "id": "upright_A1L",
+          "hardpoints": {
+            "upper_ball_joint": [
+              0.0,
+              -0.58,
+              -0.52
+            ],
+            "lower_ball_joint": [
+              0.0,
+              -0.64,
+              -0.14
+            ],
+            "wheel_center": [
+              0.0,
+              -0.76,
+              -0.3
+            ],
+            "damper_outboard": [
+              0.0,
+              -0.48,
+              -0.18
+            ],
+            "steering_tie_rod_end": [
+              -0.15,
+              -0.62,
+              -0.28
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "upper_wishbone",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.15,
+                -0.3,
+                -0.56
+              ],
+              [
+                -0.15,
+                -0.3,
+                -0.56
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_ball_joint"
+          },
+          {
+            "name": "lower_wishbone",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.2,
+                -0.22,
+                -0.2
+              ],
+              [
+                -0.2,
+                -0.22,
+                -0.2
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_ball_joint"
+          },
+          {
+            "name": "steering_tie_rod",
+            "type": "rod",
+            "inboard_points": [
+              [
+                -0.15,
+                -0.25,
+                -0.28
+              ]
+            ],
+            "outboard_ref": "hardpoints.steering_tie_rod_end"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.4318,
+        "rim_width": 0.1778,
+        "mass": 17,
+        "set_ref": "front_205_45r17"
+      },
+      "spring": {
+        "type": "coilover",
+        "rate": 26000
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            800
+          ],
+          [
+            0.5,
+            2400
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            1400
+          ],
+          [
+            0.5,
+            4200
+          ]
+        ]
+      }
+    },
+    "A1R": {
+      "topology": {
+        "system_type": "double_wishbone",
+        "upright": {
+          "id": "upright_A1R",
+          "hardpoints": {
+            "upper_ball_joint": [
+              0.0,
+              0.58,
+              -0.52
+            ],
+            "lower_ball_joint": [
+              0.0,
+              0.64,
+              -0.14
+            ],
+            "wheel_center": [
+              0.0,
+              0.76,
+              -0.3
+            ],
+            "damper_outboard": [
+              0.0,
+              0.48,
+              -0.18
+            ],
+            "steering_tie_rod_end": [
+              -0.15,
+              0.62,
+              -0.28
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "upper_wishbone",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.15,
+                0.3,
+                -0.56
+              ],
+              [
+                -0.15,
+                0.3,
+                -0.56
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_ball_joint"
+          },
+          {
+            "name": "lower_wishbone",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.2,
+                0.22,
+                -0.2
+              ],
+              [
+                -0.2,
+                0.22,
+                -0.2
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_ball_joint"
+          },
+          {
+            "name": "steering_tie_rod",
+            "type": "rod",
+            "inboard_points": [
+              [
+                -0.15,
+                0.25,
+                -0.28
+              ]
+            ],
+            "outboard_ref": "hardpoints.steering_tie_rod_end"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.4318,
+        "rim_width": 0.1778,
+        "mass": 17,
+        "set_ref": "front_205_45r17"
+      },
+      "spring": {
+        "type": "coilover",
+        "rate": 26000
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            800
+          ],
+          [
+            0.5,
+            2400
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            1400
+          ],
+          [
+            0.5,
+            4200
+          ]
+        ]
+      }
+    },
+    "A2C": {
+      "topology": {
+        "system_type": "trailing_arm",
+        "upright": {
+          "id": "hub_A2C",
+          "hardpoints": {
+            "wheel_center": [
+              -2.45,
+              0,
+              -0.3
+            ],
+            "damper_outboard": [
+              -2.2,
+              0,
+              -0.35
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "swingarm",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -1.9,
+                -0.12,
+                -0.36
+              ],
+              [
+                -1.9,
+                0.12,
+                -0.36
+              ]
+            ],
+            "outboard_ref": "hardpoints.wheel_center"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.4318,
+        "rim_width": 0.2159,
+        "mass": 20,
+        "set_ref": "rear_235_40r17"
+      },
+      "spring": {
+        "type": "coilover",
+        "rate": 38000
+      },
+      "damper": {
+        "type": "monotube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            900
+          ],
+          [
+            0.5,
+            2600
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            1600
+          ],
+          [
+            0.5,
+            4600
+          ]
+        ]
+      }
+    }
+  },
+  "axles": [
+    {
+      "id": "A1",
+      "label": "front",
+      "position_x": 0.0,
+      "track": 1.52,
+      "steered": true,
+      "driven": false
+    },
+    {
+      "id": "A2",
+      "label": "rear",
+      "position_x": -2.45,
+      "track": 0,
+      "steered": false,
+      "driven": true
+    }
+  ],
+  "tires": {
+    "sets": {
+      "front_205_45r17": {
+        "description": "Front tyre",
+        "source": "estimated",
+        "size_code": "205/45R17",
+        "pressure": 220000,
+        "dimensions": {
+          "section_width": 0.205,
+          "aspect_ratio": 0.45,
+          "overall_diameter": 0.616
+        }
+      },
+      "rear_235_40r17": {
+        "description": "Rear tyre",
+        "source": "estimated",
+        "size_code": "235/40R17",
+        "pressure": 220000,
+        "dimensions": {
+          "section_width": 0.235,
+          "aspect_ratio": 0.4,
+          "overall_diameter": 0.62
+        }
+      }
+    }
+  },
+  "powertrain": {
+    "half_shafts": {}
+  }
+}
