@@ -1,0 +1,14 @@
+{
+  "_metadata": {
+    "specification": "SVJ-OVERRIDE",
+    "version": "0.98",
+    "base": "./bmw_e30_325i_semi_trailing.svj.json",
+    "description": "DOE variant: +20% front spring rate, both front corners. All other fields inherited from base."
+  },
+  "patch": {
+    "suspension": {
+      "FL": { "spring": { "rate": 26400 } },
+      "FR": { "spring": { "rate": 26400 } }
+    }
+  }
+}

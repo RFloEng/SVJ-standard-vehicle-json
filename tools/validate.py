@@ -8,7 +8,7 @@ Usage:
 
 Options:
     --schema PATH   Override the schema file path (default: schema/svj.schema.json)
-    --strict        Exit non-zero even on warnings (currently: version < 0.97)
+    --strict        Exit non-zero even on warnings (currently: version < 0.98)
     -h, --help      Show this help text and exit.
 """
 
@@ -74,10 +74,10 @@ def validate_file(svj_path: str, schema: dict, strict: bool) -> bool:
 
     # Version advisory
     version = doc.get("_metadata", {}).get("version", "unknown")
-    if version not in ("0.97",):
+    if version not in ("0.98",):
         warnings.append(
-            f"_metadata.version is '{version}' — consider upgrading to '0.97' "
-            "for visual binding support"
+            f"_metadata.version is '{version}' — consider upgrading to '0.98' "
+            "for validation/benchmarks metadata support"
         )
 
     for w in warnings:
