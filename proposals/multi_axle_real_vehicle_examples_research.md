@@ -4,7 +4,7 @@
 - **Date:** 2026-09-16
 - **Target Specification:** SVJ v0.99
 - **Proposal Type:** Research — candidate real vehicles for `examples/`
-- **Status:** In progress — §4 patches landed in v0.99.1; A1 (MAN TGS 8x4 twin-steer) built as `examples/man_tgs_32_430_8x4_twin_steer_tipper.svj.json`
+- **Status:** In progress — §4 patches landed in v0.99.1; A1 built as `examples/man_tgs_32_430_8x4_twin_steer_tipper.svj.json`, A2 as `examples/man_tgs_36_430_8x4_4_tridem_lift_tag.svj.json`
 
 ---
 
@@ -65,7 +65,7 @@ Source: [MAN TGS 8x4 Normal Height Tipper chassis specification (May 2022)](http
 | Plated weights | GVW 32000; GTW 44000; front 9000; rear 27000 design / 24000 UK |
 | Turning circle | 17.0 m kerb-to-kerb (WB 3600) |
 
-**Estimated:** tag-axle steering type (MAN offers electro-hydraulic; confirm), hardpoints, air spring data, CG.
+**Estimated:** tag-axle steering type, ratio and lock-out speed; lift travel; hardpoints; air spring data; CG. Single tyres on the tag axle follow MAN's "-4" suffix (steered trailing axle, single tyres); the sheet lists only one rear tyre size, 315/80R22.5.
 **Exercises:** lift axle (`axles[].lift`, placement `tag`), steered tag axle, air-sprung tridem on a `pneumatic_circuit`, mixed tyre sizes.
 Source: [MAN TGS 8x4 Tridem chassis specification (May 2022)](https://www.man-bodybuilder.co.uk/specs/pdf/2022/TGS/8x4-Tridem.pdf)
 

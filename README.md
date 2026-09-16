@@ -226,6 +226,7 @@ All example files validate against the current schema (`tools/validate.py`). The
 | File | Wheel formula | Suspension types | Published data used |
 |---|---|---|---|
 | `man_tgs_32_430_8x4_twin_steer_tipper.svj.json` | 8x4/4 | `solid_axle` leaf on all four axles | Axle spacings, overhangs, group loads (design/legal/unladen), tyres, rims, suspension type, engine, gearbox ratios, axle ratio, turning circle |
+| `man_tgs_36_430_8x4_4_tridem_lift_tag.svj.json` | 8x4/4 | leaf steer axle; air-sprung drive tandem and steered lift tag axle | Same as above, plus lift/steer tag axle, mixed tyre sizes, GCW; air circuit as `pneumatic_circuit` |
 
 **Multi-axle skeletons (v0.99)** — representative estimates, not production data:
 
