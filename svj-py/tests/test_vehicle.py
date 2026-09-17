@@ -288,3 +288,16 @@ def test_man_tridem_lift_tag():
     assert v.weight_distribution_front == pytest.approx(4853 / 9858, rel=1e-3)
     with open(MAN_TRIDEM) as f:
         assert validate(json.load(f), schema_path=SCHEMA) == []
+
+
+HEMTT = EXAMPLES_DIR / "oshkosh_hemtt_a4_m977a4_8x8.svj.json"
+
+
+@pytest.mark.skipif(not HEMTT.exists(), reason="HEMTT example not found")
+def test_hemtt_bogie_centre_wheelbase():
+    v = load(HEMTT, validate_on_load=False)
+    pos = {a["id"]: a["position_x"] for a in v.axles}
+    assert (pos["A1"] + pos["A2"]) / 2 - (pos["A3"] + pos["A4"]) / 2 == pytest.approx(5.334, abs=1e-3)
+    assert v.wheel_formula == "8x8/4" and v.tyre_count == 8
+    with open(HEMTT) as f:
+        assert validate(json.load(f), schema_path=SCHEMA) == []

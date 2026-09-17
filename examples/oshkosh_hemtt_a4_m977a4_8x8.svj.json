@@ -1,0 +1,1358 @@
+{
+  "_metadata": {
+    "specification": "SVJ",
+    "version": "0.99.1",
+    "coordinate_system": "SAE_J670",
+    "units": "SI",
+    "description": "Oshkosh HEMTT A4 M977A4 8x8 cargo truck (2015 product sheet). Air-sprung beam axles on all four axles, steered front tandem, bogie-centre wheelbase. Headline dimensions, weights, tyres, suspension models and powertrain are published; individual axle spacings are measured from the sheet's to-scale drawing; everything else is estimated.",
+    "author": "RFloEng",
+    "alignment_convention": "relative_to_centerline",
+    "data_origin": {
+      "type": "mixed",
+      "confidence": "low",
+      "detail": "Published (Oshkosh product sheet): wheelbase 210 in, track 79 in, length/width/height, curb weight, GVWR (standard/armoured), GCWR, payload, tyre size and count, NEWAY ADS-240/AD-246 air suspension with 4 height control valves, axle models, steering on front tandem, engine, transmission and transfer case models, fuel capacity, speed, fording. Measured from drawing (estimate, about ±30 mm): axle spreads 1525 / 1490 mm, scaled to the published wheelbase. Estimated (_est): hardpoints, CG, masses split, spring/damper rates, torque curve, gear and axle ratios, axle ratings, tyre overall diameter."
+    },
+    "x_sources": [
+      {
+        "title": "Oshkosh Defense, HEMTT A4 M977A4 Cargo Truck product sheet, VEH_HEMTTA4_CARGO_SEL_UEN_4/15-1 (2015)",
+        "url": "https://oshkoshdefense.com/wp-content/uploads/2018/12/17311_HEMTT-A4-Cargo_LowRes_4.29.2015.pdf",
+        "accessed": "2026-09-16"
+      },
+      {
+        "title": "GlobalSecurity — HEMTT specifications",
+        "url": "https://www.globalsecurity.org/military/systems/ground/hmett-specs.htm",
+        "accessed": "2026-09-16"
+      }
+    ]
+  },
+  "vehicle_info": {
+    "make": "Oshkosh",
+    "model": "HEMTT A4 M977A4",
+    "year": 2015,
+    "variant": "Cargo truck with material handling crane",
+    "drive_type": "AWD",
+    "wheel_formula": "8x8/4",
+    "vehicle_class": "military"
+  },
+  "chassis": {
+    "mass_total": 18943,
+    "_mass_total_source": "Curb weight 41,762 lb (18943 kg)",
+    "wheelbase": 5.334,
+    "wheelbase_reference": "bogie_centres",
+    "_wheelbase_source": "Wheelbase 210 in (5334 mm); reproduced by front-tandem centre to rear-tandem centre",
+    "track_front": 2.007,
+    "track_rear": 2.007,
+    "_track_source": "Track 79 in (2007 mm)",
+    "center_of_gravity": [
+      -3.1,
+      0.0,
+      -1.35
+    ],
+    "_cg_note": "Estimated (unladen, crane stowed)",
+    "mass_unsprung_per_corner": {
+      "A1L": 620,
+      "A1R": 620,
+      "A2L": 620,
+      "A2R": 620,
+      "A3L": 620,
+      "A3R": 620,
+      "A4L": 620,
+      "A4R": 620,
+      "_est": true
+    },
+    "plated_masses": {
+      "gross_vehicle_mass_design": 29030,
+      "gross_combination_mass_design": 49442,
+      "payload": 9780,
+      "_source": "GVWR 64,000 lb (29030 kg), 72,500 lb (32885 kg) with armor; GCWR 109,000 lb (49442 kg); payload 21,561 lb (9780 kg)",
+      "_gvwr_armored": 32885
+    }
+  },
+  "steering": {
+    "type": "recirculating_ball",
+    "rack_position": [
+      0.45,
+      -0.5,
+      -1.15
+    ],
+    "rack_travel": 0.12,
+    "overall_ratio": 24.0,
+    "lock_to_lock": 34.558,
+    "axle_ref": "A1",
+    "power_assist": {
+      "type": "hydraulic"
+    },
+    "additional_axles": [
+      {
+        "axle_ref": "A2",
+        "type": "mechanical_link",
+        "ratio": 0.75,
+        "phase": "same",
+        "_est": true,
+        "_note": "Ratio from ideal Ackermann about the rear tandem centre"
+      }
+    ],
+    "_source": "Power assist steering on the front tandem (published); gear type, ratio and lock-to-lock estimated"
+  },
+  "suspension": {
+    "A1L": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "torque_rods",
+        "upright": {
+          "id": "hub_A1L",
+          "hardpoints": {
+            "wheel_center": [
+              0.0,
+              -1.0035,
+              -0.585
+            ],
+            "arm_axle_seat": [
+              0.0,
+              -0.46,
+              -0.535
+            ],
+            "upper_rod_end": [
+              0.0,
+              -0.22,
+              -0.835
+            ],
+            "damper_outboard": [
+              -0.08,
+              -0.5,
+              -0.585
+            ],
+            "steering_tie_rod_end": [
+              -0.25,
+              -0.8035,
+              -0.535
+            ]
+          },
+          "_est": true
+        },
+        "links": [
+          {
+            "name": "trailing_arm",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.75,
+                -0.46,
+                -0.885
+              ]
+            ],
+            "outboard_ref": "hardpoints.arm_axle_seat",
+            "_est": true
+          },
+          {
+            "name": "upper_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                0.6,
+                -0.1,
+                -0.985
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_rod_end",
+            "_est": true
+          }
+        ],
+        "axle_body": {
+          "id": "A1_steer_drive_axle",
+          "mass": 700,
+          "position": [
+            0.0,
+            0,
+            -0.585
+          ],
+          "portal_drop": 0.0,
+          "_est": true
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.254,
+        "set_ref": "michelin_xzl_16_00r20",
+        "_note": "20 in rim published via tyre size; rim width estimated"
+      },
+      "spring": {
+        "type": "air",
+        "rate": 260000,
+        "effective_area": 0.075,
+        "_est": true,
+        "_source": "Air ride suspension: front NEWAY ADS-240 (published); spring data estimated"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            9000
+          ],
+          [
+            0.6,
+            30000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            18000
+          ],
+          [
+            0.6,
+            55000
+          ]
+        ],
+        "_est": true
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0015,
+        "caster": 0.0524,
+        "_est": true
+      }
+    },
+    "A1R": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "torque_rods",
+        "upright": {
+          "id": "hub_A1R",
+          "hardpoints": {
+            "wheel_center": [
+              0.0,
+              1.0035,
+              -0.585
+            ],
+            "arm_axle_seat": [
+              0.0,
+              0.46,
+              -0.535
+            ],
+            "upper_rod_end": [
+              0.0,
+              0.22,
+              -0.835
+            ],
+            "damper_outboard": [
+              -0.08,
+              0.5,
+              -0.585
+            ],
+            "steering_tie_rod_end": [
+              -0.25,
+              0.8035,
+              -0.535
+            ]
+          },
+          "_est": true
+        },
+        "links": [
+          {
+            "name": "trailing_arm",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.75,
+                0.46,
+                -0.885
+              ]
+            ],
+            "outboard_ref": "hardpoints.arm_axle_seat",
+            "_est": true
+          },
+          {
+            "name": "upper_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                0.6,
+                0.1,
+                -0.985
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_rod_end",
+            "_est": true
+          }
+        ],
+        "axle_body": {
+          "id": "A1_steer_drive_axle",
+          "mass": 700,
+          "position": [
+            0.0,
+            0,
+            -0.585
+          ],
+          "portal_drop": 0.0,
+          "_est": true
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.254,
+        "set_ref": "michelin_xzl_16_00r20",
+        "_note": "20 in rim published via tyre size; rim width estimated"
+      },
+      "spring": {
+        "type": "air",
+        "rate": 260000,
+        "effective_area": 0.075,
+        "_est": true,
+        "_source": "Air ride suspension: front NEWAY ADS-240 (published); spring data estimated"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            9000
+          ],
+          [
+            0.6,
+            30000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            18000
+          ],
+          [
+            0.6,
+            55000
+          ]
+        ],
+        "_est": true
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0015,
+        "caster": 0.0524,
+        "_est": true
+      }
+    },
+    "A2L": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "torque_rods",
+        "upright": {
+          "id": "hub_A2L",
+          "hardpoints": {
+            "wheel_center": [
+              -1.525,
+              -1.0035,
+              -0.585
+            ],
+            "arm_axle_seat": [
+              -1.525,
+              -0.46,
+              -0.535
+            ],
+            "upper_rod_end": [
+              -1.525,
+              -0.22,
+              -0.835
+            ],
+            "damper_outboard": [
+              -1.605,
+              -0.5,
+              -0.585
+            ],
+            "steering_tie_rod_end": [
+              -1.775,
+              -0.8035,
+              -0.535
+            ]
+          },
+          "_est": true
+        },
+        "links": [
+          {
+            "name": "trailing_arm",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -0.775,
+                -0.46,
+                -0.885
+              ]
+            ],
+            "outboard_ref": "hardpoints.arm_axle_seat",
+            "_est": true
+          },
+          {
+            "name": "upper_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                -0.925,
+                -0.1,
+                -0.985
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_rod_end",
+            "_est": true
+          }
+        ],
+        "axle_body": {
+          "id": "A2_steer_drive_axle",
+          "mass": 700,
+          "position": [
+            -1.525,
+            0,
+            -0.585
+          ],
+          "portal_drop": 0.0,
+          "_est": true
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.254,
+        "set_ref": "michelin_xzl_16_00r20",
+        "_note": "20 in rim published via tyre size; rim width estimated"
+      },
+      "spring": {
+        "type": "air",
+        "rate": 260000,
+        "effective_area": 0.075,
+        "_est": true,
+        "_source": "Air ride suspension: front NEWAY ADS-240 (published); spring data estimated"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            9000
+          ],
+          [
+            0.6,
+            30000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            18000
+          ],
+          [
+            0.6,
+            55000
+          ]
+        ],
+        "_est": true
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0015,
+        "caster": 0.0524,
+        "_est": true
+      }
+    },
+    "A2R": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "torque_rods",
+        "upright": {
+          "id": "hub_A2R",
+          "hardpoints": {
+            "wheel_center": [
+              -1.525,
+              1.0035,
+              -0.585
+            ],
+            "arm_axle_seat": [
+              -1.525,
+              0.46,
+              -0.535
+            ],
+            "upper_rod_end": [
+              -1.525,
+              0.22,
+              -0.835
+            ],
+            "damper_outboard": [
+              -1.605,
+              0.5,
+              -0.585
+            ],
+            "steering_tie_rod_end": [
+              -1.775,
+              0.8035,
+              -0.535
+            ]
+          },
+          "_est": true
+        },
+        "links": [
+          {
+            "name": "trailing_arm",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -0.775,
+                0.46,
+                -0.885
+              ]
+            ],
+            "outboard_ref": "hardpoints.arm_axle_seat",
+            "_est": true
+          },
+          {
+            "name": "upper_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                -0.925,
+                0.1,
+                -0.985
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_rod_end",
+            "_est": true
+          }
+        ],
+        "axle_body": {
+          "id": "A2_steer_drive_axle",
+          "mass": 700,
+          "position": [
+            -1.525,
+            0,
+            -0.585
+          ],
+          "portal_drop": 0.0,
+          "_est": true
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.254,
+        "set_ref": "michelin_xzl_16_00r20",
+        "_note": "20 in rim published via tyre size; rim width estimated"
+      },
+      "spring": {
+        "type": "air",
+        "rate": 260000,
+        "effective_area": 0.075,
+        "_est": true,
+        "_source": "Air ride suspension: front NEWAY ADS-240 (published); spring data estimated"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            9000
+          ],
+          [
+            0.6,
+            30000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            18000
+          ],
+          [
+            0.6,
+            55000
+          ]
+        ],
+        "_est": true
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0015,
+        "caster": 0.0524,
+        "_est": true
+      }
+    },
+    "A3L": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "torque_rods",
+        "upright": {
+          "id": "hub_A3L",
+          "hardpoints": {
+            "wheel_center": [
+              -5.3515,
+              -1.0035,
+              -0.585
+            ],
+            "arm_axle_seat": [
+              -5.3515,
+              -0.46,
+              -0.535
+            ],
+            "upper_rod_end": [
+              -5.3515,
+              -0.22,
+              -0.835
+            ],
+            "damper_outboard": [
+              -5.4315,
+              -0.5,
+              -0.585
+            ]
+          },
+          "_est": true
+        },
+        "links": [
+          {
+            "name": "trailing_arm",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -4.6015,
+                -0.46,
+                -0.885
+              ]
+            ],
+            "outboard_ref": "hardpoints.arm_axle_seat",
+            "_est": true
+          },
+          {
+            "name": "upper_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                -4.7515,
+                -0.1,
+                -0.985
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_rod_end",
+            "_est": true
+          }
+        ],
+        "axle_body": {
+          "id": "A3_drive_axle",
+          "mass": 650,
+          "position": [
+            -5.3515,
+            0,
+            -0.585
+          ],
+          "portal_drop": 0.0,
+          "_est": true
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.254,
+        "set_ref": "michelin_xzl_16_00r20",
+        "_note": "20 in rim published via tyre size; rim width estimated"
+      },
+      "spring": {
+        "type": "air",
+        "rate": 260000,
+        "effective_area": 0.075,
+        "_est": true,
+        "_source": "Air ride suspension: rear NEWAY AD-246 (published); spring data estimated"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            9000
+          ],
+          [
+            0.6,
+            30000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            18000
+          ],
+          [
+            0.6,
+            55000
+          ]
+        ],
+        "_est": true
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0,
+        "caster": 0.0,
+        "_est": true
+      }
+    },
+    "A3R": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "torque_rods",
+        "upright": {
+          "id": "hub_A3R",
+          "hardpoints": {
+            "wheel_center": [
+              -5.3515,
+              1.0035,
+              -0.585
+            ],
+            "arm_axle_seat": [
+              -5.3515,
+              0.46,
+              -0.535
+            ],
+            "upper_rod_end": [
+              -5.3515,
+              0.22,
+              -0.835
+            ],
+            "damper_outboard": [
+              -5.4315,
+              0.5,
+              -0.585
+            ]
+          },
+          "_est": true
+        },
+        "links": [
+          {
+            "name": "trailing_arm",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -4.6015,
+                0.46,
+                -0.885
+              ]
+            ],
+            "outboard_ref": "hardpoints.arm_axle_seat",
+            "_est": true
+          },
+          {
+            "name": "upper_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                -4.7515,
+                0.1,
+                -0.985
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_rod_end",
+            "_est": true
+          }
+        ],
+        "axle_body": {
+          "id": "A3_drive_axle",
+          "mass": 650,
+          "position": [
+            -5.3515,
+            0,
+            -0.585
+          ],
+          "portal_drop": 0.0,
+          "_est": true
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.254,
+        "set_ref": "michelin_xzl_16_00r20",
+        "_note": "20 in rim published via tyre size; rim width estimated"
+      },
+      "spring": {
+        "type": "air",
+        "rate": 260000,
+        "effective_area": 0.075,
+        "_est": true,
+        "_source": "Air ride suspension: rear NEWAY AD-246 (published); spring data estimated"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            9000
+          ],
+          [
+            0.6,
+            30000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            18000
+          ],
+          [
+            0.6,
+            55000
+          ]
+        ],
+        "_est": true
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0,
+        "caster": 0.0,
+        "_est": true
+      }
+    },
+    "A4L": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "torque_rods",
+        "upright": {
+          "id": "hub_A4L",
+          "hardpoints": {
+            "wheel_center": [
+              -6.8415,
+              -1.0035,
+              -0.585
+            ],
+            "arm_axle_seat": [
+              -6.8415,
+              -0.46,
+              -0.535
+            ],
+            "upper_rod_end": [
+              -6.8415,
+              -0.22,
+              -0.835
+            ],
+            "damper_outboard": [
+              -6.9215,
+              -0.5,
+              -0.585
+            ]
+          },
+          "_est": true
+        },
+        "links": [
+          {
+            "name": "trailing_arm",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -6.0915,
+                -0.46,
+                -0.885
+              ]
+            ],
+            "outboard_ref": "hardpoints.arm_axle_seat",
+            "_est": true
+          },
+          {
+            "name": "upper_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                -6.2415,
+                -0.1,
+                -0.985
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_rod_end",
+            "_est": true
+          }
+        ],
+        "axle_body": {
+          "id": "A4_drive_axle",
+          "mass": 650,
+          "position": [
+            -6.8415,
+            0,
+            -0.585
+          ],
+          "portal_drop": 0.0,
+          "_est": true
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.254,
+        "set_ref": "michelin_xzl_16_00r20",
+        "_note": "20 in rim published via tyre size; rim width estimated"
+      },
+      "spring": {
+        "type": "air",
+        "rate": 260000,
+        "effective_area": 0.075,
+        "_est": true,
+        "_source": "Air ride suspension: rear NEWAY AD-246 (published); spring data estimated"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            9000
+          ],
+          [
+            0.6,
+            30000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            18000
+          ],
+          [
+            0.6,
+            55000
+          ]
+        ],
+        "_est": true
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0,
+        "caster": 0.0,
+        "_est": true
+      }
+    },
+    "A4R": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "torque_rods",
+        "upright": {
+          "id": "hub_A4R",
+          "hardpoints": {
+            "wheel_center": [
+              -6.8415,
+              1.0035,
+              -0.585
+            ],
+            "arm_axle_seat": [
+              -6.8415,
+              0.46,
+              -0.535
+            ],
+            "upper_rod_end": [
+              -6.8415,
+              0.22,
+              -0.835
+            ],
+            "damper_outboard": [
+              -6.9215,
+              0.5,
+              -0.585
+            ]
+          },
+          "_est": true
+        },
+        "links": [
+          {
+            "name": "trailing_arm",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -6.0915,
+                0.46,
+                -0.885
+              ]
+            ],
+            "outboard_ref": "hardpoints.arm_axle_seat",
+            "_est": true
+          },
+          {
+            "name": "upper_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                -6.2415,
+                0.1,
+                -0.985
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_rod_end",
+            "_est": true
+          }
+        ],
+        "axle_body": {
+          "id": "A4_drive_axle",
+          "mass": 650,
+          "position": [
+            -6.8415,
+            0,
+            -0.585
+          ],
+          "portal_drop": 0.0,
+          "_est": true
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.254,
+        "set_ref": "michelin_xzl_16_00r20",
+        "_note": "20 in rim published via tyre size; rim width estimated"
+      },
+      "spring": {
+        "type": "air",
+        "rate": 260000,
+        "effective_area": 0.075,
+        "_est": true,
+        "_source": "Air ride suspension: rear NEWAY AD-246 (published); spring data estimated"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            9000
+          ],
+          [
+            0.6,
+            30000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            18000
+          ],
+          [
+            0.6,
+            55000
+          ]
+        ],
+        "_est": true
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0,
+        "caster": 0.0,
+        "_est": true
+      }
+    }
+  },
+  "axles": [
+    {
+      "id": "A1",
+      "label": "steer-drive 1",
+      "position_x": 0.0,
+      "track": 2.007,
+      "steered": true,
+      "driven": true
+    },
+    {
+      "id": "A2",
+      "label": "steer-drive 2",
+      "position_x": -1.525,
+      "track": 2.007,
+      "steered": true,
+      "driven": true
+    },
+    {
+      "id": "A3",
+      "label": "drive 3",
+      "position_x": -5.3515,
+      "track": 2.007,
+      "steered": false,
+      "driven": true
+    },
+    {
+      "id": "A4",
+      "label": "drive 4",
+      "position_x": -6.8415,
+      "track": 2.007,
+      "steered": false,
+      "driven": true
+    }
+  ],
+  "_axle_position_note": "A2-A4 positions measured from the product sheet side view (estimate, ±30 mm), scaled to the published bogie-centre wheelbase",
+  "axle_groups": [
+    {
+      "id": "front_tandem",
+      "label": "Oshkosh 46K steer-drive tandem",
+      "axle_refs": [
+        "A1",
+        "A2"
+      ],
+      "max_load_design": 204618.2,
+      "_note": "Rating inferred from the axle model name '46K' (46,000 lb); not stated as a load in the sheet"
+    },
+    {
+      "id": "rear_tandem",
+      "label": "Dana DS480 drive tandem",
+      "axle_refs": [
+        "A3",
+        "A4"
+      ],
+      "_note": "Axle model published; tandem rating not stated"
+    }
+  ],
+  "suspension_couplings": [
+    {
+      "id": "front_air",
+      "type": "pneumatic_circuit",
+      "members": [
+        "A1L",
+        "A1R",
+        "A2L",
+        "A2R"
+      ],
+      "levelling_valves": 2,
+      "description": "NEWAY ADS-240 front air suspension; split of the 4 published height control valves between tandems is estimated"
+    },
+    {
+      "id": "rear_air",
+      "type": "pneumatic_circuit",
+      "members": [
+        "A3L",
+        "A3R",
+        "A4L",
+        "A4R"
+      ],
+      "levelling_valves": 2,
+      "description": "NEWAY AD-246 rear air suspension; valve split estimated"
+    }
+  ],
+  "tires": {
+    "sets": {
+      "michelin_xzl_16_00r20": {
+        "description": "Michelin XZL 16.00R20 tubeless (8 fitted + 1 spare)",
+        "source": "manufacturer",
+        "size_code": "16.00R20",
+        "dimensions": {
+          "section_width": 0.4064,
+          "aspect_ratio": 0.907,
+          "overall_diameter": 1.245
+        },
+        "_note": "Size and model published; overall diameter estimated for the XZL 16.00R20, aspect ratio derived from it"
+      }
+    }
+  },
+  "powertrain": {
+    "layout": "multi_axle",
+    "engine": {
+      "configuration": "I6",
+      "displacement": 15.2,
+      "max_rpm": 2100,
+      "torque_curve": [
+        [
+          900,
+          1700
+        ],
+        [
+          1200,
+          2240
+        ],
+        [
+          1600,
+          2240
+        ],
+        [
+          2100,
+          1695
+        ]
+      ],
+      "_est": true,
+      "_source": "Caterpillar C15, 500 hp, 15.2 L, 2004 EPA (published); torque curve estimated to match 500 hp at 2100 rpm"
+    },
+    "gearbox": {
+      "type": "auto",
+      "ratios": [
+        3.51,
+        1.91,
+        1.43,
+        1.0,
+        0.75
+      ],
+      "reverse_ratios": [
+        4.8
+      ],
+      "_est": true,
+      "_source": "Allison 4500 SP 5-speed automatic (published); ratios are typical Allison 4500 values, not from the sheet"
+    },
+    "transfer_case": {
+      "type": "full_time",
+      "ratio_high": 1.0,
+      "ratio_low": 2.0,
+      "_est": true,
+      "_source": "Oshkosh enhanced 55000 Series 2-speed transfer case (published); ratios and split estimated"
+    },
+    "differentials": [
+      {
+        "id": "diff_A1",
+        "location": "front",
+        "type": "open",
+        "final_drive": 7.8,
+        "axle_ref": "A1",
+        "_est": true
+      },
+      {
+        "id": "diff_A2",
+        "location": "front",
+        "type": "open",
+        "final_drive": 7.8,
+        "axle_ref": "A2",
+        "through_drive": true,
+        "_est": true
+      },
+      {
+        "id": "diff_A3",
+        "location": "rear",
+        "type": "open",
+        "final_drive": 7.8,
+        "axle_ref": "A3",
+        "through_drive": true,
+        "_est": true
+      },
+      {
+        "id": "diff_A4",
+        "location": "rear",
+        "type": "open",
+        "final_drive": 7.8,
+        "axle_ref": "A4",
+        "_est": true
+      }
+    ],
+    "half_shafts": {
+      "A1L": {
+        "diff_ref": "diff_A1"
+      },
+      "A1R": {
+        "diff_ref": "diff_A1"
+      },
+      "A2L": {
+        "diff_ref": "diff_A2"
+      },
+      "A2R": {
+        "diff_ref": "diff_A2"
+      },
+      "A3L": {
+        "diff_ref": "diff_A3"
+      },
+      "A3R": {
+        "diff_ref": "diff_A3"
+      },
+      "A4L": {
+        "diff_ref": "diff_A4"
+      },
+      "A4R": {
+        "diff_ref": "diff_A4"
+      }
+    }
+  },
+  "validation": {
+    "status": "unvalidated",
+    "method": "other",
+    "notes": "Published product-sheet data plus drawing measurements and engineering estimates."
+  },
+  "benchmarks": [
+    {
+      "id": "max_speed",
+      "value": 100,
+      "unit": "km/h",
+      "type": "measured",
+      "source": "Oshkosh Defense, HEMTT A4 M977A4 Cargo Truck product sheet, VEH_HEMTTA4_CARGO_SEL_UEN_4/15-1 (2015)"
+    },
+    {
+      "id": "fording_depth",
+      "value": 1.219,
+      "unit": "m",
+      "type": "measured",
+      "source": "Oshkosh Defense, HEMTT A4 M977A4 Cargo Truck product sheet, VEH_HEMTTA4_CARGO_SEL_UEN_4/15-1 (2015)"
+    },
+    {
+      "id": "cruising_range_cross_country",
+      "value": 483,
+      "unit": "km",
+      "type": "measured",
+      "source": "Oshkosh Defense, HEMTT A4 M977A4 Cargo Truck product sheet, VEH_HEMTTA4_CARGO_SEL_UEN_4/15-1 (2015)"
+    },
+    {
+      "id": "crane_capacity_at_5_8m",
+      "value": 1134,
+      "unit": "kg",
+      "type": "measured",
+      "source": "Oshkosh Defense, HEMTT A4 M977A4 Cargo Truck product sheet, VEH_HEMTTA4_CARGO_SEL_UEN_4/15-1 (2015)"
+    }
+  ],
+  "x_oshkosh_product_sheet": {
+    "length_mm": 10389,
+    "width_mm": 2438,
+    "height_over_spare_tire_mm": 2997,
+    "fuel_capacity_l": 587,
+    "tires_fitted": 8,
+    "spare_tires": 1,
+    "axle_models": {
+      "front": "Oshkosh 46K",
+      "rear": "Dana DS480"
+    },
+    "suspension_models": {
+      "front": "NEWAY ADS-240",
+      "rear": "NEWAY AD-246",
+      "height_control_valves": 4
+    },
+    "self_recovery_winch_kg": 9072,
+    "brakes": "Drum type, air actuated S-cam, ABS/ATC"
+  }
+}
