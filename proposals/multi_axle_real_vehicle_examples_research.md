@@ -4,7 +4,7 @@
 - **Date:** 2026-09-16
 - **Target Specification:** SVJ v0.99
 - **Proposal Type:** Research — candidate real vehicles for `examples/`
-- **Status:** In progress — §4 patches landed in v0.99.1; A1 built as `examples/man_tgs_32_430_8x4_twin_steer_tipper.svj.json`, A2 as `examples/man_tgs_36_430_8x4_4_tridem_lift_tag.svj.json`
+- **Status:** In progress — §4 patches landed in v0.99.1; A1 built as `examples/man_tgs_32_430_8x4_twin_steer_tipper.svj.json`, A2 as `examples/man_tgs_36_430_8x4_4_tridem_lift_tag.svj.json`, A3 as `examples/oshkosh_hemtt_a4_m977a4_8x8.svj.json`
 
 ---
 
@@ -83,7 +83,7 @@ Source: [MAN TGS 8x4 Tridem chassis specification (May 2022)](https://www.man-bo
 | Axles | Front Oshkosh 46K; rear Dana DS480 |
 | Powertrain | Caterpillar C15 500 hp; Allison 4500SP 5-speed; Oshkosh 55000 2-speed transfer case |
 
-**Measured from the to-scale side view (estimates, about ±30 mm):** front tandem spread ≈1525 mm, rear tandem spread ≈1490 mm. The published 5334 mm wheelbase is reproduced exactly when it is measured from front tandem centre to rear tandem centre (A1→A3 is also ≈5350 mm because both spreads are nearly equal).
+**Measured from the to-scale side view (estimates, about ±30 mm):** front tandem spread ≈1525 mm, rear tandem spread ≈1490 mm. Scale check: with the drawing scaled to the 5334 mm bogie-centre wheelbase, its overall length measures 10383 mm against the published 10389 mm (0.06 %). The published 5334 mm wheelbase is reproduced exactly when it is measured from front tandem centre to rear tandem centre (A1→A3 is also ≈5350 mm because both spreads are nearly equal).
 **Exercises:** 8x8, twin steer, four air circuits (`pneumatic_circuit` with 4 levelling valves), wheelbase measured between bogie centres.
 Sources: [Oshkosh Defense HEMTT A4 M977A4 product sheet (2015)](https://oshkoshdefense.com/wp-content/uploads/2018/12/17311_HEMTT-A4-Cargo_LowRes_4.29.2015.pdf), [GlobalSecurity HEMTT specifications](https://www.globalsecurity.org/military/systems/ground/hmett-specs.htm)
 
