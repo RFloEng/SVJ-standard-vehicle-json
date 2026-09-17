@@ -301,3 +301,15 @@ def test_hemtt_bogie_centre_wheelbase():
     assert v.wheel_formula == "8x8/4" and v.tyre_count == 8
     with open(HEMTT) as f:
         assert validate(json.load(f), schema_path=SCHEMA) == []
+
+
+TATRA = EXAMPLES_DIR / "tatra_t815_7_8x8_swing_axle.svj.json"
+
+
+@pytest.mark.skipif(not TATRA.exists(), reason="Tatra example not found")
+def test_tatra_swing_axles():
+    v = load(TATRA, validate_on_load=False)
+    assert set(v.topologies().values()) == {"swing_axle"}
+    assert [a["position_x"] for a in v.axles] == pytest.approx([0.0, -1.95, -5.2, -6.65])
+    with open(TATRA) as f:
+        assert validate(json.load(f), schema_path=SCHEMA) == []

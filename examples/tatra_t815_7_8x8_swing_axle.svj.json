@@ -1,0 +1,1288 @@
+{
+  "_metadata": {
+    "specification": "SVJ",
+    "version": "0.99.1",
+    "coordinate_system": "SAE_J670",
+    "units": "SI",
+    "description": "TATRA T 815-7N0R99 8x8.1R high-mobility heavy-duty cargo/troop carrier with crane. Central backbone tube with independently swinging half-axles and air springs on all four axles, two steered front axles, wheel hub reductions. Axle spacings, overall dimensions, weights, tyres, powertrain and performance are published; geometry details and rates are estimates.",
+    "author": "RFloEng",
+    "alignment_convention": "relative_to_centerline",
+    "data_origin": {
+      "type": "mixed",
+      "confidence": "medium",
+      "detail": "Published (Tatra data sheet): axle spacings 1950/3250/1450 mm, front overhang 1605 mm, rear overhang to crane/hitch 1200 + 278 mm, overall length 9750 ± 30 mm, width 2500 mm, track 2072 mm, clearance 410 mm (adjustable), heights, approach/ramp/departure angles, curb weight, payload, GVW, tyres and rims, suspension and axle concept, engine, transmission, transfer box, performance. Estimated (_est): hardpoints, CG, spring/damper/anti-roll rates, twin-steer ratio, transfer and axle ratios, tyre overall diameter."
+    },
+    "x_sources": [
+      {
+        "title": "TATRA a.s., data sheet T 815-7N0R99 38 331 8x8.1R, 8x8 HMHD cargo/troop carrier with crane (2 pages, published by the Czech Ministry of Foreign Affairs)",
+        "url": "https://mzv.gov.cz/file/612403/Tatra_8x8_specs_7N0R99.pdf",
+        "accessed": "2026-09-17"
+      },
+      {
+        "title": "TATRA FORCE firefighting brochure (2024) — suspension load capacities",
+        "url": "https://www.tatratrucks.com",
+        "accessed": "2026-09-17"
+      }
+    ]
+  },
+  "vehicle_info": {
+    "make": "TATRA",
+    "model": "T 815-7N0R99 38 331 8x8.1R",
+    "variant": "8x8 HMHD cargo/troop carrier with crane, armoured cab",
+    "drive_type": "AWD",
+    "wheel_formula": "8x8/4",
+    "vehicle_class": "military"
+  },
+  "chassis": {
+    "mass_total": 16900,
+    "_mass_total_source": "Curb weight with armoured cab 16,900 kg",
+    "wheelbase": 6.65,
+    "wheelbase_reference": "last_axle",
+    "_wheelbase_note": "No single wheelbase figure is published; value is A1 to A4 from the published spacings 1950 + 3250 + 1450 mm",
+    "track_front": 2.072,
+    "track_rear": 2.072,
+    "_track_source": "Track front/rear 2,072 mm",
+    "center_of_gravity": [
+      -3.05,
+      0.0,
+      -1.3
+    ],
+    "_cg_note": "Estimated (unladen)",
+    "mass_unsprung_per_corner": {
+      "A1L": 480,
+      "A1R": 480,
+      "A2L": 480,
+      "A2R": 480,
+      "A3L": 480,
+      "A3R": 480,
+      "A4L": 480,
+      "A4R": 480,
+      "_est": true
+    },
+    "plated_masses": {
+      "gross_vehicle_mass_design": 38000,
+      "payload": 21100,
+      "_source": "GVW max. 38,000 kg; payload max. 21,100 kg"
+    },
+    "chassis_stiffness": {
+      "measurement_method": "estimated",
+      "torsional_stiffness": 20000,
+      "_note": "Backbone tube joined to a ladder frame by cross-members: published as exceptionally resistant to twist and bending; value is an estimate"
+    }
+  },
+  "steering": {
+    "type": "recirculating_ball",
+    "rack_position": [
+      0.4,
+      -0.55,
+      -1.1
+    ],
+    "rack_travel": 0.12,
+    "overall_ratio": 22.0,
+    "lock_to_lock": 31.416,
+    "turning_circle": 26.0,
+    "axle_ref": "A1",
+    "power_assist": {
+      "type": "hydraulic"
+    },
+    "additional_axles": [
+      {
+        "axle_ref": "A2",
+        "type": "mechanical_link",
+        "phase": "same",
+        "ratio": 0.671,
+        "_est": true,
+        "_note": "Ratio from ideal Ackermann about the rear tandem centre"
+      }
+    ],
+    "_source": "Integral power steering; turning circle 26 ± 1 m curb to curb (published). Gear ratio and lock-to-lock estimated."
+  },
+  "suspension": {
+    "A1L": {
+      "topology": {
+        "system_type": "swing_axle",
+        "upright": {
+          "id": "hub_A1L",
+          "hardpoints": {
+            "wheel_center": [
+              0.0,
+              -1.036,
+              -0.585
+            ],
+            "damper_outboard": [
+              0.0,
+              -0.8,
+              -0.685
+            ],
+            "swing_pivot": [
+              0.0,
+              -0.1,
+              -0.585
+            ],
+            "steering_tie_rod_end": [
+              -0.25,
+              -0.816,
+              -0.535
+            ]
+          },
+          "_est": true
+        },
+        "links": [
+          {
+            "name": "swing_half_axle",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.22,
+                -0.1,
+                -0.585
+              ],
+              [
+                -0.22,
+                -0.1,
+                -0.585
+              ]
+            ],
+            "outboard_ref": "hardpoints.wheel_center",
+            "mass": 260,
+            "_est": true,
+            "_note": "Half-axle pivots on the central backbone tube; wheel hub reduction at the outer end (published)"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.254,
+        "set_ref": "tatra_16_00r20",
+        "_source": "Single tactical tyres on all axles with CTIS; rims 20-10.00V; tyres 16.00 R20"
+      },
+      "spring": {
+        "type": "air",
+        "rate": 280000,
+        "effective_area": 0.08,
+        "_est": true,
+        "_source": "Air springs all round (published); rate estimated. Tatra lists 10 t per axle for air-sprung steered and non-steered axles (FORCE brochure 2024)"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            9000
+          ],
+          [
+            0.6,
+            30000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            18000
+          ],
+          [
+            0.6,
+            55000
+          ]
+        ],
+        "_est": true,
+        "_source": "Telescopic shock absorbers (published); curves estimated"
+      },
+      "arb": {
+        "bar_id": "swing_bar_A1",
+        "bar_rate": 150000,
+        "_est": true,
+        "_source": "Swing (anti-roll) bars on front and rear axles (published); rate estimated"
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0015,
+        "caster": 0.0524,
+        "_est": true
+      }
+    },
+    "A1R": {
+      "topology": {
+        "system_type": "swing_axle",
+        "upright": {
+          "id": "hub_A1R",
+          "hardpoints": {
+            "wheel_center": [
+              0.0,
+              1.036,
+              -0.585
+            ],
+            "damper_outboard": [
+              0.0,
+              0.8,
+              -0.685
+            ],
+            "swing_pivot": [
+              0.0,
+              0.1,
+              -0.585
+            ],
+            "steering_tie_rod_end": [
+              -0.25,
+              0.816,
+              -0.535
+            ]
+          },
+          "_est": true
+        },
+        "links": [
+          {
+            "name": "swing_half_axle",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.22,
+                0.1,
+                -0.585
+              ],
+              [
+                -0.22,
+                0.1,
+                -0.585
+              ]
+            ],
+            "outboard_ref": "hardpoints.wheel_center",
+            "mass": 260,
+            "_est": true,
+            "_note": "Half-axle pivots on the central backbone tube; wheel hub reduction at the outer end (published)"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.254,
+        "set_ref": "tatra_16_00r20",
+        "_source": "Single tactical tyres on all axles with CTIS; rims 20-10.00V; tyres 16.00 R20"
+      },
+      "spring": {
+        "type": "air",
+        "rate": 280000,
+        "effective_area": 0.08,
+        "_est": true,
+        "_source": "Air springs all round (published); rate estimated. Tatra lists 10 t per axle for air-sprung steered and non-steered axles (FORCE brochure 2024)"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            9000
+          ],
+          [
+            0.6,
+            30000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            18000
+          ],
+          [
+            0.6,
+            55000
+          ]
+        ],
+        "_est": true,
+        "_source": "Telescopic shock absorbers (published); curves estimated"
+      },
+      "arb": {
+        "bar_id": "swing_bar_A1",
+        "bar_rate": 150000,
+        "_est": true,
+        "_source": "Swing (anti-roll) bars on front and rear axles (published); rate estimated"
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0015,
+        "caster": 0.0524,
+        "_est": true
+      }
+    },
+    "A2L": {
+      "topology": {
+        "system_type": "swing_axle",
+        "upright": {
+          "id": "hub_A2L",
+          "hardpoints": {
+            "wheel_center": [
+              -1.95,
+              -1.036,
+              -0.585
+            ],
+            "damper_outboard": [
+              -1.95,
+              -0.8,
+              -0.685
+            ],
+            "swing_pivot": [
+              -1.95,
+              -0.1,
+              -0.585
+            ],
+            "steering_tie_rod_end": [
+              -2.2,
+              -0.816,
+              -0.535
+            ]
+          },
+          "_est": true
+        },
+        "links": [
+          {
+            "name": "swing_half_axle",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -1.73,
+                -0.1,
+                -0.585
+              ],
+              [
+                -2.17,
+                -0.1,
+                -0.585
+              ]
+            ],
+            "outboard_ref": "hardpoints.wheel_center",
+            "mass": 260,
+            "_est": true,
+            "_note": "Half-axle pivots on the central backbone tube; wheel hub reduction at the outer end (published)"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.254,
+        "set_ref": "tatra_16_00r20",
+        "_source": "Single tactical tyres on all axles with CTIS; rims 20-10.00V; tyres 16.00 R20"
+      },
+      "spring": {
+        "type": "air",
+        "rate": 280000,
+        "effective_area": 0.08,
+        "_est": true,
+        "_source": "Air springs all round (published); rate estimated. Tatra lists 10 t per axle for air-sprung steered and non-steered axles (FORCE brochure 2024)"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            9000
+          ],
+          [
+            0.6,
+            30000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            18000
+          ],
+          [
+            0.6,
+            55000
+          ]
+        ],
+        "_est": true,
+        "_source": "Telescopic shock absorbers (published); curves estimated"
+      },
+      "arb": {
+        "bar_id": "swing_bar_A2",
+        "bar_rate": 150000,
+        "_est": true,
+        "_source": "Swing (anti-roll) bars on front and rear axles (published); rate estimated"
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0015,
+        "caster": 0.0524,
+        "_est": true
+      }
+    },
+    "A2R": {
+      "topology": {
+        "system_type": "swing_axle",
+        "upright": {
+          "id": "hub_A2R",
+          "hardpoints": {
+            "wheel_center": [
+              -1.95,
+              1.036,
+              -0.585
+            ],
+            "damper_outboard": [
+              -1.95,
+              0.8,
+              -0.685
+            ],
+            "swing_pivot": [
+              -1.95,
+              0.1,
+              -0.585
+            ],
+            "steering_tie_rod_end": [
+              -2.2,
+              0.816,
+              -0.535
+            ]
+          },
+          "_est": true
+        },
+        "links": [
+          {
+            "name": "swing_half_axle",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -1.73,
+                0.1,
+                -0.585
+              ],
+              [
+                -2.17,
+                0.1,
+                -0.585
+              ]
+            ],
+            "outboard_ref": "hardpoints.wheel_center",
+            "mass": 260,
+            "_est": true,
+            "_note": "Half-axle pivots on the central backbone tube; wheel hub reduction at the outer end (published)"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.254,
+        "set_ref": "tatra_16_00r20",
+        "_source": "Single tactical tyres on all axles with CTIS; rims 20-10.00V; tyres 16.00 R20"
+      },
+      "spring": {
+        "type": "air",
+        "rate": 280000,
+        "effective_area": 0.08,
+        "_est": true,
+        "_source": "Air springs all round (published); rate estimated. Tatra lists 10 t per axle for air-sprung steered and non-steered axles (FORCE brochure 2024)"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            9000
+          ],
+          [
+            0.6,
+            30000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            18000
+          ],
+          [
+            0.6,
+            55000
+          ]
+        ],
+        "_est": true,
+        "_source": "Telescopic shock absorbers (published); curves estimated"
+      },
+      "arb": {
+        "bar_id": "swing_bar_A2",
+        "bar_rate": 150000,
+        "_est": true,
+        "_source": "Swing (anti-roll) bars on front and rear axles (published); rate estimated"
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0015,
+        "caster": 0.0524,
+        "_est": true
+      }
+    },
+    "A3L": {
+      "topology": {
+        "system_type": "swing_axle",
+        "upright": {
+          "id": "hub_A3L",
+          "hardpoints": {
+            "wheel_center": [
+              -5.2,
+              -1.036,
+              -0.585
+            ],
+            "damper_outboard": [
+              -5.2,
+              -0.8,
+              -0.685
+            ],
+            "swing_pivot": [
+              -5.2,
+              -0.1,
+              -0.585
+            ]
+          },
+          "_est": true
+        },
+        "links": [
+          {
+            "name": "swing_half_axle",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -4.98,
+                -0.1,
+                -0.585
+              ],
+              [
+                -5.42,
+                -0.1,
+                -0.585
+              ]
+            ],
+            "outboard_ref": "hardpoints.wheel_center",
+            "mass": 260,
+            "_est": true,
+            "_note": "Half-axle pivots on the central backbone tube; wheel hub reduction at the outer end (published)"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.254,
+        "set_ref": "tatra_16_00r20",
+        "_source": "Single tactical tyres on all axles with CTIS; rims 20-10.00V; tyres 16.00 R20"
+      },
+      "spring": {
+        "type": "air",
+        "rate": 280000,
+        "effective_area": 0.08,
+        "_est": true,
+        "_source": "Air springs all round (published); rate estimated. Tatra lists 10 t per axle for air-sprung steered and non-steered axles (FORCE brochure 2024)"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            9000
+          ],
+          [
+            0.6,
+            30000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            18000
+          ],
+          [
+            0.6,
+            55000
+          ]
+        ],
+        "_est": true,
+        "_source": "Telescopic shock absorbers (published); curves estimated"
+      },
+      "arb": {
+        "bar_id": "swing_bar_A3",
+        "bar_rate": 150000,
+        "_est": true,
+        "_source": "Swing (anti-roll) bars on front and rear axles (published); rate estimated"
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0,
+        "caster": 0.0,
+        "_est": true
+      }
+    },
+    "A3R": {
+      "topology": {
+        "system_type": "swing_axle",
+        "upright": {
+          "id": "hub_A3R",
+          "hardpoints": {
+            "wheel_center": [
+              -5.2,
+              1.036,
+              -0.585
+            ],
+            "damper_outboard": [
+              -5.2,
+              0.8,
+              -0.685
+            ],
+            "swing_pivot": [
+              -5.2,
+              0.1,
+              -0.585
+            ]
+          },
+          "_est": true
+        },
+        "links": [
+          {
+            "name": "swing_half_axle",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -4.98,
+                0.1,
+                -0.585
+              ],
+              [
+                -5.42,
+                0.1,
+                -0.585
+              ]
+            ],
+            "outboard_ref": "hardpoints.wheel_center",
+            "mass": 260,
+            "_est": true,
+            "_note": "Half-axle pivots on the central backbone tube; wheel hub reduction at the outer end (published)"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.254,
+        "set_ref": "tatra_16_00r20",
+        "_source": "Single tactical tyres on all axles with CTIS; rims 20-10.00V; tyres 16.00 R20"
+      },
+      "spring": {
+        "type": "air",
+        "rate": 280000,
+        "effective_area": 0.08,
+        "_est": true,
+        "_source": "Air springs all round (published); rate estimated. Tatra lists 10 t per axle for air-sprung steered and non-steered axles (FORCE brochure 2024)"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            9000
+          ],
+          [
+            0.6,
+            30000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            18000
+          ],
+          [
+            0.6,
+            55000
+          ]
+        ],
+        "_est": true,
+        "_source": "Telescopic shock absorbers (published); curves estimated"
+      },
+      "arb": {
+        "bar_id": "swing_bar_A3",
+        "bar_rate": 150000,
+        "_est": true,
+        "_source": "Swing (anti-roll) bars on front and rear axles (published); rate estimated"
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0,
+        "caster": 0.0,
+        "_est": true
+      }
+    },
+    "A4L": {
+      "topology": {
+        "system_type": "swing_axle",
+        "upright": {
+          "id": "hub_A4L",
+          "hardpoints": {
+            "wheel_center": [
+              -6.65,
+              -1.036,
+              -0.585
+            ],
+            "damper_outboard": [
+              -6.65,
+              -0.8,
+              -0.685
+            ],
+            "swing_pivot": [
+              -6.65,
+              -0.1,
+              -0.585
+            ]
+          },
+          "_est": true
+        },
+        "links": [
+          {
+            "name": "swing_half_axle",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -6.43,
+                -0.1,
+                -0.585
+              ],
+              [
+                -6.87,
+                -0.1,
+                -0.585
+              ]
+            ],
+            "outboard_ref": "hardpoints.wheel_center",
+            "mass": 260,
+            "_est": true,
+            "_note": "Half-axle pivots on the central backbone tube; wheel hub reduction at the outer end (published)"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.254,
+        "set_ref": "tatra_16_00r20",
+        "_source": "Single tactical tyres on all axles with CTIS; rims 20-10.00V; tyres 16.00 R20"
+      },
+      "spring": {
+        "type": "air",
+        "rate": 280000,
+        "effective_area": 0.08,
+        "_est": true,
+        "_source": "Air springs all round (published); rate estimated. Tatra lists 10 t per axle for air-sprung steered and non-steered axles (FORCE brochure 2024)"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            9000
+          ],
+          [
+            0.6,
+            30000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            18000
+          ],
+          [
+            0.6,
+            55000
+          ]
+        ],
+        "_est": true,
+        "_source": "Telescopic shock absorbers (published); curves estimated"
+      },
+      "arb": {
+        "bar_id": "swing_bar_A4",
+        "bar_rate": 150000,
+        "_est": true,
+        "_source": "Swing (anti-roll) bars on front and rear axles (published); rate estimated"
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0,
+        "caster": 0.0,
+        "_est": true
+      }
+    },
+    "A4R": {
+      "topology": {
+        "system_type": "swing_axle",
+        "upright": {
+          "id": "hub_A4R",
+          "hardpoints": {
+            "wheel_center": [
+              -6.65,
+              1.036,
+              -0.585
+            ],
+            "damper_outboard": [
+              -6.65,
+              0.8,
+              -0.685
+            ],
+            "swing_pivot": [
+              -6.65,
+              0.1,
+              -0.585
+            ]
+          },
+          "_est": true
+        },
+        "links": [
+          {
+            "name": "swing_half_axle",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -6.43,
+                0.1,
+                -0.585
+              ],
+              [
+                -6.87,
+                0.1,
+                -0.585
+              ]
+            ],
+            "outboard_ref": "hardpoints.wheel_center",
+            "mass": 260,
+            "_est": true,
+            "_note": "Half-axle pivots on the central backbone tube; wheel hub reduction at the outer end (published)"
+          }
+        ]
+      },
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.254,
+        "set_ref": "tatra_16_00r20",
+        "_source": "Single tactical tyres on all axles with CTIS; rims 20-10.00V; tyres 16.00 R20"
+      },
+      "spring": {
+        "type": "air",
+        "rate": 280000,
+        "effective_area": 0.08,
+        "_est": true,
+        "_source": "Air springs all round (published); rate estimated. Tatra lists 10 t per axle for air-sprung steered and non-steered axles (FORCE brochure 2024)"
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            9000
+          ],
+          [
+            0.6,
+            30000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            18000
+          ],
+          [
+            0.6,
+            55000
+          ]
+        ],
+        "_est": true,
+        "_source": "Telescopic shock absorbers (published); curves estimated"
+      },
+      "arb": {
+        "bar_id": "swing_bar_A4",
+        "bar_rate": 150000,
+        "_est": true,
+        "_source": "Swing (anti-roll) bars on front and rear axles (published); rate estimated"
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0,
+        "caster": 0.0,
+        "_est": true
+      }
+    }
+  },
+  "axles": [
+    {
+      "id": "A1",
+      "label": "steer-drive 1",
+      "position_x": 0.0,
+      "track": 2.072,
+      "steered": true,
+      "driven": true
+    },
+    {
+      "id": "A2",
+      "label": "steer-drive 2",
+      "position_x": -1.95,
+      "track": 2.072,
+      "steered": true,
+      "driven": true
+    },
+    {
+      "id": "A3",
+      "label": "drive 3",
+      "position_x": -5.2,
+      "track": 2.072,
+      "steered": false,
+      "driven": true
+    },
+    {
+      "id": "A4",
+      "label": "drive 4",
+      "position_x": -6.65,
+      "track": 2.072,
+      "steered": false,
+      "driven": true
+    }
+  ],
+  "tires": {
+    "sets": {
+      "tatra_16_00r20": {
+        "description": "16.00 R20 single tactical tyre with CTIS (beadlocks, run-flats optional)",
+        "source": "manufacturer",
+        "size_code": "16.00R20",
+        "dimensions": {
+          "section_width": 0.4064,
+          "aspect_ratio": 0.907,
+          "overall_diameter": 1.245
+        },
+        "_note": "Size published; overall diameter estimated"
+      }
+    }
+  },
+  "powertrain": {
+    "layout": "multi_axle",
+    "engine": {
+      "configuration": "I6",
+      "displacement": 12.4,
+      "max_rpm": 2100,
+      "torque_curve": [
+        [
+          700,
+          1500
+        ],
+        [
+          1000,
+          1976
+        ],
+        [
+          1400,
+          1976
+        ],
+        [
+          1700,
+          1859
+        ],
+        [
+          2100,
+          1400
+        ]
+      ],
+      "_source": "Navistar MaxxForce 13, 6 cyl, bore/stroke 126/166 mm, 12.4 L, 331 kW at 1,700 rpm, 1,976 Nm at 1,000 rpm (published). 1700 rpm torque derived from rated power; other points estimated."
+    },
+    "gearbox": {
+      "type": "auto",
+      "ratios": [
+        3.51,
+        1.91,
+        1.43,
+        1.0,
+        0.75,
+        0.64
+      ],
+      "reverse_ratios": [
+        4.8
+      ],
+      "_est": true,
+      "_source": "Allison 4500SP automatic, 6 forward / 1 reverse (published); ratios are typical Allison 4500 6-speed values, not from the sheet"
+    },
+    "transfer_case": {
+      "type": "full_time",
+      "ratio_high": 0.9,
+      "ratio_low": 2.4,
+      "_source": "TATRA 2.30 TRK 0.9/2.4, speed-reducing, pneumatic control; ratios read from the type designation"
+    },
+    "differentials": [
+      {
+        "id": "diff_interaxle",
+        "location": "inter_axle",
+        "type": "open",
+        "final_drive": 1.0,
+        "_note": "Inter-axle differential lock (published)"
+      },
+      {
+        "id": "diff_A1",
+        "location": "front",
+        "type": "open",
+        "final_drive": 4.0,
+        "axle_ref": "A1",
+        "_est": true,
+        "_note": "Axle differential lock and wheel hub reduction (published); ratio estimated"
+      },
+      {
+        "id": "diff_A2",
+        "location": "front",
+        "type": "open",
+        "final_drive": 4.0,
+        "axle_ref": "A2",
+        "_est": true,
+        "_note": "Axle differential lock and wheel hub reduction (published); ratio estimated"
+      },
+      {
+        "id": "diff_A3",
+        "location": "rear",
+        "type": "open",
+        "final_drive": 4.0,
+        "axle_ref": "A3",
+        "_est": true,
+        "_note": "Axle differential lock and wheel hub reduction (published); ratio estimated"
+      },
+      {
+        "id": "diff_A4",
+        "location": "rear",
+        "type": "open",
+        "final_drive": 4.0,
+        "axle_ref": "A4",
+        "_est": true,
+        "_note": "Axle differential lock and wheel hub reduction (published); ratio estimated"
+      }
+    ],
+    "half_shafts": {
+      "A1L": {
+        "diff_ref": "diff_A1",
+        "cv_inner": {
+          "position": [
+            0.0,
+            -0.1,
+            -0.585
+          ]
+        }
+      },
+      "A1R": {
+        "diff_ref": "diff_A1",
+        "cv_inner": {
+          "position": [
+            0.0,
+            0.1,
+            -0.585
+          ]
+        }
+      },
+      "A2L": {
+        "diff_ref": "diff_A2",
+        "cv_inner": {
+          "position": [
+            -1.95,
+            -0.1,
+            -0.585
+          ]
+        }
+      },
+      "A2R": {
+        "diff_ref": "diff_A2",
+        "cv_inner": {
+          "position": [
+            -1.95,
+            0.1,
+            -0.585
+          ]
+        }
+      },
+      "A3L": {
+        "diff_ref": "diff_A3",
+        "cv_inner": {
+          "position": [
+            -5.2,
+            -0.1,
+            -0.585
+          ]
+        }
+      },
+      "A3R": {
+        "diff_ref": "diff_A3",
+        "cv_inner": {
+          "position": [
+            -5.2,
+            0.1,
+            -0.585
+          ]
+        }
+      },
+      "A4L": {
+        "diff_ref": "diff_A4",
+        "cv_inner": {
+          "position": [
+            -6.65,
+            -0.1,
+            -0.585
+          ]
+        }
+      },
+      "A4R": {
+        "diff_ref": "diff_A4",
+        "cv_inner": {
+          "position": [
+            -6.65,
+            0.1,
+            -0.585
+          ]
+        }
+      }
+    }
+  },
+  "validation": {
+    "status": "unvalidated",
+    "method": "other",
+    "notes": "Published Tatra data sheet plus engineering estimates."
+  },
+  "benchmarks": [
+    {
+      "id": "top_speed",
+      "value": 115,
+      "unit": "km/h",
+      "type": "measured",
+      "source": "TATRA a.s., data sheet T 815-7N0R99 38 331 8x8.1R, 8x8 HMHD cargo/troop carrier with crane (2 pages, published by the Czech Ministry of Foreign Affairs)"
+    },
+    {
+      "id": "gradeability_at_gvw",
+      "value": 55,
+      "unit": "%",
+      "type": "measured",
+      "source": "TATRA a.s., data sheet T 815-7N0R99 38 331 8x8.1R, 8x8 HMHD cargo/troop carrier with crane (2 pages, published by the Czech Ministry of Foreign Affairs)"
+    },
+    {
+      "id": "side_slope",
+      "value": 45,
+      "unit": "%",
+      "type": "measured",
+      "source": "TATRA a.s., data sheet T 815-7N0R99 38 331 8x8.1R, 8x8 HMHD cargo/troop carrier with crane (2 pages, published by the Czech Ministry of Foreign Affairs)"
+    },
+    {
+      "id": "turning_circle_curb_to_curb",
+      "value": 26,
+      "unit": "m",
+      "type": "measured",
+      "source": "TATRA a.s., data sheet T 815-7N0R99 38 331 8x8.1R, 8x8 HMHD cargo/troop carrier with crane (2 pages, published by the Czech Ministry of Foreign Affairs) (± 1 m)"
+    },
+    {
+      "id": "fording_depth",
+      "value": 1.5,
+      "unit": "m",
+      "type": "measured",
+      "source": "TATRA a.s., data sheet T 815-7N0R99 38 331 8x8.1R, 8x8 HMHD cargo/troop carrier with crane (2 pages, published by the Czech Ministry of Foreign Affairs)"
+    },
+    {
+      "id": "trench_crossing",
+      "value": 2.1,
+      "unit": "m",
+      "type": "measured",
+      "source": "TATRA a.s., data sheet T 815-7N0R99 38 331 8x8.1R, 8x8 HMHD cargo/troop carrier with crane (2 pages, published by the Czech Ministry of Foreign Affairs)"
+    },
+    {
+      "id": "vertical_step",
+      "value": 0.6,
+      "unit": "m",
+      "type": "measured",
+      "source": "TATRA a.s., data sheet T 815-7N0R99 38 331 8x8.1R, 8x8 HMHD cargo/troop carrier with crane (2 pages, published by the Czech Ministry of Foreign Affairs)"
+    },
+    {
+      "id": "cruising_range_on_road",
+      "value": 1100,
+      "unit": "km",
+      "type": "measured",
+      "source": "TATRA a.s., data sheet T 815-7N0R99 38 331 8x8.1R, 8x8 HMHD cargo/troop carrier with crane (2 pages, published by the Czech Ministry of Foreign Affairs)"
+    }
+  ],
+  "x_tatra_data_sheet": {
+    "overall_length_mm": "9750 ± 30",
+    "front_overhang_mm": 1605,
+    "rear_overhang_to_crane_mm": 1200,
+    "hitch_beyond_crane_mm": 278,
+    "width_mm": 2500,
+    "height_cab_mm": "2765 ± 30",
+    "height_overall_mm": "2900 ± 30",
+    "height_crane_mm": "2745 ± 30",
+    "ground_clearance_mm": 410,
+    "approach_angle_deg": 45,
+    "ramp_angle_deg": 37,
+    "departure_angle_deg": 39,
+    "loading_area_mm": [
+      4660,
+      2475
+    ],
+    "fuel_tank_l": 570,
+    "electrics": "24 V, 4 x 12 V 220 Ah, 260 A alternator",
+    "brakes": "Wedge-type self-adjusting drum brakes, ABS; service, emergency, parking and engine brake",
+    "crane": "240 kNm, outreach 6.9 m, 5800 kg at 4.3 m to 3550 kg at 6.9 m",
+    "operating_temperature_c": [
+      -32,
+      49
+    ]
+  }
+}

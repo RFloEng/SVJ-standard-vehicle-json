@@ -2,6 +2,14 @@
 
 ---
 
+## Unreleased
+
+| Area | Change |
+|---|---|
+| Proposals | `proposals/trailer_coupling_research.md` — trailer coupling points and articulated combinations: OpenSCENARIO, BeamNG, TruckSim, UN R55 classes and D/Dc/V/S/U, ISO coupling standards; draft `coupling_points`, combination file and validation rules (not yet in spec/schema) |
+
+---
+
 ## v0.99.1 — Real-Vehicle Data Patch
 
 | Area | Change |
@@ -10,7 +18,7 @@
 | Checker | Group ids/refs, axle in two groups, kerb-load sum vs mass_total, wheelbase vs declared definition; default front/rear groups split at the largest axle gap |
 | svj-py | `axle_groups`, `plated_masses`; `weight_distribution_front` uses group kerb loads or front/rear group centres (was wrong on multi-axle vehicles); CLI lists groups; tests |
 | Viewer | Axle groups panel; F/R bias correct for multi-axle vehicles |
-| Examples | `man_tgs_32_430_8x4_twin_steer_tipper.svj.json` — first real multi-axle vehicle, from MAN's UK body-builder chassis sheet; `man_tgs_36_430_8x4_4_tridem_lift_tag.svj.json` — air-sprung tridem with steered lift tag axle; `oshkosh_hemtt_a4_m977a4_8x8.svj.json` — 8x8 with bogie-centre wheelbase and axle spreads measured from the product-sheet drawing |
+| Examples | `man_tgs_32_430_8x4_twin_steer_tipper.svj.json` — first real multi-axle vehicle, from MAN's UK body-builder chassis sheet; `man_tgs_36_430_8x4_4_tridem_lift_tag.svj.json` — air-sprung tridem with steered lift tag axle; `oshkosh_hemtt_a4_m977a4_8x8.svj.json` — 8x8 with bogie-centre wheelbase and axle spreads measured from the product-sheet drawing; `tatra_t815_7_8x8_swing_axle.svj.json` — swing half-axles on a backbone tube, from Tatra's T815-7N0R99 data sheet |
 
 ---
 

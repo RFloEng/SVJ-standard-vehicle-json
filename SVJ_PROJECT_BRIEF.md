@@ -10,7 +10,7 @@ SVJ (Standard Vehicle JSON) is a universal exchange format for vehicle dynamics 
 spec/SVJ_Spec.md                        THE specification (§1–§23)
 schema/svj.schema.json                  JSON Schema Draft-07 (v0.99)
 schema/svj-override.schema.json         Override file structure (v0.98)
-examples/                               22 examples (real cars, 2-axle skeletons, 10 multi-axle skeletons, 3 real multi-axle trucks, tire file)
+examples/                               23 examples (real cars, 2-axle skeletons, 10 multi-axle skeletons, 4 real multi-axle trucks, tire file)
 docs/naming_convention.md               SVJ::category::id glTF naming convention
 tools/validate.py                       Schema + multi-axle validation
 tools/multiaxle_check.py                Multi-axle cross-reference rules (v0.99)
@@ -92,7 +92,7 @@ Spec §23, all optional and backward-compatible:
 ✅ torsion_beam (FF hatch rear)
 ✅ solid_axle (4WD truck rear)
 ✅ de_dion (Alfa 75 rear)
-✅ swing_axle (8x8 backbone truck)
+✅ swing_axle (8x8 backbone truck skeleton, Tatra T815-7 8x8)
 ✅ parallelogram (8x4 pusher lift axle)
 ✅ pendulum_axle (modular trailer)
 ✅ custom (by design — no example needed)
@@ -105,9 +105,9 @@ Spec §23, all optional and backward-compatible:
 - Any ambiguities found during parser development become spec patches
 
 ### Future (v1.x)
-- Articulated combinations addendum (tractor/semi-trailer, dolly, ADT) — §23.8
+- Articulated combinations addendum (tractor/semi-trailer, dolly, ADT) — §23.8; research + draft design in `proposals/trailer_coupling_research.md` (vehicle-side `coupling_points`, `*.svj-combination.json`, R55 D-value checks)
 - Known data issues: `examples/formula_f1_2025_aero.svj.json` breaks SAE conventions (CG.x/Z positive, left wheels at +Y, rear axle at -2.8 vs wheelbase 3.6); Mazda template mass_bodies + unsprung (1145 kg) ≠ mass_total (1077 kg)
-- Real-vehicle multi-axle examples — ✅ MAN TGS 8x4 twin-steer, ✅ MAN TGS 8x4-4 tridem, ✅ Oshkosh HEMTT A4 (spreads measured from drawing); next Tatra T815-7 (needs axle spacings) (shortlist: `proposals/multi_axle_real_vehicle_examples_research.md`)
+- Real-vehicle multi-axle examples — ✅ MAN TGS 8x4 twin-steer, ✅ MAN TGS 8x4-4 tridem, ✅ Oshkosh HEMTT A4 (spreads measured from drawing), ✅ Tatra T815-7N0R99 8x8 (swing axles) (shortlist: `proposals/multi_axle_real_vehicle_examples_research.md`)
 - BeamNG converter
 - rFactor2 converter
 
