@@ -6,6 +6,7 @@
 
 | Area | Change |
 |---|---|
+| Viewer v4.1 | `svj_viewer_v4.0.html` → `svj_viewer_v4.1.html`. 3D: axle beams and drive housings, schematic frame rails (central backbone for swing-axle vehicles), axle labels, "Lift axles raised" toggle, dashed pneumatic/hydraulic circuit links, camera kept on edits. Overview: top-view axle layout (spacings in mm, axle groups, CG, steered/driven/liftable/duals; click a wheel to open it) and an axle & wheel editor — add axle at rear (copies the rearmost axle, extends its group and air circuit), remove axle (renumbers A{n}, refs, groups, couplings, steering), edit X and track (moves the whole station), steered/driven/liftable, single/dual and dual spacing; wheelbase recomputed per `wheelbase_reference`, `wheel_formula` recomputed; FL/FR/RL/RR converted to A-form on first structural edit; undo restores the whole document. Suspension: Station & Axle section (group, steering role, couplings, axle body, lift, duals); tyre width/aspect from `tires.sets`. Multi-axle quick checks in the validation box |
 | Proposals | `proposals/trailer_coupling_research.md` — trailer coupling points and articulated combinations: OpenSCENARIO, BeamNG, TruckSim, UN R55 classes and D/Dc/V/S/U, ISO coupling standards; draft `coupling_points`, combination file and validation rules (not yet in spec/schema) |
 
 ---

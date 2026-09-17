@@ -16,7 +16,7 @@ tools/validate.py                       Schema + multi-axle validation
 tools/multiaxle_check.py                Multi-axle cross-reference rules (v0.99)
 tools/validate_override.py              Override resolution + validation (v0.98)
 tools/integrity_check.py                glTF visual binding checks (v0.97)
-viewer/svj_viewer_v4.0.html             Interactive SVJ viewer/editor, multi-axle aware (drag & drop)
+viewer/svj_viewer_v4.1.html             Interactive SVJ viewer/editor, multi-axle layout + axle/wheel editor (drag & drop)
 svj-py/                                 Python parser library with CLI (0.2.0, multi-axle aware)
 templates/mazda_mx5_nd2_2024.svj.json   Full vehicle template
 proposals/                              Historical design proposals (read-only)
@@ -70,6 +70,7 @@ Spec §23, all optional and backward-compatible:
 - **`tools/multiaxle_check.py`** — cross-reference rules (§23.7), run by `validate.py` and `validate_override.py`; identical copy in `svj-py/svj/multiaxle.py` (a test enforces sync)
 - **`svj-py` 0.2.0** — `stations`, alias-aware `corner()`, `axles`, `axle_count`, `wheel_count`, `tyre_count`, `wheel_formula`, `suspension_couplings`; CLI `info` shows axles and couplings
 - **Viewer v4.0** — renders any station set, dual wheels and coupling pivots/beams; axles and couplings panels; camera fits vehicle length
+- **Viewer v4.1** — axle beams, frame rails / backbone, 3D axle labels, lift axles raised toggle, circuit links; top-view axle layout diagram; Station & Axle panel; axle/wheel editor (add/remove axle, X, track, steered/driven/liftable, single/dual, dual spacing) with whole-document undo
 - **Schema fixes found during v0.99 audit:** truck tyre `size_code`s; `_` metadata keys allowed in pacejka groups (Mazda template now validates)
 - Note: the v0.94 changelog entry described a multi-axle convention (§21.1) that never landed in the spec; §23 is the real implementation.
 
