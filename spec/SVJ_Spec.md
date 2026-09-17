@@ -2698,7 +2698,7 @@ Front and rear groups are taken from `axle_groups` (the group containing `A1`, a
 
 ### 23.8 Not Covered Yet
 
-- **Articulated combinations** — tractor + semi-trailer, drawbar trailers, dollies, articulated dump trucks. These are several bodies joined by a fifth wheel, hitch or articulation joint and need a separate "vehicle units & couplings" addendum. Today, describe each unit in its own file.
+- **Articulated combinations** — tractor + semi-trailer, drawbar trailers, dollies, articulated dump trucks. These are several bodies joined by a fifth wheel, hitch or articulation joint and need a separate "vehicle units & couplings" addendum. Today, describe each unit in its own file. Research and a draft design (vehicle-side `coupling_points`, `*.svj-combination.json`, UN R55 D/Dc/V/S/U checks) are in `proposals/trailer_coupling_research.md`.
 - **Operating state** — lift axle raised/lowered, hydraulic group re-plumbing, steering modes. Use override files (§3.4) for alternative configurations.
 
 ---

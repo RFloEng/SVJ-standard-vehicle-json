@@ -4,7 +4,7 @@
 - **Date:** 2026-09-16
 - **Target Specification:** SVJ v0.99
 - **Proposal Type:** Research — candidate real vehicles for `examples/`
-- **Status:** In progress — §4 patches landed in v0.99.1; A1 built as `examples/man_tgs_32_430_8x4_twin_steer_tipper.svj.json`, A2 as `examples/man_tgs_36_430_8x4_4_tridem_lift_tag.svj.json`, A3 as `examples/oshkosh_hemtt_a4_m977a4_8x8.svj.json`
+- **Status:** In progress — §4 patches landed in v0.99.1; A1 built as `examples/man_tgs_32_430_8x4_twin_steer_tipper.svj.json`, A2 as `examples/man_tgs_36_430_8x4_4_tridem_lift_tag.svj.json`, A3 as `examples/oshkosh_hemtt_a4_m977a4_8x8.svj.json`; Tatra built as `examples/tatra_t815_7_8x8_swing_axle.svj.json` from the T815-7N0R99 data sheet (axle spacings 1950 / 3250 / 1450 mm), source https://mzv.gov.cz/file/612403/Tatra_8x8_specs_7N0R99.pdf
 
 ---
 
