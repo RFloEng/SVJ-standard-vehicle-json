@@ -78,7 +78,7 @@ SVJ now describes trucks, trailers and special vehicles, not just four-corner ca
 ]
 ```
 
-`tools/validate.py` now also runs `tools/multiaxle_check.py`, which checks the cross-references a schema can't (naming form, contiguous axles, coupling and torque-rod references, dual-wheel positions). The Python library (`svj-py` 0.2.0) and the 3D viewer (v4.1) read any number of axles, dual wheels and couplings; the viewer also draws a top-view axle layout, axle beams and frame, and can add, remove and edit axles and dual wheels. Full details: [`spec/SVJ_Spec.md` §23](spec/SVJ_Spec.md).
+`tools/validate.py` now also runs `tools/multiaxle_check.py`, which checks the cross-references a schema can't (naming form, contiguous axles, coupling and torque-rod references, dual-wheel positions). The Python library (`svj-py` 0.2.0) and the 3D viewer (v4.2) read any number of axles, dual wheels and couplings; the viewer also draws a top-view axle layout, axle beams and frame, and can add, remove and edit axles and dual wheels. Full details: [`spec/SVJ_Spec.md` §23](spec/SVJ_Spec.md).
 
 ---
 
@@ -270,7 +270,7 @@ tools/
   └── integrity_check.py          glTF visual binding checks (v0.97)
 svj-py/                           Python library + CLI (v0.2.0, multi-axle aware)
 viewer/
-  └── svj_viewer_v4.1.html        3D inspector/editor — drag & drop any SVJ file; multi-axle layout + axle/wheel editor
+  └── svj_viewer_v4.2.html        3D inspector/editor — drag & drop any SVJ file; multi-axle layout, axle/wheel editor, performance tab
 proposals/                        Design proposals and research notes
 ```
 
