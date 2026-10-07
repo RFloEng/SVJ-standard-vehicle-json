@@ -1,4 +1,4 @@
-# Standard Vehicle JSON (SVJ) Specification v0.99.1
+# Standard Vehicle JSON (SVJ) Specification v0.99.2
 
 ## 1. Overview & Philosophy
 
@@ -2290,6 +2290,7 @@ This section is **optional**. It provides a standard place to record performance
 
 | Version | Changes                                                                                    |
 |---------|--------------------------------------------------------------------------------------------|
+| 0.99.2  | **Visual binding layer, part 2** (§22): one category set shared by schema, spec and `docs/naming_convention.md` (`body`, `suspension`, `steering`, `wheel`, `brake`, `powertrain`, `aero`, `helper`, `lod`); `visual` defined on suspension links, uprights, axle bodies, wheels and dual-wheel positions, springs, dampers, ARBs, brake discs and calipers, steering rack/column/wheel, powertrain units, driveshafts and aero components; new `placement` (`rigid` \| `link_between_points`) with `mesh_axis`, `from_point` and `scale_to_length` for parts defined by hardpoints; `x_`/`_` keys allowed inside `visual`; `tools/integrity_check.py` rewritten (id resolution for every carrier, placement and category rules). Additive — every v0.96–v0.99.1 file, including all v0.97 bindings, remains valid. |
 | 0.99.1  | **Real-vehicle data patch** (from `proposals/multi_axle_real_vehicle_examples_research.md`): `axle_groups` with design/legal/kerb loads per group (§23.2.1); `chassis.plated_masses`; `wheelbase_reference` gains `bogie_centres`, `first_rear_axle`, `theoretical`, `explicit` (+ `wheelbase_from`/`wheelbase_to`) with a definition table (§23.6); checker rules for both. First real-vehicle multi-axle example: MAN TGS 32.430 8x4 BB twin-steer tipper. Additive — all 0.99 files remain valid. |
 | 0.99    | **Multi-axle vehicles** (§23): `A{n}{L\|R\|C}` station naming with `FL/FR/RL/RR` as aliases; `axles` metadata (position, track, steered, driven, lift); multi-axle steering `steering.additional_axles` (§8.6); multiple wheels per station (`wheel.multiplicity`, `positions`); `suspension_couplings` (equalizer rocker, walking beam, trunnion spring, pneumatic and hydraulic circuits). New `system_type`s `swing_axle`, `parallelogram`, `pendulum_axle`; new spring types `rubber_torsion`, `rubber_block`, `hydropneumatic`, `hydraulic`, `none` with leaf end type/friction and hydropneumatic data; damper types `hydraulic_strut`, `none`; portal axle and pendulum fields on `axle_body`; `torque_rod` and `pivot` link types; `vehicle_info.wheel_formula`/`vehicle_class`; `inter_axle` differentials. `tools/multiaxle_check.py` cross-reference rules. Ten multi-axle skeleton examples. `svj-py` 0.2.0 and viewer v4.0 are multi-axle aware. Schema fixes from the audit: truck tyre `size_code`s, `_` metadata keys in pacejka groups. Existing files remain valid. |
 | 0.98    | **Override files** (§3.4): `*.svj-override.json` — `base` + RFC 7396 JSON Merge Patch `patch`, for DOE variants and partial-disclosure supplier hand-offs, validated with `tools/validate_override.py`. **`validation`** (§20a): vehicle-level correlation status against physical test data. **`benchmarks`** (§20b): array of target/measured/simulated KPI entries. All additions optional — full backward compatibility. |
@@ -2321,7 +2322,7 @@ This section is **optional**. It provides a standard place to record performance
 
 ---
 
-## 22. glTF Visual Binding Layer *(v0.97)*
+## 22. glTF Visual Binding Layer *(v0.97, extended in v0.99.2)*
 
 This section is **optional**. A file that omits all `visual` fields and the `assets` block is fully valid SVJ. Parsers that do not handle visual bindings MUST ignore these fields.
 
@@ -2351,7 +2352,28 @@ The `uri` MUST be a relative path. Absolute paths and remote URLs are not permit
 
 ### 22.3 Visual Binding
 
-Any body object in the SVJ file — `chassis`, a suspension upright, a wheel, an aero component — MAY carry a `visual` field:
+Any part described in the file MAY carry an optional `visual` field. As of **v0.99.2** the schema defines `visual` at every site in this table; all of them are optional and additive.
+
+| Where | Part | Typical category |
+|-------|------|------------------|
+| `chassis.visual` | Sprung body | `body` |
+| `chassis.mass_bodies[].visual` | Decomposed mass body (engine block, fuel tank, driver…) | `body`, `powertrain` |
+| `suspension.<station>.topology.upright.visual` | Upright / knuckle | `suspension` |
+| `suspension.<station>.visual` | Upright / knuckle (v0.97 corner-level form, still valid) | `body`, `suspension` |
+| `suspension.<station>.topology.links[].visual` | Wishbone, trailing arm, tie rod, toe link, pushrod, torque rod | `suspension` |
+| `suspension.<station>.topology.axle_body.visual` | Axle beam or housing | `suspension`, `body` |
+| `suspension.<station>.wheel.visual` | Rim / wheel | `wheel` |
+| `suspension.<station>.wheel.positions[].visual` | One wheel of a dual/triple set (§23.4) | `wheel` |
+| `suspension.<station>.spring.visual` | Coil, leaf, air spring | `suspension` |
+| `suspension.<station>.damper.visual` | Damper body | `suspension` |
+| `suspension.<station>.arb.visual` | Anti-roll bar | `suspension` |
+| `suspension.<station>.brake.disc.visual` / `.caliper.visual` | Brake disc, caliper | `brake` |
+| `steering.visual` | Rack / steering gear housing | `steering` |
+| `steering.column.visual` | Column | `steering` |
+| `steering.steering_wheel.visual` | Steering wheel | `steering` |
+| `powertrain.engine/gearbox/clutch/transfer_case.visual` | Driveline units | `powertrain` |
+| `powertrain.differentials[].visual`, `powertrain.driveshafts[].visual` | Diff housing, propshaft | `powertrain` |
+| `aerodynamics.components[].visual` | Wing, splitter, diffuser | `aero` |
 
 ```json
 "chassis": {
@@ -2363,10 +2385,18 @@ Any body object in the SVJ file — `chassis`, a suspension upright, a wheel, an
 }
 ```
 
-| Field      | Type   | Required | Description |
-|------------|--------|----------|-------------|
-| `mesh_ref` | string | YES      | Must match an `id` in `assets.meshes` |
-| `node`     | string | YES      | glTF node name following the SVJ Naming Convention (§22.5) |
+| Field             | Type    | Required | Description |
+|-------------------|---------|----------|-------------|
+| `mesh_ref`        | string  | YES¹     | Must match an `id` in `assets.meshes`. May be omitted when exactly one mesh is declared. |
+| `node`            | string  | YES      | glTF node name following the SVJ Naming Convention (§22.5) |
+| `placement`       | string  | no       | `"rigid"` (default) or `"link_between_points"` (§22.6) |
+| `mesh_axis`       | string  | no       | `link_between_points` only: `"+x"` (default), `"-x"`, `"+y"`, `"-y"`, `"+z"`, `"-z"` |
+| `from_point`      | integer | no       | `link_between_points` only: index into the link's `inboard_points` |
+| `scale_to_length` | boolean | no       | `link_between_points` only: default `false` |
+
+¹ Required in practice whenever more than one mesh file is declared; the checker warns otherwise.
+
+`x_`-prefixed extension keys and `_`-prefixed metadata keys are permitted inside `visual` (§20); no other unknown keys are.
 
 ### 22.4 Coordinate System Declaration
 
@@ -2402,24 +2432,97 @@ SVJ::<category>::<id>
 | Part | Description |
 |------|-------------|
 | `SVJ` | Literal prefix |
-| `<category>` | One of: `body`, `wheel`, `suspension`, `aero`, `powertrain` |
-| `<id>` | Lowercase alphanumeric with underscores, e.g. `chassis`, `upright_fl`, `wheel_fl` |
+| `<category>` | One of the categories below |
+| `<id>` | Lowercase alphanumeric with underscores (`[a-z0-9_]+`) |
 
-**Corner suffix rule:** Visual nodes for corner-specific bodies MUST end with `_fl`, `_fr`, `_rl`, or `_rr` (or the canonical `_a{n}l` / `_a{n}r` / `_a{n}c` form for multi-axle vehicles, §23.1). For dual wheels, append the position label: `wheel_a2l_inner`, `wheel_a2l_outer`. The `<id>` suffix must match the upright `id` field in the suspension topology.
+**Categories** *(the set was `body`/`helper`/`lod` in the schema and `body`/`wheel`/`suspension`/`aero`/`powertrain` in this section before v0.99.2; both are now subsets of one list)*:
 
-The `mesh_ref` suffix (last segment after `_`) must match the node `<id>`. See [`docs/naming_convention.md`](../docs/naming_convention.md) for the complete specification.
+| Category | Used for |
+|----------|----------|
+| `body` | Chassis, decomposed mass bodies, and any rigid body with no better category. Also the legacy category for uprights (`SVJ::body::upright_fl`), which stays valid. |
+| `suspension` | Uprights, links (wishbones, arms, rods), springs, dampers, anti-roll bars, axle beams |
+| `steering` | Rack/gear housing, column, steering wheel |
+| `wheel` | Rims and wheels, including the individual wheels of a dual set |
+| `brake` | Discs, drums, calipers |
+| `powertrain` | Engine, gearbox, clutch, transfer case, differentials, propshafts |
+| `aero` | Wings, splitters, diffusers and other `aerodynamics.components` |
+| `helper` | Non-physical markers: hardpoint locators, sensor origins, camera pivots. No id-matching rule. |
+| `lod` | Level-of-detail variant of another node; `<id>` matches the body it replaces |
+
+**Id rule.** Except for `helper`, the `<id>` segment MUST equal the id of the SVJ part that carries the binding, lowercased, with any character outside `[a-z0-9_]` replaced by `_`:
+
+| Carrier | Id source |
+|---------|-----------|
+| `chassis` | the literal `chassis` |
+| `chassis.mass_bodies[]` | that body's `id` |
+| upright | `topology.upright.id` |
+| link | the link's `name`, plus the corner suffix (below) |
+| wheel | `wheel_<station>`, dual wheels `wheel_<station>_<positions[].label>` |
+| spring / damper / arb | `spring_<station>`, `damper_<station>`, `arb_<station>` (or their own `id`/`bar_id` when present) |
+| brake disc / caliper | `disc_<station>`, `caliper_<station>` |
+| steering | `rack`, `column`, `wheel` |
+| powertrain unit | `engine`, `gearbox`, `clutch`, `transfer_case`, or the differential/driveshaft `id` |
+| aero component | that component's `id` |
+
+**Corner suffix rule:** nodes for corner-specific parts MUST end with `_fl`, `_fr`, `_rl`, `_rr`, or the canonical `_a{n}l` / `_a{n}r` / `_a{n}c` form for multi-axle vehicles (§23.1). For dual wheels, append the position label: `wheel_a2l_inner`, `wheel_a2l_outer`. This applies to links as well: a link named `upper_wishbone` on station `FL` binds to `SVJ::suspension::upper_wishbone_fl`. If the link `name` already carries the suffix, it is not repeated.
+
+See [`docs/naming_convention.md`](../docs/naming_convention.md) for the complete specification.
 
 **Examples:**
 
-| Body | `node` |
+| Part | `node` |
 |------|--------|
 | Main chassis | `SVJ::body::chassis` |
 | Front-left upright | `SVJ::suspension::upright_fl` |
+| Front-left upper wishbone | `SVJ::suspension::upper_wishbone_fl` |
+| Front-left tie rod | `SVJ::suspension::tie_rod_fl` |
 | Front-left wheel | `SVJ::wheel::wheel_fl` |
+| Front-left brake disc | `SVJ::brake::disc_fl` |
+| Steering wheel | `SVJ::steering::wheel` |
+| Steering rack | `SVJ::steering::rack` |
+| Third-axle right outer wheel | `SVJ::wheel::wheel_a3r_outer` |
 | Front wing | `SVJ::aero::front_wing` |
 | Engine | `SVJ::powertrain::engine` |
 
-### 22.6 Integrity Checking
+**Canonical part names.** `docs/naming_convention.md` lists a recommended name per common part (`upper_wishbone`, `lower_wishbone`, `trailing_arm`, `tie_rod`, `toe_link`, `pushrod`, `rocker`, `panhard_rod`, `torque_rod`, `upright`, `spring`, `damper`, `arb`, `disc`, `caliper`, `rack`, `column`, `wheel`, …) with the aliases other tools use, so exporters converge on the same ids. The vocabulary is a recommendation: the checker warns about an unlisted link name, it does not reject it. Note the order — part first, corner last (`upper_wishbone_fl`, not `fl_upper_wishbone`), which keeps one rule across two-axle, multi-axle and dual-wheel vehicles.
+
+### 22.6 `placement` — Parts Defined by Hardpoints *(v0.99.2)*
+
+A wishbone or tie rod has no body frame in SVJ: it is defined by its `inboard_points` and the upright hardpoint named by `outboard_ref`. `placement` tells the renderer how to put the mesh on that geometry.
+
+| Value | Meaning |
+|-------|---------|
+| `rigid` (default) | The node follows the carrier's own frame, exactly as in v0.97. The mesh is authored in the vehicle frame and is neither moved nor scaled by the binding. |
+| `link_between_points` | The node is placed and oriented from the carrier link's hardpoints. |
+
+For `link_between_points`:
+
+1. **Inboard end (origin).** `from_point` absent → the centroid of all `inboard_points`; `from_point: i` → `inboard_points[i]`. A two-point wishbone therefore rotates about the centre of its pivot axis by default, while a single-point rod uses its one inboard point either way.
+2. **Outboard end.** The upright hardpoint resolved from `outboard_ref` (e.g. `hardpoints.lower_ball_joint`).
+3. **Orientation.** `mesh_axis` (default `+x`) is the axis of the **mesh's own local frame** that points from the inboard end to the outboard end. The renderer rotates the mesh so that axis lies along the inboard→outboard vector. Roll about that axis is not defined by the binding; author the mesh with its intended roll.
+4. **Scale.** `scale_to_length: false` (default) keeps the authored mesh size — the mesh is only translated and rotated, so an artist-correct part stays correct and any mismatch with the hardpoint distance is visible. `true` scales the mesh along `mesh_axis` only (never the other two axes) so that it spans the hardpoint distance exactly.
+5. The binding is **live**: as suspension moves, the two points move, and the node follows. A renderer that only reads the static file places the node at the design position.
+
+```json
+"links": [
+  {
+    "name": "upper_wishbone",
+    "inboard_points": [[0.18, -0.38, -0.56], [-0.19, -0.37, -0.57]],
+    "outboard_ref": "hardpoints.upper_ball_joint",
+    "visual": {
+      "mesh_ref": "suspension_set",
+      "node": "SVJ::suspension::upper_wishbone_fl",
+      "placement": "link_between_points",
+      "mesh_axis": "+y",
+      "scale_to_length": false
+    }
+  }
+]
+```
+
+`placement: "link_between_points"` is only meaningful on a carrier that has two resolvable ends — a `links[]` entry, or a `driveshafts[]` entry (`joint_front` → `joint_rear`). Elsewhere it is an error (§22.7, rule 5).
+
+### 22.7 Integrity Checking
 
 The `tools/integrity_check.py` script validates all visual bindings before commit:
 
@@ -2430,18 +2533,21 @@ python tools/integrity_check.py path/to/vehicle.svj.json --strict
 
 Rules checked:
 
-1. **Node pattern** — every `node` value matches `^SVJ::[a-z]+::[a-z0-9_]+$`
-2. **ID-suffix match** — the `node` `<id>` suffix (`_fl`, `_fr`, etc.) matches the upright `id` field in the topology
+1. **Node pattern** — every `node` value matches `^SVJ::<category>::[a-z0-9_]+$` with a category from the §22.5 list
+2. **Id match** — the `<id>` suffix matches the id of the carrier part per §22.5 (uprights, links, wheels, brakes, steering, powertrain, aero); `helper` nodes are exempt
 3. **mesh_ref validity** — every `mesh_ref` resolves to an entry in `assets.meshes`
-4. **Uniqueness** — no two `visual` blocks share the same `node` value
+4. **Uniqueness** — no two `visual` blocks share the same `node` value. Exception: one part shared by both stations of an axle (beam axle, de Dion tube, torsion beam) is bound from each station with the same node, which is correct and accepted.
+5. **Placement** — `link_between_points` only on a carrier with two resolvable ends; `mesh_axis`, `from_point` and `scale_to_length` only with that placement; `from_point` within range of `inboard_points`
+6. **Category fit and vocabulary** — the category matches the kind of part, and link names come from the canonical vocabulary (advisory warnings; `body` is accepted everywhere for backward compatibility, and house part names stay legal)
 
-In default mode, rule violations are warnings. With `--strict`, any warning is a non-zero exit.
+Rules 1–5 are errors. Rule 6, and a missing `mesh_ref` when several meshes are declared, are warnings. Using the legacy `body` category on a non-body part stays valid and is reported as a NOTE, so `--strict` still passes on v0.97 files. With `--strict` any warning is a non-zero exit.
 
-### 22.7 Compatibility
+### 22.8 Compatibility
 
-- Files without `assets` or `visual` fields are valid SVJ v0.97 — the visual binding layer is purely additive.
+- Files without `assets` or `visual` fields are valid SVJ — the visual binding layer is purely additive.
 - A v0.96 parser encountering `visual` or `assets` SHOULD ignore them (unknown-key policy, §20).
-- A v0.97 file without any `visual` fields is indistinguishable from a v0.96 file except for the `version` field.
+- v0.97 bindings (`SVJ::body::upright_fl` at corner level, no `placement`) remain valid in v0.99.2: the category list was extended, not replaced, and `placement` defaults to `rigid`.
+- A parser that does not understand `placement` treats every binding as `rigid`, which is the v0.97 behaviour.
 
 ---
 

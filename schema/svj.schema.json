@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "urn:svj:schema:v0.99",
   "title": "Standard Vehicle JSON (SVJ)",
-  "description": "Schema for SVJ v0.99 \u2014 universal vehicle dynamics exchange format. v0.99 adds multi-axle vehicles: A{n}{L|R|C} wheel stations (FL/FR/RL/RR remain valid), axles metadata, dual wheels, multi-axle steering, suspension_couplings, new suspension/spring types. v0.98 added validation/benchmarks, v0.97 glTF visual binding. All v0.96\u2013v0.98 files remain valid. Cross-reference rules: tools/multiaxle_check.py.",
+  "description": "Schema for SVJ v0.99 \u2014 universal vehicle dynamics exchange format. v0.99 adds multi-axle vehicles: A{n}{L|R|C} wheel stations (FL/FR/RL/RR remain valid), axles metadata, dual wheels, multi-axle steering, suspension_couplings, new suspension/spring types. v0.98 added validation/benchmarks, v0.97 glTF visual binding. All v0.96\u2013v0.98 files remain valid. v0.99.2 extends the glTF visual binding layer (categories, visual on links/steering/wheels/brakes/aero, placement). Cross-reference rules: tools/multiaxle_check.py; visual bindings: tools/integrity_check.py.",
   "type": "object",
   "required": [
     "_metadata"
@@ -35,9 +35,10 @@
             "0.97",
             "0.98",
             "0.99",
-            "0.99.1"
+            "0.99.1",
+            "0.99.2"
           ],
-          "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations). '0.99.1' adds axle_groups, plated masses and explicit wheelbase definitions."
+          "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations). '0.99.1' adds axle_groups, plated masses and explicit wheelbase definitions. '0.99.2' extends the glTF visual binding layer: full category set, visual on links/steering/wheels/brakes/springs/dampers/aero, and the 'placement' field for parts defined by hardpoints."
         },
         "description": {
           "type": "string"
@@ -464,6 +465,10 @@
             "friction": {
               "type": "number",
               "minimum": 0
+            },
+            "visual": {
+              "$ref": "#/definitions/visual_binding",
+              "description": "Optional glTF visual binding for the steering column (SVJ::steering::column)."
             }
           }
         },
@@ -509,6 +514,10 @@
             "mass": {
               "type": "number",
               "exclusiveMinimum": 0
+            },
+            "visual": {
+              "$ref": "#/definitions/visual_binding",
+              "description": "Optional glTF visual binding for the steering wheel (SVJ::steering::wheel)."
             }
           }
         },
@@ -587,6 +596,10 @@
               }
             }
           }
+        },
+        "visual": {
+          "$ref": "#/definitions/visual_binding",
+          "description": "Optional glTF visual binding for the steering rack/gear housing (SVJ::steering::rack)."
         }
       }
     },
@@ -828,6 +841,10 @@
                   "type": "number"
                 }
               }
+            },
+            "visual": {
+              "$ref": "#/definitions/visual_binding",
+              "description": "Optional glTF visual binding for the engine (SVJ::powertrain::engine)."
             }
           }
         },
@@ -864,6 +881,10 @@
             },
             "position": {
               "$ref": "#/definitions/vec3"
+            },
+            "visual": {
+              "$ref": "#/definitions/visual_binding",
+              "description": "Optional glTF visual binding for the clutch (SVJ::powertrain::clutch)."
             }
           }
         },
@@ -952,6 +973,10 @@
                   "minimum": 0
                 }
               }
+            },
+            "visual": {
+              "$ref": "#/definitions/visual_binding",
+              "description": "Optional glTF visual binding for the gearbox (SVJ::powertrain::gearbox)."
             }
           }
         },
@@ -1004,6 +1029,10 @@
             },
             "output_rear": {
               "$ref": "#/definitions/vec3"
+            },
+            "visual": {
+              "$ref": "#/definitions/visual_binding",
+              "description": "Optional glTF visual binding for the transfer case (SVJ::powertrain::transfer_case)."
             }
           }
         },
@@ -1042,6 +1071,10 @@
                     "minimum": 0
                   }
                 }
+              },
+              "visual": {
+                "$ref": "#/definitions/visual_binding",
+                "description": "Optional glTF visual binding for this differential."
               }
             }
           },
@@ -2541,6 +2574,10 @@
                 "body_ref": {
                   "type": "string",
                   "description": "Reference to a mass_body id in chassis.mass_bodies that represents this upright/knuckle as a rigid body. Used by multibody tools to link geometry to body mass properties."
+                },
+                "visual": {
+                  "$ref": "#/definitions/visual_binding",
+                  "description": "Optional glTF visual binding for this upright/knuckle. Preferred over the corner-level 'visual' for new files; both are accepted."
                 }
               }
             },
@@ -2646,6 +2683,10 @@
                   "body_ref": {
                     "type": "string",
                     "description": "Reference to a mass_body id in chassis.mass_bodies that represents this link as a rigid body. Used by multibody tools."
+                  },
+                  "visual": {
+                    "$ref": "#/definitions/visual_binding",
+                    "description": "Optional glTF visual binding for this link (wishbone, arm, rod, tie rod). Usually placement 'link_between_points' (spec 22.6)."
                   }
                 }
               },
@@ -2731,6 +2772,10 @@
                   "type": "number",
                   "exclusiveMinimum": 0,
                   "description": "pendulum_axle: max oscillation angle each way (rad)."
+                },
+                "visual": {
+                  "$ref": "#/definitions/visual_binding",
+                  "description": "Optional glTF visual binding for the axle beam/housing."
                 }
               }
             },
@@ -2827,9 +2872,17 @@
                   "rotational_inertia": {
                     "type": "number",
                     "minimum": 0
+                  },
+                  "visual": {
+                    "$ref": "#/definitions/visual_binding",
+                    "description": "Optional glTF visual binding for this individual wheel of a dual/triple set."
                   }
                 }
               }
+            },
+            "visual": {
+              "$ref": "#/definitions/visual_binding",
+              "description": "Optional glTF visual binding for the rim/wheel of this station. For dual wheels, bind each entry of wheel.positions instead."
             }
           }
         },
@@ -2888,6 +2941,10 @@
               "type": "number",
               "minimum": 0,
               "description": "Damper mass (kg). Body = sprung, rod+piston \u2248 unsprung."
+            },
+            "visual": {
+              "$ref": "#/definitions/visual_binding",
+              "description": "Optional glTF visual binding for the damper body."
             }
           },
           "allOf": [
@@ -2945,6 +3002,10 @@
               "type": "number",
               "minimum": 0,
               "description": "ARB bar mass for this axle (kg). Shared between both corners \u2014 enter full bar mass, not half."
+            },
+            "visual": {
+              "$ref": "#/definitions/visual_binding",
+              "description": "Optional glTF visual binding for the anti-roll bar."
             }
           }
         },
@@ -3833,6 +3894,10 @@
               "type": "number",
               "minimum": 0,
               "description": "Disc spin inertia about wheel axis (kg\u00b7m\u00b2). Added to wheel rotational_inertia for total spinning mass."
+            },
+            "visual": {
+              "$ref": "#/definitions/visual_binding",
+              "description": "Optional glTF visual binding for the brake disc/drum."
             }
           }
         },
@@ -3863,6 +3928,10 @@
             "position": {
               "$ref": "#/definitions/vec3",
               "description": "Caliper CG position (m)"
+            },
+            "visual": {
+              "$ref": "#/definitions/visual_binding",
+              "description": "Optional glTF visual binding for the caliper."
             }
           }
         },
@@ -4031,6 +4100,10 @@
             }
           },
           "additionalProperties": false
+        },
+        "visual": {
+          "$ref": "#/definitions/visual_binding",
+          "description": "Optional glTF visual binding for this aero device."
         }
       }
     },
@@ -4131,6 +4204,10 @@
         },
         "cg_position": {
           "$ref": "#/definitions/vec3"
+        },
+        "visual": {
+          "$ref": "#/definitions/visual_binding",
+          "description": "Optional glTF visual binding for this propshaft. Use placement 'link_between_points' with joint_front/joint_rear as the ends."
         }
       }
     },
@@ -4562,7 +4639,7 @@
       }
     },
     "visual_binding": {
-      "description": "Binds an SVJ body to a glTF node via the SVJ::category::name naming convention.",
+      "description": "Binds an SVJ part (body, suspension link, wheel, brake, steering or aero component) to a glTF node via the SVJ::<category>::<id> naming convention (spec 22).",
       "type": "object",
       "required": [
         "node"
@@ -4575,8 +4652,45 @@
         },
         "node": {
           "type": "string",
-          "pattern": "^SVJ::(body|helper|lod)::[a-z0-9_]+$",
-          "description": "glTF node name in SVJ::category::name format. For body/lod, name suffix must equal the body id."
+          "pattern": "^SVJ::(body|suspension|steering|wheel|brake|powertrain|aero|helper|lod)::[a-z0-9_]+$",
+          "description": "glTF node name in SVJ::<category>::<id> format. The <id> suffix must equal the id/name of the SVJ part that carries the binding (spec 22.5). 'helper' nodes are exempt from id matching."
+        },
+        "placement": {
+          "type": "string",
+          "enum": [
+            "rigid",
+            "link_between_points"
+          ],
+          "default": "rigid",
+          "description": "How the node is positioned. 'rigid': the node follows the part's own body frame (default, unchanged v0.97 behaviour). 'link_between_points': the node is placed and oriented from the carrier link's hardpoints \u2014 origin at the inboard end (centroid of inboard_points, or inboard_points[from_point]), mesh_axis pointing at the outboard hardpoint (spec 22.6)."
+        },
+        "mesh_axis": {
+          "type": "string",
+          "enum": [
+            "+x",
+            "-x",
+            "+y",
+            "-y",
+            "+z",
+            "-z"
+          ],
+          "default": "+x",
+          "description": "Only with placement 'link_between_points': which axis of the mesh's own local frame runs from the inboard end to the outboard end. Default '+x'."
+        },
+        "from_point": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Only with placement 'link_between_points': index into the link's inboard_points to use as the inboard end. Omitted = centroid of all inboard_points (so a wishbone pivots about its axis centre)."
+        },
+        "scale_to_length": {
+          "type": "boolean",
+          "default": false,
+          "description": "Only with placement 'link_between_points': true = scale the mesh along mesh_axis so it spans the hardpoint distance exactly; false (default) = keep the authored mesh size and only translate/rotate it."
+        }
+      },
+      "patternProperties": {
+        "^(x_|_)": {
+          "description": "Extension (x_) and metadata (_) keys, spec 20."
         }
       }
     },
@@ -4745,6 +4859,10 @@
               "description": "Pa at design ride height"
             }
           }
+        },
+        "visual": {
+          "$ref": "#/definitions/visual_binding",
+          "description": "Optional glTF visual binding for the spring."
         }
       },
       "allOf": [
