@@ -2,20 +2,20 @@
 
 ## What This Is
 
-SVJ (Standard Vehicle JSON) is a universal exchange format for vehicle dynamics data — a "Rosetta Stone" that lets any simulator read the same vehicle definition. Current version: **v0.99.1**.
+SVJ (Standard Vehicle JSON) is a universal exchange format for vehicle dynamics data — a "Rosetta Stone" that lets any simulator read the same vehicle definition. Current version: **v0.99.2**.
 
 ## Repo Structure
 
 ```
 spec/SVJ_Spec.md                        THE specification (§1–§23)
-schema/svj.schema.json                  JSON Schema Draft-07 (v0.99)
+schema/svj.schema.json                  JSON Schema Draft-07 (v0.99.2)
 schema/svj-override.schema.json         Override file structure (v0.98)
-examples/                               23 examples (real cars, 2-axle skeletons, 10 multi-axle skeletons, 4 real multi-axle trucks, tire file)
-docs/naming_convention.md               SVJ::category::id glTF naming convention
+examples/                               24 examples (real cars, 2-axle skeletons, 10 multi-axle skeletons, 4 real multi-axle trucks, visual-binding skeleton, tire file)
+docs/naming_convention.md               SVJ::category::id glTF naming convention + canonical part names
 tools/validate.py                       Schema + multi-axle validation
 tools/multiaxle_check.py                Multi-axle cross-reference rules (v0.99)
 tools/validate_override.py              Override resolution + validation (v0.98)
-tools/integrity_check.py                glTF visual binding checks (v0.97)
+tools/integrity_check.py                glTF visual binding checks (v0.99.2)
 viewer/svj_viewer_v4.2.html             Interactive SVJ viewer/editor: multi-axle layout, axle/wheel editor, performance tab (drag & drop)
 svj-py/                                 Python parser library with CLI (0.2.0, multi-axle aware)
 templates/mazda_mx5_nd2_2024.svj.json   Full vehicle template
@@ -74,6 +74,17 @@ Spec §23, all optional and backward-compatible:
 - **Viewer v4.2** — Performance tab: full-throttle longitudinal model from engine/motor torque, gearbox, final drive (+ transfer case, hub reduction), tyres, mass and aero. Speed vs time, rpm vs speed, tractive force vs speed; 0–100/0–50/0–200, 400 m, top speed, gradeability; compared with `benchmarks`; every input tagged file/default. Known spec gaps the model has to default: scalar tyre rolling resistance, torque-converter stall ratio, truck aero (most examples have no `aerodynamics`)
 - **Schema fixes found during v0.99 audit:** truck tyre `size_code`s; `_` metadata keys allowed in pacejka groups (Mazda template now validates)
 - Note: the v0.94 changelog entry described a multi-axle convention (§21.1) that never landed in the spec; §23 is the real implementation.
+
+## v0.99.2 — Visual Binding Layer, Part 2
+
+- One category set in schema, spec §22.5 and `docs/naming_convention.md`: `body`, `suspension`, `steering`, `wheel`, `brake`, `powertrain`, `aero`, `helper`, `lod` (the schema previously allowed only `body`/`helper`/`lod`, so the spec's own examples failed validation)
+- `visual` defined on links, uprights, axle bodies, wheels and dual-wheel positions, springs, dampers, ARBs, brake discs/calipers, steering rack/column/wheel, powertrain units, driveshafts, aero components
+- `placement`: `rigid` (default) or `link_between_points` (+ `mesh_axis`, `from_point`, `scale_to_length`) for parts defined by hardpoints
+- Canonical part-name vocabulary with aliases; id-match rule extended from uprights to every carrier
+- `tools/integrity_check.py` rewritten; `examples/skeleton_visual_binding_dw_corner.svj.json` added
+- Follow-up not done here: the AC → SVJ converter's `map_ac_nodes_to_svj` still emits only chassis + four uprights
+
+---
 
 ## v0.99.1 — Real-Vehicle Data Patch
 

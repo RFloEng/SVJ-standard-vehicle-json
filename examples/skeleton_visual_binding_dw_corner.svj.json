@@ -1,0 +1,1255 @@
+{
+  "_metadata": {
+    "specification": "SVJ",
+    "version": "0.99.2",
+    "description": "Skeleton double-wishbone vehicle demonstrating the v0.99.2 glTF visual binding layer: bindings on the upright, both wishbones, the tie rod/toe link, spring, damper, brake disc and caliper, wheel, steering rack, column and steering wheel, engine, gearbox and an aero component.",
+    "coordinate_system": "SAE_J670",
+    "units": "SI",
+    "created": "2026-10-06T00:00:00Z",
+    "author": "SVJ working draft \u2014 visual binding example",
+    "data_origin": {
+      "type": "calculated",
+      "detail": "Generic skeleton. Geometry, masses and rates are representative engineering values, not a specific vehicle. The .glb files referenced in assets.meshes are placeholders and are not part of this repository.",
+      "confidence": "low"
+    },
+    "alignment_convention": "relative_to_centerline"
+  },
+  "vehicle_info": {
+    "make": "Example",
+    "model": "Double-wishbone visual binding skeleton",
+    "year": 2026,
+    "variant": "Skeleton",
+    "drive_type": "RWD",
+    "vehicle_class": "passenger_car"
+  },
+  "assets": {
+    "meshes": [
+      {
+        "id": "chassis_body",
+        "uri": "meshes/body.glb"
+      },
+      {
+        "id": "suspension_set",
+        "uri": "meshes/suspension.glb"
+      },
+      {
+        "id": "wheel_set",
+        "uri": "meshes/wheels.glb"
+      },
+      {
+        "id": "cockpit_set",
+        "uri": "meshes/cockpit.glb"
+      },
+      {
+        "id": "powertrain_set",
+        "uri": "meshes/powertrain.glb"
+      }
+    ]
+  },
+  "chassis": {
+    "mass_total": 1340.0,
+    "wheelbase": 2.6,
+    "track_front": 1.56,
+    "track_rear": 1.54,
+    "center_of_gravity": [
+      -1.24,
+      0.0,
+      -0.46
+    ],
+    "mass_unsprung_per_corner": {
+      "FL": 42.0,
+      "FR": 42.0,
+      "RL": 44.0,
+      "RR": 44.0
+    },
+    "inertia": {
+      "Ixx": 430.0,
+      "Iyy": 1750.0,
+      "Izz": 1880.0,
+      "Ixz": 60.0,
+      "Ixy": 0.0,
+      "Iyz": 0.0
+    },
+    "mass_bodies": [
+      {
+        "id": "body_shell",
+        "description": "Body in white with closures",
+        "category": "structural",
+        "mass": 520.0,
+        "position": [
+          -1.3,
+          0.0,
+          -0.6
+        ],
+        "visual": {
+          "mesh_ref": "chassis_body",
+          "node": "SVJ::body::body_shell",
+          "placement": "rigid"
+        }
+      }
+    ],
+    "visual": {
+      "mesh_ref": "chassis_body",
+      "node": "SVJ::body::chassis",
+      "placement": "rigid"
+    }
+  },
+  "suspension": {
+    "FL": {
+      "topology": {
+        "system_type": "double_wishbone",
+        "upright": {
+          "id": "upright_fl",
+          "mass": 11.5,
+          "hardpoints": {
+            "upper_ball_joint": [
+              0.0,
+              -0.6240000000000001,
+              -0.44
+            ],
+            "lower_ball_joint": [
+              0.0,
+              -0.6864,
+              -0.14
+            ],
+            "wheel_center": [
+              0.0,
+              -0.78,
+              -0.3
+            ],
+            "tie_rod_end": [
+              0.11,
+              -0.6552,
+              -0.21
+            ]
+          },
+          "visual": {
+            "mesh_ref": "suspension_set",
+            "node": "SVJ::suspension::upright_fl",
+            "placement": "rigid"
+          }
+        },
+        "links": [
+          {
+            "name": "upper_wishbone",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.14,
+                -0.2964,
+                -0.46
+              ],
+              [
+                -0.14,
+                -0.2964,
+                -0.45
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_ball_joint",
+            "joint_type": "spherical",
+            "inboard_joint_type": "revolute",
+            "mass": 2.4,
+            "visual": {
+              "mesh_ref": "suspension_set",
+              "node": "SVJ::suspension::upper_wishbone_fl",
+              "placement": "link_between_points",
+              "mesh_axis": "+y",
+              "scale_to_length": false,
+              "_note": "mesh modelled pointing outboard along its own +Y, pivot axis at the origin"
+            }
+          },
+          {
+            "name": "lower_wishbone",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.2,
+                -0.2574,
+                -0.16
+              ],
+              [
+                -0.18,
+                -0.2574,
+                -0.15
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_ball_joint",
+            "joint_type": "spherical",
+            "inboard_joint_type": "revolute",
+            "mass": 3.1,
+            "visual": {
+              "mesh_ref": "suspension_set",
+              "node": "SVJ::suspension::lower_wishbone_fl",
+              "placement": "link_between_points",
+              "mesh_axis": "+y",
+              "scale_to_length": false
+            }
+          },
+          {
+            "name": "tie_rod",
+            "type": "rod",
+            "inboard_points": [
+              [
+                0.13,
+                -0.2028,
+                -0.22
+              ]
+            ],
+            "outboard_ref": "hardpoints.tie_rod_end",
+            "joint_type": "spherical",
+            "inboard_joint_type": "spherical",
+            "mass": 0.8,
+            "visual": {
+              "mesh_ref": "suspension_set",
+              "node": "SVJ::suspension::tie_rod_fl",
+              "placement": "link_between_points",
+              "mesh_axis": "+y",
+              "scale_to_length": true,
+              "_note": "straight rod mesh, stretched to the exact hardpoint distance"
+            }
+          }
+        ]
+      },
+      "spring": {
+        "type": "coil",
+        "rate": 42000.0,
+        "free_length": 0.235,
+        "motion_ratio": 0.62,
+        "inboard_mount": [
+          -0.02,
+          -0.31200000000000006,
+          -0.62
+        ],
+        "outboard_mount": [
+          -0.02,
+          -0.46799999999999997,
+          -0.17
+        ],
+        "mass": 3.4,
+        "visual": {
+          "mesh_ref": "suspension_set",
+          "node": "SVJ::suspension::spring_fl",
+          "placement": "rigid"
+        }
+      },
+      "damper": {
+        "type": "twin_tube",
+        "motion_ratio": 0.62,
+        "bump_curve": [
+          [
+            0.0,
+            0
+          ],
+          [
+            0.05,
+            620
+          ],
+          [
+            0.15,
+            1250
+          ],
+          [
+            0.3,
+            1900
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0.0,
+            0
+          ],
+          [
+            0.05,
+            980
+          ],
+          [
+            0.15,
+            1980
+          ],
+          [
+            0.3,
+            2950
+          ]
+        ],
+        "inboard_mount": [
+          -0.02,
+          -0.31200000000000006,
+          -0.62
+        ],
+        "outboard_mount": [
+          -0.02,
+          -0.46799999999999997,
+          -0.17
+        ],
+        "mass": 2.6,
+        "visual": {
+          "mesh_ref": "suspension_set",
+          "node": "SVJ::suspension::damper_fl",
+          "placement": "rigid"
+        }
+      },
+      "alignment": {
+        "camber": -0.0175,
+        "toe": 0.0009,
+        "caster": 0.1047
+      },
+      "brake": {
+        "disc": {
+          "type": "vented",
+          "outer_diameter": 0.32,
+          "inner_diameter": 0.2,
+          "thickness": 0.028,
+          "mass": 7.8,
+          "visual": {
+            "mesh_ref": "suspension_set",
+            "node": "SVJ::brake::disc_fl",
+            "placement": "rigid"
+          }
+        },
+        "caliper": {
+          "type": "fixed",
+          "pistons": 4,
+          "piston_diameter": 0.04,
+          "mass": 3.9,
+          "visual": {
+            "mesh_ref": "suspension_set",
+            "node": "SVJ::brake::caliper_fl",
+            "placement": "rigid"
+          }
+        },
+        "pad": {
+          "mu_cold": 0.38,
+          "mu_hot": 0.42
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.4318,
+        "rim_width": 0.2032,
+        "loaded_radius": 0.313,
+        "mass": 11.2,
+        "rotational_inertia": 0.74,
+        "set_ref": "generic_245_40r17",
+        "visual": {
+          "mesh_ref": "wheel_set",
+          "node": "SVJ::wheel::wheel_fl",
+          "placement": "rigid"
+        }
+      },
+      "tire": {
+        "set_ref": "generic_245_40r17",
+        "pressure": 220000.0
+      }
+    },
+    "FR": {
+      "topology": {
+        "system_type": "double_wishbone",
+        "upright": {
+          "id": "upright_fr",
+          "mass": 11.5,
+          "hardpoints": {
+            "upper_ball_joint": [
+              0.0,
+              0.6240000000000001,
+              -0.44
+            ],
+            "lower_ball_joint": [
+              0.0,
+              0.6864,
+              -0.14
+            ],
+            "wheel_center": [
+              0.0,
+              0.78,
+              -0.3
+            ],
+            "tie_rod_end": [
+              0.11,
+              0.6552,
+              -0.21
+            ]
+          },
+          "visual": {
+            "mesh_ref": "suspension_set",
+            "node": "SVJ::suspension::upright_fr",
+            "placement": "rigid"
+          }
+        },
+        "links": [
+          {
+            "name": "upper_wishbone",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.14,
+                0.2964,
+                -0.46
+              ],
+              [
+                -0.14,
+                0.2964,
+                -0.45
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_ball_joint",
+            "joint_type": "spherical",
+            "inboard_joint_type": "revolute",
+            "mass": 2.4,
+            "visual": {
+              "mesh_ref": "suspension_set",
+              "node": "SVJ::suspension::upper_wishbone_fr",
+              "placement": "link_between_points",
+              "mesh_axis": "+y",
+              "scale_to_length": false,
+              "_note": "mesh modelled pointing outboard along its own +Y, pivot axis at the origin"
+            }
+          },
+          {
+            "name": "lower_wishbone",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.2,
+                0.2574,
+                -0.16
+              ],
+              [
+                -0.18,
+                0.2574,
+                -0.15
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_ball_joint",
+            "joint_type": "spherical",
+            "inboard_joint_type": "revolute",
+            "mass": 3.1,
+            "visual": {
+              "mesh_ref": "suspension_set",
+              "node": "SVJ::suspension::lower_wishbone_fr",
+              "placement": "link_between_points",
+              "mesh_axis": "+y",
+              "scale_to_length": false
+            }
+          },
+          {
+            "name": "tie_rod",
+            "type": "rod",
+            "inboard_points": [
+              [
+                0.13,
+                0.2028,
+                -0.22
+              ]
+            ],
+            "outboard_ref": "hardpoints.tie_rod_end",
+            "joint_type": "spherical",
+            "inboard_joint_type": "spherical",
+            "mass": 0.8,
+            "visual": {
+              "mesh_ref": "suspension_set",
+              "node": "SVJ::suspension::tie_rod_fr",
+              "placement": "link_between_points",
+              "mesh_axis": "+y",
+              "scale_to_length": true,
+              "_note": "straight rod mesh, stretched to the exact hardpoint distance"
+            }
+          }
+        ]
+      },
+      "spring": {
+        "type": "coil",
+        "rate": 42000.0,
+        "free_length": 0.235,
+        "motion_ratio": 0.62,
+        "inboard_mount": [
+          -0.02,
+          0.31200000000000006,
+          -0.62
+        ],
+        "outboard_mount": [
+          -0.02,
+          0.46799999999999997,
+          -0.17
+        ],
+        "mass": 3.4,
+        "visual": {
+          "mesh_ref": "suspension_set",
+          "node": "SVJ::suspension::spring_fr",
+          "placement": "rigid"
+        }
+      },
+      "damper": {
+        "type": "twin_tube",
+        "motion_ratio": 0.62,
+        "bump_curve": [
+          [
+            0.0,
+            0
+          ],
+          [
+            0.05,
+            620
+          ],
+          [
+            0.15,
+            1250
+          ],
+          [
+            0.3,
+            1900
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0.0,
+            0
+          ],
+          [
+            0.05,
+            980
+          ],
+          [
+            0.15,
+            1980
+          ],
+          [
+            0.3,
+            2950
+          ]
+        ],
+        "inboard_mount": [
+          -0.02,
+          0.31200000000000006,
+          -0.62
+        ],
+        "outboard_mount": [
+          -0.02,
+          0.46799999999999997,
+          -0.17
+        ],
+        "mass": 2.6,
+        "visual": {
+          "mesh_ref": "suspension_set",
+          "node": "SVJ::suspension::damper_fr",
+          "placement": "rigid"
+        }
+      },
+      "alignment": {
+        "camber": -0.0175,
+        "toe": 0.0009,
+        "caster": 0.1047
+      },
+      "brake": {
+        "disc": {
+          "type": "vented",
+          "outer_diameter": 0.32,
+          "inner_diameter": 0.2,
+          "thickness": 0.028,
+          "mass": 7.8,
+          "visual": {
+            "mesh_ref": "suspension_set",
+            "node": "SVJ::brake::disc_fr",
+            "placement": "rigid"
+          }
+        },
+        "caliper": {
+          "type": "fixed",
+          "pistons": 4,
+          "piston_diameter": 0.04,
+          "mass": 3.9,
+          "visual": {
+            "mesh_ref": "suspension_set",
+            "node": "SVJ::brake::caliper_fr",
+            "placement": "rigid"
+          }
+        },
+        "pad": {
+          "mu_cold": 0.38,
+          "mu_hot": 0.42
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.4318,
+        "rim_width": 0.2032,
+        "loaded_radius": 0.313,
+        "mass": 11.2,
+        "rotational_inertia": 0.74,
+        "set_ref": "generic_245_40r17",
+        "visual": {
+          "mesh_ref": "wheel_set",
+          "node": "SVJ::wheel::wheel_fr",
+          "placement": "rigid"
+        }
+      },
+      "tire": {
+        "set_ref": "generic_245_40r17",
+        "pressure": 220000.0
+      }
+    },
+    "RL": {
+      "topology": {
+        "system_type": "double_wishbone",
+        "upright": {
+          "id": "upright_rl",
+          "mass": 11.5,
+          "hardpoints": {
+            "upper_ball_joint": [
+              -2.6,
+              -0.6160000000000001,
+              -0.44
+            ],
+            "lower_ball_joint": [
+              -2.6,
+              -0.6776,
+              -0.14
+            ],
+            "wheel_center": [
+              -2.6,
+              -0.77,
+              -0.3
+            ],
+            "toe_link_end": [
+              -2.72,
+              -0.6468,
+              -0.21
+            ]
+          },
+          "visual": {
+            "mesh_ref": "suspension_set",
+            "node": "SVJ::suspension::upright_rl",
+            "placement": "rigid"
+          }
+        },
+        "links": [
+          {
+            "name": "upper_wishbone",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -2.46,
+                -0.2926,
+                -0.46
+              ],
+              [
+                -2.74,
+                -0.2926,
+                -0.45
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_ball_joint",
+            "joint_type": "spherical",
+            "inboard_joint_type": "revolute",
+            "mass": 2.4,
+            "visual": {
+              "mesh_ref": "suspension_set",
+              "node": "SVJ::suspension::upper_wishbone_rl",
+              "placement": "link_between_points",
+              "mesh_axis": "+y",
+              "scale_to_length": false,
+              "_note": "mesh modelled pointing outboard along its own +Y, pivot axis at the origin"
+            }
+          },
+          {
+            "name": "lower_wishbone",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -2.4,
+                -0.2541,
+                -0.16
+              ],
+              [
+                -2.7800000000000002,
+                -0.2541,
+                -0.15
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_ball_joint",
+            "joint_type": "spherical",
+            "inboard_joint_type": "revolute",
+            "mass": 3.1,
+            "visual": {
+              "mesh_ref": "suspension_set",
+              "node": "SVJ::suspension::lower_wishbone_rl",
+              "placement": "link_between_points",
+              "mesh_axis": "+y",
+              "scale_to_length": false
+            }
+          },
+          {
+            "name": "toe_link",
+            "type": "rod",
+            "inboard_points": [
+              [
+                -2.74,
+                -0.20020000000000002,
+                -0.22
+              ]
+            ],
+            "outboard_ref": "hardpoints.toe_link_end",
+            "joint_type": "spherical",
+            "inboard_joint_type": "spherical",
+            "mass": 0.8,
+            "visual": {
+              "mesh_ref": "suspension_set",
+              "node": "SVJ::suspension::toe_link_rl",
+              "placement": "link_between_points",
+              "mesh_axis": "+y",
+              "scale_to_length": true
+            }
+          }
+        ]
+      },
+      "spring": {
+        "type": "coil",
+        "rate": 42000.0,
+        "free_length": 0.235,
+        "motion_ratio": 0.62,
+        "inboard_mount": [
+          -2.62,
+          -0.30800000000000005,
+          -0.62
+        ],
+        "outboard_mount": [
+          -2.62,
+          -0.46199999999999997,
+          -0.17
+        ],
+        "mass": 3.4,
+        "visual": {
+          "mesh_ref": "suspension_set",
+          "node": "SVJ::suspension::spring_rl",
+          "placement": "rigid"
+        }
+      },
+      "damper": {
+        "type": "twin_tube",
+        "motion_ratio": 0.62,
+        "bump_curve": [
+          [
+            0.0,
+            0
+          ],
+          [
+            0.05,
+            620
+          ],
+          [
+            0.15,
+            1250
+          ],
+          [
+            0.3,
+            1900
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0.0,
+            0
+          ],
+          [
+            0.05,
+            980
+          ],
+          [
+            0.15,
+            1980
+          ],
+          [
+            0.3,
+            2950
+          ]
+        ],
+        "inboard_mount": [
+          -2.62,
+          -0.30800000000000005,
+          -0.62
+        ],
+        "outboard_mount": [
+          -2.62,
+          -0.46199999999999997,
+          -0.17
+        ],
+        "mass": 2.6,
+        "visual": {
+          "mesh_ref": "suspension_set",
+          "node": "SVJ::suspension::damper_rl",
+          "placement": "rigid"
+        }
+      },
+      "alignment": {
+        "camber": -0.0175,
+        "toe": 0.0009,
+        "caster": 0.0
+      },
+      "brake": {
+        "disc": {
+          "type": "vented",
+          "outer_diameter": 0.32,
+          "inner_diameter": 0.2,
+          "thickness": 0.028,
+          "mass": 7.8,
+          "visual": {
+            "mesh_ref": "suspension_set",
+            "node": "SVJ::brake::disc_rl",
+            "placement": "rigid"
+          }
+        },
+        "caliper": {
+          "type": "fixed",
+          "pistons": 4,
+          "piston_diameter": 0.04,
+          "mass": 3.9,
+          "visual": {
+            "mesh_ref": "suspension_set",
+            "node": "SVJ::brake::caliper_rl",
+            "placement": "rigid"
+          }
+        },
+        "pad": {
+          "mu_cold": 0.38,
+          "mu_hot": 0.42
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.4318,
+        "rim_width": 0.2032,
+        "loaded_radius": 0.313,
+        "mass": 11.2,
+        "rotational_inertia": 0.74,
+        "set_ref": "generic_245_40r17",
+        "visual": {
+          "mesh_ref": "wheel_set",
+          "node": "SVJ::wheel::wheel_rl",
+          "placement": "rigid"
+        }
+      },
+      "tire": {
+        "set_ref": "generic_245_40r17",
+        "pressure": 220000.0
+      }
+    },
+    "RR": {
+      "topology": {
+        "system_type": "double_wishbone",
+        "upright": {
+          "id": "upright_rr",
+          "mass": 11.5,
+          "hardpoints": {
+            "upper_ball_joint": [
+              -2.6,
+              0.6160000000000001,
+              -0.44
+            ],
+            "lower_ball_joint": [
+              -2.6,
+              0.6776,
+              -0.14
+            ],
+            "wheel_center": [
+              -2.6,
+              0.77,
+              -0.3
+            ],
+            "toe_link_end": [
+              -2.72,
+              0.6468,
+              -0.21
+            ]
+          },
+          "visual": {
+            "mesh_ref": "suspension_set",
+            "node": "SVJ::suspension::upright_rr",
+            "placement": "rigid"
+          }
+        },
+        "links": [
+          {
+            "name": "upper_wishbone",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -2.46,
+                0.2926,
+                -0.46
+              ],
+              [
+                -2.74,
+                0.2926,
+                -0.45
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_ball_joint",
+            "joint_type": "spherical",
+            "inboard_joint_type": "revolute",
+            "mass": 2.4,
+            "visual": {
+              "mesh_ref": "suspension_set",
+              "node": "SVJ::suspension::upper_wishbone_rr",
+              "placement": "link_between_points",
+              "mesh_axis": "+y",
+              "scale_to_length": false,
+              "_note": "mesh modelled pointing outboard along its own +Y, pivot axis at the origin"
+            }
+          },
+          {
+            "name": "lower_wishbone",
+            "type": "arm",
+            "inboard_points": [
+              [
+                -2.4,
+                0.2541,
+                -0.16
+              ],
+              [
+                -2.7800000000000002,
+                0.2541,
+                -0.15
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_ball_joint",
+            "joint_type": "spherical",
+            "inboard_joint_type": "revolute",
+            "mass": 3.1,
+            "visual": {
+              "mesh_ref": "suspension_set",
+              "node": "SVJ::suspension::lower_wishbone_rr",
+              "placement": "link_between_points",
+              "mesh_axis": "+y",
+              "scale_to_length": false
+            }
+          },
+          {
+            "name": "toe_link",
+            "type": "rod",
+            "inboard_points": [
+              [
+                -2.74,
+                0.20020000000000002,
+                -0.22
+              ]
+            ],
+            "outboard_ref": "hardpoints.toe_link_end",
+            "joint_type": "spherical",
+            "inboard_joint_type": "spherical",
+            "mass": 0.8,
+            "visual": {
+              "mesh_ref": "suspension_set",
+              "node": "SVJ::suspension::toe_link_rr",
+              "placement": "link_between_points",
+              "mesh_axis": "+y",
+              "scale_to_length": true
+            }
+          }
+        ]
+      },
+      "spring": {
+        "type": "coil",
+        "rate": 42000.0,
+        "free_length": 0.235,
+        "motion_ratio": 0.62,
+        "inboard_mount": [
+          -2.62,
+          0.30800000000000005,
+          -0.62
+        ],
+        "outboard_mount": [
+          -2.62,
+          0.46199999999999997,
+          -0.17
+        ],
+        "mass": 3.4,
+        "visual": {
+          "mesh_ref": "suspension_set",
+          "node": "SVJ::suspension::spring_rr",
+          "placement": "rigid"
+        }
+      },
+      "damper": {
+        "type": "twin_tube",
+        "motion_ratio": 0.62,
+        "bump_curve": [
+          [
+            0.0,
+            0
+          ],
+          [
+            0.05,
+            620
+          ],
+          [
+            0.15,
+            1250
+          ],
+          [
+            0.3,
+            1900
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0.0,
+            0
+          ],
+          [
+            0.05,
+            980
+          ],
+          [
+            0.15,
+            1980
+          ],
+          [
+            0.3,
+            2950
+          ]
+        ],
+        "inboard_mount": [
+          -2.62,
+          0.30800000000000005,
+          -0.62
+        ],
+        "outboard_mount": [
+          -2.62,
+          0.46199999999999997,
+          -0.17
+        ],
+        "mass": 2.6,
+        "visual": {
+          "mesh_ref": "suspension_set",
+          "node": "SVJ::suspension::damper_rr",
+          "placement": "rigid"
+        }
+      },
+      "alignment": {
+        "camber": -0.0175,
+        "toe": 0.0009,
+        "caster": 0.0
+      },
+      "brake": {
+        "disc": {
+          "type": "vented",
+          "outer_diameter": 0.32,
+          "inner_diameter": 0.2,
+          "thickness": 0.028,
+          "mass": 7.8,
+          "visual": {
+            "mesh_ref": "suspension_set",
+            "node": "SVJ::brake::disc_rr",
+            "placement": "rigid"
+          }
+        },
+        "caliper": {
+          "type": "fixed",
+          "pistons": 4,
+          "piston_diameter": 0.04,
+          "mass": 3.9,
+          "visual": {
+            "mesh_ref": "suspension_set",
+            "node": "SVJ::brake::caliper_rr",
+            "placement": "rigid"
+          }
+        },
+        "pad": {
+          "mu_cold": 0.38,
+          "mu_hot": 0.42
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.4318,
+        "rim_width": 0.2032,
+        "loaded_radius": 0.313,
+        "mass": 11.2,
+        "rotational_inertia": 0.74,
+        "set_ref": "generic_245_40r17",
+        "visual": {
+          "mesh_ref": "wheel_set",
+          "node": "SVJ::wheel::wheel_rr",
+          "placement": "rigid"
+        }
+      },
+      "tire": {
+        "set_ref": "generic_245_40r17",
+        "pressure": 220000.0
+      }
+    }
+  },
+  "steering": {
+    "type": "rack_and_pinion",
+    "rack_position": [
+      0.13,
+      0.0,
+      -0.22
+    ],
+    "rack_travel": 0.14,
+    "overall_ratio": 15.0,
+    "lock_to_lock_turns": 2.6,
+    "ackermann": 0.65,
+    "tie_rod_inboard": {
+      "left": [
+        0.13,
+        -0.2,
+        -0.22
+      ],
+      "right": [
+        0.13,
+        0.2,
+        -0.22
+      ]
+    },
+    "visual": {
+      "mesh_ref": "suspension_set",
+      "node": "SVJ::steering::rack",
+      "placement": "rigid"
+    },
+    "column": {
+      "inertia": 0.012,
+      "damping": 0.02,
+      "visual": {
+        "mesh_ref": "cockpit_set",
+        "node": "SVJ::steering::column",
+        "placement": "rigid"
+      }
+    },
+    "steering_wheel": {
+      "diameter": 0.37,
+      "mass": 2.4,
+      "visual": {
+        "mesh_ref": "cockpit_set",
+        "node": "SVJ::steering::wheel",
+        "placement": "rigid"
+      }
+    },
+    "lock_to_lock": 16.34
+  },
+  "powertrain": {
+    "layout": "FR",
+    "engine": {
+      "configuration": "I4",
+      "displacement": 2.0,
+      "idle_rpm": 800,
+      "max_rpm": 6800,
+      "torque_curve": [
+        [
+          1000,
+          180
+        ],
+        [
+          2000,
+          250
+        ],
+        [
+          3500,
+          290
+        ],
+        [
+          5000,
+          275
+        ],
+        [
+          6800,
+          230
+        ]
+      ],
+      "position": [
+        -0.55,
+        0.0,
+        -0.52
+      ],
+      "mass": 145.0,
+      "visual": {
+        "mesh_ref": "powertrain_set",
+        "node": "SVJ::powertrain::engine",
+        "placement": "rigid"
+      }
+    },
+    "gearbox": {
+      "type": "manual",
+      "ratios": [
+        3.54,
+        2.11,
+        1.45,
+        1.1,
+        0.86,
+        0.7
+      ],
+      "efficiency": 0.97,
+      "shift_time": 0.35,
+      "position": [
+        -1.05,
+        0.0,
+        -0.45
+      ],
+      "mass": 52.0,
+      "visual": {
+        "mesh_ref": "powertrain_set",
+        "node": "SVJ::powertrain::gearbox",
+        "placement": "rigid"
+      }
+    },
+    "differentials": [
+      {
+        "id": "diff_rear",
+        "location": "rear",
+        "type": "lsd_clutch",
+        "final_drive": 3.46,
+        "position": [
+          -2.58,
+          0.0,
+          -0.33
+        ],
+        "visual": {
+          "mesh_ref": "powertrain_set",
+          "node": "SVJ::powertrain::diff_rear",
+          "placement": "rigid"
+        }
+      }
+    ]
+  },
+  "aerodynamics": {
+    "reference": {
+      "frontal_area": 2.05,
+      "air_density": 1.225
+    },
+    "coefficients": {
+      "Cd": 0.33,
+      "Cl": 0.05,
+      "Cl_front": 0.03,
+      "Cl_rear": 0.02
+    },
+    "components": [
+      {
+        "id": "front_splitter",
+        "type": "splitter",
+        "position": [
+          0.95,
+          0.0,
+          -0.12
+        ],
+        "mass": 3.0,
+        "Cd_contribution": 0.01,
+        "Cl_contribution": -0.04,
+        "visual": {
+          "mesh_ref": "chassis_body",
+          "node": "SVJ::aero::front_splitter",
+          "placement": "rigid"
+        },
+        "name": "front_splitter"
+      }
+    ]
+  },
+  "tires": {
+    "sets": {
+      "generic_245_40r17": {
+        "description": "Generic 245/40 R17 road tyre (placeholder data)",
+        "size_code": "245/40R17",
+        "dimensions": {
+          "section_width": 0.245,
+          "aspect_ratio": 0.4,
+          "rim_diameter_code": 17,
+          "overall_diameter": 0.628
+        }
+      }
+    }
+  }
+}

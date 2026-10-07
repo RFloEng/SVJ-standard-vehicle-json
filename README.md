@@ -48,7 +48,21 @@ Everything is optional. A file with just metadata and suspension is valid — us
 
 ---
 
-## v0.99.1 — Real-Vehicle Data Patch *(new)*
+## v0.99.2 — Visual Binding Layer, Part 2 *(new)*
+
+The glTF layer (§22) now reaches every mechanical part, and the schema and the spec agree on one category set:
+
+- **One category list** — `body`, `suspension`, `steering`, `wheel`, `brake`, `powertrain`, `aero`, `helper`, `lod`. Before this patch the schema accepted only `body`/`helper`/`lod` while the spec text used `suspension`, `wheel` and `aero`, so the spec's own examples failed validation.
+- **`visual` everywhere it is needed** — suspension links (wishbones, arms, tie rods), uprights, axle bodies, wheels and each wheel of a dual set, springs, dampers, ARBs, brake discs and calipers, steering rack/column/wheel, powertrain units, driveshafts and aero components.
+- **`placement`** — a wishbone has no body frame, so `placement: "link_between_points"` places the mesh from the link's own hardpoints (`mesh_axis`, `from_point`, `scale_to_length`). The default `rigid` is exactly the v0.97 behaviour.
+- **Canonical part names** — `docs/naming_convention.md` lists the recommended name for each common part and the aliases other tools use, so exporters converge: `SVJ::suspension::upper_wishbone_fl`, `SVJ::brake::disc_fl`, `SVJ::steering::wheel`.
+- **`examples/skeleton_visual_binding_dw_corner.svj.json`** — a worked example with 45 bindings.
+
+All additive: every earlier file, and every `SVJ::body::upright_fl` binding, still validates.
+
+---
+
+## v0.99.1 — Real-Vehicle Data Patch
 
 Added while building the first real multi-axle example, because published truck data didn't fit v0.99:
 
@@ -147,7 +161,23 @@ Attach a `visual` field to any body in the file:
 }
 ```
 
-The `node` value must follow the **SVJ Naming Convention** — see [`docs/naming_convention.md`](docs/naming_convention.md) for the full specification.
+Since v0.99.2 the same field also sits on suspension links, uprights, wheels, springs, dampers, brakes, steering parts, powertrain units and aero components, and a part defined by hardpoints says so:
+
+```json
+{
+  "name": "lower_wishbone",
+  "inboard_points": [[0.20, -0.26, -0.16], [-0.18, -0.26, -0.15]],
+  "outboard_ref": "hardpoints.lower_ball_joint",
+  "visual": {
+    "mesh_ref": "suspension_set",
+    "node": "SVJ::suspension::lower_wishbone_fl",
+    "placement": "link_between_points",
+    "mesh_axis": "+y"
+  }
+}
+```
+
+The `node` value must follow the **SVJ Naming Convention** — see [`docs/naming_convention.md`](docs/naming_convention.md) for the full specification, including the canonical part names.
 
 ### Flexible Coordinate System Declaration
 
@@ -199,7 +229,7 @@ python tools/validate.py examples/skeleton_6x4_walking_beam_dump_truck.svj.json 
 | Tool | Purpose |
 |---|---|
 | `tools/validate.py` | Validates any SVJ file against the JSON Schema. Accepts one or more files, exits non-zero on errors. |
-| `tools/integrity_check.py` | Validates glTF visual bindings: node naming pattern, id-suffix match, mesh_ref validity, uniqueness. Use `--strict` to also fail on warnings. |
+| `tools/integrity_check.py` | Validates glTF visual bindings: node naming pattern and category, id match for every carrier (uprights, links, wheels, brakes, steering, powertrain, aero), mesh_ref validity, uniqueness, `placement` rules, and advisories on category fit and part naming. Use `--strict` to also fail on warnings. |
 | `tools/multiaxle_check.py` | Multi-axle cross-reference rules (spec §23.7). Run automatically by `validate.py`; also usable standalone. |
 | `tools/validate_override.py` | Resolves an `*.svj-override.json` file's `base` + `patch` (new in v0.98) and validates the resulting document against the standard schema. |
 
@@ -256,7 +286,7 @@ schema/
 spec/
   └── SVJ_Spec.md                 Human-readable specification (§1–§23)
 docs/
-  └── naming_convention.md        SVJ::category::name glTF convention
+  └── naming_convention.md        SVJ::category::name glTF convention + canonical part names
 examples/
   ├── *.svj.json                  Two-axle cars, skeletons and a standalone tire file
   ├── skeleton_*x*_*.svj.json     Multi-axle skeletons (v0.99)
@@ -267,7 +297,7 @@ tools/
   ├── validate.py                 Schema + multi-axle validation
   ├── multiaxle_check.py          Multi-axle cross-reference rules (v0.99)
   ├── validate_override.py        Override file resolution + validation (v0.98)
-  └── integrity_check.py          glTF visual binding checks (v0.97)
+  └── integrity_check.py          glTF visual binding checks (v0.99.2)
 svj-py/                           Python library + CLI (v0.2.0, multi-axle aware)
 viewer/
   └── svj_viewer_v4.2.html        3D inspector/editor — drag & drop any SVJ file; multi-axle layout, axle/wheel editor, performance tab
