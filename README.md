@@ -34,7 +34,7 @@ An SVJ file describes the complete physical vehicle:
 
 **Brakes** — full force chain from pedal through booster and master cylinder to caliper, per-corner discs with mass and thermal properties, ABS/ESC
 
-**Drivetrain** — engine, clutch, gearbox, transfer case, propshafts with joints, differentials (including asymmetric LSD ramp angles), half-shafts with CV joints that match the upright hardpoints
+**Drivetrain** — engine, clutch, gearbox, transfer case (including torque-limited on-demand couplings), propshafts with joints, differentials (including asymmetric LSD ramp angles and state-dependent lock control), half-shafts with CV joints that match the upright hardpoints
 
 **Aerodynamics** — coefficients, 1D/2D sensitivity maps (ride height, yaw, pitch, speed), individual components with cross-influences, wake/dirty air model, ground effect (underbody, tire squirt, sealing), active systems (DRS, PID-controlled active wings, active ride height)
 
@@ -48,7 +48,37 @@ Everything is optional. A file with just metadata and suspension is valid — us
 
 ---
 
-## v0.99.2 — Visual Binding Layer, Part 2 *(new)*
+## v0.99.3 — Differential Control *(new)*
+
+Auditing the Assetto Corsa → SVJ converter against 1,398 AC cars showed two AWD driveline features SVJ could not express. Both are additive and optional; every earlier file still validates.
+
+- **`lock_control`** — a differential lock that is *modulated* by the driving state instead of being constant. A chain of stages, each reading an input (`gear`, `brake`, `throttle`, `speed`, `rear_speed_ratio`, `oversteer_factor`, `slip_angle_front/rear`), mapping it through a curve and combining it with `multiply` or `add`, with an optional filter time constant and clamps. Allowed on any differential and on `transfer_case.center_diff`; an array of chains gives separate power and coast control.
+- **`transfer_case.coupling`** — a torque-limited centre coupling for on-demand AWD (`max_torque`, `ramp_torque`, `mechanism`).
+
+```json
+"transfer_case": {
+  "type": "on_demand",
+  "coupling": { "mechanism": "clutch_pack", "ramp_torque": 40.9, "max_torque": 816.6 },
+  "center_diff": { "type": "lsd_clutch", "lock_power": 0.4, "lock_coast": 0.2,
+    "lock_control": { "target": "lock", "stages": [
+      { "input": "gear",  "combine": "multiply", "curve": [[1, 1.0], [2, 0.8], [3, 0.6]] },
+      { "input": "brake", "combine": "multiply", "curve": [[0, 1], [1, 0]], "filter_time_constant": 0.1 }
+    ] } }
+}
+```
+
+Alongside it, tooling for the older v0.96 multibody fields (`joint_type`, `body_ref`, marker orientations) was completed:
+
+- **`tools/drivetrain_check.py`** and **`tools/multibody_check.py`** run automatically from `tools/validate.py` (mirrored in `svj-py`). The multibody checker verifies `body_ref` / `parent` / `outboard_ref` cross-references and unit quaternions, and defines one shared joint-type inference (spec §9.2.3.2) — `python tools/multibody_check.py --joints file.svj.json` prints every link's effective joints.
+- **Viewer v4.3** shows the coupling, the centre differential and every lock chain in the Powertrain tab, shows effective joint types in the Suspension tab and draws orientation frames in 3D. It also fixes a crash on files that use the marker form `{position, orientation}` for hardpoints.
+- **`examples/skeleton_awd_ondemand_diff_control.svj.json`** — a worked example. The control curves are illustrative.
+- Every example and the template now declare `_metadata.version` 0.99.3 (each version is a strict superset of the previous one, so no content changed).
+
+Details: [`proposals/svj_differential_control_proposal.md`](proposals/svj_differential_control_proposal.md), [`spec/SVJ_Spec.md` §10.6.1, §10.8.1](spec/SVJ_Spec.md).
+
+---
+
+## v0.99.2 — Visual Binding Layer, Part 2
 
 The glTF layer (§22) now reaches every mechanical part, and the schema and the spec agree on one category set:
 
@@ -220,6 +250,8 @@ python tools/integrity_check.py path/to/vehicle.svj.json --strict
 pip install jsonschema
 python tools/validate.py examples/formula_f1_2025_aero.svj.json
 python tools/validate.py examples/skeleton_6x4_walking_beam_dump_truck.svj.json   # multi-axle
+python tools/validate.py examples/skeleton_awd_ondemand_diff_control.svj.json     # differential control
+python tools/multibody_check.py --joints examples/bmw_e30_325i_semi_trailing.svj.json   # effective joint types
 ```
 
 ---
@@ -228,7 +260,7 @@ python tools/validate.py examples/skeleton_6x4_walking_beam_dump_truck.svj.json 
 
 | Tool | Purpose |
 |---|---|
-| `tools/validate.py` | Validates any SVJ file against the JSON Schema. Accepts one or more files, exits non-zero on errors. |
+| `tools/validate.py` | Validates any SVJ file against the JSON Schema, then runs the cross-reference checkers (`multiaxle_check`, `drivetrain_check`, `multibody_check`). Accepts one or more files, exits non-zero on errors. |
 | `tools/integrity_check.py` | Validates glTF visual bindings: node naming pattern and category, id match for every carrier (uprights, links, wheels, brakes, steering, powertrain, aero), mesh_ref validity, uniqueness, `placement` rules, and advisories on category fit and part naming. Use `--strict` to also fail on warnings. |
 | `tools/multiaxle_check.py` | Multi-axle cross-reference rules (spec §23.7). Run automatically by `validate.py`; also usable standalone. |
 | `tools/multibody_check.py` | Multibody cross-references (spec §9.2.3.2–9.2.3.3): `body_ref`, `parent`, `outboard_ref`, unit quaternions, mass/CG consistency; `--joints` prints every link's effective (explicit or inferred) joint types. Run automatically by `validate.py`. |
@@ -251,6 +283,8 @@ All example files validate against the current schema (`tools/validate.py`). The
 | `skeleton_ff_macpherson_torsion.svj.json` | FWD | `macpherson` | `torsion_beam` |
 | `skeleton_awd_ev_dual_motor.svj.json` | AWD | `double_wishbone` | `double_wishbone` |
 | `skeleton_4wd_solid_axle.svj.json` | 4WD | `macpherson` | `solid_axle` |
+| `skeleton_awd_ondemand_diff_control.svj.json` | AWD | `macpherson` | `solid_axle` — on-demand coupling, modulated centre lock, separate power/coast chains on the rear LSD *(v0.99.3)* |
+| `skeleton_visual_binding_dw_corner.svj.json` | — | `double_wishbone` corner with 45 glTF bindings *(v0.99.2)* | — |
 | `tire_mf62_245_40r18.svj.json` | — | Standalone Pacejka MF 6.2 tire file | — |
 
 **Real multi-axle vehicle (v0.99.1)** — published manufacturer data plus marked estimates:
@@ -283,7 +317,7 @@ All example files validate against the current schema (`tools/validate.py`). The
 
 ```
 schema/
-  ├── svj.schema.json             JSON Schema Draft-07 (v0.99)
+  ├── svj.schema.json             JSON Schema Draft-07 (v0.99.3)
   └── svj-override.schema.json    Override file structure (v0.98)
 spec/
   └── SVJ_Spec.md                 Human-readable specification (§1–§23)
@@ -296,15 +330,15 @@ examples/
 templates/
   └── mazda_mx5_nd2_2024.svj.json Full vehicle template
 tools/
-  ├── validate.py                 Schema + multi-axle validation
+  ├── validate.py                 Schema + cross-reference validation (multi-axle, drivetrain, multibody)
   ├── multiaxle_check.py          Multi-axle cross-reference rules (v0.99)
   ├── drivetrain_check.py         Differential-control rules (v0.99.3)
   ├── multibody_check.py          Multibody cross-references + joint-type inference (v0.96 fields)
   ├── validate_override.py        Override file resolution + validation (v0.98)
   └── integrity_check.py          glTF visual binding checks (v0.99.2)
-svj-py/                           Python library + CLI (v0.2.0, multi-axle aware)
+svj-py/                           Python library + CLI (v0.2.0, multi-axle aware, runs the same cross-reference checks, `Vehicle.joints()`)
 viewer/
-  └── svj_viewer_v4.3.html        3D inspector/editor — drag & drop any SVJ file; multi-axle layout, axle/wheel editor, performance tab
+  └── svj_viewer_v4.3.html        3D inspector/editor — drag & drop any SVJ file; multi-axle layout, axle/wheel editor, performance tab, differential control, joint types and marker frames
 proposals/                        Design proposals and research notes
 ```
 

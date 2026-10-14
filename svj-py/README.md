@@ -52,7 +52,16 @@ truck.topology("A3R")       # 'solid_axle'
 truck.suspension_couplings  # walking beams, rockers, air/hydraulic circuits
 ```
 
-`svj.validate()` runs the multi-axle cross-reference rules (spec §23.7). They live in `svj/multiaxle.py`, an exact copy of `tools/multiaxle_check.py` in the spec repo — a test fails if the two drift apart.
+`svj.validate()` runs the multi-axle cross-reference rules (spec §23.7), the differential-control rules (spec §10.6.1, §10.8.1) and the multibody cross-references (`body_ref`, `parent`, `outboard_ref`, unit quaternions), reporting them as warnings. They live in `svj/multiaxle.py`, `svj/drivetrain.py` and `svj/multibody.py`, exact copies of `tools/multiaxle_check.py`, `tools/drivetrain_check.py` and `tools/multibody_check.py` in the spec repo — a test fails if a pair drifts apart.
+
+### Joint types
+
+`car.joints()` returns every suspension link with its effective joint types: an explicit `joint_type` / `inboard_joint_type` wins, a missing one is inferred from `system_type` and the link type (spec §9.2.3.2).
+
+```python
+for j in car.joints():
+    print(j["station"], j["link"], j["outboard"], j["inboard"], j["outboard_source"])   # 'explicit' | 'inferred' | None
+```
 
 ## CLI
 

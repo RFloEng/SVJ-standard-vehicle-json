@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.96",
+    "version": "0.99.3",
     "description": "Mazda MX-5 ND2 (2019+) 2.0L Skyactiv-G 6MT Club — factory specs where available, engineering estimates marked.",
     "coordinate_system": "SAE_J670",
     "units": "SI",

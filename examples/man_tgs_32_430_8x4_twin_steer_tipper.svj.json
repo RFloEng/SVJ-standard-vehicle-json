@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99.1",
+    "version": "0.99.3",
     "coordinate_system": "SAE_J670",
     "units": "SI",
     "description": "MAN TGS 32.430 8x4 BB CH twin-steer tipper chassis (UK, 2022, NN cab, wheelbase 3205). First real-vehicle multi-axle example: axle positions, weights, tyres, suspension types, turning circle and driveline are published; geometry details and rates are estimates.",

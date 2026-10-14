@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99",
+    "version": "0.99.3",
     "description": "6x4 tractor unit skeleton — trunnion ('camelback') tandem: one inverted leaf pack per side pivoting between the drive axles, slipper ends on axle seats, torque rods in a parallelogram.",
     "coordinate_system": "SAE_J670",
     "units": "SI",

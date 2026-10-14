@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.97",
+    "version": "0.99.3",
     "description": "Chevrolet Corvette C3 (1972) \u2014 double wishbone front, Chapman strut independent rear.",
     "coordinate_system": "SAE_J670",
     "units": "SI",

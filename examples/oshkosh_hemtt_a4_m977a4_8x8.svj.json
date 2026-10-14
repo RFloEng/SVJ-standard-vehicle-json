@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99.1",
+    "version": "0.99.3",
     "coordinate_system": "SAE_J670",
     "units": "SI",
     "description": "Oshkosh HEMTT A4 M977A4 8x8 cargo truck (2015 product sheet). Air-sprung beam axles on all four axles, steered front tandem, bogie-centre wheelbase. Headline dimensions, weights, tyres, suspension models and powertrain are published; individual axle spacings are measured from the sheet's to-scale drawing; everything else is estimated.",

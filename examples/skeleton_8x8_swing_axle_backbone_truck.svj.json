@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99",
+    "version": "0.99.3",
     "description": "8x8 off-road truck skeleton in the backbone-tube layout: swing half-axles on every station, two mechanically linked steered front axles, rear tandem half-axles sharing one longitudinal leaf spring per side.",
     "coordinate_system": "SAE_J670",
     "units": "SI",

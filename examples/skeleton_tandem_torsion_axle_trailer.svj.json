@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99",
+    "version": "0.99.3",
     "description": "Tandem trailer skeleton — independent rubber torsion (Torflex-type) axles, no inter-axle coupling. Two axles written in A-notation.",
     "coordinate_system": "SAE_J670",
     "units": "SI",

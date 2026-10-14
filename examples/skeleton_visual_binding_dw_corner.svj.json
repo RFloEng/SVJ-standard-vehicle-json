@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99.2",
+    "version": "0.99.3",
     "description": "Skeleton double-wishbone vehicle demonstrating the v0.99.2 glTF visual binding layer: bindings on the upright, both wishbones, the tie rod/toe link, spring, damper, brake disc and caliper, wheel, steering rack, column and steering wheel, engine, gearbox and an aero component.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
