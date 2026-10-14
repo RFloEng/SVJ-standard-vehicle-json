@@ -1,4 +1,4 @@
-# Standard Vehicle JSON (SVJ) Specification v0.99.2
+# Standard Vehicle JSON (SVJ) Specification v0.99.3
 
 ## 1. Overview & Philosophy
 
@@ -1247,11 +1247,29 @@ For AWD and 4WD layouts. Splits torque from the gearbox output to front and rear
 | `ratio_low`       | number | no       | Low-range ratio (e.g. 2.48 for off-road reduction)  |
 | `torque_split`    | array  | no       | Default F/R torque split `[front, rear]` (e.g. [0.4, 0.6]) |
 | `center_diff`     | object | no       | Center differential — same schema as §10.8 differential |
+| `coupling`        | object | no       | Torque-limited centre coupling for on-demand AWD *(v0.99.3, §10.6.1)* |
 | `inertia`         | number | no       | Transfer case rotating inertia (kg·m²)              |
 | `position`        | [x,y,z]| no      | Transfer case CG (m)                                |
 | `mass`            | number | no       | Transfer case mass (kg)                             |
 | `output_front`    | [x,y,z]| no      | Front output flange position (m)                    |
 | `output_rear`     | [x,y,z]| no      | Rear output flange position (m)                     |
+
+#### 10.6.1 `coupling` — Torque-Limited Centre Coupling *(v0.99.3)*
+
+For AWD systems with no fixed split, where the centre transmits torque up to a limit (Haldex-style and other on-demand couplings). Use it together with `transfer_case.type: "on_demand"`; that field stays the single place that says what kind of transfer case this is. `torque_split` remains the nominal split and MAY be omitted when `coupling` is present.
+
+| Key           | Type   | Required | Description                                                         |
+|---------------|--------|----------|---------------------------------------------------------------------|
+| `max_torque`  | number | YES      | Maximum torque the coupling transmits (Nm, > 0)                     |
+| `ramp_torque` | number | no       | Torque at which the coupling starts to engage (Nm); MUST NOT exceed `max_torque` |
+| `mechanism`   | string | no       | `"viscous"`, `"clutch_pack"`, `"electronic"`; omit when unknown      |
+
+```json
+"transfer_case": {
+  "type": "on_demand",
+  "coupling": { "mechanism": "clutch_pack", "ramp_torque": 40.9, "max_torque": 816.6 }
+}
+```
 
 ### 10.7 `driveshafts` — Propshafts
 
@@ -1299,6 +1317,7 @@ Array of differential units. Each entry describes one differential with its loca
 | `preload`        | number  | no       | LSD preload torque (Nm)                              |
 | `lock_power`     | number  | no       | Locking ratio under power (0.0–1.0)                  |
 | `lock_coast`     | number  | no       | Locking ratio on coast/overrun (0.0–1.0)             |
+| `lock_control`   | object \| array | no | Dynamic lock modulation *(v0.99.3, §10.8.1)*      |
 | `ramp_angle_power`| number | no       | LSD power ramp angle (deg) — for asymmetric LSDs     |
 | `ramp_angle_coast`| number | no       | LSD coast ramp angle (deg)                           |
 | `efficiency`     | number  | no       | Mechanical efficiency (0.0–1.0, e.g. 0.95)          |
@@ -1315,6 +1334,50 @@ The differential thermal model uses the same schema as §10.5.1 (`oil_capacity`,
 > **`final_drive` moved here:** In v0.5.x, `final_drive` was in `transmission`. From v0.6.0 it belongs to the differential, because in AWD systems front and rear diffs may have different final drive ratios. For backward compatibility, parsers SHOULD also check `gearbox.final_drive` as a fallback.
 
 > **Asymmetric LSD:** The 2024 MX-5 ND3 uses a conical clutch LSD with different ramp angles for power and coast. `ramp_angle_power` and `ramp_angle_coast` capture this asymmetry. Lower angle = more aggressive locking.
+
+#### 10.8.1 `lock_control` — Dynamic Differential Lock *(v0.99.3)*
+
+Optional on every differential entry and on `transfer_case.center_diff`. It describes a lock that is *modulated* by the driving state (gear, brake, axle speed ratio, …) instead of being constant. Without it the constant `lock_power` / `lock_coast` / `preload` apply. It is meaningful for `type` `lsd_clutch`, `lsd_torsen`, `lsd_viscous` and `active`.
+
+`lock_control` is either one **chain** or an **array of chains** with distinct targets (for example one chain for `lock_power` and one for `lock_coast`).
+
+| Key      | Type  | Required | Description |
+|----------|-------|----------|-------------|
+| `target` | string | YES | `"lock"` (the same chain drives both `lock_power` and `lock_coast`), `"lock_power"`, `"lock_coast"`, `"preload"` |
+| `stages` | array  | YES | At least one stage, applied in order. The running value starts at the static value of the target (0 if absent) |
+
+Each stage:
+
+| Key                    | Type      | Required | Description |
+|------------------------|-----------|----------|-------------|
+| `input`                | string    | YES      | Controller input (table below), or a custom name starting with `x_` |
+| `combine`              | string    | YES      | `"multiply"` (`v = v · y`) or `"add"` (`v = v + y`) |
+| `curve`                | `curve2d` | YES      | Input value → stage output `y`; linear interpolation, clamped at both ends; x strictly increasing |
+| `filter_time_constant` | number    | no       | First-order low-pass time constant on `y` (s); 0 or absent = none |
+| `min`, `max`           | number    | no       | Clamp of the running value after the stage, in the unit of the target; `min` ≤ `max` |
+
+| `input`                               | Unit  | Meaning |
+|---------------------------------------|-------|---------|
+| `gear`                                | index | Engaged gear, 1-based; reverse `-1`, neutral `0` |
+| `brake`, `throttle`                   | 0–1   | Pedal position |
+| `speed`                               | m/s   | Vehicle speed |
+| `rear_speed_ratio`                    | –     | Rear axle speed ÷ front axle speed |
+| `oversteer_factor`                    | –     | Simulator-defined oversteer indicator |
+| `slip_angle_front`, `slip_angle_rear` | rad   | Axle-average slip angle |
+
+**Units and clamping.** `lock_power` / `lock_coast` are dimensionless fractions 0–1 and `preload` is in Nm. The running value may leave that range between stages (a gear multiplier of 12.8 is legal); the **final** value is clamped to the target's valid range (0–1 for the locks, ≥ 0 for the preload) before use.
+
+```json
+"center_diff": {
+  "type": "lsd_clutch", "lock_power": 0.4, "lock_coast": 0.2,
+  "lock_control": { "target": "lock", "stages": [
+    { "input": "gear",  "combine": "multiply", "curve": [[1,1.0],[2,0.8],[3,0.6]] },
+    { "input": "brake", "combine": "multiply", "curve": [[0,1],[1,0]], "filter_time_constant": 0.1 }
+  ] }
+}
+```
+
+Cross-field rules (curve ordering, target overlap in an array, `min` ≤ `max`, `ramp_torque` ≤ `max_torque`, lock control on `open`/`locked`/`spool` differentials, `on_demand` without `torque_split` or `coupling`) are checked by `tools/drivetrain_check.py`, which `tools/validate.py` runs automatically.
 
 ### 10.9 `half_shafts` — Per-Corner Axle Shafts
 
@@ -2290,6 +2353,7 @@ This section is **optional**. It provides a standard place to record performance
 
 | Version | Changes                                                                                    |
 |---------|--------------------------------------------------------------------------------------------|
+| 0.99.3  | **Differential control** (§10.6.1, §10.8.1): optional `lock_control` on differentials and `transfer_case.center_diff` (ordered stages — input → curve → multiply/add — with a time-constant filter and clamps; one chain or an array of chains for separate power/coast), and optional `transfer_case.coupling` (`max_torque`, `ramp_torque`, `mechanism`) for torque-limited on-demand AWD. Additive: every v0.96–v0.99.2 file stays valid. New `tools/drivetrain_check.py` (mirrored in `svj-py`). Origin: `proposals/svj_differential_control_proposal.md` |
 | 0.99.2  | **Visual binding layer, part 2** (§22): one category set shared by schema, spec and `docs/naming_convention.md` (`body`, `suspension`, `steering`, `wheel`, `brake`, `powertrain`, `aero`, `helper`, `lod`); `visual` defined on suspension links, uprights, axle bodies, wheels and dual-wheel positions, springs, dampers, ARBs, brake discs and calipers, steering rack/column/wheel, powertrain units, driveshafts and aero components; new `placement` (`rigid` \| `link_between_points`) with `mesh_axis`, `from_point` and `scale_to_length` for parts defined by hardpoints; `x_`/`_` keys allowed inside `visual`; `tools/integrity_check.py` rewritten (id resolution for every carrier, placement and category rules). Additive — every v0.96–v0.99.1 file, including all v0.97 bindings, remains valid. |
 | 0.99.1  | **Real-vehicle data patch** (from `proposals/multi_axle_real_vehicle_examples_research.md`): `axle_groups` with design/legal/kerb loads per group (§23.2.1); `chassis.plated_masses`; `wheelbase_reference` gains `bogie_centres`, `first_rear_axle`, `theoretical`, `explicit` (+ `wheelbase_from`/`wheelbase_to`) with a definition table (§23.6); checker rules for both. First real-vehicle multi-axle example: MAN TGS 32.430 8x4 BB twin-steer tipper. Additive — all 0.99 files remain valid. |
 | 0.99    | **Multi-axle vehicles** (§23): `A{n}{L\|R\|C}` station naming with `FL/FR/RL/RR` as aliases; `axles` metadata (position, track, steered, driven, lift); multi-axle steering `steering.additional_axles` (§8.6); multiple wheels per station (`wheel.multiplicity`, `positions`); `suspension_couplings` (equalizer rocker, walking beam, trunnion spring, pneumatic and hydraulic circuits). New `system_type`s `swing_axle`, `parallelogram`, `pendulum_axle`; new spring types `rubber_torsion`, `rubber_block`, `hydropneumatic`, `hydraulic`, `none` with leaf end type/friction and hydropneumatic data; damper types `hydraulic_strut`, `none`; portal axle and pendulum fields on `axle_body`; `torque_rod` and `pivot` link types; `vehicle_info.wheel_formula`/`vehicle_class`; `inter_axle` differentials. `tools/multiaxle_check.py` cross-reference rules. Ten multi-axle skeleton examples. `svj-py` 0.2.0 and viewer v4.0 are multi-axle aware. Schema fixes from the audit: truck tyre `size_code`s, `_` metadata keys in pacejka groups. Existing files remain valid. |

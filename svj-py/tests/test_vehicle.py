@@ -313,3 +313,79 @@ def test_tatra_swing_axles():
     assert [a["position_x"] for a in v.axles] == pytest.approx([0.0, -1.95, -5.2, -6.65])
     with open(TATRA) as f:
         assert validate(json.load(f), schema_path=SCHEMA) == []
+
+
+DIFF_CONTROL = EXAMPLES_DIR / "skeleton_awd_ondemand_diff_control.svj.json"
+
+
+def _diff_control_doc():
+    with open(DIFF_CONTROL, encoding="utf-8") as f:
+        return json.load(f)
+
+
+class TestDifferentialControl:
+    """v0.99.3: lock_control and transfer_case.coupling."""
+
+    def test_checker_in_sync(self):
+        tools_copy = REPO_ROOT / "tools" / "drivetrain_check.py"
+        lib_copy = REPO_ROOT / "svj-py" / "svj" / "drivetrain.py"
+        assert tools_copy.read_text() == lib_copy.read_text(), "tools/drivetrain_check.py and svj/drivetrain.py differ"
+
+    def test_example_is_clean(self):
+        from svj.drivetrain import check
+        doc = _diff_control_doc()
+        assert check(doc) == ([], [])
+        assert validate(doc, schema_path=SCHEMA) == []
+
+    def test_schema_rejects_bad_shapes(self):
+        doc = _diff_control_doc()
+        cc = doc["powertrain"]["transfer_case"]["center_diff"]["lock_control"]
+        cc["stages"][0]["combine"] = "divide"
+        cc["stages"][1]["input"] = "banana"
+        doc["powertrain"]["transfer_case"]["coupling"].pop("max_torque")
+        errs = validate(doc, schema_path=SCHEMA)
+        assert errs  # at least one schema error is reported
+
+    def test_unsorted_curve_and_min_max(self):
+        from svj.drivetrain import check
+        doc = _diff_control_doc()
+        st = doc["powertrain"]["transfer_case"]["center_diff"]["lock_control"]["stages"]
+        st[0]["curve"] = [[2, 1], [1, 2]]
+        st[2]["min"], st[2]["max"] = 1.0, 0.0
+        errors, _ = check(doc)
+        assert any("strictly increasing" in e for e in errors)
+        assert any("min" in e and "max" in e for e in errors)
+
+    def test_chain_target_overlap(self):
+        from svj.drivetrain import check
+        doc = _diff_control_doc()
+        rear = next(d for d in doc["powertrain"]["differentials"] if d["id"] == "diff_rear")
+        rear["lock_control"][1]["target"] = "lock"
+        errors, _ = check(doc)
+        assert any("overlaps" in e for e in errors)
+        rear["lock_control"][1]["target"] = "lock_power"
+        errors, _ = check(doc)
+        assert any("more than one chain" in e for e in errors)
+
+    def test_lock_control_on_open_diff_warns(self):
+        from svj.drivetrain import check
+        doc = _diff_control_doc()
+        next(d for d in doc["powertrain"]["differentials"] if d["id"] == "diff_rear")["type"] = "open"
+        _, warnings = check(doc)
+        assert any("no lock to modulate" in w for w in warnings)
+
+    def test_coupling_rules(self):
+        from svj.drivetrain import check
+        doc = _diff_control_doc()
+        tc = doc["powertrain"]["transfer_case"]
+        tc["coupling"]["ramp_torque"] = 900.0
+        errors, _ = check(doc)
+        assert any("exceeds max_torque" in e for e in errors)
+        tc["coupling"]["ramp_torque"] = 40.0
+        tc["type"] = "full_time"
+        _, warnings = check(doc)
+        assert any("implies 'on_demand'" in w for w in warnings)
+        tc["type"] = "on_demand"
+        del tc["coupling"]
+        _, warnings = check(doc)
+        assert any("neither torque_split nor coupling" in w for w in warnings)

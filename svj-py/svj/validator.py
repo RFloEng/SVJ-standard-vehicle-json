@@ -11,6 +11,7 @@ import math
 from pathlib import Path
 from typing import Any
 
+from svj.drivetrain import check as drivetrain_check
 from svj.multiaxle import check as multiaxle_check
 from svj.vehicle import STATION_RE
 
@@ -162,5 +163,9 @@ def _consistency_checks(data: dict) -> list[str]:
     # ── Multi-axle cross-references (spec §23.7) ──
     ma_errors, _ma_warnings = multiaxle_check(data)
     warnings.extend(f"multi-axle: {e}" for e in ma_errors)
+
+    # ── Differential control (spec §10.6.1, §10.8.1) ──
+    dt_errors, dt_warnings = drivetrain_check(data)
+    warnings.extend(f"drivetrain: {e}" for e in dt_errors + dt_warnings)
 
     return warnings

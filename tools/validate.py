@@ -12,7 +12,8 @@ Options:
     -h, --help      Show this help text and exit.
 
 In addition to the JSON Schema, runs the multi-axle cross-reference rules in
-tools/multiaxle_check.py (spec §23.7).
+tools/multiaxle_check.py (spec §23.7) and the differential-control rules in
+tools/drivetrain_check.py (spec §10.6.1, §10.8.1).
 """
 
 import copy
@@ -23,6 +24,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from multiaxle_check import check as multiaxle_check  # noqa: E402
+from drivetrain_check import check as drivetrain_check  # noqa: E402
 
 try:
     import jsonschema
@@ -83,12 +85,17 @@ def validate_file(svj_path: str, schema: dict, strict: bool) -> bool:
     errors.extend(ma_errors)
     warnings.extend(ma_warnings)
 
+    # Differential control rules (spec §10.6.1, §10.8.1)
+    dt_errors, dt_warnings = drivetrain_check(doc)
+    errors.extend(dt_errors)
+    warnings.extend(dt_warnings)
+
     # Version advisory
     version = doc.get("_metadata", {}).get("version", "unknown")
-    if version not in ("0.99", "0.99.1", "0.99.2"):
+    if version not in ("0.99", "0.99.1", "0.99.2", "0.99.3"):
         warnings.append(
-            f"_metadata.version is '{version}' — current spec is '0.99.2' "
-            "(multi-axle vehicles)"
+            f"_metadata.version is '{version}' — current spec is '0.99.3' "
+            "(differential control)"
         )
 
     for w in warnings:
