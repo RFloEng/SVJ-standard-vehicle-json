@@ -4,7 +4,9 @@
 - **Date:** 2026-05-05
 - **Target Specification:** SVJ v0.96
 - **Proposal Type:** Schema Extension (backward compatible)
-- **Status:** Draft
+- **Status:** Implemented in v0.96 (schema). Follow-up, implemented after v0.99.3: cross-reference checker
+  (`tools/multibody_check.py`), shared joint-type inference (§6 table, extended to the v0.99 topologies,
+  spec §9.2.3.2) and viewer support (effective joint types, orientation frames, marker-form points)
 
 ---
 

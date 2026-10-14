@@ -182,6 +182,17 @@ class Vehicle:
         """Get the suspension system_type for a wheel station."""
         return self.corner(corner_id).get("topology", {}).get("system_type", "")
 
+    def joints(self) -> list[dict[str, Any]]:
+        """Every suspension link with its effective joint types.
+
+        Explicit `joint_type` / `inboard_joint_type` win; missing ones are inferred
+        from `system_type` and the link type (see `svj.multibody.infer_joint_types`).
+        Each item carries `outboard_source` / `inboard_source` = 'explicit',
+        'inferred' or None (not inferable).
+        """
+        from svj.multibody import effective_joints
+        return effective_joints(self.data)
+
     def topologies(self) -> dict[str, str]:
         """Get all suspension types as {station: system_type}."""
         return {c: self.topology(c) for c in self.stations}

@@ -13,6 +13,7 @@ from typing import Any
 
 from svj.drivetrain import check as drivetrain_check
 from svj.multiaxle import check as multiaxle_check
+from svj.multibody import check as multibody_check
 from svj.vehicle import STATION_RE
 
 
@@ -167,5 +168,9 @@ def _consistency_checks(data: dict) -> list[str]:
     # ── Differential control (spec §10.6.1, §10.8.1) ──
     dt_errors, dt_warnings = drivetrain_check(data)
     warnings.extend(f"drivetrain: {e}" for e in dt_errors + dt_warnings)
+
+    # ── Multibody topology cross-references ──
+    mb_errors, mb_warnings = multibody_check(data)
+    warnings.extend(f"multibody: {e}" for e in mb_errors + mb_warnings)
 
     return warnings
