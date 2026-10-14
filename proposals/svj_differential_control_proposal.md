@@ -1,6 +1,12 @@
 # Proposal: differential control and centre couplings
 
-**Status:** draft for discussion · **Target:** additive minor release after v0.99.2 · **Origin:** AC → SVJ converter audit
+**Status:** revised, being implemented · **Target:** v0.99.3 (additive; same patch-level policy as v0.99.2) · **Origin:** AC → SVJ converter audit
+
+> Revision notes (vs. the first draft): `coupling.type` removed (it duplicated
+> `transfer_case.type`) and replaced by an optional `mechanism`; `primary_axle` deferred;
+> `filter` replaced by a time constant in seconds; separate power/coast chains are allowed
+> (`lock_control` may be an array); units of every input and of `min`/`max` are now stated;
+> the checker rules are split into what the schema enforces and what only a script can.
 
 ## 1. Why
 
@@ -44,36 +50,57 @@ gear → multiplier curve (12.8 at 1st … 4.2 at 6th, i.e. the overall ratio), 
 (1 → 0, the lock opens under braking), gear → additive start lock, rear/front speed ratio →
 additive lock.
 
-**Proposal.** An optional `lock_control` object on `differential_full`, `differential_obj`
-(therefore also `transfer_case.center_diff`):
+**Proposal.** An optional `lock_control` on `differential_full` and `differential_obj`
+(therefore also on `transfer_case.center_diff`). It is either one **chain** or an **array of
+chains** with different targets (this answers the "separate power and coast chains" question:
+use two chains, one with `target: "lock_power"` and one with `target: "lock_coast"`).
 
 ```json
 "lock_control": {
   "target": "lock",
   "stages": [
-    { "input": "gear",  "combine": "multiply", "curve": [[0,1],[1,12.81],[2,9.91]],
-      "filter": 0.9, "min": 0.0, "max": 1000.0 },
-    { "input": "brake", "combine": "multiply", "curve": [[0,1],[1,0]], "filter": 0.9 }
+    { "input": "gear",  "combine": "multiply", "curve": [[1,12.81],[2,9.91],[3,7.20]],
+      "filter_time_constant": 0.0, "min": 0.0, "max": 1000.0 },
+    { "input": "brake", "combine": "multiply", "curve": [[0,1],[1,0]],
+      "filter_time_constant": 0.1 }
   ]
 }
 ```
 
 | Key | Type | Description |
 |---|---|---|
-| `target` | string | What is modulated: `"lock"` (both `lock_power` and `lock_coast`), `"lock_power"`, `"lock_coast"`, `"preload"` |
-| `stages[]` | array | Applied in order, starting from the static value of the target |
-| `stages[].input` | string | Controller input: `gear`, `brake`, `throttle`, `speed`, `rear_speed_ratio`, `oversteer_factor`, `slip_angle_front`, `slip_angle_rear`; other names allowed with an `x_` prefix |
+| `target` | string | What is modulated: `"lock"` (shorthand: the same chain drives both `lock_power` and `lock_coast`), `"lock_power"`, `"lock_coast"`, `"preload"` |
+| `stages[]` | array (≥ 1) | Applied in order. The running value starts at the static value of the target (0 if absent) |
+| `stages[].input` | string | Controller input, see the table below; other names allowed with an `x_` prefix |
 | `stages[].combine` | string | `"multiply"` (`v = v · y`) or `"add"` (`v = v + y`) |
-| `stages[].curve` | `curve2d` | Input → output; reuses the existing `curve2d` definition |
-| `stages[].filter` | number | Smoothing of the stage output (0 = none, towards 1 = slower) |
-| `stages[].min`, `max` | number | Clamp of the running value after the stage |
+| `stages[].curve` | `curve2d` | Input value → stage output `y`; reuses the existing `curve2d` definition. Evaluated by linear interpolation, clamped at both ends |
+| `stages[].filter_time_constant` | number (s) | First-order low-pass time constant applied to the stage output `y`; 0 or absent = no filtering |
+| `stages[].min`, `max` | number | Clamp of the running value after the stage, **in the unit of the target** |
+
+**Units.** `lock_power`/`lock_coast` are dimensionless fractions 0–1 and `preload` is in Nm
+(as today). The running value may leave that range between stages (a gear multiplier of 12.8
+is legal); the **final** value is clamped to the target's valid range (0–1 for the locks,
+≥ 0 for the preload) before it is used. `min`/`max` are in the same unit as the running value.
+
+**Inputs.**
+
+| `input` | Unit | Meaning |
+|---|---|---|
+| `gear` | index | Engaged gear, 1-based; reverse is `-1`, neutral `0` |
+| `brake` | 0–1 | Brake pedal position |
+| `throttle` | 0–1 | Throttle pedal position |
+| `speed` | m/s | Vehicle speed |
+| `rear_speed_ratio` | – | Rear axle speed ÷ front axle speed |
+| `oversteer_factor` | – | Simulator-defined oversteer indicator (dimensionless) |
+| `slip_angle_front`, `slip_angle_rear` | rad | Axle-average slip angle |
 
 `lock_control` is only meaningful with `type` `lsd_clutch`, `lsd_torsen`, `lsd_viscous` or
 `active`. A differential without it keeps today's constant lock.
 
-*To confirm against AC before standardising:* the exact evaluation order, the meaning of the
-filter coefficient and the units of the limits. Until then the converter emits the structure
-under `x_lock_control` exactly as AC wrote it.
+*To confirm against AC before the converter promotes `x_lock_control` to `lock_control`:* the
+evaluation order, the meaning and units of AC's `FILTER` coefficient (it is converted to
+`filter_time_constant` only once known; until then the raw value stays in the extension
+block), and the units of `UP_LIMIT` / `DOWN_LIMIT` and of AC's slip-angle inputs.
 
 ### 3.2 `transfer_case.coupling` — torque-limited centre coupling
 
@@ -82,22 +109,22 @@ described by `CENTRE_RAMP_TORQUE` and `CENTRE_MAX_TORQUE` (e.g. Porsche 993 C4: 
 Lamborghini Diablo VT: 103 / 610.7 Nm) instead of a fixed `FRONT_SHARE`. These are
 rear-biased cars with a coupling feeding the front axle.
 
-**Proposal.** An optional `coupling` object on `transfer_case`:
+**Proposal.** An optional `coupling` object on `transfer_case`. Its presence means the centre
+is an on-demand coupling, so it is used together with `transfer_case.type: "on_demand"`
+(that field stays the single place that says *what kind of transfer case this is*).
 
 ```json
 "transfer_case": {
   "type": "on_demand",
-  "coupling": { "type": "torque_limited", "primary_axle": "rear",
-                "ramp_torque": 40.9, "max_torque": 816.6 }
+  "coupling": { "mechanism": "clutch_pack", "ramp_torque": 40.9, "max_torque": 816.6 }
 }
 ```
 
 | Key | Type | Description |
 |---|---|---|
-| `type` | string | `"torque_limited"`, `"viscous"`, `"clutch_pack"`, `"electronic"` |
-| `primary_axle` | string | `"front"` or `"rear"`: the axle driven directly; the other is fed through the coupling. AC does not state it; converters leave it out when unknown |
-| `ramp_torque` | number (Nm) | Torque at which the coupling starts to engage |
-| `max_torque` | number (Nm) | Maximum torque the coupling transmits |
+| `max_torque` | number (Nm) | **Required.** Maximum torque the coupling transmits |
+| `ramp_torque` | number (Nm) | Torque at which the coupling starts to engage; must not exceed `max_torque` |
+| `mechanism` | string | Optional: `"viscous"`, `"clutch_pack"`, `"electronic"`. Omitted when unknown (AC does not state it) |
 
 `torque_split` stays the nominal split and may be omitted when `coupling` is present.
 
@@ -108,19 +135,33 @@ AC also has `[DIFFERENTIAL] RAMP_POWER / RAMP_COAST / RAMP_LOCK_LUT` (4 cars) an
 population is tiny, so they remain in the converter's extension block
 (`x_assettocorsa.drivetrain.differential_extra`). Revisit if more sources need them.
 
-## 4. Checker rules (`tools/integrity_check.py`)
+Also deferred: `coupling.primary_axle` (which axle is driven directly). AC does not provide
+it, so nothing would populate it; add it when a source does.
 
-1. `lock_control.stages[].curve` is sorted by x and has at least two points.
-2. `combine` is `multiply` or `add`; `target` is one of the listed values.
-3. `stages[].input` is in the vocabulary or starts with `x_`.
-4. `lock_control` on a differential of `type: open`, `locked` or `spool` is a warning.
-5. `coupling.max_torque ≥ coupling.ramp_torque` when both are present.
-6. `transfer_case.type: on_demand` with neither `torque_split` nor `coupling` is a warning.
+## 4. Validation
+
+**Enforced by the JSON Schema** (no script needed): `target`, `combine` and `mechanism`
+enums; `input` is a known name or starts with `x_`; `stages` has at least one entry; `curve`
+is a `curve2d` (at least two points); `filter_time_constant ≥ 0`; `coupling.max_torque > 0`.
+
+**Checked by `tools/drivetrain_check.py`** (run by `tools/validate.py`; mirrored in
+`svj-py/svj/drivetrain.py`):
+
+| # | Rule | Severity |
+|---|---|---|
+| 1 | `stages[].curve` x values strictly increasing | error |
+| 2 | In a `lock_control` array, targets are unique and `lock` is not combined with `lock_power`/`lock_coast` | error |
+| 3 | `stages[].min` ≤ `stages[].max` when both are present | error |
+| 4 | `lock_control` on a differential of `type` `open`, `locked` or `spool` | warning |
+| 5 | `coupling.ramp_torque` ≤ `coupling.max_torque` | error |
+| 6 | `transfer_case.type: "on_demand"` with neither `torque_split` nor `coupling` | warning |
+| 7 | `coupling` on a `transfer_case.type` of `full_time` or `part_time` | warning |
 
 ## 5. Migration
 
 Everything is additive; existing files stay valid. Until the standard adopts it, the AC → SVJ
-converter writes the proposed shapes under extension keys, so promoting them is a rename:
+converter writes the proposed shapes under extension keys, so promoting them is a rename
+(plus the `FILTER` → `filter_time_constant` conversion once AC's semantics are confirmed):
 
 | Now (converter output) | After adoption |
 |---|---|
@@ -131,7 +172,7 @@ The raw AC values stay in `x_assettocorsa.drivetrain` either way.
 
 ## 6. Open questions
 
-1. Is `stages` as a single ordered chain enough, or do some simulators need branches
-   (e.g. separate power and coast chains)?
-2. Should `filter` be a time constant (s) instead of a 0–1 smoothing coefficient?
-3. Do we want `primary_axle` in the first release, given AC does not provide it?
+1. Is a flat list of stages enough, or do some simulators need branching (one stage reading
+   the output of another)? Parallel power/coast chains are covered by the array form.
+2. AC's `FILTER` semantics (decides whether a lossless conversion to a time constant exists).
+3. Slip-angle input units in AC's controllers (rad assumed here).

@@ -36,9 +36,10 @@
             "0.98",
             "0.99",
             "0.99.1",
-            "0.99.2"
+            "0.99.2",
+            "0.99.3"
           ],
-          "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations). '0.99.1' adds axle_groups, plated masses and explicit wheelbase definitions. '0.99.2' extends the glTF visual binding layer: full category set, visual on links/steering/wheels/brakes/springs/dampers/aero, and the 'placement' field for parts defined by hardpoints."
+          "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations). '0.99.1' adds axle_groups, plated masses and explicit wheelbase definitions. '0.99.2' extends the glTF visual binding layer: full category set, visual on links/steering/wheels/brakes/springs/dampers/aero, and the 'placement' field for parts defined by hardpoints. '0.99.3' adds differential control: lock_control (dynamic differential lock) and transfer_case.coupling (torque-limited centre coupling)."
         },
         "description": {
           "type": "string"
@@ -1012,6 +1013,34 @@
             },
             "center_diff": {
               "$ref": "#/definitions/differential_obj"
+            },
+            "coupling": {
+              "description": "Torque-limited centre coupling for on-demand AWD (v0.99.3). Use with type 'on_demand'; torque_split may then be omitted.",
+              "type": "object",
+              "required": [
+                "max_torque"
+              ],
+              "additionalProperties": true,
+              "properties": {
+                "max_torque": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "description": "Maximum torque the coupling transmits (Nm)."
+                },
+                "ramp_torque": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Torque at which the coupling starts to engage (Nm); must not exceed max_torque."
+                },
+                "mechanism": {
+                  "type": "string",
+                  "enum": [
+                    "viscous",
+                    "clutch_pack",
+                    "electronic"
+                  ]
+                }
+              }
             },
             "inertia": {
               "type": "number",
@@ -3164,6 +3193,9 @@
           "minimum": 0,
           "maximum": 1
         },
+        "lock_control": {
+          "$ref": "#/definitions/lock_control"
+        },
         "thermal": {
           "type": "object",
           "additionalProperties": true,
@@ -4261,6 +4293,9 @@
           "minimum": 0,
           "maximum": 1
         },
+        "lock_control": {
+          "$ref": "#/definitions/lock_control"
+        },
         "ramp_angle_power": {
           "type": "number"
         },
@@ -5193,6 +5228,106 @@
             "required": [
               "members"
             ]
+          }
+        }
+      ]
+    },
+    "lock_control_stage": {
+      "description": "One controller stage of a lock_control chain: reads an input, maps it through a curve and combines the result with the running value.",
+      "type": "object",
+      "required": [
+        "input",
+        "combine",
+        "curve"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "input": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "gear",
+                "brake",
+                "throttle",
+                "speed",
+                "rear_speed_ratio",
+                "oversteer_factor",
+                "slip_angle_front",
+                "slip_angle_rear"
+              ]
+            },
+            {
+              "type": "string",
+              "pattern": "^x_"
+            }
+          ],
+          "description": "Controller input (gear index, brake/throttle 0-1, speed m/s, rear_speed_ratio, oversteer_factor, slip angles in rad) or an x_-prefixed custom input."
+        },
+        "combine": {
+          "type": "string",
+          "enum": [
+            "multiply",
+            "add"
+          ]
+        },
+        "curve": {
+          "$ref": "#/definitions/curve2d"
+        },
+        "filter_time_constant": {
+          "type": "number",
+          "minimum": 0,
+          "description": "First-order low-pass time constant (s) on the stage output; 0 = none."
+        },
+        "min": {
+          "type": "number",
+          "description": "Lower clamp of the running value after this stage, in the unit of the target."
+        },
+        "max": {
+          "type": "number",
+          "description": "Upper clamp of the running value after this stage, in the unit of the target."
+        }
+      }
+    },
+    "lock_control_chain": {
+      "description": "Ordered chain of stages that modulates one differential parameter. Starts from the static value of the target; the final value is clamped to the target's valid range.",
+      "type": "object",
+      "required": [
+        "target",
+        "stages"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "target": {
+          "type": "string",
+          "enum": [
+            "lock",
+            "lock_power",
+            "lock_coast",
+            "preload"
+          ],
+          "description": "'lock' drives both lock_power and lock_coast."
+        },
+        "stages": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/lock_control_stage"
+          }
+        }
+      }
+    },
+    "lock_control": {
+      "description": "Dynamic differential lock (v0.99.3): one chain, or an array of chains with distinct targets (e.g. separate power and coast chains). Meaningful for lsd_clutch, lsd_torsen, lsd_viscous and active differentials.",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/lock_control_chain"
+        },
+        {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/lock_control_chain"
           }
         }
       ]
