@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SVJ 3D Vehicle Inspector v4.2</title>
+<title>SVJ 3D Vehicle Inspector v4.3</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
 :root{--bg:#08090c;--s1:#0f1117;--s2:#161a24;--s3:#1c2130;--brd:#252b3a;--brdL:#333b50;--tx:#dfe3ed;--txD:#6e7a96;--txM:#404c66;--ac:#ff5131;--acD:#ff513130;--bl:#4d9fff;--gn:#34d27b;--yl:#f0b429;--pr:#b06aff;--cy:#2dd4bf;--rd:#f0524f;--og:#ff8c42}
@@ -89,7 +89,7 @@ body{background:var(--bg);color:var(--tx);font-family:'DM Sans',system-ui,sans-s
 <div id="topbar">
   <div style="display:flex;align-items:center">
     <span class="logo mono">SVJ</span>
-    <span class="subtitle mono">3D Inspector v4.2 — Editor · SVJ v0.99.1</span>
+    <span class="subtitle mono">3D Inspector v4.3 — Editor · SVJ v0.99.3</span>
     <span class="filename mono" id="file-name">MX-5 ND2 Club 6MT (v0.96 demo)</span>
   </div>
   <div style="display:flex;gap:4px;align-items:center">
@@ -262,7 +262,7 @@ function section(title, html) {
   return `<div class="mb12"><div class="section-title">${title}</div>${html}</div>`;
 }
 function kvGrid(obj, keys) {
-  const ks = keys || Object.keys(obj||{}).filter(k=>!k.startsWith('_')&&obj[k]!=null&&typeof obj[k]!=='object');
+  const ks = (keys || Object.keys(obj||{}).filter(k=>!k.startsWith('_')&&typeof obj[k]!=='object')).filter(k=>obj?.[k]!=null);
   return `<div class="kv-grid">${ks.map(k=>`<div class="kv-row"><span class="kv-key">${k}</span><span class="kv-val">${typeof obj[k]==='number'?obj[k].toFixed(4).replace(/\.?0+$/,''):obj[k]}</span></div>`).join('')}</div>`;
 }
 
@@ -1210,6 +1210,54 @@ function renderSuspension(el, data) {
   if(s.brake?.pad?.mu_curve) drawChart(muId, [{name:'µ',data:s.brake.pad.mu_curve}]);
 }
 
+/* ═══════════════════════════════════════════════════
+   DIFFERENTIAL CONTROL (v0.99.3): transfer-case coupling + lock_control chains
+   ═══════════════════════════════════════════════════ */
+function escHtml(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function curveSpark(curve, w=96, h=34){
+  const pts=(curve||[]).filter(p=>Array.isArray(p)&&isFinite(p[0])&&isFinite(p[1]));
+  if(pts.length<2) return '';
+  const xs=pts.map(p=>p[0]), ys=pts.map(p=>p[1]);
+  const x0=Math.min(...xs), x1=Math.max(...xs), y0=Math.min(...ys), y1=Math.max(...ys);
+  const X=x=>2+(x1>x0?(x-x0)/(x1-x0):0.5)*(w-4), Y=y=>h-2-(y1>y0?(y-y0)/(y1-y0):0.5)*(h-4);
+  const d=pts.map((p,i)=>(i?'L':'M')+X(p[0]).toFixed(1)+' '+Y(p[1]).toFixed(1)).join('');
+  return `<svg width="${w}" height="${h}" style="flex:none"><path d="${d}" fill="none" stroke="var(--ac)" stroke-width="1.5"/>`+
+    pts.map(p=>`<circle cx="${X(p[0]).toFixed(1)}" cy="${Y(p[1]).toFixed(1)}" r="1.6" fill="var(--ac)"/>`).join('')+
+    `<title>x ${x0}…${x1}, y ${y0}…${y1}</title></svg>`;
+}
+
+function lockControlHtml(lc, who){
+  const chains=Array.isArray(lc)?lc:(lc&&typeof lc==='object'?[lc]:[]);
+  return chains.map(ch=>{
+    const stages=(ch.stages||[]).map((st,i)=>{
+      const extra=[st.filter_time_constant>0?`τ ${st.filter_time_constant}s`:'', st.min!=null?`min ${st.min}`:'', st.max!=null?`max ${st.max}`:''].filter(Boolean).join(' · ');
+      return `<div style="display:flex;align-items:center;gap:8px;margin:3px 0">${curveSpark(st.curve)}
+        <div style="font-size:10px;line-height:1.4"><b>${i+1}. ${escHtml(st.input)}</b> <span style="color:var(--txD)">${st.combine==='add'?'+ add':'× multiply'}</span>${extra?`<br><span style="color:var(--txD)">${escHtml(extra)}</span>`:''}</div></div>`;
+    }).join('');
+    return `<div style="margin:4px 0 8px"><div style="font-size:10px;margin-bottom:2px">${tag('lock_control → '+escHtml(ch.target||'?'),'var(--pr)')} <span style="color:var(--txD)">${escHtml(who)}</span></div>${stages||'<div style="font-size:10px;color:var(--txD)">no stages</div>'}</div>`;
+  }).join('');
+}
+
+function drivetrainControlHtml(pt){
+  const tc=pt.transfer_case; let h='';
+  if(tc){
+    const cp=tc.coupling;
+    h+=section('Transfer Case',
+      kvGrid(tc,['type','ratio_high','ratio_low'])+
+      (Array.isArray(tc.torque_split)?`<div class="kv-grid"><div class="kv-row"><span class="kv-key">torque_split F/R</span><span class="kv-val">${tc.torque_split.map(v=>(v*100).toFixed(0)).join(' / ')} %</span></div></div>`:'')+
+      (cp?`<div style="font-size:10px;margin-top:4px">${tag('coupling'+(cp.mechanism?' · '+escHtml(cp.mechanism):''),'var(--gn)')}</div>`+kvGrid(cp,['ramp_torque','max_torque']):''));
+    if(tc.center_diff){
+      const cd=tc.center_diff;
+      h+=section('Centre Differential',kvGrid(cd,['type','preload','lock_power','lock_coast'])+lockControlHtml(cd.lock_control,'centre diff'));
+    }
+  }
+  (pt.differentials||[]).forEach(d=>{
+    if(d.lock_control) h+=section('Lock Control — '+escHtml(d.id||d.location||'diff'),lockControlHtml(d.lock_control,d.id||''));
+  });
+  return h;
+}
+
 function renderPowertrain(el, data) {
   const pt=data.powertrain;if(!pt){el.innerHTML='No powertrain';return;}
   const e=pt.engine||{};const gb=pt.gearbox||{};const _dfi=Math.max(0,(pt.differentials||[]).findIndex(x=>!['inter_axle','center'].includes(x.location)));const df=pt.differentials?.[_dfi]||{};
@@ -1225,7 +1273,8 @@ function renderPowertrain(el, data) {
     </div>
     ${chartHtml(tpId,'Torque & Power',[{name:'Tq (Nm)',data:tc},{name:'Pwr (kW)',data:pc}],170)}
     ${gb.ratios?section('Gear Ratios',`<div class="flex-wrap">${gb.ratios.map((r,i)=>`<div class="gear-box"><div class="gear-num">${i+1}</div><div class="gear-val">${r.toFixed(3)}</div></div>`).join('')}${(gb.reverse_ratios||[]).map(r=>`<div class="gear-box" style="border-color:var(--rd)30"><div class="gear-num" style="color:var(--rd)">R</div><div class="gear-val">${r.toFixed(3)}</div></div>`).join('')}</div>`):''}
-    ${df.id?section('Differential',kvGrid(df,['id','type','final_drive','preload','lock_power','lock_coast','efficiency'])):''}
+    ${df.id?section('Differential',kvGrid(df,['id','type','final_drive','preload','lock_power','lock_coast','efficiency'])+lockControlHtml(df.lock_control,df.id||'')):''}
+    ${drivetrainControlHtml(pt)}
   `;
   drawChart(tpId,[{name:'Tq (Nm)',data:tc},{name:'Pwr (kW)',data:pc}]);
 
