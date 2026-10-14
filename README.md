@@ -231,6 +231,7 @@ python tools/validate.py examples/skeleton_6x4_walking_beam_dump_truck.svj.json 
 | `tools/validate.py` | Validates any SVJ file against the JSON Schema. Accepts one or more files, exits non-zero on errors. |
 | `tools/integrity_check.py` | Validates glTF visual bindings: node naming pattern and category, id match for every carrier (uprights, links, wheels, brakes, steering, powertrain, aero), mesh_ref validity, uniqueness, `placement` rules, and advisories on category fit and part naming. Use `--strict` to also fail on warnings. |
 | `tools/multiaxle_check.py` | Multi-axle cross-reference rules (spec §23.7). Run automatically by `validate.py`; also usable standalone. |
+| `tools/multibody_check.py` | Multibody cross-references (spec §9.2.3.2–9.2.3.3): `body_ref`, `parent`, `outboard_ref`, unit quaternions, mass/CG consistency; `--joints` prints every link's effective (explicit or inferred) joint types. Run automatically by `validate.py`. |
 | `tools/drivetrain_check.py` | Differential-control rules (spec §10.6.1, §10.8.1): `lock_control` curves/targets/limits and `transfer_case.coupling`. Run automatically by `validate.py`; also usable standalone. |
 | `tools/validate_override.py` | Resolves an `*.svj-override.json` file's `base` + `patch` (new in v0.98) and validates the resulting document against the standard schema. |
 
@@ -298,6 +299,7 @@ tools/
   ├── validate.py                 Schema + multi-axle validation
   ├── multiaxle_check.py          Multi-axle cross-reference rules (v0.99)
   ├── drivetrain_check.py         Differential-control rules (v0.99.3)
+  ├── multibody_check.py          Multibody cross-references + joint-type inference (v0.96 fields)
   ├── validate_override.py        Override file resolution + validation (v0.98)
   └── integrity_check.py          glTF visual binding checks (v0.99.2)
 svj-py/                           Python library + CLI (v0.2.0, multi-axle aware)

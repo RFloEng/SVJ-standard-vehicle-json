@@ -504,6 +504,20 @@ function buildScene() {
   const cgS = mkS(cgP, 0.035, 0xff5131);
   addP(cgS, `CG: [${(ch.center_of_gravity||[]).map(v=>v.toFixed(3)).join(', ')}]`);
   groups.chassis.add(cgS);
+
+  // Marker orientation frames (v0.96 `orientation` quaternions on hardpoints / mounts): RGB = marker x/y/z
+  Object.entries(markerExtras).forEach(([id, ex]) => {
+    const q = ex.orientation; if(!Array.isArray(q) || q.length !== 4) return;
+    const [st, kind, name] = id.split('|'); const c = data.suspension?.[st]; if(!c) return;
+    const pos = kind === 'hp' ? c.topology?.upright?.hardpoints?.[name] : c[kind]?.[name];
+    if(!Array.isArray(pos) || pos.length < 3) return;
+    [[1,0,0,0xff3333],[0,1,0,0x33ff33],[0,0,1,0x3377ff]].forEach(([x,y,z,col]) => {
+      const dv = quatRotate(q, [x,y,z]);
+      const t = mkT(sae2three(pos), sae2three([pos[0]+dv[0]*0.05, pos[1]+dv[1]*0.05, pos[2]+dv[2]*0.05]), 0.0015, col);
+      if(t){ t.userData = {corner: st}; groups.suspension.add(t); }
+    });
+  });
+
   const axX=(data.axles||[]).map(a=>a.position_x).filter(v=>typeof v==='number');
   const xF=axX.length?Math.max(...axX):0, xR=axX.length?Math.min(...axX):-wb;
   const trMax=Math.max(tf,tr,...(data.axles||[]).map(a=>a.track||0));
@@ -1162,7 +1176,7 @@ function renderSuspension(el, data) {
   el.innerHTML = `
     <div class="flex-wrap mb8">${stationKeys(data.suspension).map(c=>`<button class="corner-sel ${c===suspCorner?'active':''}" data-corner="${c}">${c}</button>`).join('')}</div>
     <div class="flex-wrap mb6">${tag(s.topology?.system_type?.replace(/_/g,' ')||'?')} ${s.spring?tag(s.spring.rate+' N/m','var(--gn)'):''} ${s.damper?tag(s.damper.type||'damper','var(--bl)'):''}</div>
-    ${s.topology?.links?.some(function(l){return l.joint_type||l.inboard_joint_type||l.body_ref;})?section('Link Topology (v0.96)',s.topology.links.filter(function(l){return l.joint_type||l.inboard_joint_type||l.body_ref;}).map(function(l){return '<div class="kv-row" style="padding:2px 0"><span class="kv-key" style="font-size:10px">'+l.name+'</span><span class="kv-val" style="font-size:10px">'+(l.joint_type?'out: '+l.joint_type:'')+(l.inboard_joint_type?' in: '+l.inboard_joint_type:'')+(l.body_ref?' body: '+l.body_ref:'')+'</span></div>';}).join('')):''}
+    ${linkTopologyHtml(s.topology)}
     ${stationInfoHtml(data, suspCorner)}
     ${section('Hardpoints (editable)', hardpointEditor(suspCorner))}
     ${s.alignment?section('Alignment',`<div class="kv-grid">${[['Camber',rad2deg(s.alignment.camber)+'°'],['Toe',rad2deg(s.alignment.toe)+'°'],['Caster',rad2deg(s.alignment.caster)+'°'],['KPI',rad2deg(s.alignment.kpi)+'°'],['Scrub',fmtN(s.alignment.scrub_radius?s.alignment.scrub_radius*1000:null,1)+' mm']].filter(([,v])=>!v.startsWith('0.00')&&!v.startsWith('—')).map(([l,v])=>`<div class="kv-row"><span class="kv-key">${l}</span><span class="kv-val">${v}</span></div>`).join('')}</div>`):''}
@@ -1208,6 +1222,35 @@ function renderSuspension(el, data) {
   // Draw charts
   if(s.damper?.bump_curve||s.damper?.rebound_curve) drawChart(chartId, [{name:'Bump',data:s.damper.bump_curve},{name:'Rebound',data:s.damper.rebound_curve}]);
   if(s.brake?.pad?.mu_curve) drawChart(muId, [{name:'µ',data:s.brake.pad.mu_curve}]);
+}
+
+/* Joint-type inference — keep in sync with tools/multibody_check.py (infer_joint_types). */
+function inferJointTypes(systemType, linkType){
+  const lt = linkType || 'arm';
+  if(lt === 'rod' || lt === 'torque_rod') return ['spherical','spherical'];
+  if(lt === 'strut' && (systemType === 'macpherson' || systemType === 'chapman_strut')) return ['translational','fixed'];
+  if(lt === 'arm'){
+    if(['double_wishbone','macpherson','chapman_strut','multi_link','custom'].includes(systemType)) return ['spherical','revolute'];
+    if(['trailing_arm','semi_trailing_arm','torsion_beam','parallelogram'].includes(systemType)) return ['revolute','revolute'];
+  }
+  if(lt === 'pivot' && systemType === 'pendulum_axle') return ['revolute', null];
+  return [null, null];
+}
+function quatRotate(q, v){
+  const n = Math.hypot(q[0],q[1],q[2],q[3]) || 1, u = [q[0]/n,q[1]/n,q[2]/n], w = q[3]/n;
+  const cr = (a,b)=>[a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]];
+  const c1 = cr(u,v), c2 = cr(u,c1);
+  return [v[0]+2*(w*c1[0]+c2[0]), v[1]+2*(w*c1[1]+c2[1]), v[2]+2*(w*c1[2]+c2[2])];
+}
+function linkTopologyHtml(topo){
+  const links = (topo?.links || []);
+  if(!links.length) return '';
+  const rows = links.map(l => {
+    const [io, ii] = inferJointTypes(topo.system_type, l.type);
+    const part = (v, inf, lab) => v ? `${lab}: ${escHtml(v)}` : (inf ? `<span style="color:var(--txD)" title="inferred from system_type">${lab}: ${escHtml(inf)}*</span>` : `<span style="color:var(--txD)">${lab}: ?</span>`);
+    return `<div class="kv-row" style="padding:2px 0"><span class="kv-key" style="font-size:10px">${escHtml(l.name)}</span><span class="kv-val" style="font-size:10px">${part(l.joint_type,io,'out')} ${part(l.inboard_joint_type,ii,'in')}${l.body_ref?' body: '+escHtml(l.body_ref):''}</span></div>`;
+  }).join('');
+  return section('Link Topology (v0.96)', rows + '<div style="font-size:9px;color:var(--txD);margin-top:2px">* inferred from system_type · ? not inferable</div>');
 }
 
 /* ═══════════════════════════════════════════════════
@@ -1964,7 +2007,40 @@ function updateMeshBanner(data) {
     '<div style="margin-top:3px;color:var(--txM);font-size:8px">or drop folder / .glb files here</div>';
 }
 
+/* Marker-form points (v0.96): a hardpoint or spring/damper mount may be {position, orientation}
+   instead of [x,y,z]. The viewer works on plain vec3 everywhere, so marker objects are flattened on
+   load and their extra keys (orientation…) are remembered by slot and re-wrapped on Save. */
+let markerExtras = {};
+function eachMarkerSlot(json, fn){
+  for(const st of stationKeys(json?.suspension)){
+    const c = json.suspension[st];
+    const hp = c?.topology?.upright?.hardpoints;
+    if(hp && typeof hp === 'object') for(const n of Object.keys(hp)) fn(hp, n, st+'|hp|'+n);
+    for(const part of ['spring','damper']) for(const m of ['inboard_mount','outboard_mount'])
+      if(c?.[part] && typeof c[part] === 'object' && m in c[part]) fn(c[part], m, st+'|'+part+'|'+m);
+  }
+}
+function normalizeMarkers(json){
+  markerExtras = {};
+  eachMarkerSlot(json, (h,k,id)=>{
+    const v = h[k];
+    if(v && !Array.isArray(v) && typeof v === 'object' && Array.isArray(v.position)){
+      const {position, ...rest} = v;
+      if(Object.keys(rest).length) markerExtras[id] = rest;
+      h[k] = position;
+    }
+  });
+}
+function withMarkers(json){
+  const c = JSON.parse(JSON.stringify(json));
+  if(Object.keys(markerExtras).length) eachMarkerSlot(c, (h,k,id)=>{
+    if(markerExtras[id] && Array.isArray(h[k])) h[k] = {position: h[k], ...markerExtras[id]};
+  });
+  return c;
+}
+
 function loadData(json) {
+  normalizeMarkers(json);
   DATA = json;
   const _st = stationKeys(json?.suspension);
   if(_st.length && !_st.includes(suspCorner)) suspCorner = _st[0];
@@ -2193,7 +2269,7 @@ function updateSaveBar() {
 }
 
 function saveFile() {
-  const json = JSON.stringify(DATA, null, 2);
+  const json = JSON.stringify(withMarkers(DATA), null, 2);
   const blob = new Blob([json], {type: 'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');

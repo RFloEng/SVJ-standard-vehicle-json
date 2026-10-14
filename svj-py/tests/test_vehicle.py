@@ -389,3 +389,83 @@ class TestDifferentialControl:
         del tc["coupling"]
         _, warnings = check(doc)
         assert any("neither torque_split nor coupling" in w for w in warnings)
+
+
+class TestMultibody:
+    """Multibody topology cross-references and joint-type inference."""
+
+    def _doc(self):
+        with open(EXAMPLES_DIR / "bmw_e30_325i_semi_trailing.svj.json", encoding="utf-8") as f:
+            return json.load(f)
+
+    def test_checker_in_sync(self):
+        a = (REPO_ROOT / "tools" / "multibody_check.py").read_text()
+        b = (REPO_ROOT / "svj-py" / "svj" / "multibody.py").read_text()
+        assert a == b, "tools/multibody_check.py and svj/multibody.py differ"
+
+    def test_shipped_files_are_clean(self):
+        from svj.multibody import check
+        for p in list(EXAMPLES_DIR.glob("*.svj.json")) + [TEMPLATE]:
+            assert check(json.loads(p.read_text(encoding="utf-8"))) == ([], []), p.name
+
+    def test_dangling_body_ref_and_duplicate_claim(self):
+        from svj.multibody import check
+        d = self._doc()
+        links = d["suspension"]["FL"]["topology"]["links"]
+        links[0]["body_ref"] = "nope"
+        links[1]["body_ref"] = links[2]["body_ref"]
+        errors, _ = check(d)
+        assert any("'nope' is not a chassis.mass_bodies id" in e for e in errors)
+        assert any("already used by" in e for e in errors)
+
+    def test_parent_unknown_and_cycle(self):
+        from svj.multibody import check
+        d = self._doc()
+        mb = d["chassis"]["mass_bodies"]
+        mb[0]["parent"] = "ghost"
+        errors, _ = check(d)
+        assert any("parent 'ghost'" in e for e in errors)
+        mb[0]["parent"] = mb[1]["id"]
+        mb[1]["parent"] = mb[0]["id"]
+        errors, _ = check(d)
+        assert any("cycle" in e for e in errors)
+
+    def test_quaternion_norm(self):
+        from svj.multibody import check
+        d = self._doc()
+        up = d["suspension"]["FL"]["topology"]["upright"]
+        first = next(iter(up["hardpoints"]))
+        up["hardpoints"][first] = {"position": up["hardpoints"][first], "orientation": [0, 0, 0, 2]}
+        errors, _ = check(d)
+        assert any("not a unit quaternion" in e for e in errors)
+        up["hardpoints"][first]["orientation"] = [0, 0, 0, 1.004]
+        errors, warnings = check(d)
+        assert not errors and any("renormalise" in w for w in warnings)
+
+    def test_outboard_ref_and_mass_mismatch(self):
+        from svj.multibody import check
+        d = self._doc()
+        ln = d["suspension"]["FL"]["topology"]["links"][1]
+        ln["outboard_ref"] = "hardpoints.does_not_exist"
+        ln["mass"] = 99.0
+        errors, warnings = check(d)
+        assert any("not an upright hardpoint" in e for e in errors)
+        assert any("differs from body" in w for w in warnings)
+
+    def test_effective_joints_explicit_and_inferred(self):
+        from svj.multibody import infer_joint_types
+        assert infer_joint_types("macpherson", "strut") == ("translational", "fixed")
+        assert infer_joint_types("double_wishbone", "arm") == ("spherical", "revolute")
+        assert infer_joint_types("double_wishbone", "rod") == ("spherical", "spherical")
+        assert infer_joint_types("trailing_arm", "arm") == ("revolute", "revolute")
+        assert infer_joint_types("solid_axle", "arm") == (None, None)
+        d = self._doc()
+        links = d["suspension"]["FL"]["topology"]["links"]
+        links[1].pop("joint_type"); links[1].pop("inboard_joint_type")
+        from svj import loads
+        v = loads(json.dumps(d), validate_on_load=False)
+        j = next(x for x in v.joints() if x["station"] == "FL" and x["link"] == links[1]["name"])
+        assert (j["outboard"], j["outboard_source"]) == ("spherical", "inferred")
+        assert (j["inboard"], j["inboard_source"]) == ("revolute", "inferred")
+        s = next(x for x in v.joints() if x["station"] == "FL" and x["link"] == "strut")
+        assert s["outboard_source"] == "explicit"

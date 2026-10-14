@@ -13,7 +13,8 @@ Options:
 
 In addition to the JSON Schema, runs the multi-axle cross-reference rules in
 tools/multiaxle_check.py (spec §23.7) and the differential-control rules in
-tools/drivetrain_check.py (spec §10.6.1, §10.8.1).
+tools/drivetrain_check.py (spec §10.6.1, §10.8.1) and the multibody
+cross-references in tools/multibody_check.py (body_ref, parent, orientation, outboard_ref).
 """
 
 import copy
@@ -25,6 +26,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from multiaxle_check import check as multiaxle_check  # noqa: E402
 from drivetrain_check import check as drivetrain_check  # noqa: E402
+from multibody_check import check as multibody_check  # noqa: E402
 
 try:
     import jsonschema
@@ -89,6 +91,11 @@ def validate_file(svj_path: str, schema: dict, strict: bool) -> bool:
     dt_errors, dt_warnings = drivetrain_check(doc)
     errors.extend(dt_errors)
     warnings.extend(dt_warnings)
+
+    # Multibody topology cross-references (proposals/svj_multibody_topology_proposal.md)
+    mb_errors, mb_warnings = multibody_check(doc)
+    errors.extend(mb_errors)
+    warnings.extend(mb_warnings)
 
     # Version advisory
     version = doc.get("_metadata", {}).get("version", "unknown")

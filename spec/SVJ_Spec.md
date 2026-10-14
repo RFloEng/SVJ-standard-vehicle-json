@@ -750,6 +750,7 @@ The upright (hub carrier / knuckle) is treated as a rigid body. All outboard att
 | `cg_position` | [x,y,z]| no      | CG of the upright assembly in vehicle frame (m)|
 | `inertia`     | object | no       | Inertia tensor about the upright CG, in vehicle frame axes — same format as §7.1 |
 | `hardpoints`  | object | YES      | Named points on the upright (§9.2.2.1)         |
+| `body_ref`    | string | no       | `chassis.mass_bodies[].id` of this upright as a rigid body *(v0.96, §9.2.3.3)* |
 
 ##### 9.2.2.1 Standard Hardpoint Names
 
@@ -766,7 +767,7 @@ These names are RECOMMENDED for interoperability. Additional custom hardpoints M
 | `arb_drop_link_outboard` | ARB drop link → upright/arm attachment           |
 | `cv_joint_outer`         | Outboard CV joint center — must match `half_shafts.*.cv_outer.position` (driven corners only) |
 
-Hardpoint values are `[x, y, z]` arrays in the **vehicle reference frame**.
+Hardpoint values are `[x, y, z]` arrays in the **vehicle reference frame**, or marker objects `{position, orientation}` (§9.2.3.3).
 
 #### 9.2.3 `links`
 
@@ -784,6 +785,9 @@ Each link is a rigid rod or arm connecting the chassis (inboard) to the upright 
 | `mass_distribution` | object | no      | `{"sprung_fraction": 0.5}` — fraction of mass that is sprung. Default 0.5 if absent. |
 | `bushings`         | array   | no       | Bushing at each inboard point — Tier 3 compliance (§9.2.5) |
 | `outboard_bushing` | object  | no      | Bushing at the outboard joint (§9.2.5) — if not a rigid ball joint |
+| `joint_type`       | string  | no       | Outboard joint: `spherical`, `revolute`, `cylindrical`, `translational`, `universal`, `fixed`, `planar`, `convel`, `hooke`; inferred when absent (§9.2.3.2) |
+| `inboard_joint_type` | string | no      | Inboard joint: `revolute`, `spherical`, `cylindrical`, `fixed`, `bushing`; inferred when absent (§9.2.3.2) |
+| `body_ref`         | string  | no       | `chassis.mass_bodies[].id` of this link as a rigid body (§9.2.3.3) |
 
 ##### 9.2.3.1 `outboard_ref` Path Resolution
 
@@ -796,6 +800,28 @@ The path is resolved **within the same corner**, starting from `topology.upright
 This resolves to: `suspension.<corner>.topology.upright.hardpoints.upper_ball_joint`
 
 > **Migration from v0.2:** Old-style refs like `"upright_front.hardpoints.X"` are DEPRECATED. Use `"hardpoints.X"` instead.
+
+##### 9.2.3.2 Joint types and inference *(v0.96 fields; inference rules normative from v0.99.3)*
+
+`joint_type` is the joint at the **outboard** connection (link ↔ upright); `inboard_joint_type` is the joint at the **inboard** (link ↔ chassis) connection(s). When a link omits one, converters MUST resolve it with the table below (`tools/multibody_check.py::infer_joint_types`, `svj.multibody.infer_joint_types` and `Vehicle.joints()` implement it identically). An explicit value always wins. A dash means *not inferable*: the file must state the joint explicitly for a multibody export.
+
+| Link `type` | `system_type` | Outboard | Inboard |
+|---|---|---|---|
+| `arm` | `double_wishbone`, `macpherson`, `chapman_strut`, `multi_link`, `custom` | `spherical` | `revolute` |
+| `arm` | `trailing_arm`, `semi_trailing_arm`, `torsion_beam`, `parallelogram` | `revolute` | `revolute` |
+| `rod`, `torque_rod` | any | `spherical` | `spherical` |
+| `strut` | `macpherson`, `chapman_strut` | `translational` | `fixed` |
+| `pivot` | `pendulum_axle` | `revolute` | — |
+| anything else (`arm` on `solid_axle`, `de_dion`, `swing_axle`, leaf springs, …) | | — | — |
+
+> Several shipped files state `fixed` for the outboard joint of a trailing or torsion arm whose upright is rigid with the arm; the explicit value overrides the inferred `revolute`.
+
+##### 9.2.3.3 Body references and orientation frames *(v0.96)*
+
+- `body_ref` (on `upright` and on a link) names a `chassis.mass_bodies[].id` that represents the part as a rigid body. Each body can be claimed by at most one part. `mass_body.parent` is `"chassis"`, `"ground"` or another body id and must not form a cycle.
+- Where both exist, the part's `mass` / `cg_position` should agree with the body's `mass` / `position` (checker tolerance 1 % and 5 mm).
+- A hardpoint, or a spring/damper mount, is either `[x, y, z]` or `{ "position": [x, y, z], "orientation": [qx, qy, qz, qw] }`. The quaternion is a unit quaternion in the vehicle frame; the checker errors when its norm deviates from 1 by more than 0.01 and warns above 0.001. `bushings[].orientation` and `mass_body.markers.*.orientation` follow the same rule.
+- `tools/multibody_check.py` (run by `tools/validate.py`; mirrored as `svj-py/svj/multibody.py`) enforces: unique mass-body ids, `parent` resolves and is acyclic, `body_ref` resolves and is unique, `outboard_ref` names an upright hardpoint, `bushings` count matches `inboard_points`, unit quaternions, and warns on mass / CG mismatches and on an `arm` with two inboard points and a `spherical` inboard joint.
 
 #### 9.2.4 `axle_body` — Shared Rigid Body
 
