@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99",
+    "version": "0.99.3",
     "description": "Tri-axle semi-trailer skeleton — trailing-arm air suspension on beam axles, dual wheels, liftable first axle, shared levelling circuit. Origin at A1 centre (no king-pin data, §23.8).",
     "coordinate_system": "SAE_J670",
     "units": "SI",

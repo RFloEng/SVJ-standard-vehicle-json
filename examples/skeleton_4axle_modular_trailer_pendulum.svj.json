@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99",
+    "version": "0.99.3",
     "description": "4-axle-line hydraulic modular trailer skeleton — pendulum axles with suspension cylinders, four tyres per axle line (2 per station), cylinders grouped into a 3-point support, all axle lines hydraulically steered.",
     "coordinate_system": "SAE_J670",
     "units": "SI",

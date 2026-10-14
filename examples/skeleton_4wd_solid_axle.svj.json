@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.97",
+    "version": "0.99.3",
     "description": "Skeleton: 4WD truck \u2014 MacPherson front, solid axle rear with Panhard rod.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
