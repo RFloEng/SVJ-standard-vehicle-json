@@ -302,7 +302,7 @@ tools/
   └── integrity_check.py          glTF visual binding checks (v0.99.2)
 svj-py/                           Python library + CLI (v0.2.0, multi-axle aware)
 viewer/
-  └── svj_viewer_v4.2.html        3D inspector/editor — drag & drop any SVJ file; multi-axle layout, axle/wheel editor, performance tab
+  └── svj_viewer_v4.3.html        3D inspector/editor — drag & drop any SVJ file; multi-axle layout, axle/wheel editor, performance tab
 proposals/                        Design proposals and research notes
 ```
 
