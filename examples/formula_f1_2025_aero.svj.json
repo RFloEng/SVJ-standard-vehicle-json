@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99.3",
+    "version": "0.99.4",
     "description": "Formula F1 2025 — aero example with glTF visual bindings (v0.97 feature).",
     "coordinate_system": "SAE_J670",
     "units": "SI",

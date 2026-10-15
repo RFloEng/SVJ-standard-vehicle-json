@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99.3",
+    "version": "0.99.4",
     "description": "Chevrolet Corvette C3 (1972) \u2014 double wishbone front, Chapman strut independent rear.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
@@ -570,6 +570,11 @@
               -0.52,
               -0.6
             ],
+            "strut_lower": [
+              -2.489,
+              -0.591,
+              -0.32
+            ],
             "lower_ball_joint": [
               -2.489,
               -0.64,
@@ -609,7 +614,7 @@
                 -0.6
               ]
             ],
-            "outboard_ref": "hardpoints.strut_top",
+            "outboard_ref": "hardpoints.strut_lower",
             "_note": "Chapman strut: driveshaft acts as upper locating member, spring/damper telescopic",
             "joint_type": "translational",
             "inboard_joint_type": "fixed",
@@ -730,6 +735,11 @@
               0.52,
               -0.6
             ],
+            "strut_lower": [
+              -2.489,
+              0.591,
+              -0.32
+            ],
             "lower_ball_joint": [
               -2.489,
               0.64,
@@ -769,7 +779,7 @@
                 -0.6
               ]
             ],
-            "outboard_ref": "hardpoints.strut_top",
+            "outboard_ref": "hardpoints.strut_lower",
             "_note": "Chapman strut: driveshaft acts as upper locating member, spring/damper telescopic",
             "joint_type": "translational",
             "inboard_joint_type": "fixed",

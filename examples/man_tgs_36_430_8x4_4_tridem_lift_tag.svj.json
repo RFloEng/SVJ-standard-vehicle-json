@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99.3",
+    "version": "0.99.4",
     "coordinate_system": "SAE_J670",
     "units": "SI",
     "description": "MAN TGS 36.430 8x4-4 BL CH tridem chassis (UK, 2022, TN cab, wheelbase 3600): leaf-sprung steer axle, air-sprung tandem drive and a steered, liftable trailing (tag) axle. Axle positions, weights, tyres, rims, suspension types, turning circle and driveline are published; geometry details and rates are estimates.",

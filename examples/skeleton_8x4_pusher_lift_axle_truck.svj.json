@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99.3",
+    "version": "0.99.4",
     "description": "8x4 rigid truck skeleton — leaf steer axle, steerable parallelogram pusher lift axle (self-steer), air-sprung tandem drive on one levelling circuit.",
     "coordinate_system": "SAE_J670",
     "units": "SI",

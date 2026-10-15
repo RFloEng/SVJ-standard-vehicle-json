@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99.3",
+    "version": "0.99.4",
     "description": "6x6 special off-road vehicle skeleton — portal beam axles with hub reduction, hydropneumatic struts, front roll interconnection and per-side pitch interconnection across the rear tandem.",
     "coordinate_system": "SAE_J670",
     "units": "SI",

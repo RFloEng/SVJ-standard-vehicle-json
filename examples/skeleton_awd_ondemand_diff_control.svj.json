@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99.3",
+    "version": "0.99.4",
     "description": "Skeleton: on-demand AWD pickup demonstrating v0.99.3 differential control — a torque-limited centre coupling, a centre differential with a gear/brake-modulated lock, and a rear LSD with separate power and coast chains.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
@@ -216,6 +216,11 @@
               -0.58,
               -0.7
             ],
+            "strut_lower": [
+              0.0,
+              -0.651,
+              -0.38
+            ],
             "lower_ball_joint": [
               0.0,
               -0.7,
@@ -246,7 +251,7 @@
                 -0.7
               ]
             ],
-            "outboard_ref": "hardpoints.strut_top",
+            "outboard_ref": "hardpoints.strut_lower",
             "joint_type": "translational",
             "inboard_joint_type": "fixed",
             "body_ref": "strut_fl",
@@ -340,6 +345,11 @@
               0.58,
               -0.7
             ],
+            "strut_lower": [
+              0.0,
+              0.651,
+              -0.38
+            ],
             "lower_ball_joint": [
               0.0,
               0.7,
@@ -370,7 +380,7 @@
                 -0.7
               ]
             ],
-            "outboard_ref": "hardpoints.strut_top",
+            "outboard_ref": "hardpoints.strut_lower",
             "joint_type": "translational",
             "inboard_joint_type": "fixed",
             "body_ref": "strut_fr",

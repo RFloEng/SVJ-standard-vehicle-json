@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99.3",
+    "version": "0.99.4",
     "description": "Tandem-axle leaf-spring trailer skeleton — double-eye/slipper leaf springs joined by an equalizer rocker on each side, no dampers.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
