@@ -1,4 +1,4 @@
-# Standard Vehicle JSON (SVJ) Specification v0.99.3
+# Standard Vehicle JSON (SVJ) Specification v0.99.4
 
 ## 1. Overview & Philosophy
 
@@ -478,13 +478,15 @@ A telescopic strut (spring + damper integrated) replaces the upper arm. The stru
 
 | Link name | type | inboard_points | outboard_ref | Notes |
 |-----------|------|---------------|--------------|-------|
-| `strut` | `strut` | 1 point (strut top mount / turret) | `hardpoints.strut_top` | The strut top is on the body/turret |
+| `strut` | `strut` | 1 point (strut top mount / turret, on the body) | `hardpoints.strut_lower` | The link runs from the body-side top mount down to the strut's **lower clamp on the upright** (`strut_lower`). Its outboard end is *not* the top (v0.99.4) |
 | `lower_control_arm` | `arm` | 2 points (front + rear pivots) | `hardpoints.lower_ball_joint` | Single A-arm or L-arm |
 | `steering_tie_rod` | `rod` | 1 point (rack end) | `hardpoints.steering_tie_rod_end` | Front axle only |
 
-**Minimum hardpoints:** `strut_top`, `lower_ball_joint`, `wheel_center`. Add `steering_tie_rod_end` on steered axles.
+**Minimum hardpoints:** `strut_top`, `strut_lower`, `lower_ball_joint`, `wheel_center`. Add `steering_tie_rod_end` on steered axles.
 
-**Note:** Spring and damper `inboard_mount` / `outboard_mount` are typically the same as the strut link mounts. The `strut` link type signals to parsers that this link is telescopic (piston in cylinder), not a rigid body.
+**Note:** Spring and damper `inboard_mount` / `outboard_mount` are typically the same as the strut's ends: `inboard_mount` = `strut_top`, `outboard_mount` = `strut_lower`. The `strut` link type signals to parsers that this link is telescopic (piston in cylinder), not a rigid body.
+
+> **Strut end points (v0.99.4):** before v0.99.4 this table gave `strut_top` as both ends of the strut link, which collapses it to zero length and leaves a solver unable to locate the corner. The outboard end is the lower clamp on the knuckle, `strut_lower`. `tools/multibody_check.py` warns about any link whose inboard point coincides with its outboard hardpoint. Files that still reference `strut_top` as `outboard_ref` stay schema-valid; add `strut_lower` and repoint the link.
 
 **Examples:** Most FWD front suspensions, VW Golf, Ford Focus (front), Toyota Corolla.
 
@@ -498,11 +500,11 @@ Functionally identical to MacPherson but used on **driven rear axles**. The driv
 
 | Link name | type | inboard_points | outboard_ref | Notes |
 |-----------|------|---------------|--------------|-------|
-| `strut` | `strut` | 1 point (strut top mount) | `hardpoints.strut_top` | |
+| `strut` | `strut` | 1 point (strut top mount, on the body) | `hardpoints.strut_lower` | Lower clamp on the upright, as for `macpherson` *(v0.99.4)* |
 | `lower_control_arm` | `arm` | 2 points | `hardpoints.lower_ball_joint` | |
 | `toe_link` | `rod` | 1 point | `hardpoints.toe_link_end` | Optional, for rear toe control |
 
-**Minimum hardpoints:** `strut_top`, `lower_ball_joint`, `wheel_center`.
+**Minimum hardpoints:** `strut_top`, `strut_lower`, `lower_ball_joint`, `wheel_center`.
 
 **Examples:** Lotus Elan, Lotus Elise (some variants), Corvette C1–C3 rear.
 
@@ -762,7 +764,8 @@ These names are RECOMMENDED for interoperability. Additional custom hardpoints M
 | `lower_ball_joint`       | Lower arm → upright connection                   |
 | `steering_tie_rod_end`   | Steering link → upright connection               |
 | `wheel_center`           | Geometric center of the wheel                    |
-| `strut_top`              | MacPherson strut upper mount (on upright side)   |
+| `strut_top`              | MacPherson / Chapman strut upper mount, **on the body** (strut link inboard point; spring/damper `inboard_mount`) |
+| `strut_lower`            | Strut lower clamp **on the upright**: the strut link's `outboard_ref` and the spring/damper `outboard_mount` *(v0.99.4)* |
 | `damper_outboard`        | Damper → upright attachment (if direct)          |
 | `arb_drop_link_outboard` | ARB drop link → upright/arm attachment           |
 | `cv_joint_outer`         | Outboard CV joint center — must match `half_shafts.*.cv_outer.position` (driven corners only) |
@@ -977,9 +980,14 @@ The actual as-installed state at rest on a flat surface, including corner weight
 | `bump_curve`       | array   | YES*     | `[[velocity_m_s, force_N], ...]` (compression). *Not required for `none` / `hydraulic_strut` |
 | `rebound_curve`    | array   | YES*     | `[[velocity_m_s, force_N], ...]` (extension). *Not required for `none` / `hydraulic_strut` |
 | `motion_ratio`     | number  | no       | Damper velocity / wheel velocity (dimensionless)      |
+| `reference`        | string  | no       | `"damper"` (default) or `"wheel"` — where the curves are defined *(v0.99.4)* |
 | `mass`             | number  | no       | Damper mass (kg). Body ≈ sprung, rod+piston ≈ unsprung |
 | `inboard_mount`    | [x,y,z] | no      | Chassis-side damper mount point                       |
 | `outboard_mount`   | [x,y,z] | no      | Suspension-side damper mount point                    |
+
+> **Reference of the curves (v0.99.4):** with `reference: "damper"` (default) `bump_curve` / `rebound_curve` are force and velocity **at the damper**, related to the wheel by `motion_ratio` (damper velocity ÷ wheel velocity); a solver SHOULD derive the ratio from the mounts when they are given (§9.3). With `reference: "wheel"` they are force **at the wheel** against **wheel** velocity — the form simulators that work at the wheel provide. `motion_ratio` MUST then be absent or `1`, and any mounts are geometry only. A reader that needs damper values converts with `v_damper = v_wheel × MR` and `F_damper = F_wheel ÷ MR`; one that needs wheel values from a damper-referenced file does the inverse. Writing wheel-referenced values with a real strut geometry and no `reference` makes a geometry-solving reader scale the wheel force by about MR² (a ratio of 0.9 under-damps the wheel by 19 %), so converters without damper geometry should say `"wheel"` instead of inventing a vertical damper. (Springs need no flag: `rate` is the wheel rate, §9.3.)
+
+> **Mount key names:** the keys are `inboard_mount` / `outboard_mount` (spring and damper). The look-alikes `inboard_point` / `outboard_point` (used by link `inboard_points`) are not part of the schema and are ignored by readers; `tools/validate.py` warns when it sees them.
 
 > **Convention:** Velocities are always positive in both curves. Force is positive (resisting motion). Bump = compression (wheel moving up in SAE Z-down = Z decreasing). Rebound = extension (wheel moving down = Z increasing).
 
@@ -2379,6 +2387,7 @@ This section is **optional**. It provides a standard place to record performance
 
 | Version | Changes                                                                                    |
 |---------|--------------------------------------------------------------------------------------------|
+| 0.99.4  | **Strut and damper conventions** (from converter feedback): the MacPherson/Chapman strut link now ends at the new `strut_lower` hardpoint (lower clamp on the upright) instead of `strut_top`, which had made every strut link zero-length (§9.2.1, §9.2.2.1); `damper.reference` `"damper"` (default) or `"wheel"` for dampers specified at the wheel (§9.4); `inboard_point` / `outboard_point` flagged as misspellings of `inboard_mount` / `outboard_mount`. Additive: older files stay valid, the checker warns about zero-length links. Five shipped examples corrected |
 | 0.99.3  | **Differential control** (§10.6.1, §10.8.1): optional `lock_control` on differentials and `transfer_case.center_diff` (ordered stages — input → curve → multiply/add — with a time-constant filter and clamps; one chain or an array of chains for separate power/coast), and optional `transfer_case.coupling` (`max_torque`, `ramp_torque`, `mechanism`) for torque-limited on-demand AWD. Additive: every v0.96–v0.99.2 file stays valid. New `tools/drivetrain_check.py` (mirrored in `svj-py`). Origin: `proposals/svj_differential_control_proposal.md` |
 | 0.99.2  | **Visual binding layer, part 2** (§22): one category set shared by schema, spec and `docs/naming_convention.md` (`body`, `suspension`, `steering`, `wheel`, `brake`, `powertrain`, `aero`, `helper`, `lod`); `visual` defined on suspension links, uprights, axle bodies, wheels and dual-wheel positions, springs, dampers, ARBs, brake discs and calipers, steering rack/column/wheel, powertrain units, driveshafts and aero components; new `placement` (`rigid` \| `link_between_points`) with `mesh_axis`, `from_point` and `scale_to_length` for parts defined by hardpoints; `x_`/`_` keys allowed inside `visual`; `tools/integrity_check.py` rewritten (id resolution for every carrier, placement and category rules). Additive — every v0.96–v0.99.1 file, including all v0.97 bindings, remains valid. |
 | 0.99.1  | **Real-vehicle data patch** (from `proposals/multi_axle_real_vehicle_examples_research.md`): `axle_groups` with design/legal/kerb loads per group (§23.2.1); `chassis.plated_masses`; `wheelbase_reference` gains `bogie_centres`, `first_rear_axle`, `theoretical`, `explicit` (+ `wheelbase_from`/`wheelbase_to`) with a definition table (§23.6); checker rules for both. First real-vehicle multi-axle example: MAN TGS 32.430 8x4 BB twin-steer tipper. Additive — all 0.99 files remain valid. |

@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99.3",
+    "version": "0.99.4",
     "description": "BMW E30 325i (1987) \u2014 MacPherson front, semi-trailing arm rear. Factory specs from BMW.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
@@ -208,6 +208,11 @@
               -0.55,
               -0.68
             ],
+            "strut_lower": [
+              0.0,
+              -0.582,
+              -0.33
+            ],
             "lower_ball_joint": [
               0.0,
               -0.6,
@@ -242,7 +247,7 @@
                 -0.68
               ]
             ],
-            "outboard_ref": "hardpoints.strut_top",
+            "outboard_ref": "hardpoints.strut_lower",
             "joint_type": "translational",
             "inboard_joint_type": "fixed",
             "body_ref": "strut_fl",
@@ -371,6 +376,11 @@
               0.55,
               -0.68
             ],
+            "strut_lower": [
+              0.0,
+              0.582,
+              -0.33
+            ],
             "lower_ball_joint": [
               0.0,
               0.6,
@@ -405,7 +415,7 @@
                 -0.68
               ]
             ],
-            "outboard_ref": "hardpoints.strut_top",
+            "outboard_ref": "hardpoints.strut_lower",
             "joint_type": "translational",
             "inboard_joint_type": "fixed",
             "body_ref": "strut_fr",

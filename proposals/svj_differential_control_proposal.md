@@ -10,8 +10,7 @@
 
 ## 1. Why
 
-Auditing the Assetto Corsa → SVJ converter against the 1,398 AC cars installed on the
-reference machine showed that the SVJ powertrain schema covers the *static* description
+Auditing the Assetto Corsa → SVJ converter against a library of 1,398 AC cars showed that the SVJ powertrain schema covers the *static* description
 of a differential well (`type`, `preload`, `lock_power`, `lock_coast`, `ramp_angle_*`,
 `transfer_case.torque_split`, `transfer_case.center_diff`) but has no way to express two
 things that real and simulated AWD drivelines use:

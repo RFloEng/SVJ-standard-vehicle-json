@@ -1,10 +1,12 @@
 """
-SVJ Multibody Topology Checker (v0.96 fields)
-==============================================
+SVJ Multibody Topology Checker (v0.96 fields, suspension geometry rules v0.99.4)
+===============================================================================
 Cross-reference rules for the multibody fields that JSON Schema cannot express
 (proposals/svj_multibody_topology_proposal.md): `body_ref`, `mass_body.parent`,
 `orientation` quaternions, `joint_type` / `inboard_joint_type`, and the
-`outboard_ref` hardpoint reference. Also provides `effective_joints()`, which
+`outboard_ref` hardpoint reference. Since v0.99.4 also: zero-length links (the
+MacPherson `strut_lower` convention), the spring/damper `*_point` misspelling of
+`*_mount`, and `damper.reference`. Also provides `effective_joints()`, which
 applies the proposal's inference rules so every converter resolves missing joint
 types the same way.
 
@@ -27,6 +29,7 @@ QUAT_ERROR = 1e-2     # |norm - 1| above this is an error (not a rotation)
 QUAT_WARN = 1e-3
 MASS_REL_TOL = 0.01   # body vs link/upright mass
 CG_TOL = 0.005        # m, body position vs link/upright cg_position
+ZERO_LEN = 1e-3       # m, inboard point closer than this to the outboard hardpoint
 
 # (outboard, inboard) joint types inferred when a link states none, keyed by
 # (system_type group, link type). None = not inferable (compliant or special
@@ -171,6 +174,16 @@ def check(doc):
             if isinstance(ref, str) and ref.startswith("hardpoints.") and up and ref[len("hardpoints."):] not in hps:
                 errors.append(f"{owner}: outboard_ref '{ref}' is not an upright hardpoint")
             bush, pts = ln.get("bushings"), ln.get("inboard_points")
+            ob = hps.get(ref[len("hardpoints."):]) if isinstance(ref, str) and ref.startswith("hardpoints.") else None
+            if isinstance(ob, dict):
+                ob = ob.get("position")
+            if ln.get("type") != "pivot" and isinstance(ob, list) and len(ob) == 3 and isinstance(pts, list):
+                for pi, ip in enumerate(pts):
+                    if isinstance(ip, list) and len(ip) == 3 and all(isinstance(x, (int, float)) for x in ip + ob)                             and math.dist(ip, ob) < ZERO_LEN:
+                        hint = (" — a strut's outboard end is its lower clamp on the upright: use "
+                                "'hardpoints.strut_lower'") if ln.get("type") == "strut" else ""
+                        warnings.append(f"{owner}: inboard_points[{pi}] coincides with '{ref}' "
+                                        f"(zero-length link){hint}")
             if isinstance(bush, list) and isinstance(pts, list) and len(bush) != len(pts):
                 warnings.append(f"{owner}: {len(bush)} bushings for {len(pts)} inboard_points")
             if ln.get("type") == "arm" and ln.get("inboard_joint_type") == "spherical" \
@@ -178,6 +191,25 @@ def check(doc):
                 warnings.append(
                     f"{owner}: an arm with {len(pts)} inboard points and a spherical inboard joint is "
                     "over-constrained in rotation; use 'revolute' or 'bushing'"
+                )
+
+    # ── spring / damper keys and damper reference (v0.99.4) ─────────────────
+    for st in _stations(susp):
+        corner = susp[st]
+        for part in ("spring", "damper"):
+            obj = corner.get(part)
+            if not isinstance(obj, dict):
+                continue
+            for bad, good in (("inboard_point", "inboard_mount"), ("outboard_point", "outboard_mount")):
+                if bad in obj:
+                    warnings.append(f"suspension.{st}.{part}: unknown key '{bad}' is ignored — did you mean '{good}'?")
+        dmp = corner.get("damper")
+        if isinstance(dmp, dict) and dmp.get("reference") == "wheel":
+            mr = dmp.get("motion_ratio")
+            if isinstance(mr, (int, float)) and abs(mr - 1.0) > 1e-9:
+                warnings.append(
+                    f"suspension.{st}.damper: reference 'wheel' with motion_ratio {mr} — curves already are "
+                    "at the wheel; omit motion_ratio or set it to 1"
                 )
 
     # ── orientation quaternions ────────────────────────────────────────────

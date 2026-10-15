@@ -469,3 +469,62 @@ class TestMultibody:
         assert (j["inboard"], j["inboard_source"]) == ("revolute", "inferred")
         s = next(x for x in v.joints() if x["station"] == "FL" and x["link"] == "strut")
         assert s["outboard_source"] == "explicit"
+
+
+class TestStrutAndDamperConventions:
+    """v0.99.4: strut_lower, spring/damper key names, damper.reference."""
+
+    def _doc(self):
+        with open(EXAMPLES_DIR / "bmw_e30_325i_semi_trailing.svj.json", encoding="utf-8") as f:
+            return json.load(f)
+
+    def test_shipped_struts_have_length(self):
+        import math
+        for name in ("bmw_e30_325i_semi_trailing", "corvette_c3_chapman_strut", "skeleton_ff_macpherson_torsion"):
+            d = json.loads((EXAMPLES_DIR / f"{name}.svj.json").read_text(encoding="utf-8"))
+            for st, c in d["suspension"].items():
+                t = c.get("topology") if isinstance(c, dict) else None
+                if not t or t.get("system_type") not in ("macpherson", "chapman_strut"):
+                    continue
+                link = next(l for l in t["links"] if l.get("type") == "strut")
+                assert link["outboard_ref"] == "hardpoints.strut_lower"
+                low = t["upright"]["hardpoints"]["strut_lower"]
+                assert math.dist(link["inboard_points"][0], low) > 0.1, (name, st)
+
+    def test_zero_length_strut_is_flagged(self):
+        from svj.multibody import check
+        d = self._doc()
+        t = d["suspension"]["FL"]["topology"]
+        strut = next(l for l in t["links"] if l.get("type") == "strut")
+        strut["outboard_ref"] = "hardpoints.strut_top"
+        errors, warnings = check(d)
+        assert not errors
+        assert any("zero-length" in w and "strut_lower" in w for w in warnings)
+
+    def test_pivot_links_may_be_zero_length(self):
+        from svj.multibody import check
+        d = json.loads((EXAMPLES_DIR / "skeleton_4axle_modular_trailer_pendulum.svj.json").read_text(encoding="utf-8"))
+        _, warnings = check(d)
+        assert not any("zero-length" in w for w in warnings)
+
+    def test_point_keys_flagged(self):
+        from svj.multibody import check
+        d = self._doc()
+        d["suspension"]["FL"]["spring"]["inboard_point"] = [0, -0.5, -0.6]
+        d["suspension"]["FL"]["damper"]["outboard_point"] = [0, -0.6, -0.2]
+        _, warnings = check(d)
+        assert any("spring: unknown key 'inboard_point'" in w and "inboard_mount" in w for w in warnings)
+        assert any("damper: unknown key 'outboard_point'" in w and "outboard_mount" in w for w in warnings)
+
+    def test_damper_reference(self):
+        from svj.multibody import check
+        d = self._doc()
+        dm = d["suspension"]["FL"]["damper"]
+        dm["reference"] = "wheel"
+        assert check(d) == ([], [])
+        assert validate(d, schema_path=SCHEMA) == []
+        dm["motion_ratio"] = 0.9
+        _, warnings = check(d)
+        assert any("reference 'wheel' with motion_ratio" in w for w in warnings)
+        dm["reference"] = "elsewhere"
+        assert validate(d, schema_path=SCHEMA)  # schema rejects unknown reference

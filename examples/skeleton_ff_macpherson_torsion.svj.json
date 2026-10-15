@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99.3",
+    "version": "0.99.4",
     "description": "Skeleton: FF hatchback \u2014 MacPherson strut front, torsion beam rear.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
@@ -204,6 +204,11 @@
               -0.52,
               -0.62
             ],
+            "strut_lower": [
+              0.0,
+              -0.583,
+              -0.31
+            ],
             "lower_ball_joint": [
               0.0,
               -0.62,
@@ -238,7 +243,7 @@
                 -0.62
               ]
             ],
-            "outboard_ref": "hardpoints.strut_top",
+            "outboard_ref": "hardpoints.strut_lower",
             "joint_type": "translational",
             "inboard_joint_type": "fixed",
             "body_ref": "strut_fl",
@@ -354,6 +359,11 @@
               0.52,
               -0.62
             ],
+            "strut_lower": [
+              0.0,
+              0.583,
+              -0.31
+            ],
             "lower_ball_joint": [
               0.0,
               0.62,
@@ -388,7 +398,7 @@
                 -0.62
               ]
             ],
-            "outboard_ref": "hardpoints.strut_top",
+            "outboard_ref": "hardpoints.strut_lower",
             "joint_type": "translational",
             "inboard_joint_type": "fixed",
             "body_ref": "strut_fr",

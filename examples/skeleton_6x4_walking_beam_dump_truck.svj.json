@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99.3",
+    "version": "0.99.4",
     "description": "6x4 rigid dump truck skeleton — leaf-sprung steer axle, walking-beam tandem drive (rubber bolster springs) with dual wheels.",
     "coordinate_system": "SAE_J670",
     "units": "SI",

@@ -48,7 +48,19 @@ Everything is optional. A file with just metadata and suspension is valid — us
 
 ---
 
-## v0.99.3 — Differential Control *(new)*
+## v0.99.4 — Strut and Damper Conventions *(new)*
+
+Three points raised by converter authors when they checked converted vehicles against the spec:
+
+- **MacPherson / Chapman strut:** the spec gave `strut_top` as both ends of the strut link, so a strut written as specified had zero length and a solver could not locate the corner. The link now ends at the new **`strut_lower`** hardpoint, the strut's lower clamp on the upright; `strut_top` stays the body-side end. `tools/multibody_check.py` warns about any zero-length link, and the five shipped MacPherson/Chapman examples were corrected (their `strut_lower` values are estimates on the strut axis through the lower ball joint).
+- **`damper.reference`** (`"damper"` default, or `"wheel"`): says where the force-velocity curves are defined. Simulators that work at the wheel can now state their values as wheel values instead of inventing a damper geometry; the spec gives the conversion (`v_damper = v_wheel × MR`, `F_damper = F_wheel ÷ MR`).
+- **Mount names:** spring and damper use `inboard_mount` / `outboard_mount`. The `inboard_point` / `outboard_point` spellings some converters wrote were silently ignored; `validate.py` now warns.
+
+All additive: older files stay schema-valid (the zero-length strut is a warning, not an error).
+
+---
+
+## v0.99.3 — Differential Control
 
 Auditing the Assetto Corsa → SVJ converter against 1,398 AC cars showed two AWD driveline features SVJ could not express. Both are additive and optional; every earlier file still validates.
 
@@ -72,7 +84,7 @@ Alongside it, tooling for the older v0.96 multibody fields (`joint_type`, `body_
 - **`tools/drivetrain_check.py`** and **`tools/multibody_check.py`** run automatically from `tools/validate.py` (mirrored in `svj-py`). The multibody checker verifies `body_ref` / `parent` / `outboard_ref` cross-references and unit quaternions, and defines one shared joint-type inference (spec §9.2.3.2) — `python tools/multibody_check.py --joints file.svj.json` prints every link's effective joints.
 - **Viewer v4.3** shows the coupling, the centre differential and every lock chain in the Powertrain tab, shows effective joint types in the Suspension tab and draws orientation frames in 3D. It also fixes a crash on files that use the marker form `{position, orientation}` for hardpoints.
 - **`examples/skeleton_awd_ondemand_diff_control.svj.json`** — a worked example. The control curves are illustrative.
-- Every example and the template now declare `_metadata.version` 0.99.3 (each version is a strict superset of the previous one, so no content changed).
+- Every example and the template were brought up to the then-current `_metadata.version` (each version is a strict superset of the previous one, so no content changed).
 
 Details: [`proposals/svj_differential_control_proposal.md`](proposals/svj_differential_control_proposal.md), [`spec/SVJ_Spec.md` §10.6.1, §10.8.1](spec/SVJ_Spec.md).
 
@@ -317,7 +329,7 @@ All example files validate against the current schema (`tools/validate.py`). The
 
 ```
 schema/
-  ├── svj.schema.json             JSON Schema Draft-07 (v0.99.3)
+  ├── svj.schema.json             JSON Schema Draft-07 (v0.99.4)
   └── svj-override.schema.json    Override file structure (v0.98)
 spec/
   └── SVJ_Spec.md                 Human-readable specification (§1–§23)

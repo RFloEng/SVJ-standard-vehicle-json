@@ -37,9 +37,10 @@
             "0.99",
             "0.99.1",
             "0.99.2",
-            "0.99.3"
+            "0.99.3",
+            "0.99.4"
           ],
-          "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations). '0.99.1' adds axle_groups, plated masses and explicit wheelbase definitions. '0.99.2' extends the glTF visual binding layer: full category set, visual on links/steering/wheels/brakes/springs/dampers/aero, and the 'placement' field for parts defined by hardpoints. '0.99.3' adds differential control: lock_control (dynamic differential lock) and transfer_case.coupling (torque-limited centre coupling)."
+          "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations). '0.99.1' adds axle_groups, plated masses and explicit wheelbase definitions. '0.99.2' extends the glTF visual binding layer: full category set, visual on links/steering/wheels/brakes/springs/dampers/aero, and the 'placement' field for parts defined by hardpoints. '0.99.3' adds differential control: lock_control (dynamic differential lock) and transfer_case.coupling (torque-limited centre coupling). '0.99.4' adds the strut_lower hardpoint convention for MacPherson/Chapman struts and damper.reference ('damper' or 'wheel')."
         },
         "description": {
           "type": "string"
@@ -2943,6 +2944,15 @@
             "motion_ratio": {
               "type": "number",
               "exclusiveMinimum": 0
+            },
+            "reference": {
+              "type": "string",
+              "enum": [
+                "damper",
+                "wheel"
+              ],
+              "default": "damper",
+              "description": "Where bump_curve / rebound_curve are defined. 'damper' (default): force and velocity at the damper, related to the wheel by motion_ratio. 'wheel': force at the wheel against wheel velocity; motion_ratio must then be absent or 1 and any mounts are geometry only."
             },
             "inboard_mount": {
               "description": "Damper inboard mount. Plain vec3 or marker with optional orientation for multibody tools.",
