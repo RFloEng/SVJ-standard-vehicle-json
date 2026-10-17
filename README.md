@@ -243,6 +243,17 @@ python tools/integrity_check.py path/to/vehicle.svj.json
 python tools/integrity_check.py path/to/vehicle.svj.json --strict
 ```
 
+### Fitting meshes to the SVJ (viewer v4.4)
+
+The viewer can line a glTF up with the physics data part by part, then save both files:
+
+1. Drop the SVJ and its `.glb` files on the viewer, open the **Meshes** tab.
+2. Select a part — click it in 3D or pick it in the node tree (a part is one glTF node; *whole asset* moves the file as a unit). **▲ Parent** climbs the hierarchy, 👁 / **Isolate** help to see what you are moving.
+3. Move or rotate it with the gizmo (G / R / S), by typing exact local values, or with the keys: arrows = SAE X/Y, PgUp / PgDn = Z, **Alt** rotates, **Shift** ×10 (step 0.1 – 100 mm). **Snap to** puts the part's centre or origin exactly on any SVJ point (a hardpoint, a spring mount, the CG), which is the quick way to fit a wheel or an upright. Ctrl+Z undoes every edit.
+4. **Save SVJ + GLB** writes the corrected `.svj.json` and one `.glb` per changed file. Only the glTF node transforms are rewritten (`matrix` nodes become translation/rotation/scale); geometry, materials and textures are copied byte for byte. A whole-asset offset is baked into the GLB and removed from the SVJ, so the saved pair needs no viewer-specific data. Hardpoint edits made in the other tabs are saved in the same SVJ.
+
+The mesh is assumed to be in metres and in the viewer's glTF frame (Y up, −Z forward); fitting moves the mesh to the physics data, it never rescales it.
+
 ---
 
 ## Design Principles
@@ -350,7 +361,7 @@ tools/
   └── integrity_check.py          glTF visual binding checks (v0.99.2)
 svj-py/                           Python library + CLI (v0.2.0, multi-axle aware, runs the same cross-reference checks, `Vehicle.joints()`)
 viewer/
-  └── svj_viewer_v4.3.html        3D inspector/editor — drag & drop any SVJ file; multi-axle layout, axle/wheel editor, performance tab, differential control, joint types and marker frames
+  └── svj_viewer_v4.4.html        3D inspector/editor — drag & drop any SVJ file; multi-axle layout, axle/wheel editor, performance tab, differential control, joint types and marker frames, per-part mesh fitting with SVJ + GLB save
 proposals/                        Design proposals and research notes
 ```
 
