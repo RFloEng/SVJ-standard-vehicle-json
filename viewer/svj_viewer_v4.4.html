@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SVJ 3D Vehicle Inspector v4.3</title>
+<title>SVJ 3D Vehicle Inspector v4.4</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
 :root{--bg:#08090c;--s1:#0f1117;--s2:#161a24;--s3:#1c2130;--brd:#252b3a;--brdL:#333b50;--tx:#dfe3ed;--txD:#6e7a96;--txM:#404c66;--ac:#ff5131;--acD:#ff513130;--bl:#4d9fff;--gn:#34d27b;--yl:#f0b429;--pr:#b06aff;--cy:#2dd4bf;--rd:#f0524f;--og:#ff8c42}
@@ -89,7 +89,7 @@ body{background:var(--bg);color:var(--tx);font-family:'DM Sans',system-ui,sans-s
 <div id="topbar">
   <div style="display:flex;align-items:center">
     <span class="logo mono">SVJ</span>
-    <span class="subtitle mono">3D Inspector v4.3 — Editor · SVJ v0.99.4</span>
+    <span class="subtitle mono">3D Inspector v4.4 — Editor · SVJ v0.99.4</span>
     <span class="filename mono" id="file-name">MX-5 ND2 Club 6MT (v0.96 demo)</span>
   </div>
   <div style="display:flex;gap:4px;align-items:center">
@@ -177,7 +177,7 @@ const layerDefs = [
   {key:'meshes',label:'3D Meshes (glTF)',color:'#c8b4ff'}
 ];
 let cornerDefs = [{key:null,label:'All',color:null},{key:'FL',label:'FL',color:'#4d9fff'},{key:'FR',label:'FR',color:'#34d27b'},{key:'RL',label:'RL',color:'#f0b429'},{key:'RR',label:'RR',color:'#b06aff'}];
-const panelDefs = [{id:'overview',label:'Overview'},{id:'suspension',label:'Suspension'},{id:'powertrain',label:'Powertrain'},{id:'brakes',label:'Brakes'},{id:'tires',label:'Tires'},{id:'performance',label:'Performance'},{id:'aero',label:'Aero'},{id:'thermal',label:'Thermal'}];
+const panelDefs = [{id:'overview',label:'Overview'},{id:'suspension',label:'Suspension'},{id:'powertrain',label:'Powertrain'},{id:'brakes',label:'Brakes'},{id:'tires',label:'Tires'},{id:'performance',label:'Performance'},{id:'aero',label:'Aero'},{id:'thermal',label:'Thermal'},{id:'meshes',label:'Meshes'}];
 
 /* ═══════════════════════════════════════════════════
    HELPERS
@@ -365,30 +365,17 @@ function buildScene() {
   transformCtrl.setSize(0.7);
   transformCtrl.addEventListener('dragging-changed', e => {
     gizmoDragging = e.value;
+    if (e.value) { _dragBefore = selectedObj ? trsOf(selectedObj) : null; }
+    else if (_dragBefore && selectedObj && selectedMeshId) {
+      const e2 = loadedMeshes[selectedMeshId];
+      commitMeshEdit(selectedMeshId, selectedObj, _dragBefore, 'Move ' + (e2 ? nodeLabel(e2, selectedObj) : 'part'));
+      _dragBefore = null;
+    }
   });
   transformCtrl.addEventListener('objectChange', () => {
-    if (!selectedMeshId) return;
-    const obj = transformCtrl.object;
-    if (!obj) return;
-    // Write transform back into DATA.assets.meshes[i].x_transform
-    const meshList = DATA?.assets?.meshes;
-    if (meshList) {
-      const entry = meshList.find(m => m.id === selectedMeshId);
-      if (entry) {
-        const pos = obj.position;
-        const rot = obj.rotation;
-        const sc  = obj.scale;
-        const xf  = entry.x_transform || (entry.x_transform = {});
-        xf.position = [pos.x, pos.y, pos.z];
-        xf.rotation = [rot.x, rot.y, rot.z];
-        xf.scale    = [sc.x, sc.y, sc.z];
-        // Mark as changed so save-bar activates
-        const path = 'assets.meshes.' + meshList.indexOf(entry) + '.x_transform';
-        changeLog.push({path, oldVal: null, newVal: xf, timestamp: Date.now()});
-        updateSaveBar();
-      }
-    }
+    if (!selectedObj) return;
     updateMeshTransformHUD();
+    refreshMeshFields();
   });
   scene.add(transformCtrl);
 
@@ -401,6 +388,7 @@ function buildScene() {
   });
   // Re-attach already-loaded mesh groups when scene is rebuilt
   Object.values(loadedMeshes).forEach(entry => groups.meshes.add(entry.group));
+  if (selectedObj && selectedMeshId && loadedMeshes[selectedMeshId]) { transformCtrl.attach(selectedObj); transformCtrl.visible = layers.meshes; }
   pickables = [];
 
   const addP = (m, label, corner=null) => { m.userData = {label, corner}; pickables.push(m); };
@@ -1044,6 +1032,7 @@ function renderPanel() {
     case 'aero': renderAero(el, data); break;
     case 'performance': renderPerformance(el, data); break;
     case 'thermal': renderThermal(el, data); break;
+    case 'meshes': renderMeshes(el); break;
   }
   setTimeout(()=>attachEditors(el), 30);
 }
@@ -1711,48 +1700,227 @@ function applyStoredTransform(obj, meshId) {
   if (xf.scale)    obj.scale.set(...xf.scale);
 }
 
-function selectMesh(meshId) {
+/* ═══════════════════════════════════════════════════
+   MESH PARTS  (per-node selection → gizmo / numeric / nudge → save GLB + SVJ)
+   A selectable "part" is one glTF node (or the whole asset group). Edits are
+   local node transforms; on save only the glTF JSON chunk is rewritten, so
+   geometry, materials and textures stay byte-identical.
+   ═══════════════════════════════════════════════════ */
+
+let selectedObj = null;            // THREE.Object3D being edited: a glTF node, or the asset group
+let meshStepMm  = 1;               // nudge step (mm); rotation nudge = step/10 degrees
+let _dragBefore = null;            // transform snapshot taken when a gizmo drag starts
+
+const trsOf  = o => ({p:o.position.toArray(), q:o.quaternion.toArray(), s:o.scale.toArray()});
+const sameTrs = (a,b,eps=1e-6) => ['p','q','s'].every(k => a[k].every((v,i) => Math.abs(v-b[k][i]) <= eps));
+function restoreTrs(o, t){ o.position.fromArray(t.p); o.quaternion.fromArray(t.q); o.scale.fromArray(t.s); o.updateMatrix(); }
+const escH = s => String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// Map every Three object that came from a glTF node to its node index, and remember its file transform.
+function indexMeshNodes(entry, gltf){
+  entry.json = gltf.parser.json;
+  entry.nodeObj = new Map(); entry.objNode = new Map(); entry.orig = new Map();
+  gltf.scene.traverse(o => {
+    const a = gltf.parser.associations.get(o);
+    if(a && a.type === 'nodes'){ entry.nodeObj.set(a.index, o); entry.objNode.set(o, a.index); entry.orig.set(a.index, trsOf(o)); }
+  });
+}
+function nodeLabel(entry, o){
+  if(o === entry.group) return 'whole asset';
+  return o.userData?.name || o.name || ('node ' + entry.objNode.get(o));
+}
+function entryOf(o){
+  for(const [id, e] of Object.entries(loadedMeshes)){ let p=o; while(p){ if(p===e.group) return id; p=p.parent; } }
+  return null;
+}
+function nodeDirty(entry, idx){ return !sameTrs(trsOf(entry.nodeObj.get(idx)), entry.orig.get(idx)); }
+function groupDirty(entry){
+  const g = entry.group;
+  return g.position.lengthSq() > 1e-12 || Math.abs(Math.abs(g.quaternion.w) - 1) > 1e-9 || g.scale.distanceTo(new THREE.Vector3(1,1,1)) > 1e-9;
+}
+function dirtyNodes(entry){ const out=[]; entry.nodeObj.forEach((o,i)=>{ if(nodeDirty(entry,i)) out.push(i); }); return out; }
+function dirtyAssets(){
+  return Object.entries(loadedMeshes).map(([id,e]) => ({id, e, nodes:dirtyNodes(e), grp:groupDirty(e)})).filter(x => x.nodes.length || x.grp);
+}
+
+// ── undo integration: one changeLog entry per edit, restored by closure ───────────────
+function syncGroupXform(id){
+  const e = loadedMeshes[id], list = DATA?.assets?.meshes, m = list?.find(x => x.id === id);
+  if(!e || !m) return;
+  if(!groupDirty(e)){ delete m.x_transform; return; }
+  const g = e.group;
+  m.x_transform = {position:g.position.toArray(), rotation:[g.rotation.x,g.rotation.y,g.rotation.z], scale:g.scale.toArray()};
+}
+function afterMeshChange(id){
+  syncGroupXform(id);
+  updateMeshTransformHUD(); refreshMeshPanel(); updateSaveBar();
+}
+function commitMeshEdit(id, obj, before, label, coalesce){
+  const after = trsOf(obj);
+  if(sameTrs(before, after, 1e-9)) return;
+  const last = changeLog[changeLog.length-1], now = Date.now();
+  if(coalesce && last && last.obj === obj && last.coalesce && now - last.timestamp < 1200){ last.timestamp = now; afterMeshChange(id); return; }
+  changeLog.push({path:'__mesh__', label, obj, coalesce:!!coalesce, oldVal:null, newVal:null, timestamp:now,
+                  undo(){ restoreTrs(obj, before); afterMeshChange(id); }});
+  afterMeshChange(id);
+}
+function editSelected(label, fn, coalesce){
+  if(!selectedObj || !selectedMeshId) return;
+  const before = trsOf(selectedObj);
+  fn(selectedObj);
+  selectedObj.updateMatrix();
+  commitMeshEdit(selectedMeshId, selectedObj, before, label, coalesce);
+}
+
+// ── selection ────────────────────────────────────────────────────────────────
+function partFromHit(entry, hit){
+  const chain = [];
+  for(let o = hit; o && o !== entry.group; o = o.parent) if(entry.objNode.has(o)) chain.push(o);
+  if(!chain.length) return entry.group;
+  return chain.find(n => String(n.userData?.name || '').startsWith('SVJ::')) || chain[0];
+}
+
+function selectMesh(meshId, obj) {
   if (!transformCtrl) return;
-  selectedMeshId = meshId;
   const entry = loadedMeshes[meshId];
-  if (entry) {
-    transformCtrl.attach(entry.group);
-    transformCtrl.visible = layers.meshes;
-  }
+  if (!entry) return;
+  selectedMeshId = meshId;
+  selectedObj = obj || entry.group;
+  transformCtrl.attach(selectedObj);
+  transformCtrl.visible = layers.meshes;
   showMeshTransformToolbar(meshId);
   updateMeshTransformHUD();
+  refreshMeshPanel(true);
 }
 
 function deselectMesh() {
   if (transformCtrl) { transformCtrl.detach(); transformCtrl.visible = false; }
-  selectedMeshId = null;
+  selectedMeshId = null; selectedObj = null;
   const tb = document.getElementById('mesh-tb');
   if (tb) tb.style.display = 'none';
   const hud = document.getElementById('mesh-hud');
   if (hud) hud.style.display = 'none';
+  refreshMeshPanel(true);
 }
 
+window.deselectMesh = deselectMesh;   // toolbar button uses an inline handler
+window.meshPartSelect = function(meshId, idx){
+  const e = loadedMeshes[meshId]; if(!e) return;
+  selectMesh(meshId, idx < 0 ? e.group : e.nodeObj.get(idx));
+};
+window.meshPartParent = function(){
+  const e = loadedMeshes[selectedMeshId]; if(!e || !selectedObj || selectedObj === e.group) return;
+  let p = selectedObj.parent;
+  while(p && p !== e.group && !e.objNode.has(p)) p = p.parent;
+  selectMesh(selectedMeshId, (p && p !== e.group) ? p : e.group);
+};
+window.meshPartToggleHide = function(meshId, idx){
+  const e = loadedMeshes[meshId]; if(!e) return;
+  const o = idx < 0 ? e.group : e.nodeObj.get(idx);
+  if(o) o.visible = !o.visible;
+  refreshMeshPanel(true);
+};
+window.meshShowAll = function(){
+  Object.values(loadedMeshes).forEach(e => { e.group.visible = true; e.group.traverse(o => { o.visible = true; }); });
+  refreshMeshPanel(true);
+};
+window.meshIsolate = function(){
+  const e = loadedMeshes[selectedMeshId]; if(!e || !selectedObj) return;
+  Object.values(loadedMeshes).forEach(x => x.group.traverse(o => { if(o.isMesh) o.visible = false; }));
+  selectedObj.traverse(o => { if(o.isMesh) o.visible = true; });
+  for(let p = selectedObj.parent; p; p = p.parent) p.visible = true;
+  selectedObj.visible = true;
+  refreshMeshPanel(true);
+};
+
+// ── editing: reset / numeric / nudge / snap ────────────────────────────────────
+window.resetMeshTransform = function() {
+  const e = loadedMeshes[selectedMeshId];
+  if (!e || !selectedObj) return;
+  if (selectedObj === e.group) editSelected('Reset asset', o => { o.position.set(0,0,0); o.rotation.set(0,0,0); o.scale.set(1,1,1); });
+  else { const idx = e.objNode.get(selectedObj); editSelected('Reset ' + nodeLabel(e, selectedObj), o => restoreTrs(o, e.orig.get(idx))); }
+};
+
+window.meshPartSet = function(kind, axis, value){
+  const v = parseFloat(value); if(!isFinite(v)) return;
+  editSelected('Edit ' + kind, o => {
+    if(kind === 'p') o.position.setComponent(axis, v);
+    else if(kind === 's') o.scale.setComponent(axis, v || 1e-6);
+    else { const r = o.rotation; const a = [r.x, r.y, r.z]; a[axis] = v * Math.PI / 180; o.rotation.set(a[0], a[1], a[2]); }
+  });
+};
+window.meshSetStep = function(v){ meshStepMm = parseFloat(v) || 1; };
+
+// SAE axes in Three space: fwd(+X) = -Z, right(+Y) = +X, down(+Z) = -Y
+const SAE_AXIS = { x:new THREE.Vector3(0,0,-1), y:new THREE.Vector3(1,0,0), z:new THREE.Vector3(0,-1,0) };
+function moveWorld(o, vWorld){
+  o.updateWorldMatrix(true, false);   // parents may not have been rendered yet
+  const p = o.getWorldPosition(new THREE.Vector3()).add(vWorld);
+  if(o.parent) o.parent.worldToLocal(p);
+  o.position.copy(p);
+}
+window.meshNudge = function(axis, sign, rotate){
+  const dir = SAE_AXIS[axis];
+  editSelected(rotate ? 'Rotate part' : 'Move part', o => {
+    if(rotate) o.rotateOnWorldAxis(dir, sign * (meshStepMm / 10) * Math.PI / 180);
+    else moveWorld(o, dir.clone().multiplyScalar(sign * meshStepMm / 1000));
+  }, true);
+};
+
+function svjPoints(){
+  const out = [], d = DATA; if(!d) return out;
+  const cg = d.chassis?.center_of_gravity; if(Array.isArray(cg)) out.push({label:'CG', pos:cg});
+  for(const st of stationKeys(d.suspension)){
+    const c = d.suspension[st];
+    Object.entries(c?.topology?.upright?.hardpoints || {}).forEach(([n,v]) => { if(Array.isArray(v) && v.length>=3) out.push({label:st+' · '+n, pos:v}); });
+    ['spring','damper'].forEach(part => ['inboard_mount','outboard_mount'].forEach(m => {
+      const v = c?.[part]?.[m]; if(Array.isArray(v) && v.length>=3) out.push({label:st+' · '+part+'.'+m, pos:v});
+    }));
+  }
+  return out;
+}
+window.meshSnap = function(kind){
+  const sel = document.getElementById('mesh-snap-pt'); if(!sel || sel.value === '') return;
+  const pt = svjPoints()[parseInt(sel.value, 10)]; if(!pt) return;
+  const target = sae2three(pt.pos);
+  editSelected('Snap ' + kind + ' → ' + pt.label, o => {
+    o.updateWorldMatrix(true, true);
+    const from = kind === 'origin' ? o.getWorldPosition(new THREE.Vector3()) : new THREE.Box3().setFromObject(o).getCenter(new THREE.Vector3());
+    moveWorld(o, target.clone().sub(from));
+  });
+};
+
+// ── HUD + toolbar ───────────────────────────────────────────────────────────
+function bboxCentreSAE(o){
+  o.updateWorldMatrix(true, true);
+  const c = new THREE.Box3().setFromObject(o).getCenter(new THREE.Vector3());
+  return [-c.z, c.x, -c.y];   // inverse of sae2three
+}
 function showMeshTransformToolbar(meshId) {
   let tb = document.getElementById('mesh-tb');
   if (!tb) {
     tb = document.createElement('div');
     tb.id = 'mesh-tb';
-    tb.style.cssText = 'position:absolute;bottom:50px;left:50%;transform:translateX(-50%);display:flex;gap:3px;background:rgba(12,14,20,0.94);border:1px solid var(--brdL);border-radius:5px;padding:4px 6px;z-index:100;backdrop-filter:blur(6px);font-family:JetBrains Mono,monospace';
+    tb.style.cssText = 'position:absolute;bottom:50px;left:50%;transform:translateX(-50%);display:flex;gap:3px;background:rgba(12,14,20,0.94);border:1px solid var(--brdL);border-radius:5px;padding:4px 6px;z-index:20;align-items:center';
     document.getElementById('viewport').appendChild(tb);
   }
+  const bs = 'padding:2px 8px;border-radius:3px;border:1px solid var(--brd);background:transparent;color:var(--txD);font-family:JetBrains Mono,monospace;font-size:9px;cursor:pointer';
   tb.innerHTML =
-    '<span style="font-size:9px;color:var(--txD);align-self:center;margin-right:4px" id="mesh-tb-label"></span>' +
-    ['Translate|G','Rotate|E','Scale|S'].map(s => {
-      const [label, key] = s.split('|');
+    '<span style="font-size:9px;color:var(--txD);margin-right:4px" id="mesh-tb-label"></span>' +
+    ['Translate','Rotate','Scale'].map(label => {
       const mode = label.toLowerCase();
-      return `<button onclick="setGizmoMode('${mode}')" id="gizmo-btn-${mode}" style="padding:2px 8px;border-radius:3px;border:1px solid var(--brd);background:transparent;color:var(--txD);font-family:JetBrains Mono,monospace;font-size:9px;cursor:pointer" title="${key} key">${label} [${key}]</button>`;
+      return `<button onclick="setGizmoMode('${mode}')" id="gizmo-btn-${mode}" style="${bs}">${label}</button>`;
     }).join('') +
-    '<div style="width:1px;background:var(--brd);margin:0 3px"></div>' +
-    '<button onclick="resetMeshTransform()" style="padding:2px 8px;border-radius:3px;border:1px solid var(--brd);background:transparent;color:var(--yl);font-family:JetBrains Mono,monospace;font-size:9px;cursor:pointer" title="Reset to origin">⟲ Reset</button>' +
-    '<button onclick="deselectMesh()" style="padding:2px 8px;border-radius:3px;border:1px solid var(--brd);background:transparent;color:var(--txD);font-family:JetBrains Mono,monospace;font-size:9px;cursor:pointer" title="Deselect (Esc)">✕</button>';
-  document.getElementById('mesh-tb-label').textContent = meshId;
+    '<div style="width:1px;align-self:stretch;background:var(--brd);margin:0 3px"></div>' +
+    `<button onclick="meshPartParent()" title="Select the parent node" style="${bs}">▲ Parent</button>` +
+    `<button onclick="meshIsolate()" title="Show only this part" style="${bs}">Isolate</button>` +
+    `<button onclick="meshShowAll()" style="${bs}">Show all</button>` +
+    `<button onclick="resetMeshTransform()" style="${bs};color:var(--yl)">Reset</button>` +
+    `<button onclick="openSaveDialog()" style="${bs};color:var(--gn);border-color:var(--gn)">↓ Save SVJ + GLB</button>` +
+    `<button onclick="deselectMesh()" style="${bs}">✕</button>`;
   tb.style.display = 'flex';
-  setGizmoMode('translate'); // default
+  setGizmoMode(transformCtrl?.mode || 'translate');
+  updateMeshTransformHUD();
 }
 
 window.setGizmoMode = function(mode) {
@@ -1768,49 +1936,29 @@ window.setGizmoMode = function(mode) {
   });
 };
 
-window.resetMeshTransform = function() {
-  if (!selectedMeshId || !transformCtrl?.object) return;
-  const obj = transformCtrl.object;
-  obj.position.set(0, 0, 0);
-  obj.rotation.set(0, 0, 0);
-  obj.scale.set(1, 1, 1);
-  // Clear stored transform
-  const meshList = DATA?.assets?.meshes;
-  if (meshList) {
-    const entry = meshList.find(m => m.id === selectedMeshId);
-    if (entry) {
-      delete entry.x_transform;
-      const path = 'assets.meshes.' + meshList.indexOf(entry) + '.x_transform';
-      changeLog.push({path, oldVal: entry.x_transform, newVal: null, timestamp: Date.now()});
-      updateSaveBar();
-    }
-  }
-  updateMeshTransformHUD();
-};
-
 function updateMeshTransformHUD() {
   let hud = document.getElementById('mesh-hud');
-  if (!selectedMeshId || !transformCtrl?.object) {
-    if (hud) hud.style.display = 'none';
-    return;
-  }
+  const e = loadedMeshes[selectedMeshId];
+  if (!e || !selectedObj) { if (hud) hud.style.display = 'none'; return; }
   if (!hud) {
     hud = document.createElement('div');
     hud.id = 'mesh-hud';
-    hud.style.cssText = 'position:absolute;bottom:90px;right:10px;background:rgba(12,14,20,0.90);border:1px solid var(--brd);border-radius:4px;padding:5px 9px;font-family:JetBrains Mono,monospace;font-size:9px;color:var(--txD);z-index:60;pointer-events:none;line-height:1.7';
+    hud.style.cssText = 'position:absolute;bottom:90px;right:10px;background:rgba(12,14,20,0.90);border:1px solid var(--brd);border-radius:4px;padding:5px 9px;font-family:JetBrains Mono,monospace;font-size:9px;color:var(--tx);pointer-events:none;z-index:15';
     document.getElementById('viewport').appendChild(hud);
   }
-  const obj = transformCtrl.object;
-  const p = obj.position, r = obj.rotation, s = obj.scale;
+  const lab = document.getElementById('mesh-tb-label');
+  if (lab) lab.textContent = selectedMeshId + ' › ' + nodeLabel(e, selectedObj);
+  const p = selectedObj.position, r = selectedObj.rotation, s = selectedObj.scale, c = bboxCentreSAE(selectedObj);
   hud.innerHTML =
-    `<div style="color:var(--ac);font-weight:700;margin-bottom:2px">${selectedMeshId}</div>` +
+    `<div style="color:var(--ac);font-weight:700;margin-bottom:2px">${escH(nodeLabel(e, selectedObj))}</div>` +
     `<div><span style="color:var(--rd)">P</span> ${p.x.toFixed(4)} / ${p.y.toFixed(4)} / ${p.z.toFixed(4)}</div>` +
-    `<div><span style="color:var(--gn)">R</span> ${r.x.toFixed(4)} / ${r.y.toFixed(4)} / ${r.z.toFixed(4)}</div>` +
-    `<div><span style="color:var(--bl)">S</span> ${s.x.toFixed(4)} / ${s.y.toFixed(4)} / ${s.z.toFixed(4)}</div>`;
+    `<div><span style="color:var(--gn)">R</span> ${(r.x*57.2958).toFixed(2)} / ${(r.y*57.2958).toFixed(2)} / ${(r.z*57.2958).toFixed(2)}°</div>` +
+    `<div><span style="color:var(--bl)">S</span> ${s.x.toFixed(4)} / ${s.y.toFixed(4)} / ${s.z.toFixed(4)}</div>` +
+    `<div style="color:var(--txD)">centre SAE ${c.map(v=>v.toFixed(3)).join(' / ')}</div>`;
   hud.style.display = 'block';
 }
 
-// Mesh picking: click in viewport to select a loaded mesh
+// Mesh picking: click in viewport selects the part (glTF node) under the cursor
 function pickMesh(e) {
   if (gizmoDragging) return;
   const cv   = renderer.domElement;
@@ -1821,23 +1969,208 @@ function pickMesh(e) {
   );
   const rc = new THREE.Raycaster();
   rc.setFromCamera(mouse, camera);
-  // Collect all mesh children from loaded groups
   const candidates = [];
   Object.entries(loadedMeshes).forEach(([id, entry]) => {
-    entry.group.traverse(child => { if (child.isMesh) candidates.push({id, mesh: child}); });
+    entry.group.traverse(child => { if (child.isMesh && child.visible && layers.meshes) candidates.push({id, mesh: child}); });
   });
-  const meshObjs = candidates.map(c => c.mesh);
-  const hits = rc.intersectObjects(meshObjs, false);
+  const hits = rc.intersectObjects(candidates.map(c => c.mesh), false);
   if (hits.length) {
-    const hitMesh = hits[0].object;
-    const found   = candidates.find(c => c.mesh === hitMesh);
+    const found = candidates.find(c => c.mesh === hits[0].object);
     if (found) {
-      if (selectedMeshId !== found.id) selectMesh(found.id);
+      const entry = loadedMeshes[found.id];
+      const part = partFromHit(entry, found.mesh);
+      if (selectedObj !== part) selectMesh(found.id, part);
       return true; // consumed
     }
   }
   return false;
 }
+
+// ── Meshes panel ───────────────────────────────────────────────────────────────
+function refreshMeshPanel(full){
+  if(activePanel !== 'meshes') return;
+  if(full) renderPanel(); else refreshMeshFields();
+}
+function refreshMeshFields(){
+  if(activePanel !== 'meshes' || !selectedObj) return;
+  const set = (id, v) => { const el = document.getElementById(id); if(el && document.activeElement !== el) el.value = v; };
+  const p = selectedObj.position, r = selectedObj.rotation, s = selectedObj.scale;
+  [p.x,p.y,p.z].forEach((v,i) => set('mp-p'+i, v.toFixed(4)));
+  [r.x,r.y,r.z].forEach((v,i) => set('mp-r'+i, (v*57.2958).toFixed(3)));
+  [s.x,s.y,s.z].forEach((v,i) => set('mp-s'+i, v.toFixed(4)));
+  const c = document.getElementById('mp-centre'); if(c) c.textContent = bboxCentreSAE(selectedObj).map(v=>v.toFixed(3)).join(' / ');
+}
+
+function renderMeshes(el){
+  const ids = Object.keys(loadedMeshes);
+  if(!ids.length){
+    el.innerHTML = '<div style="color:var(--txD);font-size:11px;line-height:1.5">No meshes loaded.<br>Drop a <b>.glb</b> onto the viewer or use ⬡ Mesh. Then select a part here or click it in 3D, move or rotate it (gizmo, numbers, or arrow keys) and save the corrected SVJ and GLB.</div>';
+    return;
+  }
+  const dirty = dirtyAssets();
+  const nodeTree = (id, e) => {
+    const rows = [];
+    const walk = (o, depth) => {
+      const idx = e.objNode.get(o);
+      if(idx !== undefined){
+        const sel = selectedObj === o, d = nodeDirty(e, idx);
+        rows.push(`<div style="display:flex;align-items:center;gap:4px;padding:1px 0 1px ${4+depth*10}px;${sel?'background:var(--acD);':''}font-size:10px">
+          <span style="cursor:pointer;opacity:${o.visible?1:0.35}" onclick="meshPartToggleHide('${id}',${idx})" title="show / hide">👁</span>
+          <span style="cursor:pointer;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:${sel?'var(--ac)':'var(--tx)'}" onclick="meshPartSelect('${id}',${idx})">${escH(nodeLabel(e,o))}</span>
+          ${d?'<span style="color:var(--yl)" title="moved">●</span>':''}${o.isMesh||o.children.some(c=>c.isMesh)?'<span style="color:var(--txD)">▦</span>':''}</div>`);
+        depth++;
+      }
+      o.children.forEach(c => walk(c, depth));
+    };
+    e.group.children.forEach(c => walk(c, 0));
+    return rows.join('');
+  };
+  let h = `<div class="flex-wrap mb6" style="font-size:10px;color:var(--txD)">Click a part here or in 3D. Arrow keys nudge the part (SAE X/Y), PgUp/PgDn = Z; Alt rotates; Shift ×10.</div>`;
+  ids.forEach(id => {
+    const e = loadedMeshes[id];
+    const nd = dirty.find(x => x.id === id);
+    h += section(`${escH(id)} <span style="font-weight:400;color:var(--txD)">${escH(e.file||'')}${nd?` · <span style="color:var(--yl)">${nd.nodes.length} part(s)${nd.grp?' + asset offset':''} changed</span>`:''}</span>`,
+      `<div style="font-size:10px;margin-bottom:3px"><span style="cursor:pointer;color:${selectedObj===e.group?'var(--ac)':'var(--bl)'}" onclick="meshPartSelect('${id}',-1)">⬚ whole asset</span> <span style="color:var(--txD)">(${e.nodeObj.size} nodes)</span></div>
+       <div style="max-height:230px;overflow:auto;border:1px solid var(--brd);border-radius:3px;padding:2px 0">${nodeTree(id, e)}</div>`);
+  });
+  const e = loadedMeshes[selectedMeshId];
+  if(e && selectedObj){
+    const inp = (id, v, step, onch) => `<input id="${id}" class="hp-coord" type="number" step="${step}" value="${v}" style="width:70px" onchange="${onch}">`;
+    const p = selectedObj.position, r = selectedObj.rotation, s = selectedObj.scale;
+    const row = (lab, kind, vals, step, conv) => `<div style="display:flex;align-items:center;gap:4px;margin:2px 0"><span style="width:34px;font-size:10px;color:var(--txD)">${lab}</span>${vals.map((v,i)=>inp('mp-'+kind+i, conv(v), step, `meshPartSet('${kind}',${i},this.value)`)).join('')}</div>`;
+    const pts = svjPoints();
+    h += section('Selected part · ' + escH(nodeLabel(e, selectedObj)),
+      row('pos m','p',[p.x,p.y,p.z],0.001,v=>v.toFixed(4)) +
+      row('rot °','r',[r.x,r.y,r.z],0.1,v=>(v*57.2958).toFixed(3)) +
+      row('scale','s',[s.x,s.y,s.z],0.01,v=>v.toFixed(4)) +
+      `<div style="font-size:10px;color:var(--txD);margin:3px 0">local to parent (glTF axes: X right, Y up, −Z forward) · centre in SAE: <span id="mp-centre" style="color:var(--tx)">${bboxCentreSAE(selectedObj).map(v=>v.toFixed(3)).join(' / ')}</span></div>
+       <div style="display:flex;align-items:center;gap:4px;margin:4px 0;font-size:10px">Step <select onchange="meshSetStep(this.value)" style="background:var(--bg);color:var(--tx);border:1px solid var(--brd);font-size:10px">${[0.1,1,5,10,50,100].map(v=>`<option value="${v}" ${v===meshStepMm?'selected':''}>${v} mm</option>`).join('')}</select>
+       ${['x','y','z'].map(a=>`<span style="color:var(--txD)">${a.toUpperCase()}</span><button class="btn" style="padding:0 6px" onclick="meshNudge('${a}',-1)">−</button><button class="btn" style="padding:0 6px" onclick="meshNudge('${a}',1)">+</button>`).join('')}</div>
+       <div style="display:flex;align-items:center;gap:4px;margin:4px 0;font-size:10px">Snap to
+       <select id="mesh-snap-pt" style="background:var(--bg);color:var(--tx);border:1px solid var(--brd);font-size:10px;max-width:150px"><option value="">SVJ point…</option>${pts.map((q,i)=>`<option value="${i}">${escH(q.label)}</option>`).join('')}</select>
+       <button class="btn" style="padding:0 6px" onclick="meshSnap('center')" title="Move the part so its bounding-box centre sits on the point (wheels, bodies)">centre</button>
+       <button class="btn" style="padding:0 6px" onclick="meshSnap('origin')" title="Move the part so its node origin sits on the point">origin</button></div>`);
+  }
+  h += `<div style="margin-top:8px;display:flex;gap:6px;align-items:center"><button class="btn" style="border-color:var(--gn);color:var(--gn)" onclick="openSaveDialog()">↓ Save SVJ + GLB</button>
+        <span style="font-size:10px;color:var(--txD)">${dirty.length ? dirty.length+' mesh file(s) changed' : 'no mesh changes'}</span></div>`;
+  el.innerHTML = h;
+}
+
+// Arrow-key nudging for the selected part (SAE axes; Shift ×10; Alt rotates by step/10 degrees)
+document.addEventListener('keydown', ev => {
+  if(!selectedObj || ev.ctrlKey || ev.metaKey) return;
+  const t = ev.target && ev.target.tagName;
+  if(t === 'INPUT' || t === 'SELECT' || t === 'TEXTAREA') return;
+  const keys = {ArrowUp:['x',1], ArrowDown:['x',-1], ArrowRight:['y',1], ArrowLeft:['y',-1], PageUp:['z',-1], PageDown:['z',1]};
+  const k = keys[ev.key]; if(!k) return;
+  ev.preventDefault();
+  const saved = meshStepMm;
+  meshStepMm = saved * (ev.shiftKey ? 10 : 1);
+  window.meshNudge(k[0], k[1], ev.altKey);
+  meshStepMm = saved;
+}, true);
+
+/* ═══════════════════════════════════════════════════
+   SAVE  SVJ + GLB
+   ═══════════════════════════════════════════════════ */
+function setOrDelete(n, key, arr, def){
+  const rounded = arr.map(v => Math.abs(v) < 1e-7 ? 0 : +v.toPrecision(9));   // drop float noise (<0.1 µm)
+  if(rounded.every((v,i) => v === def[i])) delete n[key]; else n[key] = rounded;
+}
+
+// Fold the asset group's transform into its scene-root nodes (so the saved file needs no viewer offset)
+function bakeGroupTransform(entry){
+  if(!groupDirty(entry)) return;
+  const g = entry.group; g.updateMatrix();
+  const roots = (entry.json.scenes?.[entry.json.scene || 0]?.nodes || []).map(i => entry.nodeObj.get(i)).filter(Boolean);
+  roots.forEach(o => o.applyMatrix4(g.matrix));
+  g.position.set(0,0,0); g.quaternion.set(0,0,0,1); g.scale.set(1,1,1); g.updateMatrix();
+}
+
+function buildMeshFile(entry){
+  const json = JSON.parse(JSON.stringify(entry.json));
+  entry.nodeObj.forEach((o, idx) => {
+    if(!nodeDirty(entry, idx)) return;
+    const n = json.nodes[idx], t = trsOf(o);
+    delete n.matrix;
+    setOrDelete(n, 'translation', t.p, [0,0,0]);
+    setOrDelete(n, 'rotation',    t.q, [0,0,0,1]);
+    setOrDelete(n, 'scale',       t.s, [1,1,1]);
+  });
+  if(!entry.isGlb) return new Blob([JSON.stringify(json, null, 2)], {type:'model/gltf+json'});
+  const src = new Uint8Array(entry.buf), dv = new DataView(entry.buf);
+  const oldJsonLen = dv.getUint32(12, true);
+  const rest = src.subarray(20 + oldJsonLen);          // BIN chunk (and anything after), untouched
+  const enc = new TextEncoder().encode(JSON.stringify(json));
+  const jb = new Uint8Array(enc.length + (4 - enc.length % 4) % 4).fill(0x20); jb.set(enc);
+  const total = 12 + 8 + jb.length + rest.length, out = new Uint8Array(total), o = new DataView(out.buffer);
+  o.setUint32(0, 0x46546C67, true); o.setUint32(4, 2, true); o.setUint32(8, total, true);
+  o.setUint32(12, jb.length, true); o.setUint32(16, 0x4E4F534A, true);
+  out.set(jb, 20); out.set(rest, 20 + jb.length);
+  return new Blob([out], {type:'model/gltf-binary'});
+}
+
+function triggerDownload(blob, name){
+  const url = URL.createObjectURL(blob), a = document.createElement('a');
+  a.href = url; a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+function svjBaseName(){
+  return document.getElementById('file-name').textContent.replace(/\s*\(.*\)/, '').replace(/\.svj\.json$|\.json$/, '') || 'vehicle';
+}
+
+window.openSaveDialog = function(){
+  const dirty = dirtyAssets();
+  let dlg = document.getElementById('save-dlg'); if(dlg) dlg.remove();
+  dlg = document.createElement('div'); dlg.id = 'save-dlg';
+  dlg.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:100;display:flex;align-items:center;justify-content:center';
+  const baseOf = f => String(f || 'mesh.glb').split(/[\\/]/).pop();
+  const rows = dirty.map(({id, e, nodes, grp}) => `<div style="display:flex;align-items:center;gap:6px;margin:4px 0;font-size:11px">
+      <input type="checkbox" checked data-save-mesh="${escH(id)}">
+      <input type="text" data-save-name="${escH(id)}" value="${escH(baseOf(e.file))}" style="flex:1;background:var(--bg);color:var(--tx);border:1px solid var(--brd);padding:2px 4px;font-family:JetBrains Mono,monospace;font-size:10px">
+      <span style="color:var(--txD)">${nodes.length} part(s)${grp?' + asset offset':''}</span></div>`).join('');
+  dlg.innerHTML = `<div style="background:var(--bg2,#14171f);border:1px solid var(--brdL);border-radius:6px;padding:14px 16px;width:min(520px,92vw);color:var(--tx);font-size:11px">
+    <div style="font-weight:700;margin-bottom:8px">Save corrections</div>
+    <div style="margin:4px 0;display:flex;align-items:center;gap:6px"><span style="width:34px;color:var(--txD)">SVJ</span>
+      <input type="text" id="save-svj-name" value="${escH(svjBaseName())}.svj.json" style="flex:1;background:var(--bg);color:var(--tx);border:1px solid var(--brd);padding:2px 4px;font-family:JetBrains Mono,monospace;font-size:10px"></div>
+    ${rows ? `<div style="margin-top:6px;color:var(--txD)">GLB files with moved parts (only the glTF node transforms are rewritten; geometry, materials and textures are copied unchanged):</div>${rows}` : '<div style="margin-top:6px;color:var(--txD)">No mesh changes — only the SVJ is saved.</div>'}
+    <div style="margin-top:6px;color:var(--txD)">If a file name changes, the SVJ <code>assets.meshes[].uri</code> is updated to match; any whole-asset offset is baked into the GLB and removed from the SVJ. Your browser may ask to allow several downloads.</div>
+    <div style="margin-top:10px;display:flex;gap:6px;justify-content:flex-end">
+      <button class="btn" onclick="document.getElementById('save-dlg').remove()">Cancel</button>
+      <button class="btn" style="border-color:var(--gn);color:var(--gn)" onclick="doSaveAll()">↓ Download</button></div></div>`;
+  document.body.appendChild(dlg);
+};
+
+window.doSaveAll = function(){
+  const dlg = document.getElementById('save-dlg');
+  const svjName = (document.getElementById('save-svj-name').value || 'vehicle.svj.json').trim();
+  const picks = [...dlg.querySelectorAll('[data-save-mesh]')].filter(c => c.checked).map(c => c.dataset.saveMesh);
+  const files = [];
+  picks.forEach(id => {
+    const e = loadedMeshes[id];
+    let name = dlg.querySelector(`[data-save-name="${CSS.escape(id)}"]`).value.trim() || 'mesh.glb';
+    if(!/\.(glb|gltf)$/i.test(name)) name += e.isGlb ? '.glb' : '.gltf';
+    bakeGroupTransform(e);
+    files.push({id, e, name, blob: buildMeshFile(e)});
+    // keep the SVJ consistent with what was written
+    const m = DATA?.assets?.meshes?.find(x => x.id === id);
+    if(m){
+      delete m.x_transform;
+      const dir = String(m.uri || '').replace(/[^/\\]*$/, '');   // keep the folder part and its separator style
+      m.uri = dir + name;
+    }
+    e.file = name;
+    e.orig = new Map(); e.nodeObj.forEach((o, i) => e.orig.set(i, trsOf(o)));
+  });
+  const svjBlob = new Blob([JSON.stringify(withMarkers(DATA), null, 2)], {type:'application/json'});
+  triggerDownload(svjBlob, /\.json$/i.test(svjName) ? svjName : svjName + '.svj.json');
+  files.forEach((f, i) => setTimeout(() => triggerDownload(f.blob, f.name), 350 * (i + 1)));
+  dlg.remove();
+  changeLog.length = 0; updateSaveBar();
+  updateMeshTransformHUD(); renderPanel(); updateMeshBanner(DATA);
+  showMeshToast('Saved SVJ' + (files.length ? ' + ' + files.length + ' GLB' : ''));
+};
+
 
 /* ═══════════════════════════════════════════════════
    MESH OPACITY CONTROL
@@ -1875,9 +2208,8 @@ const _gltfLoader = new GLTFLoader();
 // rotation is needed. Physics data was converted by sae2three(), so the
 // procedural geometry and loaded meshes share the same Three.js space.
 
-function loadGLTFBlob(meshId, url, fileName) {
-  _gltfLoader.load(url, (gltf) => {
-    URL.revokeObjectURL(url);
+function loadGLTFBuffer(meshId, data, fileName, isGlb) {
+  _gltfLoader.parse(data, '', (gltf) => {
     const model = gltf.scene;
     // Clone materials to allow per-session opacity control, preserve original settings
     model.traverse(child => {
@@ -1896,7 +2228,10 @@ function loadGLTFBlob(meshId, url, fileName) {
     // Apply current global mesh opacity setting
     applyMeshOpacity(model, meshOpacity);
     if (loadedMeshes[meshId]) groups.meshes.remove(loadedMeshes[meshId].group);
-    loadedMeshes[meshId] = { group: model, file: fileName };
+    if (selectedMeshId === meshId) deselectMesh();
+    const meshEntry = { group: model, file: fileName, buf: data, isGlb };
+    indexMeshNodes(meshEntry, gltf);
+    loadedMeshes[meshId] = meshEntry;
     // Apply stored transform if present in DATA.assets.meshes
     applyStoredTransform(model, meshId);
     groups.meshes.add(model);
@@ -1931,14 +2266,12 @@ function loadGLTFBlob(meshId, url, fileName) {
     buildLayerUI();
     updateMeshBanner(DATA);
     showMeshToast('✓ ' + fileName + '  →  "' + meshId + '"');
-  }, undefined, () => {
-    URL.revokeObjectURL(url);
+  }, () => {
     showMeshToast('✕ Failed to load ' + fileName, true);
   });
 }
 
 function handleGLBFile(file) {
-  const url = URL.createObjectURL(file);
   const base = file.name.replace(/\.(glb|gltf)$/i, '');
   let meshId = base;
   if (meshAssets.length) {
@@ -1948,7 +2281,9 @@ function handleGLBFile(file) {
     );
     if (hit) meshId = hit.id;
   }
-  loadGLTFBlob(meshId, url, file.name);
+  const isGlb = /\.glb$/i.test(file.name);
+  (isGlb ? file.arrayBuffer() : file.text()).then(data => loadGLTFBuffer(meshId, data, file.name, isGlb))
+    .catch(() => showMeshToast('✕ Failed to read ' + file.name, true));
 }
 
 window.clearAllMeshes = function clearAllMeshes() {
@@ -2233,6 +2568,7 @@ function applyEdit(path, newVal) {
 function undoLast() {
   if(!changeLog.length) return;
   const last = changeLog.pop();
+  if(last.undo) { last.undo(); updateSaveBar(); return; }
   if(last.path === '__root__') { replaceData(last.oldVal); updateSaveBar(); refreshAfterStructural(); return; }
   setDeep(DATA, last.path, last.oldVal);
   updateSaveBar();
@@ -2249,6 +2585,7 @@ function discardAll() {
   // Undo all in reverse
   while(changeLog.length) {
     const c = changeLog.pop();
+    if(c.undo) { c.undo(); continue; }
     if(c.path === '__root__') replaceData(c.oldVal); else setDeep(DATA, c.path, c.oldVal);
   }
   updateSaveBar();
@@ -2269,6 +2606,7 @@ function updateSaveBar() {
 }
 
 function saveFile() {
+  if (dirtyAssets().length) { openSaveDialog(); return; }
   const json = JSON.stringify(withMarkers(DATA), null, 2);
   const blob = new Blob([json], {type: 'application/json'});
   const url = URL.createObjectURL(blob);
