@@ -1,4 +1,4 @@
-# Standard Vehicle JSON (SVJ) Specification v0.99.7
+# Standard Vehicle JSON (SVJ) Specification v0.100
 
 ## 1. Overview & Philosophy
 
@@ -242,7 +242,7 @@ The optional `mass_bodies` array breaks down the vehicle's sprung mass into indi
 | `name`        | string  | no       | Short display label (e.g. `"Front-left door"`); `id` stays the stable key *(v0.99.7, §24.2)* |
 | `description` | string  | no       | Human-readable label                                 |
 | `category`    | string  | no       | See §7.2.1 for recommended values                    |
-| `mass`        | number  | YES      | Body mass (kg)                                       |
+| `mass`        | number  | YES      | Body mass (kg); must be > 0 unless the body is generated (`x_derived: true`, §25.8), where 0 means the source data gave none |
 | `position`    | [x,y,z] | YES     | CG of this body in the vehicle reference frame (m)    |
 | `inertia`     | object \| 3×3 | no  | Inertia tensor about this body's own CG: the §7.1 object, or the full symmetric matrix *(v0.99.5, §24.2)* |
 | `inertia_orientation` | [qx,qy,qz,qw] | no | Frame in which `inertia` is expressed (e.g. principal axes), relative to the vehicle axes; default identity *(v0.99.5)* |
@@ -388,7 +388,9 @@ The rack/box in §8.1 steers `steering.axle_ref` (default `A1`). Every other ste
 
 ---
 
-## 9. `suspension`
+## 9. `suspension` *(deprecated since v0.100)*
+
+> **Deprecated.** From v0.100 a suspension is described by bodies, joints and elements plus `wheel_stations[]` (§25). This section is still accepted for one more release (validators warn) and is removed after it; `tools/migrate_suspension.py` converts a file. It stays documented here for readers of older files.
 
 The suspension object contains one entry per wheel station. A two-axle vehicle uses the four legacy names:
 
@@ -2395,6 +2397,8 @@ This section is **optional**. It provides a standard place to record performance
 
 | Version | Changes                                                                                    |
 |---------|--------------------------------------------------------------------------------------------|
+| 0.100   | **Unified suspension** (§25; `proposals/svj_unified_suspension_proposal.md`) — *breaking*, with one release of transition. A wheel station is bodies, joints and elements, not a typed corner: `wheel_stations[]` (wheel and carrier bodies, wheel-centre marker, steering joint, coupling reference, tyre / brake / reference alignment, optional `topology_hint`), `anti_roll_bars[]`, new `damper` constraint, `spring` / `damper` gain `kind` (`linear` / `torsional`) and `reference` (`element` / `wheel`), spring and bump / rebound stops as elements, rack as a body on a slide, leaf pack as a body with eye / slipper / seat joints. The corner-based `suspension` section is **deprecated** (accepted, validators warn) and `tools/migrate_suspension.py` converts it, marking generated items `x_derived` (zero mass allowed only there). `mass_bodies` keeps holding every body. Body ids of known suspension parts keep their canonical names. `placement: link_between_points` works on link bodies. All 28 shipped examples and the template are migrated |
+| 0.99.8  | **Contact** (§24.6.3): `contact` constraints between any two bodies with primitive shapes (point, plane, sphere, box, cylinder) on markers and a penalty law (`gap`, `stiffness`, `damping`, `friction`, `restitution`); the checker computes the signed distance between the shapes at the reference pose and in every pose. The part-name vocabulary now also covers the suspension, steering and brake parts (upright, wishbones, tie rod, rack, …) with the same alias advisory and the multi-axle station suffix (`_a2l`). New tool `tools/suspension_view.py` expands an authored suspension into the body / joint model (transition tool toward `proposals/svj_unified_suspension_proposal.md`). Panels example gains rubber stops |
 | 0.99.7  | **Part names** (§24.2, `docs/naming_convention.md`): optional display `name` on `mass_bodies`, `constraints` and `poses`; a recommended vocabulary for movable parts and attachments (doors, hood, trunk, tailgate, flaps, mirrors, cab, tipper body, loader, excavator, three-point hitch parts, implements) with aliases and side suffixes, patterns for joint, cylinder, strut, latch, coupling and pose ids, and marker names; `tools/constraints_check.py` flags an alias of a listed part and `_ram` / `_piston` actuator names. The three movable-part examples follow the vocabulary and carry display names |
 | 0.99.6  | **Constraint set completed** (§24.6.1, §24.6.2, §24.4, §7.2.2): `latch` (engage position, holding force, state), `coupling` (`q_b = ratio · q_a`, coordinates a pose does not name are derived), rotary / linear `joint.drive`; `constraints` entries no longer all need bodies and frames (latch and coupling refer to joints); `mass_bodies` may be a **partial** decomposition (the sum may not exceed `mass_total`; equality only when `chassis.mass_bodies_complete` is true). Example `skeleton_dump_truck_tipper_cab` (tilting cab, tipper, linked tailgate, latches, rams); the panels example gains latches, door checks and a powered hatch |
 | 0.99.5  | **Movable parts and attachments** (§24): top-level `constraints[]` — `joint` (revolute, translational, cylindrical, spherical, universal, planar, fixed, with vector coordinates, ranges, end stops, friction, damping, bushing), `spring`, `actuator` (stroke, bore/pressure force limits) — between `mass_bodies`, `chassis`/`ground`, joined by markers; `poses[]`; `chassis.markers`; `mass_body.inertia` may be a full 3×3 matrix and gets `inertia_orientation`; `category: "attachment"`. Forward kinematics, per-pose CG, composite inertia and actuator-reach checks in the new `tools/constraints_check.py` (mirrored in `svj-py`). Additive: every earlier file stays valid. Origin: `proposals/svj_articulated_parts_proposal.md` |
@@ -2596,7 +2600,9 @@ See [`docs/naming_convention.md`](../docs/naming_convention.md) for the complete
 
 **Canonical part names.** `docs/naming_convention.md` lists a recommended name per common part (`upper_wishbone`, `lower_wishbone`, `trailing_arm`, `tie_rod`, `toe_link`, `pushrod`, `rocker`, `panhard_rod`, `torque_rod`, `upright`, `spring`, `damper`, `arb`, `disc`, `caliper`, `rack`, `column`, `wheel`, …) with the aliases other tools use, so exporters converge on the same ids. The vocabulary is a recommendation: the checker warns about an unlisted link name, it does not reject it. Note the order — part first, corner last (`upper_wishbone_fl`, not `fl_upper_wishbone`), which keeps one rule across two-axle, multi-axle and dual-wheel vehicles.
 
-### 22.6 `placement` — Parts Defined by Hardpoints *(v0.99.2)*
+### 22.6 `placement` — Parts Defined by Hardpoints *(v0.99.2; bodies since v0.100)*
+
+> Since v0.100 a link is a `mass_body` held by joints at two ends. A body with a joint where it is `body_b` (the inboard end) and a joint where it is `body_a` (the outboard end) may use `link_between_points`: its inboard points are the frames of the joints where it is `body_b`, its outboard end is the other joint.
 
 A wishbone or tie rod has no body frame in SVJ: it is defined by its `inboard_points` and the upright hardpoint named by `outboard_ref`. `placement` tells the renderer how to put the mesh on that geometry.
 
@@ -2932,6 +2938,7 @@ SVJ describes a vehicle as a set of rigid bodies with **mass properties**, conne
 - a **spring** is a passive force element between two markers (§24.5);
 - an **actuator** is a linear drive (hydraulic or electric ram) with a stroke and force limits (§24.6);
 - a **latch** holds a joint at a position until a force releases it, and a **coupling** makes one joint follow another (§24.6.1, §24.6.2);
+- a **contact** stops a part against a pad, seal or seat (§24.6.3);
 - a **pose** is a named set of joint coordinates (§24.7); every pose has a derived composite mass, CG, inertia and element lengths (§24.8).
 
 All positions and orientations are in the vehicle frame **at the reference pose**: the configuration in which the file's geometry, meshes and `mass_bodies` positions are authored and every joint coordinate is zero.
@@ -2961,9 +2968,9 @@ Optional top-level array. Common fields:
 |---|---|---|---|
 | `id` | string | YES | Unique id |
 | `name` | string | no | Short display label *(v0.99.7)* |
-| `type` | string | YES | `"joint"`, `"spring"`, `"actuator"`, `"latch"`, `"coupling"` |
-| `body_a`, `body_b` | string | YES for joint, spring, actuator | Body ids (`mass_bodies[].id`, `"chassis"`, `"ground"`); `body_a` is the reference (parent) side, `body_b` the moving side |
-| `marker_a`, `marker_b` | string | joint, spring, actuator: one of marker/frame per side | Marker names on the respective body (`mass_body.markers`, or `chassis.markers`) |
+| `type` | string | YES | `"joint"`, `"spring"`, `"actuator"`, `"latch"`, `"coupling"`, `"contact"` |
+| `body_a`, `body_b` | string | YES for joint, spring, actuator, contact | Body ids (`mass_bodies[].id`, `"chassis"`, `"ground"`); `body_a` is the reference (parent) side, `body_b` the moving side |
+| `marker_a`, `marker_b` | string | joint, spring, actuator, contact: one of marker/frame per side | Marker names on the respective body (`mass_body.markers`, or `chassis.markers`) |
 | `frame_a`, `frame_b` | object | | Inline `{position, orientation}` instead of a marker (required for `ground`) |
 | `description` | string | no | |
 
@@ -3002,6 +3009,23 @@ A passive force element between the two markers.
 | `free_length` | Length at zero force (m) |
 | `preload` | Force at `free_length` (N) |
 | `damping` | Viscous damping along the element (N·s/m) |
+
+| `kind` | `"linear"` (default) or `"torsional"` (a torsion bar, an anti-roll bar half, a twist beam): a torsional spring acts about the +Z axis shared by its two frames, with `rate` in N·m/rad and `free_angle` in rad *(v0.100)* |
+| `reference` | `"element"` (default) or `"wheel"`: whether `rate` / `rate_curve` are those of the element or quoted at the wheel (§25.3) *(v0.100)* |
+| `spring_type`, `mass` | Informational: `coil`, `coilover`, `torsion_bar`, `leaf`, `air`, … and the element mass *(v0.100)* |
+
+For a hydraulic or hydropneumatic spring (`spring_type` `hydraulic`, `hydropneumatic`, `none`) `rate` is not required.
+
+#### 24.5.1 `damper` *(v0.100)*
+
+A passive damping element between two frames.
+
+| Key | Description |
+|---|---|
+| `bump_curve`, `rebound_curve` | `curve2d` of velocity along the element (m/s; rad/s if torsional) against force (N; N·m): compression and extension. Both are given, or a linear `damping` instead |
+| `damping` | Linear damping (N·s/m, or N·m·s/rad) |
+| `kind`, `reference` | As for `spring` (§25.3) |
+| `mass` | Informational |
 
 ### 24.6 `actuator`
 
@@ -3043,6 +3067,20 @@ A kinematic relation between two joint coordinates: `q_b = ratio · q_a`. It mod
 
 In a pose, a joint that is coupled and **not named** takes its coordinate from the joint it is coupled to, in either direction, and chains of couplings propagate. A pose that names both joints must satisfy the relation.
 
+#### 24.6.3 `contact`
+
+A one-sided penalty contact between two shapes attached to two bodies: a hood resting on its rubber stops, a door on its seal, a flap on its seat. It acts between **any two bodies**, including a body and the parent it is hinged to (for the end of a joint's range prefer the joint's `stop`).
+
+| Key | Required | Description |
+|---|---|---|
+| `body_a`, `body_b`, markers / frames | YES | As for any two-body constraint; each shape is centred on its frame |
+| `shape_a`, `shape_b` | YES | `{type, …}` with `type` `point`, `plane`, `sphere`, `box` or `cylinder` |
+| `law` | YES | `{gap, stiffness, damping, friction, restitution}`: `stiffness` (N/m) is required; `gap` is the signed distance at the reference pose (m, default 0: > 0 clearance, < 0 pre-compressed); `damping` (N·s/m); `friction` is a dimensionless coefficient; `restitution` is 0–1 |
+
+Shapes: `point` (the frame origin); `plane` (through the origin, normal along the frame **+Z**, free side +Z — an *infinite half-space*, so use a `sphere` or `box` pad for a stop the part can swing away from in another direction); `sphere` (`radius`); `box` (`size` = the three full lengths along the frame axes); `cylinder` (`radius`, `length`, axis along the frame Z).
+
+Supported pairs (either order): point / sphere / box / cylinder against a `plane`; sphere against sphere; point or sphere against a box. The **signed distance** is positive when apart, zero when touching, negative when interpenetrating. Contact with the ground or soil is not described here: tyre and terrain models cover vehicle–ground interaction.
+
 ### 24.7 `poses[]`
 
 ```json
@@ -3077,24 +3115,132 @@ For a pose, a tool computes (`tools/constraints_check.py`, `svj.constraints`, `V
 | `range` + `stop` | joint LIMIT / bump-stop force |
 | `friction`, `damping` | joint friction and damping |
 | `bushing` | BUSHING instead of a joint |
-| `spring` | SPRINGDAMPER |
+| `spring` (linear) | SPRINGDAMPER, translational |
+| `spring` (torsional), `damper` | SPRINGDAMPER, rotational; translational damper |
 | `actuator` | cylinder force element (SFORCE / hydraulic) driven by the stroke |
 | `poses[]` | initial-condition sets (joint displacements with zero velocity) |
 | `latch` | state-dependent holding force (engage position, release threshold) |
 | `coupling` | COUPLER / GEAR between two joints |
 | `drive` | MOTION / motor torque with a limit |
-| planned: `contact` | CONTACT |
+| `contact` | CONTACT (sphere / box / plane … with a penalty law) |
 
 ### 24.10 Validation rules
 
 `tools/constraints_check.py` (run by `tools/validate.py`; mirrored as `svj-py/svj/constraints.py`) enforces:
 
-- **Errors:** `body_a` / `body_b` exist and differ; each side has a marker or frame and the marker exists; unique constraint and pose ids; unit quaternions; `range.min ≤ range.max` per coordinate, array length matching the joint type, reference pose inside the range; pose values have the right length, are inside the ranges and name joints; the two frames of a joint coincide (1 mm) and their Z axes are parallel at the reference pose; no body is connected to the roots only through unreachable joints (no floating bodies); `spring` has one of `rate` / `rate_curve`; `actuator.stroke.min ≤ max` and `rod_diameter < bore_diameter`; for the reference pose and every pose, each actuator's derived length lies within its reach; `aero_setting_ref` resolves; an inertia matrix is symmetric; a moving body has positive mass; a `latch` refers to a joint and a coordinate that exist, engages inside the joint range, and engages at 0 when `latched` at the reference pose; a `coupling` joins two different existing coordinates with a non-zero ratio, and a pose that names both joints satisfies it; coordinates a coupling derives for a pose stay inside their ranges; a `drive` is on a one-coordinate joint, has a `target` unless `free`, and a position target inside the range.
-- **Warnings:** a moving body without an inertia tensor or with a physically impossible one; an actuator without `max_force` or `bore_diameter` + `max_pressure`; a body that is the child of more than one joint (closed loop / over-constraint); a body whose `parent` differs from its joint's `body_a`; a spring or actuator whose end frames coincide; `.` in a body id; a coupling whose source range maps outside the target range; a joint coordinate driven by more than one coupling; a powered `drive` without `max_force`.
+- **Errors:** `body_a` / `body_b` exist and differ; each side has a marker or frame and the marker exists; unique constraint and pose ids; unit quaternions; `range.min ≤ range.max` per coordinate, array length matching the joint type, reference pose inside the range; pose values have the right length, are inside the ranges and name joints; the two frames of a joint coincide (1 mm) and their Z axes are parallel at the reference pose; no body is connected to the roots only through unreachable joints (no floating bodies); `spring` has one of `rate` / `rate_curve`; `actuator.stroke.min ≤ max` and `rod_diameter < bore_diameter`; for the reference pose and every pose, each actuator's derived length lies within its reach; `aero_setting_ref` resolves; an inertia matrix is symmetric; a moving body has positive mass; a `latch` refers to a joint and a coordinate that exist, engages inside the joint range, and engages at 0 when `latched` at the reference pose; a `coupling` joins two different existing coordinates with a non-zero ratio, and a pose that names both joints satisfies it; coordinates a coupling derives for a pose stay inside their ranges; a `contact` has two supported shapes with valid dimensions, `law.stiffness`, and at the reference pose the shapes are `law.gap` apart (1 mm); a `drive` is on a one-coordinate joint, has a `target` unless `free`, and a position target inside the range.
+- **Warnings:** a moving body without an inertia tensor or with a physically impossible one; an actuator without `max_force` or `bore_diameter` + `max_pressure`; a body that is the child of more than one joint (closed loop / over-constraint); a body whose `parent` differs from its joint's `body_a`; a spring or actuator whose end frames coincide; `.` in a body id; a coupling whose source range maps outside the target range; a joint coordinate driven by more than one coupling; a powered `drive` without `max_force`; in a pose, a contact whose shapes interpenetrate by more than 1 mm.
 
 ### 24.11 Not covered yet
 
-Planned in `proposals/svj_articulated_parts_proposal.md`: `contact` between unjointed bodies, solving closed loops, and **attachments defined in their own files** that mount on declared vehicle interfaces (the combination file and `coupling_points` of `proposals/trailer_coupling_research.md`, using the same joint object, with qualified body ids `unit.body`).
+Planned in `proposals/svj_articulated_parts_proposal.md`: collision proxies from glTF nodes, solving closed loops, and **attachments defined in their own files** that mount on declared vehicle interfaces (the combination file and `coupling_points` of `proposals/trailer_coupling_research.md`, using the same joint object, with qualified body ids `unit.body`).
+
+---
+
+## 25. Wheel Stations — the Unified Suspension *(v0.100)*
+
+Since v0.100 a suspension is described by the same parts as everything else in SVJ: **bodies**, **joints** and **elements** (§24), plus a thin **`wheel_stations[]`** list for the data that is not mechanical. The corner-based `suspension` section of §9 is **deprecated**: it is still accepted for one more release (validators warn), and `tools/migrate_suspension.py` converts a file.
+
+The mechanism is defined by its components, never by a name or a type. A double wishbone is an upright, two arms and a tie rod joined by the joints they really have; a five-link variant, a pushrod and rocker, or an arrangement nobody has a name for is written the same way. `topology_hint` may carry a label (`double_wishbone`), but nothing is derived from it.
+
+### 25.1 What a wheel station is made of
+
+| Part | Written as |
+|---|---|
+| Wheel carrier (upright, hub carrier, axle housing, De Dion tube) | a `mass_body`; its hardpoints are `markers` (`wheel_center`, `strut_lower`, `spring_pad`, …) |
+| Control arms, links, tie rods, struts, torque rods | `mass_bodies`, with their canonical part names (§25.7) |
+| Wheel (rim + tyre) | a `mass_body` joined to the carrier by a `revolute` joint about the lateral axis through the wheel centre |
+| Link ends | `joint` constraints with coincident frames and stated types (spherical, revolute, translational, fixed, …); compliance as `joint.bushing` |
+| Steering rack | a `mass_body` on a lateral `translational` joint; tie rods hang from it |
+| Coil, air, torsion-bar spring | `spring` (§24.5) |
+| Damper | `damper` (§24.5.1) |
+| Bump and rebound stop | a `spring` whose force curve is zero until the stop engages |
+| Leaf spring | a body for the pack (front eye `revolute`, rear slipper `translational`, axle clamped by a `fixed` joint at the seat) and a `spring` at the seat |
+| Anti-roll bar | `anti_roll_bars[]` as data (§25.5); as bodies and a torsional `spring` once its geometry is known |
+| Tyre set, rim, brake, reference alignment | `wheel_stations[]` |
+
+### 25.2 `wheel_stations[]`
+
+One entry per wheel station; its `id` keeps the names of §23.1 (`FL`, `A2R`, …) and is also the key of `chassis.mass_unsprung_per_corner`.
+
+| Key | Type | Required | Description |
+|---|---|---|---|
+| `id` | string | YES | Station name (§23.1) |
+| `name` | string | no | Display label |
+| `axle`, `side` | string | no | `A1`…, `L` / `R` / `C`; must agree with `id` |
+| `wheel_body` | string | YES | `mass_bodies` id of the rotating wheel |
+| `upright_body` | string | no | `mass_bodies` id of the wheel carrier the wheel is hinged to (shared by both stations of a beam axle) |
+| `wheel_center_marker` | string | no | Marker of `upright_body` at the wheel centre (default `wheel_center`; `wheel_center_<station>` on a shared axle body) |
+| `steering_joint` | string | no | id of the joint the steering drives (the rack slide); absent when the station is not steered |
+| `coupling_ref` | string | no | `suspension_couplings` id that springs this station when it has no spring of its own |
+| `topology_hint` | string | no | Descriptive label; nothing is derived from it |
+| `wheel`, `tire`, `brake` | object | no | As before (§9.8, §11, §12): rim and wheel data, tyre set reference, brake |
+| `alignment` | object | no | Declared reference alignment (camber, toe, caster, caster trail, KPI, scrub radius). It follows from the geometry, so a tool can compute it and compare |
+| `static_setup`, `compliance_summary`, `visual` | | no | As before |
+
+### 25.3 Springs and dampers
+
+`spring` and `damper` (§24.5) are between two frames. Each has a **`kind`**: `linear` (default; along the line between the frames) or `torsional` (about their shared +Z axis: a torsion bar, an anti-roll bar half, a twist beam, a rotary damper), and a **`reference`**:
+
+- `element` (default): rates and curves are those of the element itself (N/m, N, N·s/m, or N·m/rad …).
+- `wheel`: rates and curves are quoted **at the wheel**, per metre of wheel travel, and the element stands for a vertical wheel-level spring or damper. Its two frames are nominal (the chassis above the wheel centre, the carrier at it). Most published data is of this form (Assetto Corsa, manufacturer sheets); a converter with no suspension geometry says `wheel`.
+
+A wheel rate becomes an element rate through the **motion ratio** MR (element length change per unit of wheel travel): `rate_element = rate_wheel / MR²`; a force `F_wheel = F_element · MR` and a speed `v_element = v_wheel · MR`, so a wheel-referenced curve point `(v, F)` becomes `(v · MR, F / MR)`. The migration (§25.8) uses a given `motion_ratio`, otherwise estimates one from the geometry (the mount's first-order velocity along the element, divided by the vertical velocity of the wheel centre), and flags the result.
+
+### 25.4 Steering
+
+The rack is a body on a lateral `translational` joint to the chassis; each tie rod is a body with spherical joints to the rack and to the upright; the station's `steering_joint` names the rack joint. Coupling the rack to a steering-wheel body (`q_rack = ratio · q_wheel`, §24.6.2) and power assist (`joint.drive`) complete the chain; the old `steering` section still holds the ratios, assist and lock-to-lock data.
+
+### 25.5 Anti-roll bars
+
+`anti_roll_bars[]`: `id`, `stations` (the stations it connects), `bar_rate` (N·m/rad), and optionally `wheel_rate_equiv`, `motion_ratio`, `mass`, `drop_link_mounts` (station → point). The old files carry no bar axis or lever geometry, so the bar stays data. With geometry it is two bar-half bodies on revolute joints to the chassis, a torsional `spring` between them and a drop-link rod from each half to the arm.
+
+### 25.6 How an analysis finds the parts
+
+A suspension analysis (wheel travel, camber and toe curves, bump steer, caster, kingpin inclination, roll centre) does not need to recognise a wishbone or an upright by name; the standard gives it the roles by reference:
+
+| It needs | It reads |
+|---|---|
+| The wheel carrier and the wheel | `upright_body`, `wheel_body` |
+| The wheel centre | the marker `wheel_center_marker` on the carrier |
+| The wheel's spin axis (camber, toe) | the frame of the `revolute` joint between `upright_body` and `wheel_body` |
+| The steering input (bump steer, caster, KPI) | `steering_joint`, with its `range` |
+| The mechanism | every `joint` between the chassis (and the rack) and the carrier, with frames, types and bushings |
+| Springs, dampers, stops | the elements between the same bodies |
+| The driven coordinate for wheel travel | the vertical position of the wheel centre relative to the chassis |
+
+Camber and toe are the angles of the spin axis to the vertical and to the longitudinal axis; caster, kingpin inclination and scrub follow from the steering axis, the screw axis of the carrier relative to the chassis under rack travel. Names help people and viewers; the analysis follows the references. Solving the loop for a given wheel travel is a separate step (§25.10).
+
+### 25.7 Names
+
+A body that corresponds to a well-known part keeps that part's canonical name (`upright_fl`, `upper_wishbone_fl`, `tie_rod_a2l`, `rack`, `leaf_spring_a1l`) with its meaning in `description` and a short label in `name` (`"Upright FL"`, *"Upright / knuckle / hub carrier"*), following `docs/naming_convention.md`; `tools/constraints_check.py` flags an *alias* of a known part (`knuckle_fr`). The vocabulary covers the suspension, steering and brake parts as well as panels and attachments (§24.2).
+
+### 25.8 Migration and generated data
+
+`tools/migrate_suspension.py` converts the corner section; it never invents data. Everything it creates carries **`x_derived: true`**: such bodies and joints may have no mass, an assumed axis or a missing joint type, and the checker reports these as warnings (never errors) until an author refines them and removes the flag. A zero `mass` is accepted by the schema only on `x_derived` bodies.
+
+| Old | New |
+|---|---|
+| upright, links, axle body, wheel | bodies (existing `body_ref` bodies reused, shared axle bodies created once); hardpoints become markers on the carrier |
+| implied or stated joint types | stated `joint` constraints (frames coincide at the reference pose) |
+| tie rods | spherical joints to a `rack` body on a lateral slide |
+| leaf spring link | leaf body: eye / slipper / seat joints (shackle swing not modelled) |
+| `spring`, `damper` with both mounts | elements at the mounts, rates converted by the motion ratio (estimated and flagged `x_converted_from_wheel_rate` when not given) |
+| `spring`, `damper` without mounts | `reference: "wheel"` elements at the wheel, values as quoted |
+| `bump_stop`, `rebound_stop` | wheel-level `spring` with a curve zero until engagement |
+| `arb` | `anti_roll_bars[]` |
+| `system_type` | `topology_hint` |
+| `wheel`, `tire`, `brake`, `alignment`, … | `wheel_stations[]` |
+
+What the old data does not state is reported as a note: unknown joint types (leaf-sprung and swing axles), massless parts, assumed hinge axes, torsion-bar springs and axle-body fields without a unified counterpart (kept under `x_legacy_axle_body`).
+
+### 25.9 Validation rules
+
+`tools/constraints_check.py` adds to §24.10: `wheel_stations` ids unique and consistent with `axle` / `side`; `wheel_body` and `upright_body` are `mass_bodies` ids and a joint connects them; `steering_joint` is a joint; `wheel_center_marker` exists on the carrier; `anti_roll_bars` name existing stations; a `damper` has both curves (strictly increasing velocities) or a `damping`; torsional elements have parallel Z axes; generated (`x_derived`) items are exempt from the mass, parent, loop, connectivity and inertia rules (warnings only). `tools/multiaxle_check.py` and svj-py read the unified model through the same station ids.
+
+### 25.10 Not covered yet
+
+The loop-closure solver (wheel-travel poses, camber / toe / bump-steer curves, alignment cross-checks); coupling the rack to a steering-wheel body; the physical anti-roll bar from its geometry; a flexible leaf pack; torsion-beam twist as an element between the two trailing arms.
 
 ---
 
@@ -3119,6 +3265,7 @@ Planned in `proposals/svj_articulated_parts_proposal.md`: `contact` between unjo
 | Validation, benchmarks, overrides | v0.98 | ✅ Done                                 |
 | Multi-axle vehicles | v0.99  | ✅ Done — §23, 13 system_types, suspension couplings |
 | Axle groups, plated masses, wheelbase definitions | v0.99.1 | ✅ Done — first real multi-axle example (MAN TGS 8x4) |
+| Unified suspension (bodies, joints, elements, wheel stations); corner section deprecated | v0.100 | ✅ Done — §25, migration tool; loop solver planned |
 | Movable parts, attachments (joints, springs, actuators, poses) | v0.99.5 | ✅ Done — §24; contacts, latches, attachment files planned |
 | Articulated combinations (tractor/trailer/dolly) | — | Planned (§23.8)            |
 | v1.0 freeze       | —        | After converter feedback on v0.99                   |

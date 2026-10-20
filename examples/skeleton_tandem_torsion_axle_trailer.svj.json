@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99.4",
+    "version": "0.100",
     "description": "Tandem trailer skeleton — independent rubber torsion (Torflex-type) axles, no inter-axle coupling. Two axles written in A-notation.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
@@ -34,193 +34,197 @@
       "A1R": 45,
       "A2L": 45,
       "A2R": 45
-    }
-  },
-  "suspension": {
-    "A1L": {
-      "topology": {
-        "system_type": "trailing_arm",
-        "upright": {
-          "id": "hub_A1L",
-          "hardpoints": {
-            "wheel_center": [
+    },
+    "mass_bodies": [
+      {
+        "id": "hub_a1l",
+        "name": "Hub A1L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.0,
+          -0.84,
+          -0.33
+        ],
+        "markers": {
+          "wheel_center": {
+            "position": [
               0.0,
               -0.84,
               -0.33
             ]
           }
         },
-        "links": [
-          {
-            "name": "torsion_arm",
-            "type": "arm",
-            "inboard_points": [
-              [
-                0.19,
-                -0.62,
-                -0.4
-              ]
-            ],
-            "outboard_ref": "hardpoints.wheel_center",
-            "joint_type": "fixed"
-          }
-        ]
+        "description": "Rotating hub",
+        "x_derived": true
       },
-      "wheel": {
-        "rim_diameter": 0.381,
-        "rim_width": 0.1524,
-        "set_ref": "trailer_st205_75r15"
+      {
+        "id": "wheel_a1l",
+        "name": "Wheel A1L",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.0,
+          -0.84,
+          -0.33
+        ],
+        "x_derived": true
       },
-      "spring": {
-        "type": "rubber_torsion",
-        "rate": 55000,
-        "torsional_rate": 2300,
-        "arm_length": 0.2,
-        "arm_start_angle": 0.3927,
-        "hysteresis_force": 300
+      {
+        "id": "torsion_arm_a1l",
+        "name": "Torsion Arm A1L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.095,
+          -0.73,
+          -0.365
+        ],
+        "x_derived": true
       },
-      "damper": {
-        "type": "none"
-      }
-    },
-    "A1R": {
-      "topology": {
-        "system_type": "trailing_arm",
-        "upright": {
-          "id": "hub_A1R",
-          "hardpoints": {
-            "wheel_center": [
+      {
+        "id": "hub_a1r",
+        "name": "Hub A1R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.0,
+          0.84,
+          -0.33
+        ],
+        "markers": {
+          "wheel_center": {
+            "position": [
               0.0,
               0.84,
               -0.33
             ]
           }
         },
-        "links": [
-          {
-            "name": "torsion_arm",
-            "type": "arm",
-            "inboard_points": [
-              [
-                0.19,
-                0.62,
-                -0.4
-              ]
-            ],
-            "outboard_ref": "hardpoints.wheel_center",
-            "joint_type": "fixed"
-          }
-        ]
+        "description": "Rotating hub",
+        "x_derived": true
       },
-      "wheel": {
-        "rim_diameter": 0.381,
-        "rim_width": 0.1524,
-        "set_ref": "trailer_st205_75r15"
+      {
+        "id": "wheel_a1r",
+        "name": "Wheel A1R",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.0,
+          0.84,
+          -0.33
+        ],
+        "x_derived": true
       },
-      "spring": {
-        "type": "rubber_torsion",
-        "rate": 55000,
-        "torsional_rate": 2300,
-        "arm_length": 0.2,
-        "arm_start_angle": 0.3927,
-        "hysteresis_force": 300
+      {
+        "id": "torsion_arm_a1r",
+        "name": "Torsion Arm A1R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.095,
+          0.73,
+          -0.365
+        ],
+        "x_derived": true
       },
-      "damper": {
-        "type": "none"
-      }
-    },
-    "A2L": {
-      "topology": {
-        "system_type": "trailing_arm",
-        "upright": {
-          "id": "hub_A2L",
-          "hardpoints": {
-            "wheel_center": [
+      {
+        "id": "hub_a2l",
+        "name": "Hub A2L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -0.84,
+          -0.84,
+          -0.33
+        ],
+        "markers": {
+          "wheel_center": {
+            "position": [
               -0.84,
               -0.84,
               -0.33
             ]
           }
         },
-        "links": [
-          {
-            "name": "torsion_arm",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -0.65,
-                -0.62,
-                -0.4
-              ]
-            ],
-            "outboard_ref": "hardpoints.wheel_center",
-            "joint_type": "fixed"
-          }
-        ]
+        "description": "Rotating hub",
+        "x_derived": true
       },
-      "wheel": {
-        "rim_diameter": 0.381,
-        "rim_width": 0.1524,
-        "set_ref": "trailer_st205_75r15"
+      {
+        "id": "wheel_a2l",
+        "name": "Wheel A2L",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -0.84,
+          -0.84,
+          -0.33
+        ],
+        "x_derived": true
       },
-      "spring": {
-        "type": "rubber_torsion",
-        "rate": 55000,
-        "torsional_rate": 2300,
-        "arm_length": 0.2,
-        "arm_start_angle": 0.3927,
-        "hysteresis_force": 300
+      {
+        "id": "torsion_arm_a2l",
+        "name": "Torsion Arm A2L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -0.745,
+          -0.73,
+          -0.365
+        ],
+        "x_derived": true
       },
-      "damper": {
-        "type": "none"
-      }
-    },
-    "A2R": {
-      "topology": {
-        "system_type": "trailing_arm",
-        "upright": {
-          "id": "hub_A2R",
-          "hardpoints": {
-            "wheel_center": [
+      {
+        "id": "hub_a2r",
+        "name": "Hub A2R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -0.84,
+          0.84,
+          -0.33
+        ],
+        "markers": {
+          "wheel_center": {
+            "position": [
               -0.84,
               0.84,
               -0.33
             ]
           }
         },
-        "links": [
-          {
-            "name": "torsion_arm",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -0.65,
-                0.62,
-                -0.4
-              ]
-            ],
-            "outboard_ref": "hardpoints.wheel_center",
-            "joint_type": "fixed"
-          }
-        ]
+        "description": "Rotating hub",
+        "x_derived": true
       },
-      "wheel": {
-        "rim_diameter": 0.381,
-        "rim_width": 0.1524,
-        "set_ref": "trailer_st205_75r15"
+      {
+        "id": "wheel_a2r",
+        "name": "Wheel A2R",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -0.84,
+          0.84,
+          -0.33
+        ],
+        "x_derived": true
       },
-      "spring": {
-        "type": "rubber_torsion",
-        "rate": 55000,
-        "torsional_rate": 2300,
-        "arm_length": 0.2,
-        "arm_start_angle": 0.3927,
-        "hysteresis_force": 300
-      },
-      "damper": {
-        "type": "none"
+      {
+        "id": "torsion_arm_a2r",
+        "name": "Torsion Arm A2R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -0.745,
+          0.73,
+          -0.365
+        ],
+        "x_derived": true
       }
-    }
+    ]
   },
   "axles": [
     {
@@ -254,5 +258,637 @@
         }
       }
     }
-  }
+  },
+  "constraints": [
+    {
+      "id": "hinge_wheel_a1l",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "hub_a1l",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.84,
+          -0.33
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a1l",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.84,
+          -0.33
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_torsion_arm_a1l_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.19,
+          -0.62,
+          -0.4
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "torsion_arm_a1l",
+      "frame_b": {
+        "position": [
+          0.19,
+          -0.62,
+          -0.4
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_torsion_arm_a1l_outboard",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "torsion_arm_a1l",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.84,
+          -0.33
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a1l",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.84,
+          -0.33
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a1l",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.84,
+          -0.63
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a1l",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.84,
+          -0.33
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "rubber_torsion",
+      "hysteresis_force": 300,
+      "torsional_rate": 2300,
+      "arm_length": 0.2,
+      "arm_start_angle": 0.3927,
+      "rate": 55000.0,
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a1r",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "hub_a1r",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.84,
+          -0.33
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a1r",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.84,
+          -0.33
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_torsion_arm_a1r_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.19,
+          0.62,
+          -0.4
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "torsion_arm_a1r",
+      "frame_b": {
+        "position": [
+          0.19,
+          0.62,
+          -0.4
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_torsion_arm_a1r_outboard",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "torsion_arm_a1r",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.84,
+          -0.33
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a1r",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.84,
+          -0.33
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a1r",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.84,
+          -0.63
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a1r",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.84,
+          -0.33
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "rubber_torsion",
+      "hysteresis_force": 300,
+      "torsional_rate": 2300,
+      "arm_length": 0.2,
+      "arm_start_angle": 0.3927,
+      "rate": 55000.0,
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a2l",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "hub_a2l",
+      "frame_a": {
+        "position": [
+          -0.84,
+          -0.84,
+          -0.33
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a2l",
+      "frame_b": {
+        "position": [
+          -0.84,
+          -0.84,
+          -0.33
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_torsion_arm_a2l_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.65,
+          -0.62,
+          -0.4
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "torsion_arm_a2l",
+      "frame_b": {
+        "position": [
+          -0.65,
+          -0.62,
+          -0.4
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_torsion_arm_a2l_outboard",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "torsion_arm_a2l",
+      "frame_a": {
+        "position": [
+          -0.84,
+          -0.84,
+          -0.33
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a2l",
+      "frame_b": {
+        "position": [
+          -0.84,
+          -0.84,
+          -0.33
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a2l",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.84,
+          -0.84,
+          -0.63
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a2l",
+      "frame_b": {
+        "position": [
+          -0.84,
+          -0.84,
+          -0.33
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "rubber_torsion",
+      "hysteresis_force": 300,
+      "torsional_rate": 2300,
+      "arm_length": 0.2,
+      "arm_start_angle": 0.3927,
+      "rate": 55000.0,
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a2r",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "hub_a2r",
+      "frame_a": {
+        "position": [
+          -0.84,
+          0.84,
+          -0.33
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a2r",
+      "frame_b": {
+        "position": [
+          -0.84,
+          0.84,
+          -0.33
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_torsion_arm_a2r_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.65,
+          0.62,
+          -0.4
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "torsion_arm_a2r",
+      "frame_b": {
+        "position": [
+          -0.65,
+          0.62,
+          -0.4
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_torsion_arm_a2r_outboard",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "torsion_arm_a2r",
+      "frame_a": {
+        "position": [
+          -0.84,
+          0.84,
+          -0.33
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a2r",
+      "frame_b": {
+        "position": [
+          -0.84,
+          0.84,
+          -0.33
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a2r",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.84,
+          0.84,
+          -0.63
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a2r",
+      "frame_b": {
+        "position": [
+          -0.84,
+          0.84,
+          -0.33
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "rubber_torsion",
+      "hysteresis_force": 300,
+      "torsional_rate": 2300,
+      "arm_length": 0.2,
+      "arm_start_angle": 0.3927,
+      "rate": 55000.0,
+      "x_derived": true
+    }
+  ],
+  "wheel_stations": [
+    {
+      "id": "A1L",
+      "name": "A1L",
+      "wheel_body": "wheel_a1l",
+      "upright_body": "hub_a1l",
+      "wheel_center_marker": "wheel_center",
+      "axle": "A1",
+      "side": "L",
+      "topology_hint": "trailing_arm",
+      "wheel": {
+        "rim_diameter": 0.381,
+        "rim_width": 0.1524,
+        "set_ref": "trailer_st205_75r15"
+      }
+    },
+    {
+      "id": "A1R",
+      "name": "A1R",
+      "wheel_body": "wheel_a1r",
+      "upright_body": "hub_a1r",
+      "wheel_center_marker": "wheel_center",
+      "axle": "A1",
+      "side": "R",
+      "topology_hint": "trailing_arm",
+      "wheel": {
+        "rim_diameter": 0.381,
+        "rim_width": 0.1524,
+        "set_ref": "trailer_st205_75r15"
+      }
+    },
+    {
+      "id": "A2L",
+      "name": "A2L",
+      "wheel_body": "wheel_a2l",
+      "upright_body": "hub_a2l",
+      "wheel_center_marker": "wheel_center",
+      "axle": "A2",
+      "side": "L",
+      "topology_hint": "trailing_arm",
+      "wheel": {
+        "rim_diameter": 0.381,
+        "rim_width": 0.1524,
+        "set_ref": "trailer_st205_75r15"
+      }
+    },
+    {
+      "id": "A2R",
+      "name": "A2R",
+      "wheel_body": "wheel_a2r",
+      "upright_body": "hub_a2r",
+      "wheel_center_marker": "wheel_center",
+      "axle": "A2",
+      "side": "R",
+      "topology_hint": "trailing_arm",
+      "wheel": {
+        "rim_diameter": 0.381,
+        "rim_width": 0.1524,
+        "set_ref": "trailer_st205_75r15"
+      }
+    }
+  ]
 }

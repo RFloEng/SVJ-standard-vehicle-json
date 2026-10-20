@@ -1,8 +1,8 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99.4",
-    "description": "Citro\u00ebn 2CV6 (1979) \u2014 trailing arm front and rear with interconnected horizontal coil springs.",
+    "version": "0.100",
+    "description": "Citroën 2CV6 (1979) — trailing arm front and rear with interconnected horizontal coil springs.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
     "data_origin": {
@@ -13,7 +13,7 @@
     "alignment_convention": "relative_to_centerline"
   },
   "vehicle_info": {
-    "make": "Citro\u00ebn",
+    "make": "Citroën",
     "model": "2CV6",
     "year": 1979,
     "variant": "602cc",
@@ -41,7 +41,23 @@
           -0.54,
           -0.2
         ],
-        "parent": "chassis"
+        "parent": "chassis",
+        "markers": {
+          "wheel_center": {
+            "position": [
+              0.0,
+              -0.63,
+              -0.28
+            ]
+          },
+          "damper_outboard": {
+            "position": [
+              0.0,
+              -0.45,
+              -0.12
+            ]
+          }
+        }
       },
       {
         "id": "leading_arm_fl",
@@ -65,7 +81,23 @@
           0.54,
           -0.2
         ],
-        "parent": "chassis"
+        "parent": "chassis",
+        "markers": {
+          "wheel_center": {
+            "position": [
+              0.0,
+              0.63,
+              -0.28
+            ]
+          },
+          "damper_outboard": {
+            "position": [
+              0.0,
+              0.45,
+              -0.12
+            ]
+          }
+        }
       },
       {
         "id": "leading_arm_fr",
@@ -89,7 +121,23 @@
           -0.54,
           -0.2
         ],
-        "parent": "chassis"
+        "parent": "chassis",
+        "markers": {
+          "wheel_center": {
+            "position": [
+              -2.4,
+              -0.63,
+              -0.28
+            ]
+          },
+          "damper_outboard": {
+            "position": [
+              -2.4,
+              -0.45,
+              -0.12
+            ]
+          }
+        }
       },
       {
         "id": "trailing_arm_rl",
@@ -113,7 +161,23 @@
           0.54,
           -0.2
         ],
-        "parent": "chassis"
+        "parent": "chassis",
+        "markers": {
+          "wheel_center": {
+            "position": [
+              -2.4,
+              0.63,
+              -0.28
+            ]
+          },
+          "damper_outboard": {
+            "position": [
+              -2.4,
+              0.45,
+              -0.12
+            ]
+          }
+        }
       },
       {
         "id": "trailing_arm_rr",
@@ -126,6 +190,90 @@
           -0.26
         ],
         "parent": "chassis"
+      },
+      {
+        "id": "wheel_fl",
+        "name": "Wheel FL",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 10.0,
+        "position": [
+          0.0,
+          -0.63,
+          -0.28
+        ],
+        "inertia": {
+          "Ixx": 0.2,
+          "Iyy": 0.4,
+          "Izz": 0.2,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        },
+        "x_derived": true
+      },
+      {
+        "id": "wheel_fr",
+        "name": "Wheel FR",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 10.0,
+        "position": [
+          0.0,
+          0.63,
+          -0.28
+        ],
+        "inertia": {
+          "Ixx": 0.2,
+          "Iyy": 0.4,
+          "Izz": 0.2,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        },
+        "x_derived": true
+      },
+      {
+        "id": "wheel_rl",
+        "name": "Wheel RL",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 10.0,
+        "position": [
+          -2.4,
+          -0.63,
+          -0.28
+        ],
+        "inertia": {
+          "Ixx": 0.2,
+          "Iyy": 0.4,
+          "Izz": 0.2,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        },
+        "x_derived": true
+      },
+      {
+        "id": "wheel_rr",
+        "name": "Wheel RR",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 10.0,
+        "position": [
+          -2.4,
+          0.63,
+          -0.28
+        ],
+        "inertia": {
+          "Ixx": 0.2,
+          "Iyy": 0.4,
+          "Izz": 0.2,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        },
+        "x_derived": true
       }
     ],
     "visual": {
@@ -144,418 +292,6 @@
     "overall_ratio": 18.0,
     "lock_to_lock": 18.85,
     "_est": true
-  },
-  "suspension": {
-    "FL": {
-      "topology": {
-        "system_type": "trailing_arm",
-        "upright": {
-          "id": "upright_FL",
-          "mass": 6.0,
-          "hardpoints": {
-            "wheel_center": [
-              0.0,
-              -0.63,
-              -0.28
-            ],
-            "damper_outboard": [
-              0.0,
-              -0.45,
-              -0.12
-            ]
-          },
-          "body_ref": "upright_fl",
-          "cg_position": [
-            0.0,
-            -0.54,
-            -0.2
-          ]
-        },
-        "links": [
-          {
-            "name": "leading_arm",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -0.35,
-                -0.15,
-                -0.25
-              ],
-              [
-                -0.35,
-                -0.35,
-                -0.25
-              ]
-            ],
-            "outboard_ref": "hardpoints.wheel_center",
-            "_note": "Leading arm: pivot BEHIND wheel (X=-0.35 vs wheel X=0.0). Lateral pivot axis (points differ in Y only).",
-            "joint_type": "revolute",
-            "inboard_joint_type": "revolute",
-            "body_ref": "leading_arm_fl",
-            "mass": 5.5,
-            "cg_position": [
-              -0.2333,
-              -0.3767,
-              -0.26
-            ]
-          }
-        ]
-      },
-      "wheel": {
-        "rim_diameter": 0.381,
-        "rim_width": 0.1016,
-        "mass": 10.0,
-        "rotational_inertia": 0.4
-      },
-      "spring": {
-        "type": "coil",
-        "rate": 8000,
-        "_note": "Horizontal springs interconnected front-to-rear per side"
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.05,
-            200
-          ],
-          [
-            0.2,
-            500
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.05,
-            300
-          ],
-          [
-            0.2,
-            750
-          ]
-        ]
-      },
-      "_est": true,
-      "visual": {
-        "mesh_ref": "citroen_2cv",
-        "node": "SVJ::body::upright_fl"
-      }
-    },
-    "FR": {
-      "topology": {
-        "system_type": "trailing_arm",
-        "upright": {
-          "id": "upright_FR",
-          "mass": 6.0,
-          "hardpoints": {
-            "wheel_center": [
-              0.0,
-              0.63,
-              -0.28
-            ],
-            "damper_outboard": [
-              0.0,
-              0.45,
-              -0.12
-            ]
-          },
-          "body_ref": "upright_fr",
-          "cg_position": [
-            0.0,
-            0.54,
-            -0.2
-          ]
-        },
-        "links": [
-          {
-            "name": "leading_arm",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -0.35,
-                0.15,
-                -0.25
-              ],
-              [
-                -0.35,
-                0.35,
-                -0.25
-              ]
-            ],
-            "outboard_ref": "hardpoints.wheel_center",
-            "_note": "Leading arm: pivot BEHIND wheel (X=-0.35 vs wheel X=0.0). Lateral pivot axis (points differ in Y only).",
-            "joint_type": "revolute",
-            "inboard_joint_type": "revolute",
-            "body_ref": "leading_arm_fr",
-            "mass": 5.5,
-            "cg_position": [
-              -0.2333,
-              0.3767,
-              -0.26
-            ]
-          }
-        ]
-      },
-      "wheel": {
-        "rim_diameter": 0.381,
-        "rim_width": 0.1016,
-        "mass": 10.0,
-        "rotational_inertia": 0.4
-      },
-      "spring": {
-        "type": "coil",
-        "rate": 8000,
-        "_note": "Horizontal springs interconnected front-to-rear per side"
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.05,
-            200
-          ],
-          [
-            0.2,
-            500
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.05,
-            300
-          ],
-          [
-            0.2,
-            750
-          ]
-        ]
-      },
-      "_est": true,
-      "visual": {
-        "mesh_ref": "citroen_2cv",
-        "node": "SVJ::body::upright_fr"
-      }
-    },
-    "RL": {
-      "topology": {
-        "system_type": "trailing_arm",
-        "upright": {
-          "id": "upright_RL",
-          "mass": 5.0,
-          "hardpoints": {
-            "wheel_center": [
-              -2.4,
-              -0.63,
-              -0.28
-            ],
-            "damper_outboard": [
-              -2.4,
-              -0.45,
-              -0.12
-            ]
-          },
-          "body_ref": "upright_rl",
-          "cg_position": [
-            -2.4,
-            -0.54,
-            -0.2
-          ]
-        },
-        "links": [
-          {
-            "name": "trailing_arm",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -2.05,
-                -0.15,
-                -0.25
-              ],
-              [
-                -2.05,
-                -0.35,
-                -0.25
-              ]
-            ],
-            "outboard_ref": "hardpoints.wheel_center",
-            "_note": "Trailing arm: pivot AHEAD of wheel (X=-2.05 vs wheel X=-2.4). Lateral pivot axis (points differ in Y only).",
-            "joint_type": "revolute",
-            "inboard_joint_type": "revolute",
-            "body_ref": "trailing_arm_rl",
-            "mass": 5.5,
-            "cg_position": [
-              -2.1667,
-              -0.3767,
-              -0.26
-            ]
-          }
-        ]
-      },
-      "wheel": {
-        "rim_diameter": 0.381,
-        "rim_width": 0.1016,
-        "mass": 10.0,
-        "rotational_inertia": 0.4
-      },
-      "spring": {
-        "type": "coil",
-        "rate": 8000
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.05,
-            180
-          ],
-          [
-            0.2,
-            450
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.05,
-            270
-          ],
-          [
-            0.2,
-            680
-          ]
-        ]
-      },
-      "_est": true,
-      "visual": {
-        "mesh_ref": "citroen_2cv",
-        "node": "SVJ::body::upright_rl"
-      }
-    },
-    "RR": {
-      "topology": {
-        "system_type": "trailing_arm",
-        "upright": {
-          "id": "upright_RR",
-          "mass": 5.0,
-          "hardpoints": {
-            "wheel_center": [
-              -2.4,
-              0.63,
-              -0.28
-            ],
-            "damper_outboard": [
-              -2.4,
-              0.45,
-              -0.12
-            ]
-          },
-          "body_ref": "upright_rr",
-          "cg_position": [
-            -2.4,
-            0.54,
-            -0.2
-          ]
-        },
-        "links": [
-          {
-            "name": "trailing_arm",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -2.05,
-                0.15,
-                -0.25
-              ],
-              [
-                -2.05,
-                0.35,
-                -0.25
-              ]
-            ],
-            "outboard_ref": "hardpoints.wheel_center",
-            "_note": "Trailing arm: pivot AHEAD of wheel (X=-2.05 vs wheel X=-2.4). Lateral pivot axis (points differ in Y only).",
-            "joint_type": "revolute",
-            "inboard_joint_type": "revolute",
-            "body_ref": "trailing_arm_rr",
-            "mass": 5.5,
-            "cg_position": [
-              -2.1667,
-              0.3767,
-              -0.26
-            ]
-          }
-        ]
-      },
-      "wheel": {
-        "rim_diameter": 0.381,
-        "rim_width": 0.1016,
-        "mass": 10.0,
-        "rotational_inertia": 0.4
-      },
-      "spring": {
-        "type": "coil",
-        "rate": 8000
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.05,
-            180
-          ],
-          [
-            0.2,
-            450
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.05,
-            270
-          ],
-          [
-            0.2,
-            680
-          ]
-        ]
-      },
-      "_est": true,
-      "visual": {
-        "mesh_ref": "citroen_2cv",
-        "node": "SVJ::body::upright_rr"
-      }
-    }
   },
   "powertrain": {
     "layout": "FF",
@@ -605,8 +341,900 @@
       {
         "id": "citroen_2cv",
         "uri": "meshes/citroen_2cv.glb",
-        "description": "Citro\u00ebn 2CV \u2014 chassis and trailing arm geometry"
+        "description": "Citroën 2CV — chassis and trailing arm geometry"
       }
     ]
-  }
+  },
+  "constraints": [
+    {
+      "id": "hinge_wheel_fl",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "upright_fl",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.63,
+          -0.28
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_fl",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.63,
+          -0.28
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_leading_arm_fl_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.35,
+          -0.15,
+          -0.25
+        ],
+        "orientation": [
+          0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "leading_arm_fl",
+      "frame_b": {
+        "position": [
+          -0.35,
+          -0.15,
+          -0.25
+        ],
+        "orientation": [
+          0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_leading_arm_fl_outboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "leading_arm_fl",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.63,
+          -0.28
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "upright_fl",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.63,
+          -0.28
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_fl",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.63,
+          -0.58
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fl",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.63,
+          -0.28
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "coil",
+      "rate": 8000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_fl",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.63,
+          -0.58
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fl",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.63,
+          -0.28
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.05,
+          200
+        ],
+        [
+          0.2,
+          500
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.05,
+          300
+        ],
+        [
+          0.2,
+          750
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_fr",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "upright_fr",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.63,
+          -0.28
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_fr",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.63,
+          -0.28
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_leading_arm_fr_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.35,
+          0.15,
+          -0.25
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "leading_arm_fr",
+      "frame_b": {
+        "position": [
+          -0.35,
+          0.15,
+          -0.25
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_leading_arm_fr_outboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "leading_arm_fr",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.63,
+          -0.28
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "upright_fr",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.63,
+          -0.28
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_fr",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.63,
+          -0.58
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fr",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.63,
+          -0.28
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "coil",
+      "rate": 8000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_fr",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.63,
+          -0.58
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fr",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.63,
+          -0.28
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.05,
+          200
+        ],
+        [
+          0.2,
+          500
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.05,
+          300
+        ],
+        [
+          0.2,
+          750
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_rl",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "upright_rl",
+      "frame_a": {
+        "position": [
+          -2.4,
+          -0.63,
+          -0.28
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_rl",
+      "frame_b": {
+        "position": [
+          -2.4,
+          -0.63,
+          -0.28
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_trailing_arm_rl_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.05,
+          -0.15,
+          -0.25
+        ],
+        "orientation": [
+          0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "trailing_arm_rl",
+      "frame_b": {
+        "position": [
+          -2.05,
+          -0.15,
+          -0.25
+        ],
+        "orientation": [
+          0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_trailing_arm_rl_outboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "trailing_arm_rl",
+      "frame_a": {
+        "position": [
+          -2.4,
+          -0.63,
+          -0.28
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "upright_rl",
+      "frame_b": {
+        "position": [
+          -2.4,
+          -0.63,
+          -0.28
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_rl",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.4,
+          -0.63,
+          -0.58
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_rl",
+      "frame_b": {
+        "position": [
+          -2.4,
+          -0.63,
+          -0.28
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "coil",
+      "rate": 8000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_rl",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.4,
+          -0.63,
+          -0.58
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_rl",
+      "frame_b": {
+        "position": [
+          -2.4,
+          -0.63,
+          -0.28
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.05,
+          180
+        ],
+        [
+          0.2,
+          450
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.05,
+          270
+        ],
+        [
+          0.2,
+          680
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_rr",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "upright_rr",
+      "frame_a": {
+        "position": [
+          -2.4,
+          0.63,
+          -0.28
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_rr",
+      "frame_b": {
+        "position": [
+          -2.4,
+          0.63,
+          -0.28
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_trailing_arm_rr_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.05,
+          0.15,
+          -0.25
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "trailing_arm_rr",
+      "frame_b": {
+        "position": [
+          -2.05,
+          0.15,
+          -0.25
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_trailing_arm_rr_outboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "trailing_arm_rr",
+      "frame_a": {
+        "position": [
+          -2.4,
+          0.63,
+          -0.28
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "upright_rr",
+      "frame_b": {
+        "position": [
+          -2.4,
+          0.63,
+          -0.28
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_rr",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.4,
+          0.63,
+          -0.58
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_rr",
+      "frame_b": {
+        "position": [
+          -2.4,
+          0.63,
+          -0.28
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "coil",
+      "rate": 8000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_rr",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.4,
+          0.63,
+          -0.58
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_rr",
+      "frame_b": {
+        "position": [
+          -2.4,
+          0.63,
+          -0.28
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.05,
+          180
+        ],
+        [
+          0.2,
+          450
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.05,
+          270
+        ],
+        [
+          0.2,
+          680
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    }
+  ],
+  "wheel_stations": [
+    {
+      "id": "FL",
+      "name": "FL",
+      "wheel_body": "wheel_fl",
+      "upright_body": "upright_fl",
+      "wheel_center_marker": "wheel_center",
+      "axle": "A1",
+      "side": "L",
+      "topology_hint": "trailing_arm",
+      "wheel": {
+        "rim_diameter": 0.381,
+        "rim_width": 0.1016,
+        "mass": 10.0,
+        "rotational_inertia": 0.4
+      },
+      "_est": true,
+      "visual": {
+        "mesh_ref": "citroen_2cv",
+        "node": "SVJ::body::upright_fl"
+      }
+    },
+    {
+      "id": "FR",
+      "name": "FR",
+      "wheel_body": "wheel_fr",
+      "upright_body": "upright_fr",
+      "wheel_center_marker": "wheel_center",
+      "axle": "A1",
+      "side": "R",
+      "topology_hint": "trailing_arm",
+      "wheel": {
+        "rim_diameter": 0.381,
+        "rim_width": 0.1016,
+        "mass": 10.0,
+        "rotational_inertia": 0.4
+      },
+      "_est": true,
+      "visual": {
+        "mesh_ref": "citroen_2cv",
+        "node": "SVJ::body::upright_fr"
+      }
+    },
+    {
+      "id": "RL",
+      "name": "RL",
+      "wheel_body": "wheel_rl",
+      "upright_body": "upright_rl",
+      "wheel_center_marker": "wheel_center",
+      "axle": "A2",
+      "side": "L",
+      "topology_hint": "trailing_arm",
+      "wheel": {
+        "rim_diameter": 0.381,
+        "rim_width": 0.1016,
+        "mass": 10.0,
+        "rotational_inertia": 0.4
+      },
+      "_est": true,
+      "visual": {
+        "mesh_ref": "citroen_2cv",
+        "node": "SVJ::body::upright_rl"
+      }
+    },
+    {
+      "id": "RR",
+      "name": "RR",
+      "wheel_body": "wheel_rr",
+      "upright_body": "upright_rr",
+      "wheel_center_marker": "wheel_center",
+      "axle": "A2",
+      "side": "R",
+      "topology_hint": "trailing_arm",
+      "wheel": {
+        "rim_diameter": 0.381,
+        "rim_width": 0.1016,
+        "mass": 10.0,
+        "rotational_inertia": 0.4
+      },
+      "_est": true,
+      "visual": {
+        "mesh_ref": "citroen_2cv",
+        "node": "SVJ::body::upright_rr"
+      }
+    }
+  ]
 }

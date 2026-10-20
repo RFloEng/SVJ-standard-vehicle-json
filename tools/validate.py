@@ -103,11 +103,16 @@ def validate_file(svj_path: str, schema: dict, strict: bool) -> bool:
     errors.extend(ct_errors)
     warnings.extend(ct_warnings)
 
+    # Deprecation: the corner-based suspension section (spec §25)
+    if isinstance(doc.get("suspension"), dict):
+        warnings.append("suspension: the corner-based suspension section is deprecated since 0.100; "
+                        "migrate it with tools/migrate_suspension.py (spec §25)")
+
     # Version advisory
     version = doc.get("_metadata", {}).get("version", "unknown")
-    if version not in ("0.99", "0.99.1", "0.99.2", "0.99.3", "0.99.4", "0.99.5", "0.99.6", "0.99.7"):
+    if version not in ("0.99", "0.99.1", "0.99.2", "0.99.3", "0.99.4", "0.99.5", "0.99.6", "0.99.7", "0.99.8", "0.100"):
         warnings.append(
-            f"_metadata.version is '{version}' — current spec is '0.99.7' "
+            f"_metadata.version is '{version}' — current spec is '0.100' "
             "(movable parts)"
         )
 
@@ -129,6 +134,11 @@ def validate_file(svj_path: str, schema: dict, strict: bool) -> bool:
 # ── main ─────────────────────────────────────────────────────────────────────
 
 def main():
+    for _stream in (sys.stdout, sys.stderr):                # a cp1252 console cannot print arrows or dashes
+        try:
+            _stream.reconfigure(errors="replace")
+        except Exception:
+            pass
     args = sys.argv[1:]
     if not args or args[0] in ("-h", "--help"):
         print(__doc__)

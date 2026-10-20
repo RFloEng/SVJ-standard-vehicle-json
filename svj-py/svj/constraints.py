@@ -1,8 +1,9 @@
 """
-SVJ Constraints Checker and Kinematics (v0.99.7)
-================================================
+SVJ Constraints Checker and Kinematics (v0.100)
+===============================================
 Cross-reference rules for movable parts (spec §24, proposals/svj_articulated_parts_proposal.md):
-`constraints[]` (joint / spring / actuator / latch / coupling), `poses[]` and `chassis.markers`, plus the forward
+`constraints[]` (joint / spring / actuator / latch / coupling / contact / damper), `poses[]`,
+`wheel_stations[]`, `anti_roll_bars[]` and `chassis.markers`, plus the forward
 kinematics that turn a pose into rigid-body transforms, element lengths and a composite CG.
 
 Used automatically by tools/validate.py; can also run standalone.
@@ -17,6 +18,7 @@ Usage:
 
 import json
 import math
+import re
 import sys
 
 ROOTS = ("chassis", "ground")
@@ -107,6 +109,27 @@ PART_ALIASES = {
 }
 _ACTUATOR_ALIAS_SUFFIX = ("_ram", "_piston")
 
+# suspension, steering and brake parts (docs/naming_convention.md, "Canonical part names"): a body that is one of
+# these keeps the canonical name; the mechanism is defined by the components, never by the name
+_SUSPENSION_VOCAB = {
+    "upright": ("knuckle", "hub_carrier", "spindle", "stub_axle"), "hub": ("hub_flange", "wheel_hub"),
+    "upper_wishbone": ("upper_arm", "uca", "wishbone_upper", "a_arm_top"), "lower_wishbone": ("lower_arm", "lca", "wishbone_lower", "a_arm_bottom"),
+    "upper_link_front": ("upper_fore",), "upper_link_rear": ("upper_aft",), "lower_link_front": ("lower_fore",), "lower_link_rear": ("lower_aft",),
+    "trailing_arm": ("longitudinal_arm", "radius_arm"), "semi_trailing_arm": ("sta", "diagonal_arm"), "leading_arm": ("front_trailing_arm",),
+    "tie_rod": ("track_rod", "steering_rod", "steering_link"), "toe_link": ("toe_rod", "toe_control_arm"), "camber_link": ("camber_rod",),
+    "drag_link": ("relay_rod", "centre_link"), "pushrod": ("push_rod",), "pullrod": ("pull_rod",), "rocker": ("bellcrank", "rocker_arm"),
+    "strut": ("macpherson_strut", "damper_strut"), "torque_rod": ("radius_rod", "torque_arm"), "panhard_rod": ("track_bar", "lateral_rod"),
+    "watts_link_rod": ("watts_arm",), "watts_pivot": ("watts_centre",), "axle_body": ("axle_housing", "de_dion_tube", "beam_axle"),
+    "spring": ("coil", "air_spring"), "leaf_spring": (), "damper": ("shock", "shock_absorber"),
+    "arb": ("sway_bar", "stabiliser_bar", "torsion_bar_arb"), "drop_link": ("arb_link", "end_link"),
+    "wheel": ("rim", "tire", "tyre"), "disc": ("rotor", "brake_disc", "drum"), "caliper": ("brake_caliper", "brake_cylinder"),
+    "rack": ("steering_gear", "steering_box"), "column": ("steering_shaft",), "steering_wheel": ("handwheel",),
+}
+for _canon, _als in _SUSPENSION_VOCAB.items():
+    PART_CANONICAL.add(_canon)
+    for _al in _als:
+        PART_ALIASES[_al] = _canon
+
 
 def canonical_part_id(pid):
     """The canonical spelling of a movable-part id, or None when the id is not a known part.
@@ -126,6 +149,8 @@ def canonical_part_id(pid):
         head, _, tail = base.rpartition("_")
         if head and tail in _SIDE_SUFFIX:
             base, side = head, _SIDE_SUFFIX[tail]
+        elif head and re.fullmatch(r"a\d{1,2}[lrc]", tail):          # multi-axle station suffix (a1l, a3r, a2c)
+            base, side = head, tail
     base = PART_ALIASES.get(base, base)
     if base not in PART_CANONICAL:
         return None
@@ -358,7 +383,7 @@ def element_lengths(doc, pose=None):
     X = body_transforms(doc, pose)
     out = {}
     for c in _constraints(doc):
-        if c.get("type") not in ("spring", "actuator"):
+        if c.get("type") not in ("spring", "actuator", "damper") or c.get("kind") == "torsional":
             continue
         fa, fb = _frame(doc, c, "a"), _frame(doc, c, "b")
         if fa is None or fb is None:
@@ -483,10 +508,14 @@ def actuator_force_limits(c):
     return None
 
 
-def moving_bodies(doc):
-    """Bodies a joint can move, plus bodies welded to them through `parent`."""
+def moving_bodies(doc, include_derived=True):
+    """Bodies a joint can move, plus bodies welded to them through `parent`.
+
+    With include_derived=False only joints that are not marked `x_derived` count (generated joints are exempt
+    from the mass and inertia rules)."""
     bodies = _bodies(doc)
-    moving = {c.get("body_b") for c in _constraints(doc, "joint") if c.get("body_b") in bodies}
+    moving = {c.get("body_b") for c in _constraints(doc, "joint")
+              if c.get("body_b") in bodies and (include_derived or not c.get("x_derived"))}
     grew = True
     while grew:
         grew = False
@@ -495,6 +524,81 @@ def moving_bodies(doc):
                 moving.add(bid)
                 grew = True
     return moving
+
+
+# ── contact geometry ──────────────────────────────────────────────────────────
+_CONTACT_PAIRS = {frozenset(("point", "plane")), frozenset(("sphere", "plane")), frozenset(("box", "plane")), frozenset(("cylinder", "plane")),
+                  frozenset(("sphere",)), frozenset(("point", "sphere")), frozenset(("point", "box")), frozenset(("sphere", "box"))}
+
+
+def contact_pair_supported(ta, tb):
+    """True when the distance between the two primitive types is defined (spec §24.6.3)."""
+    return frozenset((ta, tb)) in _CONTACT_PAIRS
+
+
+def _shape_issue(shape):
+    """Problem with a contact shape's dimensions, or None."""
+    t = shape.get("type")
+    pos = lambda k: isinstance(shape.get(k), (int, float)) and shape[k] > 0
+    if t == "sphere" and not pos("radius"):
+        return "a sphere needs a positive radius"
+    if t == "cylinder" and not (pos("radius") and pos("length")):
+        return "a cylinder needs a positive radius and length"
+    if t == "box" and not (isinstance(shape.get("size"), list) and len(shape["size"]) == 3 and all(isinstance(x, (int, float)) and x > 0 for x in shape["size"])):
+        return "a box needs a size of three positive lengths"
+    return None
+
+
+def _world_frame(doc, c, side, X):
+    fr = _frame(doc, c, side)
+    if fr is None:
+        return None
+    t = X.get(c.get("body_" + side), IDENT)
+    return apply(t, fr[0]), _mm(t[0], quat_to_mat(fr[1]))
+
+
+def _sd_box(local, half):
+    q = [abs(local[i]) - half[i] for i in range(3)]
+    return math.sqrt(sum(max(v, 0.0) ** 2 for v in q)) + min(max(q), 0.0)
+
+
+def contact_distance(doc, c, pose=None):
+    """Signed distance (m) between the two shapes of a `contact` constraint in `pose`; None if undefined.
+
+    Positive = apart, zero = touching, negative = interpenetrating. The plane is a half-space whose free
+    side is its frame's +Z; boxes and cylinders are centred on their frame.
+    """
+    X = body_transforms(doc, pose)
+    fa, fb = _world_frame(doc, c, "a", X), _world_frame(doc, c, "b", X)
+    sa, sb = c.get("shape_a") or {}, c.get("shape_b") or {}
+    if fa is None or fb is None or not contact_pair_supported(sa.get("type"), sb.get("type")):
+        return None
+    ta, tb = sa.get("type"), sb.get("type")
+    # normalise the order: plane second; point first; sphere before box
+    order = {"plane": 3, "box": 2, "cylinder": 2, "sphere": 1, "point": 0}
+    if order[ta] > order[tb]:
+        (fa, sa, ta), (fb, sb, tb) = (fb, sb, tb), (fa, sa, ta)
+    (pa, Ra), (pb, Rb) = fa, fb
+    if tb == "plane":
+        n = [Rb[i][2] for i in range(3)]
+        h = lambda x: sum(n[i] * (x[i] - pb[i]) for i in range(3))
+        if ta == "point":
+            return h(pa)
+        if ta == "sphere":
+            return h(pa) - sa["radius"]
+        if ta == "box":
+            half = [x / 2 for x in sa["size"]]
+            return min(h([pa[i] + sum(Ra[i][k] * sg[k] * half[k] for k in range(3)) for i in range(3)])
+                       for sg in ((x, y, z) for x in (-1, 1) for y in (-1, 1) for z in (-1, 1)))
+        axis = [Ra[i][2] for i in range(3)]                                   # cylinder
+        na = sum(n[i] * axis[i] for i in range(3))
+        return h(pa) - sa["length"] / 2 * abs(na) - sa["radius"] * math.sqrt(max(0.0, 1 - na * na))
+    if ta in ("point", "sphere") and tb == "sphere":
+        return math.dist(pa, pb) - (sa.get("radius", 0.0) + sb["radius"])
+    if tb == "box":                                                             # point or sphere against a box
+        local = _mv(_tr(Rb), _sub(pa, pb))
+        return _sd_box(local, [x / 2 for x in sb["size"]]) - (sa.get("radius", 0.0) if ta == "sphere" else 0.0)
+    return None
 
 
 # ── checker ───────────────────────────────────────────────────────────────────
@@ -570,6 +674,53 @@ def check(doc):
                 if cid.endswith(suf):
                     warnings.append(f"constraints '{cid}': name hydraulic actuators '<part>_cylinder', not '{suf}'")
 
+    stations = [x for x in (doc.get("wheel_stations") or []) if isinstance(x, dict)]
+    bars = [x for x in (doc.get("anti_roll_bars") or []) if isinstance(x, dict)]
+    if not cons and not poses and not stations and not bars:
+        return errors, warnings
+
+    # ── wheel stations and anti-roll bars (spec 25) ────────────────────────────
+    joint_children = {}
+    for c in cons:
+        if c.get("type") == "joint":
+            joint_children.setdefault(c.get("body_b"), []).append(c)
+    seen_st = set()
+    for i, st in enumerate(stations):
+        sid = st.get("id")
+        where = f"wheel_stations[{i}] '{sid}'"
+        if sid in seen_st:
+            errors.append(f"{where}: duplicate station id")
+        seen_st.add(sid)
+        for key in ("wheel_body", "upright_body"):
+            if st.get(key) is not None and st[key] not in bodies:
+                errors.append(f"{where}: {key} '{st[key]}' is not a chassis.mass_bodies id")
+        wb, ub = st.get("wheel_body"), st.get("upright_body")
+        if wb in bodies and ub in bodies:
+            if not any(j.get("body_a") == ub for j in joint_children.get(wb, [])):
+                warnings.append(f"{where}: no joint connects wheel_body '{wb}' to upright_body '{ub}'")
+        sj = st.get("steering_joint")
+        if sj is not None and not any(c.get("id") == sj and c.get("type") == "joint" for c in cons):
+            errors.append(f"{where}: steering_joint '{sj}' is not a joint id")
+        wcm = st.get("wheel_center_marker", "wheel_center")
+        if ub in bodies and st.get("wheel_center_marker") is not None and wcm not in (bodies[ub].get("markers") or {}):
+            errors.append(f"{where}: wheel_center_marker '{wcm}' is not a marker of upright_body '{ub}'")
+        m = re.fullmatch(r"(?:(FL|FR|RL|RR)|A(\d{1,2})([LRC]))", sid) if isinstance(sid, str) else None
+        if m:
+            axle, side = ("A1" if m.group(1) in ("FL", "FR") else "A2", m.group(1)[1]) if m.group(1) else ("A" + m.group(2), m.group(3))
+            if st.get("axle") is not None and st["axle"] != axle:
+                errors.append(f"{where}: axle '{st['axle']}' does not match the station id (expected {axle})")
+            if st.get("side") is not None and st["side"] != side:
+                errors.append(f"{where}: side '{st['side']}' does not match the station id (expected {side})")
+    seen_bar = set()
+    for i, bar in enumerate(bars):
+        where = f"anti_roll_bars[{i}] '{bar.get('id')}'"
+        if bar.get("id") in seen_bar:
+            errors.append(f"{where}: duplicate bar id")
+        seen_bar.add(bar.get("id"))
+        for sid in bar.get("stations") or []:
+            if sid not in seen_st:
+                errors.append(f"{where}: station '{sid}' is not in wheel_stations")
+
     if not cons and not poses:
         return errors, warnings
 
@@ -579,7 +730,7 @@ def check(doc):
             warnings.append(f"chassis.mass_bodies '{bid}': '.' is reserved for qualified ids of attached units")
 
     # ── per constraint ─────────────────────────────────────────────────────
-    seen_ids, joints, linkers = {}, [], []
+    seen_ids, joints, linkers, contacts = {}, [], [], []
     for i, c in enumerate(cons):
         cid = c.get("id")
         where = f"constraints[{i}] '{cid}'"
@@ -648,6 +799,33 @@ def check(doc):
                     dot = abs(sum(x * y for x, y in zip(_z_axis(frames["a"][1]), _z_axis(frames["b"][1]))))
                     if 1.0 - dot > AXIS_TOL:
                         errors.append(f"{where}: the Z axes of the two frames are not parallel at the reference pose")
+        elif t == "contact":
+            sa, sb = c.get("shape_a"), c.get("shape_b")
+            if not isinstance(sa, dict) or not isinstance(sb, dict):
+                errors.append(f"{where}: a contact needs shape_a and shape_b")
+            else:
+                for side, sh in (("a", sa), ("b", sb)):
+                    issue = _shape_issue(sh)
+                    if issue:
+                        errors.append(f"{where}.shape_{side}: {issue}")
+                if sa.get("type") and sb.get("type") and not contact_pair_supported(sa["type"], sb["type"]):
+                    errors.append(f"{where}: the shape pair {sa['type']} / {sb['type']} is not supported (spec §24.6.3)")
+            if not isinstance((c.get("law") or {}).get("stiffness"), (int, float)):
+                errors.append(f"{where}: a contact needs law.stiffness")
+            contacts.append((i, c, ok))
+        elif t == "damper":
+            for key in ("bump_curve", "rebound_curve"):
+                xs = [p[0] for p in (c.get(key) or []) if isinstance(p, list) and p]
+                if any(y <= x for x, y in zip(xs, xs[1:])):
+                    errors.append(f"{where}: {key} velocities must be strictly increasing")
+            if (c.get("bump_curve") is None) != (c.get("rebound_curve") is None):
+                errors.append(f"{where}: give both bump_curve and rebound_curve, or a linear damping")
+            if ok and len(frames) == 2 and c.get("kind") != "torsional" and c.get("reference") != "wheel" and math.dist(frames["a"][0], frames["b"][0]) < COINCIDE_TOL:
+                warnings.append(f"{where}: both end frames coincide in the reference pose (zero-length element)")
+            if t == "damper" and ok and len(frames) == 2 and c.get("kind") == "torsional":
+                dot = abs(sum(x * y for x, y in zip(_z_axis(frames["a"][1]), _z_axis(frames["b"][1]))))
+                if 1.0 - dot > AXIS_TOL:
+                    errors.append(f"{where}: the Z axes of the two frames are not parallel at the reference pose")
         elif t in ("spring", "actuator"):
             if t == "spring" and c.get("rate") is not None and c.get("rate_curve") is not None:
                 errors.append(f"{where}: give either rate or rate_curve, not both")
@@ -659,7 +837,11 @@ def check(doc):
                 st = c.get("stroke") or {}
                 if isinstance(st.get("min"), (int, float)) and isinstance(st.get("max"), (int, float)) and st["min"] > st["max"]:
                     errors.append(f"{where}: stroke.min ({st['min']}) is greater than stroke.max ({st['max']})")
-            if ok and len(frames) == 2 and math.dist(frames["a"][0], frames["b"][0]) < COINCIDE_TOL:
+            if t == "spring" and ok and len(frames) == 2 and c.get("kind") == "torsional":
+                dot = abs(sum(x * y for x, y in zip(_z_axis(frames["a"][1]), _z_axis(frames["b"][1]))))
+                if 1.0 - dot > AXIS_TOL:
+                    errors.append(f"{where}: the Z axes of the two frames are not parallel at the reference pose")
+            elif ok and len(frames) == 2 and c.get("reference") != "wheel" and math.dist(frames["a"][0], frames["b"][0]) < COINCIDE_TOL:
                 warnings.append(f"{where}: both end frames coincide in the reference pose (zero-length element)")
 
     # ── graph: reachability, parents, loops ────────────────────────────────
@@ -674,24 +856,29 @@ def check(doc):
     child_count = {}
     for c in joints:
         b = c.get("body_b")
-        child_count[b] = child_count.get(b, 0) + 1
+        if not c.get("x_derived"):                # a derived suspension is a closed loop by nature
+            child_count[b] = child_count.get(b, 0) + 1
+        derived_b = bool((bodies.get(b) or {}).get("x_derived") or c.get("x_derived"))
         if c.get("body_a") in valid_bodies and b in bodies and c.get("body_a") not in reached:
-            errors.append(f"constraints '{c.get('id')}': body '{c.get('body_a')}' is not connected to the chassis or ground through joints")
+            (warnings if c.get("x_derived") else errors).append(
+                f"constraints '{c.get('id')}': body '{c.get('body_a')}' is not connected to the chassis or ground through joints")
         par = (bodies.get(b) or {}).get("parent")
-        if par is not None and par != c.get("body_a"):
+        if par is not None and par != c.get("body_a") and not derived_b:
             warnings.append(f"constraints '{c.get('id')}': body '{b}' has parent '{par}' but is jointed to '{c.get('body_a')}'")
     for b, n in child_count.items():
-        if n > 1:
+        if n > 1 and not (bodies.get(b) or {}).get("x_derived"):
             warnings.append(f"body '{b}' is the child of {n} joints (closed loop / over-constraint; poses give independent coordinates)")
 
     # ── physical completeness of moving bodies ──────────────────────────────
-    for bid in sorted(moving_bodies(doc)):
+    for bid in sorted(moving_bodies(doc, include_derived=False)):
         b = bodies[bid]
         where = f"mass_body '{bid}'"
         if not isinstance(b.get("mass"), (int, float)) or b["mass"] <= 0:
-            errors.append(f"{where}: a moving body needs a positive mass")
+            (warnings if b.get("x_derived") else errors).append(f"{where}: a moving body needs a positive mass")
         im = body_inertia(b)
         if im is None:
+            if b.get("x_derived"):
+                continue                      # derived bodies cannot carry a tensor (link inertia is a scalar)
             warnings.append(f"{where}: moves but has no inertia tensor; it cannot be simulated as a rigid body (treated as a point mass)")
             continue
         d = (im[0][0], im[1][1], im[2][2])
@@ -843,6 +1030,31 @@ def check(doc):
                 lo, hi = rl + st.get("min", 0.0), rl + st.get("max", 0.0)
                 if L < lo - 1e-4 or L > hi + 1e-4:
                     errors.append(f"{label}: actuator '{c.get('id')}' needs length {L:.3f} m, outside its reach {lo:.3f}–{hi:.3f} m")
+
+    # ── contacts: reference-pose gap and interpenetration in poses ─────────────────
+    if contacts:
+        for i, c, ok in contacts:
+            where = f"constraints[{i}] '{c.get('id')}'"
+            if not ok:
+                continue
+            try:
+                d0 = contact_distance(doc, c, None)
+            except Exception:
+                d0 = None
+            if d0 is None:
+                continue
+            gap = (c.get("law") or {}).get("gap", 0.0) or 0.0
+            if abs(d0 - gap) > COINCIDE_TOL:
+                errors.append(f"{where}: the shapes are {d0 * 1000:.1f} mm apart at the reference pose but law.gap is {gap * 1000:.1f} mm")
+            for p in poses:
+                if not pose_ok.get(p.get("id"), False):
+                    continue
+                try:
+                    dp = contact_distance(doc, c, p.get("id"))
+                except Exception:
+                    continue
+                if dp is not None and dp < min(gap, 0.0) - COINCIDE_TOL:
+                    warnings.append(f"pose '{p.get('id')}': contact '{c.get('id')}' interpenetrates by {(min(gap, 0.0) - dp) * 1000:.1f} mm")
     return errors, warnings
 
 

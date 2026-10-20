@@ -10,6 +10,11 @@ from svj import Vehicle, load, loads, validate
 # Path to the template file (relative to repo root)
 REPO_ROOT = Path(__file__).parent.parent.parent
 TEMPLATE = REPO_ROOT / "templates" / "mazda_mx5_nd2_2024.svj.json"
+FIXTURES = Path(__file__).parent / "fixtures"
+# the three original corner-based files (deprecated suspension section), kept to test the migration and the deprecated path
+LEGACY_BMW = FIXTURES / "legacy_bmw_e30.svj.json"
+LEGACY_TRUCK = FIXTURES / "legacy_dump_truck_6x4.svj.json"
+LEGACY_MX5 = FIXTURES / "legacy_mazda_mx5.svj.json"
 SCHEMA = REPO_ROOT / "schema" / "svj.schema.json"
 EXAMPLES_DIR = REPO_ROOT / "examples"
 
@@ -311,8 +316,9 @@ def test_tatra_swing_axles():
     v = load(TATRA, validate_on_load=False)
     assert set(v.topologies().values()) == {"swing_axle"}
     assert [a["position_x"] for a in v.axles] == pytest.approx([0.0, -1.95, -5.2, -6.65])
-    with open(TATRA) as f:
-        assert validate(json.load(f), schema_path=SCHEMA) == []
+    with open(TATRA, encoding="utf-8") as f:
+        # the old data gives no joint types for the swing half-axles: the migration reports the unconnected hubs
+        assert [w for w in validate(json.load(f), schema_path=SCHEMA) if "not connected to the chassis" not in w] == []
 
 
 DIFF_CONTROL = EXAMPLES_DIR / "skeleton_awd_ondemand_diff_control.svj.json"
@@ -395,7 +401,7 @@ class TestMultibody:
     """Multibody topology cross-references and joint-type inference."""
 
     def _doc(self):
-        with open(EXAMPLES_DIR / "bmw_e30_325i_semi_trailing.svj.json", encoding="utf-8") as f:
+        with open(LEGACY_BMW, encoding="utf-8") as f:
             return json.load(f)
 
     def test_checker_in_sync(self):
@@ -475,21 +481,20 @@ class TestStrutAndDamperConventions:
     """v0.99.4: strut_lower, spring/damper key names, damper.reference."""
 
     def _doc(self):
-        with open(EXAMPLES_DIR / "bmw_e30_325i_semi_trailing.svj.json", encoding="utf-8") as f:
+        with open(LEGACY_BMW, encoding="utf-8") as f:
             return json.load(f)
 
     def test_shipped_struts_have_length(self):
         import math
         for name in ("bmw_e30_325i_semi_trailing", "corvette_c3_chapman_strut", "skeleton_ff_macpherson_torsion"):
             d = json.loads((EXAMPLES_DIR / f"{name}.svj.json").read_text(encoding="utf-8"))
-            for st, c in d["suspension"].items():
-                t = c.get("topology") if isinstance(c, dict) else None
-                if not t or t.get("system_type") not in ("macpherson", "chapman_strut"):
-                    continue
-                link = next(l for l in t["links"] if l.get("type") == "strut")
-                assert link["outboard_ref"] == "hardpoints.strut_lower"
-                low = t["upright"]["hardpoints"]["strut_lower"]
-                assert math.dist(link["inboard_points"][0], low) > 0.1, (name, st)
+            cons = {c["id"]: c for c in d["constraints"]}
+            struts = [cid for cid in cons if cid.startswith("slide_strut_") and cid.endswith("_outboard")]
+            assert struts, name
+            for cid in struts:
+                low = cons[cid]["frame_a"]["position"]                          # strut meets the upright at the lower clamp
+                top = cons[cid.replace("slide_", "fixed_").replace("_outboard", "_inboard")]["frame_a"]["position"]
+                assert math.dist(top, low) > 0.1, (name, cid)
 
     def test_zero_length_strut_is_flagged(self):
         from svj.multibody import check
@@ -522,7 +527,7 @@ class TestStrutAndDamperConventions:
         dm = d["suspension"]["FL"]["damper"]
         dm["reference"] = "wheel"
         assert check(d) == ([], [])
-        assert validate(d, schema_path=SCHEMA) == []
+        assert [w for w in validate(d, schema_path=SCHEMA) if "deprecated" not in w] == []
         dm["motion_ratio"] = 0.9
         _, warnings = check(d)
         assert any("reference 'wheel' with motion_ratio" in w for w in warnings)
@@ -698,9 +703,9 @@ class TestConstraints:
 
     def test_vehicle_api(self):
         v = load(TRACTOR, validate_on_load=False)
-        assert len(v.constraints) == 7 and {p["id"] for p in v.poses} >= {"transport", "loader_dump"}
+        assert len([c for c in v.constraints if not c.get("x_derived")]) == 7 and {p["id"] for p in v.poses} >= {"transport", "loader_dump"}
         assert v.pose_cg("loader_dump")["cg"][2] < v.pose_cg()["cg"][2]
-        assert set(v.element_lengths("loader_dump")) == {"loader_boom_cylinder", "loader_bucket_cylinder", "hitch_lower_link_cylinder"}
+        assert {k for k in v.element_lengths("loader_dump") if k.endswith("_cylinder")} == {"loader_boom_cylinder", "loader_bucket_cylinder", "hitch_lower_link_cylinder"}
         assert v.pose_inertia("hitch_up")["Iyy"] > 0
         assert v.body_transforms()["implement"][1] == (0.0, 0.0, 0.0)
 
@@ -936,7 +941,7 @@ class TestPartNaming:
         assert c("front_loader_bucket") == "loader_bucket"
         assert c("lower_link") == "hitch_lower_link" and c("top_link") == "hitch_top_link"
         assert c("dipper") == "stick"
-        assert c("upright_fl") is None and c("engine") is None and c("front_subframe") is None   # not in the vocabulary: no opinion
+        assert c("upright_fl") == "upright_fl" and c("engine") is None and c("front_subframe") is None and c("lower_control_arm_fl") is None   # unlisted: no opinion
         assert c(None) is None and c(5) is None
 
     def test_alias_advisory_on_bodies(self):
@@ -994,3 +999,464 @@ class TestPartNaming:
         d["constraints"][0]["name"] = "Left door hinge"
         d["poses"][1]["name"] = "Left door open"
         assert validate(d, schema_path=SCHEMA) == []
+
+
+BMW = LEGACY_BMW
+TRUCK6X4 = LEGACY_TRUCK
+
+
+class TestSuspensionView:
+    """v0.99.8: the authored suspension expanded into the §24 body / joint model."""
+
+    def test_view_in_sync(self):
+        a = (REPO_ROOT / "tools" / "suspension_view.py").read_text()
+        b = (REPO_ROOT / "svj-py" / "svj" / "suspension_view.py").read_text()
+        assert a == b, "tools/suspension_view.py and svj/suspension_view.py differ"
+
+    def test_quaternion_rotates_z_onto_axis(self):
+        import math
+        from svj.constraints import apply, quat_to_mat
+        from svj.suspension_view import quat_z_to
+        for axis in ([1, 0, 0], [0, 1, 0], [0, 0, 1], [0, 0, -1], [1, 2, 3], [-0.3, 0.2, -0.9]):
+            n = math.sqrt(sum(c * c for c in axis))
+            want = [c / n for c in axis]
+            got = [sum(quat_to_mat(quat_z_to(axis))[i][j] * (0, 0, 1)[j] for j in range(3)) for i in range(3)]
+            assert got == pytest.approx(want, abs=1e-6), axis
+
+    def test_macpherson_corner_expansion(self):
+        from svj.suspension_view import expand_suspension
+        d = _doc(BMW)
+        view = expand_suspension(d)
+        ids = {c["id"]: c for c in view["constraints"]}
+        # existing bodies are reused: only the four wheels are new
+        assert {b["id"] for b in view["mass_bodies"]} == {"wheel_fl", "wheel_fr", "wheel_rl", "wheel_rr"}
+        strut = ids["slide_strut_fl_outboard"]
+        assert (strut["joint_type"], strut["body_a"], strut["body_b"]) == ("translational", "strut_fl", "upright_fl")
+        assert ids["fixed_strut_fl_inboard"]["joint_type"] == "fixed"
+        assert ids["hinge_lower_control_arm_fl_inboard"]["joint_type"] == "revolute"
+        assert ids["ball_lower_control_arm_fl_outboard"]["joint_type"] == "spherical"
+        assert ids["ball_steering_tie_rod_fl_inboard"]["joint_type"] == "spherical"
+        assert ids["hinge_wheel_fl"]["body_a"] == "upright_fl" and ids["hinge_wheel_fl"]["body_b"] == "wheel_fl"
+        assert all(c["x_derived"] for c in view["constraints"])
+
+    def test_joint_frames_coincide_and_axes_follow_the_geometry(self):
+        import math
+        from svj.constraints import quat_to_mat
+        from svj.suspension_view import expand_suspension
+        d = _doc(BMW)
+        pts = {b["name"]: b for b in d["suspension"]["FL"]["topology"]["links"]}
+        arm = pts["lower_control_arm"]["inboard_points"]
+        ids = {c["id"]: c for c in expand_suspension(d)["constraints"]}
+        hinge = ids["hinge_lower_control_arm_fl_inboard"]
+        assert hinge["frame_a"] == hinge["frame_b"]
+        z = [quat_to_mat(hinge["frame_a"]["orientation"])[i][2] for i in range(3)]
+        axis = [arm[1][i] - arm[0][i] for i in range(3)]
+        n = math.sqrt(sum(c * c for c in axis))
+        assert z == pytest.approx([c / n for c in axis], abs=1e-6)             # hinge axis through the two inboard points
+        assert hinge["frame_a"]["position"] == pytest.approx(arm[0], abs=1e-6)
+        # the strut slides along top -> lower clamp
+        slide = ids["slide_strut_fl_outboard"]
+        top = d["suspension"]["FL"]["topology"]["upright"]["hardpoints"]["strut_top"]
+        low = d["suspension"]["FL"]["topology"]["upright"]["hardpoints"]["strut_lower"]
+        dz = [quat_to_mat(slide["frame_a"]["orientation"])[i][2] for i in range(3)]
+        sd = [low[i] - top[i] for i in range(3)]
+        n = math.sqrt(sum(c * c for c in sd))
+        assert dz == pytest.approx([c / n for c in sd], abs=1e-6)
+
+    def test_expanded_document_is_valid_and_checks_clean(self):
+        from svj.constraints import check
+        from svj.suspension_view import with_expanded_suspension
+        for path in (BMW, LEGACY_MX5, TRUCK6X4):
+            d = json.loads(path.read_text(encoding="utf-8"))
+            v = with_expanded_suspension(d)
+            errors, _ = check(v)
+            assert errors == [], (path.name, errors[:2])
+            # the only schema complaint allowed is a derived body whose mass the authored suspension does not give
+            bad = [w for w in validate(v, schema_path=SCHEMA) if w.startswith("schema") and not (".mass:" in w and "minimum of 0" in w)]
+            assert not bad, (path.name, bad[:2])
+
+    def test_original_document_is_untouched(self):
+        from svj.suspension_view import with_expanded_suspension
+        d = _doc(BMW)
+        before = json.dumps(d, sort_keys=True)
+        with_expanded_suspension(d)
+        assert json.dumps(d, sort_keys=True) == before
+
+    def test_shared_axle_body_created_once(self):
+        from svj.suspension_view import expand_suspension
+        view = expand_suspension(_doc(TRUCK6X4))
+        ids = [b["id"] for b in view["mass_bodies"]]
+        assert ids.count("a2_housing") == 1 and ids.count("a1_beam") == 1
+        assert any("joint type unknown" in n for n in view["notes"])             # leaf springs have no inferable joint
+
+    def test_missing_mass_is_noted_not_invented(self):
+        from svj.suspension_view import expand_suspension
+        view = expand_suspension(_doc(TRUCK6X4))
+        body = next(b for b in view["mass_bodies"] if b["id"].startswith("lower_torque_rod"))
+        assert body["mass"] == 0.0 and body["x_derived"] is True
+
+    def test_expansion_is_idempotent_in_ids(self):
+        from svj.suspension_view import with_expanded_suspension
+        v1 = with_expanded_suspension(_doc(BMW))
+        v2 = with_expanded_suspension(v1)
+        ids = [c["id"] for c in v2["constraints"]]
+        assert len(ids) == len(set(ids))
+        assert len(v2["chassis"]["mass_bodies"]) == len(v1["chassis"]["mass_bodies"])
+
+
+class TestContactAndSuspensionNames:
+    """v0.99.8: contact constraint, suspension part names."""
+
+    def _panels(self):
+        return _doc(PANELS)
+
+    def test_panels_example_has_clean_contacts(self):
+        from svj.constraints import check
+        d = self._panels()
+        contacts = [c for c in d["constraints"] if c["type"] == "contact"]
+        assert {c["id"] for c in contacts} == {"hood_stop_l", "hood_stop_r", "tailgate_stop_l", "tailgate_stop_r"}
+        assert check(d) == ([], [])
+        assert validate(d, schema_path=SCHEMA) == []
+
+    def test_contact_distance_reference_and_open_poses(self):
+        from svj.constraints import contact_distance
+        d = self._panels()
+        stop = next(c for c in d["constraints"] if c["id"] == "hood_stop_l")
+        assert contact_distance(d, stop) == pytest.approx(0.0, abs=1e-9)                # touching in the closed pose
+        assert contact_distance(d, stop, "hood_up") > 0.5                                # the hood lifts away
+        assert contact_distance(d, stop, "door_fl_open") == pytest.approx(0.0, abs=1e-9)  # unaffected by a door
+        gate = next(c for c in d["constraints"] if c["id"] == "tailgate_stop_r")
+        assert contact_distance(d, gate, "tailgate_up") > 0.5
+
+    def _frame_doc(self, a_shape, b_shape, a_pos, b_pos, a_q=None, b_q=None):
+        fa = {"position": a_pos, **({"orientation": a_q} if a_q else {})}
+        fb = {"position": b_pos, **({"orientation": b_q} if b_q else {})}
+        mb = [{"id": "part", "mass": 1.0, "position": b_pos, "inertia": {"Ixx": 1, "Iyy": 1, "Izz": 1}}]
+        return {"chassis": {"mass_total": 100.0, "center_of_gravity": [0, 0, 0], "mass_bodies": mb},
+                "constraints": [{"id": "c", "type": "contact", "body_a": "chassis", "frame_a": fa, "shape_a": a_shape,
+                                 "body_b": "part", "frame_b": fb, "shape_b": b_shape, "law": {"stiffness": 1e4}}]}
+
+    def test_shape_pair_distances(self):
+        from svj.constraints import contact_distance
+        # point above a plane (plane normal +Z of its frame)
+        d = self._frame_doc({"type": "plane"}, {"type": "point"}, [0, 0, 0], [0.1, 0.2, 0.3])
+        assert contact_distance(d, d["constraints"][0]) == pytest.approx(0.3)
+        # sphere over a plane
+        d = self._frame_doc({"type": "plane"}, {"type": "sphere", "radius": 0.05}, [0, 0, 0], [0, 0, 0.2])
+        assert contact_distance(d, d["constraints"][0]) == pytest.approx(0.15)
+        # two spheres (order of the arguments does not matter)
+        d = self._frame_doc({"type": "sphere", "radius": 0.1}, {"type": "sphere", "radius": 0.2}, [0, 0, 0], [1.0, 0, 0])
+        assert contact_distance(d, d["constraints"][0]) == pytest.approx(0.7)
+        # point and box: 0.05 outside a 0.2-long box face
+        d = self._frame_doc({"type": "box", "size": [0.2, 0.2, 0.2]}, {"type": "point"}, [0, 0, 0], [0.15, 0, 0])
+        assert contact_distance(d, d["constraints"][0]) == pytest.approx(0.05)
+        d = self._frame_doc({"type": "box", "size": [0.2, 0.2, 0.2]}, {"type": "point"}, [0, 0, 0], [0.0, 0, 0])
+        assert contact_distance(d, d["constraints"][0]) == pytest.approx(-0.1)           # inside: negative
+        # box lowest corner over a plane, box tilted 45 degrees about X
+        d = self._frame_doc({"type": "plane"}, {"type": "box", "size": [0.2, 0.2, 0.2]}, [0, 0, 0], [0, 0, 0.5], None, [0.3826834, 0, 0, 0.9238795])
+        assert contact_distance(d, d["constraints"][0]) == pytest.approx(0.5 - 0.1 * 2 ** 0.5, abs=1e-6)
+        # cylinder lying on a plane: axis horizontal -> lowest point is the radius below the centre
+        d = self._frame_doc({"type": "plane"}, {"type": "cylinder", "radius": 0.05, "length": 0.4}, [0, 0, 0], [0, 0, 0.3], None, [0.7071068, 0, 0, 0.7071068])
+        assert contact_distance(d, d["constraints"][0]) == pytest.approx(0.25, abs=1e-6)
+
+    def test_unsupported_and_invalid_shapes(self):
+        from svj.constraints import check, contact_pair_supported
+        assert contact_pair_supported("point", "plane") and contact_pair_supported("plane", "sphere") and contact_pair_supported("sphere", "sphere")
+        assert not contact_pair_supported("plane", "plane") and not contact_pair_supported("point", "point") and not contact_pair_supported("box", "box")
+        d = self._frame_doc({"type": "box", "size": [0.2, 0.2, 0.2]}, {"type": "box", "size": [0.1, 0.1, 0.1]}, [0, 0, 0], [0.5, 0, 0])
+        errors, _ = check(d)
+        assert any("not supported" in e for e in errors)
+        d = self._frame_doc({"type": "sphere"}, {"type": "point"}, [0, 0, 0], [0.5, 0, 0])
+        errors, _ = check(d)
+        assert any("positive radius" in e for e in errors)
+
+    def test_reference_gap_must_match_the_geometry(self):
+        from svj.constraints import check
+        d = self._panels()
+        stop = next(c for c in d["constraints"] if c["id"] == "hood_stop_l")
+        stop["law"]["gap"] = 0.005
+        errors, _ = check(d)
+        assert any("hood_stop_l" in e and "law.gap" in e for e in errors)
+        stop["law"]["gap"] = 0.0
+        next(b for b in d["chassis"]["mass_bodies"] if b["id"] == "hood")["markers"]["hood_stop_l_pad"]["position"][2] += 0.02
+        errors, _ = check(d)
+        assert any("hood_stop_l" in e and "apart at the reference pose" in e for e in errors)
+
+    def test_penetration_in_a_pose_is_reported(self):
+        from svj.constraints import apply, body_transforms, check, contact_distance
+        d = self._panels()
+        gate = next(b for b in d["chassis"]["mass_bodies"] if b["id"] == "tailgate")
+        probe = gate["position"]                                            # a point on the tailgate
+        target = apply(body_transforms(d, "tailgate_up")["tailgate"], probe)  # where it ends up when the tailgate is open
+        c = {"id": "tailgate_probe", "type": "contact", "body_a": "chassis", "frame_a": {"position": list(target)},
+             "shape_a": {"type": "sphere", "radius": 0.012}, "body_b": "tailgate", "frame_b": {"position": list(probe)},
+             "shape_b": {"type": "point"}, "law": {"stiffness": 1e4}}
+        ref = contact_distance({**d, "constraints": d["constraints"] + [c]}, c)
+        c["law"]["gap"] = ref                                              # consistent at the reference pose
+        d["constraints"].append(c)
+        errors, warnings = check(d)
+        assert not errors
+        assert any("tailgate_up" in w and "tailgate_probe" in w and "interpenetrates by 12.0 mm" in w for w in warnings)   # the point reaches the sphere centre
+
+    def test_contact_between_jointed_bodies_is_allowed(self):
+        from svj.constraints import check
+        d = self._panels()
+        _, warnings = check(d)
+        assert not any("already connected" in w for w in warnings)               # the hood is hinged to the chassis and still rests on stops
+
+    def test_schema_for_contact(self):
+        d = self._panels()
+        c = next(x for x in d["constraints"] if x["id"] == "hood_stop_l")
+        del c["law"]
+        assert validate(d, schema_path=SCHEMA)
+        d = self._panels()
+        del next(x for x in d["constraints"] if x["id"] == "hood_stop_l")["shape_a"]
+        assert validate(d, schema_path=SCHEMA)
+        d = self._panels()
+        next(x for x in d["constraints"] if x["id"] == "hood_stop_l")["shape_b"]["type"] = "torus"
+        assert validate(d, schema_path=SCHEMA)
+        d = self._panels()
+        next(x for x in d["constraints"] if x["id"] == "hood_stop_l")["law"]["restitution"] = 1.5
+        assert validate(d, schema_path=SCHEMA)
+
+    def test_suspension_part_names(self):
+        from svj.constraints import canonical_part_id as c
+        assert c("upright_fl") == "upright_fl" and c("knuckle_fr") == "upright_fr"
+        assert c("lca_a2l") == "lower_wishbone_a2l" and c("upper_arm_fl") == "upper_wishbone_fl"
+        assert c("track_rod_rl") == "tie_rod_rl" and c("sway_bar") == "arb" and c("shock_fl") == "damper_fl"
+        assert c("steering_gear") == "rack" and c("handwheel") == "steering_wheel"
+        assert c("lower_control_arm_fl") is None and c("engine") is None and c("transmission") is None   # not in the vocabulary
+        assert c("upright_a3r") == "upright_a3r"                                                        # multi-axle station suffix
+
+    def test_shipped_suspension_bodies_follow_the_vocabulary(self):
+        from svj.constraints import canonical_part_id
+        for path in list(EXAMPLES_DIR.glob("*.svj.json")) + [TEMPLATE]:
+            for b in json.loads(path.read_text(encoding="utf-8")).get("chassis", {}).get("mass_bodies", []):
+                canon = canonical_part_id(b["id"])
+                assert canon in (None, b["id"]), (path.name, b["id"], canon)
+
+
+def _migrated(path):
+    from svj.migrate_suspension import migrate
+    return migrate(json.loads(path.read_text(encoding="utf-8")))
+
+
+class TestUnifiedSuspension:
+    """v0.100: wheel stations as bodies, joints and elements; the migration from the corner section."""
+
+    def test_migration_in_sync(self):
+        a = (REPO_ROOT / "tools" / "migrate_suspension.py").read_text()
+        b = (REPO_ROOT / "svj-py" / "svj" / "migrate_suspension.py").read_text()
+        assert a == b, "tools/migrate_suspension.py and svj/migrate_suspension.py differ"
+
+    def test_legacy_files_still_validate_with_a_deprecation_warning(self):
+        d = json.loads(LEGACY_BMW.read_text(encoding="utf-8"))
+        warnings = validate(d, schema_path=SCHEMA)
+        assert any("deprecated since 0.100" in w for w in warnings)
+        assert not [w for w in warnings if w.startswith("schema")]
+
+    def test_migrated_files_are_valid_and_checks_clean(self):
+        from svj.constraints import check
+        for path in (LEGACY_BMW, LEGACY_MX5, LEGACY_TRUCK):
+            new, _ = _migrated(path)
+            assert "suspension" not in new and new["_metadata"]["version"] == "0.100"
+            errors, _ = check(new)
+            assert errors == [], (path.name, errors[:2])
+            assert [w for w in validate(new, schema_path=SCHEMA) if w.startswith("schema")] == [], path.name
+
+    def test_original_document_is_not_modified(self):
+        d = json.loads(LEGACY_MX5.read_text(encoding="utf-8"))
+        before = json.dumps(d, sort_keys=True)
+        from svj.migrate_suspension import migrate
+        migrate(d)
+        assert json.dumps(d, sort_keys=True) == before
+
+    def test_migrating_a_unified_file_is_a_no_op(self):
+        from svj.migrate_suspension import migrate
+        d = _doc(TRACTOR)
+        new, notes = migrate(d)
+        assert json.dumps(new, sort_keys=True) == json.dumps(d, sort_keys=True) and "nothing to migrate" in notes[0]
+
+    def test_bodies_keep_their_part_names_and_meaning(self):
+        new, _ = _migrated(LEGACY_MX5)
+        bodies = {b["id"]: b for b in new["chassis"]["mass_bodies"]}
+        wheel, rack = bodies["wheel_fl"], bodies["rack"]
+        assert wheel["name"] == "Wheel FL" and wheel["description"] == "Rim + tyre"
+        assert rack["description"] == "Steering rack / gear housing"
+        assert bodies["upright_fl"]["markers"]["wheel_center"]["position"]                      # hardpoints became markers
+        assert all(b["x_derived"] for b in (wheel, rack))                                       # generated, so checked leniently
+
+    def test_leaf_pack_keeps_its_name_and_gets_end_joints(self):
+        new, _ = _migrated(LEGACY_TRUCK)
+        assert "leaf_spring_a1l" in {b["id"] for b in new["chassis"]["mass_bodies"]}
+        ids = {c["id"]: c for c in new["constraints"]}
+        assert ids["hinge_leaf_spring_a1l_front_eye"]["joint_type"] == "revolute"
+        assert ids["slide_leaf_spring_a1l_rear_end"]["joint_type"] == "translational"
+        assert ids["fixed_leaf_spring_a1l_seat"]["body_a"] == "leaf_spring_a1l"
+
+    def test_wheel_stations_carry_the_roles_an_analysis_needs(self):
+        new, _ = _migrated(LEGACY_MX5)
+        st = {s["id"]: s for s in new["wheel_stations"]}
+        fl, rl = st["FL"], st["RL"]
+        assert (fl["wheel_body"], fl["upright_body"], fl["axle"], fl["side"], fl["topology_hint"]) == ("wheel_fl", "upright_fl", "A1", "L", "double_wishbone")
+        assert fl["steering_joint"] == "slide_rack" and "steering_joint" not in rl             # only the front is steered
+        bodies = {b["id"]: b for b in new["chassis"]["mass_bodies"]}
+        assert fl["wheel_center_marker"] in bodies[fl["upright_body"]]["markers"]
+        assert fl["alignment"] and fl["wheel"]["rim_diameter"]
+        joints = {c["id"]: c for c in new["constraints"] if c["type"] == "joint"}
+        assert joints[fl["steering_joint"]]["joint_type"] == "translational"
+        assert joints["hinge_wheel_fl"]["body_a"] == fl["upright_body"] and joints["hinge_wheel_fl"]["body_b"] == fl["wheel_body"]
+
+    def test_tie_rods_hang_from_the_rack(self):
+        new, _ = _migrated(LEGACY_BMW)
+        joints = {c["id"]: c for c in new["constraints"]}
+        assert joints["ball_steering_tie_rod_fl_inboard"]["body_a"] == "rack"
+        assert joints["slide_rack"]["body_a"] == "chassis" and joints["slide_rack"]["joint_type"] == "translational"
+
+    def test_spring_with_mounts_is_converted_by_the_motion_ratio(self):
+        new, _ = _migrated(LEGACY_MX5)
+        old = json.loads(LEGACY_MX5.read_text(encoding="utf-8"))["suspension"]["FL"]["spring"]
+        sp = next(c for c in new["constraints"] if c["id"] == "spring_fl")
+        mr = old["motion_ratio"]
+        assert sp.get("reference") != "wheel"
+        assert sp["rate"] == pytest.approx(old["rate"] / mr ** 2, rel=1e-4)                     # wheel rate -> element rate
+        assert sp["x_converted_from_wheel_rate"] == {"motion_ratio": mr, "estimated": False}
+        assert sp["preload"] == pytest.approx(old["preload"] / mr, rel=1e-4)
+        assert sp["spring_type"] == "coilover"
+
+    def test_damper_with_mounts_at_the_damper_keeps_its_curves(self):
+        new, _ = _migrated(LEGACY_MX5)
+        old = json.loads(LEGACY_MX5.read_text(encoding="utf-8"))["suspension"]["FL"]["damper"]
+        dm = next(c for c in new["constraints"] if c["id"] == "damper_fl")
+        assert dm["bump_curve"] == old["bump_curve"] and dm.get("reference") != "wheel"
+
+    def test_spring_and_damper_without_mounts_become_wheel_level_elements(self):
+        new, _ = _migrated(LEGACY_BMW)
+        old = json.loads(LEGACY_BMW.read_text(encoding="utf-8"))["suspension"]["FL"]
+        sp = next(c for c in new["constraints"] if c["id"] == "spring_fl")
+        dm = next(c for c in new["constraints"] if c["id"] == "damper_fl")
+        assert sp["reference"] == "wheel" and sp["rate"] == old["spring"]["rate"]               # kept as quoted
+        assert dm["reference"] == "wheel" and dm["bump_curve"] == old["damper"]["bump_curve"]
+        assert sp["body_b"] == "upright_fl"                                                     # at the wheel carrier
+
+    def test_bump_and_rebound_stops_become_curved_springs(self):
+        new, _ = _migrated(LEGACY_MX5)
+        old = json.loads(LEGACY_MX5.read_text(encoding="utf-8"))["suspension"]["FL"]
+        bump = next(c for c in new["constraints"] if c["id"] == "bump_stop_fl")
+        rebound = next(c for c in new["constraints"] if c["id"] == "rebound_stop_fl")
+        assert bump["reference"] == "wheel" and bump["free_length"] == pytest.approx(old["spring"]["free_length"] - old["bump_stop"]["gap"], abs=1e-6)
+        xs = [p[0] for p in bump["rate_curve"]]
+        assert xs == sorted(xs) and bump["rate_curve"][0][1] == 0.0 and bump["rate_curve"][-1][1] == old["bump_stop"]["rate_curve"][-1][1]
+        assert rebound["rate_curve"][0][1] < 0.0 and rebound["rate_curve"][-1][1] == 0.0       # pulls only in extension
+
+    def test_anti_roll_bars_move_to_axle_level_data(self):
+        new, _ = _migrated(LEGACY_MX5)
+        bars = {b["id"]: b for b in new["anti_roll_bars"]}
+        front = bars["arb_front"]
+        assert front["stations"] == ["FL", "FR"] and front["bar_rate"] == 600.0 and set(front["drop_link_mounts"]) == {"FL", "FR"}
+
+    def test_coupling_reference_survives_for_stations_without_a_spring(self):
+        new, _ = _migrated(LEGACY_TRUCK)
+        st = {s["id"]: s for s in new["wheel_stations"]}
+        assert st["A2L"]["coupling_ref"] and not st["A1L"].get("coupling_ref")
+        from svj.multiaxle import check
+        assert check(new)[0] == []
+
+    def test_motion_ratio_estimate(self):
+        from svj.migrate_suspension import estimate_motion_ratio
+        # mount on the wheel carrier (strut, axle): MR = cosine between the element axis and vertical
+        assert estimate_motion_ratio([0, 0, -0.4], [0, 0, 0], None, [0, 0.6, 0]) == pytest.approx(1.0)
+        import math
+        assert estimate_motion_ratio([0, 0, 0], [0.2, 0, 0.3464102], None, [0, 0.6, 0]) == pytest.approx(math.cos(math.radians(30)), abs=1e-3)
+        # mount half-way along an arm hinged about the longitudinal axis at the chassis end: lever ratio 0.5
+        assert estimate_motion_ratio([0, 0.3, -0.4], [0, 0.3, 0], ([0, 0, 0], [1, 0, 0]), [0, 0.6, 0]) == pytest.approx(0.5)
+        assert estimate_motion_ratio([0, 0, 0], [0, 0, 0], None, [0, 0, 0]) is None             # no element
+        assert estimate_motion_ratio([0, 0, -0.4], [0.4, 0, -0.4], None, [0, 0, 0]) is None      # horizontal: 0, outside 0.05-2
+
+    def test_alias_axle_body_is_canonicalised_and_shared(self):
+        new, _ = _migrated(LEGACY_TRUCK)
+        ids = [b["id"] for b in new["chassis"]["mass_bodies"]]
+        assert len(ids) == len(set(ids))
+        st = {s["id"]: s for s in new["wheel_stations"]}
+        assert st["A2L"]["upright_body"] == st["A2R"]["upright_body"]                           # one shared axle housing
+
+    def test_vehicle_serves_the_unified_model(self):
+        new, _ = _migrated(LEGACY_MX5)
+        from svj import loads
+        v = loads(json.dumps(new), validate_on_load=False)
+        assert v.is_unified and v.stations == ["FL", "FR", "RL", "RR"] and v.topologies()["FL"] == "double_wishbone"
+        assert v.spring("FL")["rate"] > 0 and v.damper("FL")["bump_curve"] and v.arb("FL")["bar_id"] == "arb_front"
+        assert v.corner("A1L")["alignment"] and "upright.wheel_center" in v.hardpoints("FL")
+        assert {j["joint_type"] for j in v.joints()} >= {"revolute", "spherical", "translational"}
+        assert v.tyre_count == 4 and v.axle_count == 2
+
+    def test_station_checks(self):
+        from svj.constraints import check
+        new, _ = _migrated(LEGACY_MX5)
+        d = json.loads(json.dumps(new))
+        d["wheel_stations"][0]["wheel_body"] = "ghost"
+        d["wheel_stations"][1]["steering_joint"] = "nope"
+        d["wheel_stations"][2]["wheel_center_marker"] = "missing_marker"
+        d["wheel_stations"][3]["axle"] = "A7"
+        d["anti_roll_bars"][0]["stations"] = ["FL", "ZZ"]
+        errors, _ = check(d)
+        assert any("wheel_body 'ghost'" in e for e in errors)
+        assert any("steering_joint 'nope'" in e for e in errors)
+        assert any("wheel_center_marker 'missing_marker'" in e for e in errors)
+        assert any("does not match the station id" in e for e in errors)
+        assert any("station 'ZZ' is not in wheel_stations" in e for e in errors)
+        d2 = json.loads(json.dumps(new))
+        d2["wheel_stations"].append(dict(d2["wheel_stations"][0]))
+        assert any("duplicate station id" in e for e in check(d2)[0])
+
+    def test_generated_items_are_checked_leniently_authored_ones_are_not(self):
+        from svj.constraints import check
+        new, _ = _migrated(LEGACY_BMW)
+        body = next(b for b in new["chassis"]["mass_bodies"] if b["id"] == "wheel_fl")
+        assert body["mass"] == 0.0 or body["x_derived"]
+        errors, warnings = check(new)
+        assert errors == []
+        del body["x_derived"]
+        for c in new["constraints"]:
+            if c.get("body_b") == "wheel_fl":
+                del c["x_derived"]
+        body["mass"] = 0.0
+        errors, _ = check(new)
+        assert any("wheel_fl" in e and "positive mass" in e for e in errors)                    # an authored body must have mass
+
+    def test_schema_mass_rule(self):
+        new, _ = _migrated(LEGACY_BMW)
+        assert [w for w in validate(new, schema_path=SCHEMA) if w.startswith("schema")] == []
+        body = next(b for b in new["chassis"]["mass_bodies"] if b["id"] == "wheel_fl")
+        body["mass"] = 0.0
+        assert [w for w in validate(new, schema_path=SCHEMA) if w.startswith("schema")] == []   # generated: zero mass is allowed
+        del body["x_derived"]
+        assert any(".mass" in w for w in validate(new, schema_path=SCHEMA))                     # authored: it is not
+
+    def test_torsional_spring_and_damper(self):
+        from svj.constraints import check
+        d = _doc(TRACTOR)
+        frame = {"position": [0.0, 0.5, -0.5], "orientation": [-0.7071068, 0, 0, 0.7071068]}
+        d["constraints"].append({"id": "bar_spring", "type": "spring", "kind": "torsional", "rate": 600.0, "body_a": "chassis", "frame_a": frame,
+                                 "body_b": "loader_boom", "frame_b": dict(frame)})
+        d["constraints"].append({"id": "bar_damper", "type": "damper", "kind": "torsional", "damping": 12.0, "body_a": "chassis", "frame_a": frame,
+                                 "body_b": "loader_boom", "frame_b": dict(frame)})
+        errors, warnings = check(d)
+        assert errors == [] and not any("zero-length" in w for w in warnings)
+        assert [w for w in validate(d, schema_path=SCHEMA) if w.startswith("schema")] == []
+        d["constraints"][-2]["frame_b"] = {"position": [0.0, 0.5, -0.5], "orientation": [0, 0, 0, 1]}
+        errors, _ = check(d)
+        assert any("bar_spring" in e and "not parallel" in e for e in errors)
+
+    def test_damper_element_rules(self):
+        from svj.constraints import check, element_lengths
+        new, _ = _migrated(LEGACY_MX5)
+        dm = next(c for c in new["constraints"] if c["id"] == "damper_fl")
+        assert element_lengths(new)["damper_fl"] > 0                                            # dampers have a length too
+        dm["bump_curve"] = [[0.2, 10], [0.1, 20]]
+        errors, _ = check(new)
+        assert any("damper_fl" in e and "strictly increasing" in e for e in errors)
+        dm["bump_curve"] = [[0.0, 0], [0.1, 20]]
+        del dm["rebound_curve"]
+        assert any("both bump_curve and rebound_curve" in e for e in check(new)[0])
+        assert validate(new, schema_path=SCHEMA)                                                # the schema wants both curves or a damping

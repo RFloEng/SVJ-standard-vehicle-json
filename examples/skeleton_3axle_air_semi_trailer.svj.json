@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99.4",
+    "version": "0.100",
     "description": "Tri-axle semi-trailer skeleton — trailing-arm air suspension on beam axles, dual wheels, liftable first axle, shared levelling circuit. Origin at A1 centre (no king-pin data, §23.8).",
     "coordinate_system": "SAE_J670",
     "units": "SI",
@@ -36,741 +36,336 @@
       "A2R": 620,
       "A3L": 620,
       "A3R": 620
-    }
-  },
-  "suspension": {
-    "A1L": {
-      "topology": {
-        "system_type": "trailing_arm",
-        "upright": {
-          "id": "hub_A1L",
-          "hardpoints": {
-            "wheel_center": [
+    },
+    "mass_bodies": [
+      {
+        "id": "a1_beam",
+        "name": "Axle body A1_beam",
+        "description": "Beam axle, housing or de Dion tube",
+        "category": "structural",
+        "mass": 190,
+        "position": [
+          0.0,
+          0,
+          -0.49
+        ],
+        "markers": {
+          "wheel_center_a1l": {
+            "position": [
               0.0,
               -0.925,
               -0.49
-            ],
-            "arm_axle_seat": [
+            ]
+          },
+          "arm_axle_seat_a1l": {
+            "position": [
               0.0,
               -0.45,
               -0.49
-            ],
-            "damper_outboard": [
+            ]
+          },
+          "damper_outboard_a1l": {
+            "position": [
               -0.05,
               -0.53,
               -0.47
             ]
-          }
-        },
-        "links": [
-          {
-            "name": "trailing_arm",
-            "type": "arm",
-            "inboard_points": [
-              [
-                0.55,
-                -0.45,
-                -0.79
-              ]
-            ],
-            "outboard_ref": "hardpoints.arm_axle_seat",
-            "joint_type": "fixed",
-            "inboard_joint_type": "revolute"
-          }
-        ],
-        "axle_body": {
-          "id": "A1_beam",
-          "mass": 190,
-          "position": [
-            0.0,
-            0,
-            -0.49
-          ]
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.5715,
-        "rim_width": 0.2286,
-        "mass": 170,
-        "multiplicity": 2,
-        "dual_spacing": 0.33,
-        "positions": [
-          {
-            "label": "inner",
-            "offset_outboard": -0.165,
-            "tire": {
-              "set_ref": "trailer_315_80r22_5",
-              "pressure": 800000
-            }
           },
-          {
-            "label": "outer",
-            "offset_outboard": 0.165,
-            "tire": {
-              "set_ref": "trailer_315_80r22_5",
-              "pressure": 800000
-            }
-          }
-        ]
-      },
-      "spring": {
-        "type": "air",
-        "rate": 160000,
-        "effective_area": 0.072,
-        "nominal_pressure": 480000,
-        "inboard_mount": [
-          -0.4,
-          -0.45,
-          -0.89
-        ],
-        "outboard_mount": [
-          -0.4,
-          -0.45,
-          -0.44
-        ]
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            4000
-          ],
-          [
-            0.5,
-            12000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            9000
-          ],
-          [
-            0.5,
-            24000
-          ]
-        ]
-      }
-    },
-    "A1R": {
-      "topology": {
-        "system_type": "trailing_arm",
-        "upright": {
-          "id": "hub_A1R",
-          "hardpoints": {
-            "wheel_center": [
+          "wheel_center_a1r": {
+            "position": [
               0.0,
               0.925,
               -0.49
-            ],
-            "arm_axle_seat": [
+            ]
+          },
+          "arm_axle_seat_a1r": {
+            "position": [
               0.0,
               0.45,
               -0.49
-            ],
-            "damper_outboard": [
+            ]
+          },
+          "damper_outboard_a1r": {
+            "position": [
               -0.05,
               0.53,
               -0.47
             ]
           }
         },
-        "links": [
-          {
-            "name": "trailing_arm",
-            "type": "arm",
-            "inboard_points": [
-              [
-                0.55,
-                0.45,
-                -0.79
-              ]
-            ],
-            "outboard_ref": "hardpoints.arm_axle_seat",
-            "joint_type": "fixed",
-            "inboard_joint_type": "revolute"
-          }
-        ],
-        "axle_body": {
-          "id": "A1_beam",
-          "mass": 190,
-          "position": [
-            0.0,
-            0,
-            -0.49
-          ]
-        }
+        "x_derived": true
       },
-      "wheel": {
-        "rim_diameter": 0.5715,
-        "rim_width": 0.2286,
+      {
+        "id": "wheel_a1l",
+        "name": "Wheel A1L",
+        "description": "Rim + tyre",
+        "category": "structural",
         "mass": 170,
-        "multiplicity": 2,
-        "dual_spacing": 0.33,
-        "positions": [
-          {
-            "label": "inner",
-            "offset_outboard": -0.165,
-            "tire": {
-              "set_ref": "trailer_315_80r22_5",
-              "pressure": 800000
-            }
-          },
-          {
-            "label": "outer",
-            "offset_outboard": 0.165,
-            "tire": {
-              "set_ref": "trailer_315_80r22_5",
-              "pressure": 800000
-            }
-          }
-        ]
-      },
-      "spring": {
-        "type": "air",
-        "rate": 160000,
-        "effective_area": 0.072,
-        "nominal_pressure": 480000,
-        "inboard_mount": [
-          -0.4,
-          0.45,
-          -0.89
+        "position": [
+          0.0,
+          -0.925,
+          -0.49
         ],
-        "outboard_mount": [
-          -0.4,
-          0.45,
-          -0.44
-        ]
+        "x_derived": true
       },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            4000
-          ],
-          [
-            0.5,
-            12000
-          ]
+      {
+        "id": "trailing_arm_a1l",
+        "name": "Trailing Arm A1L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.275,
+          -0.45,
+          -0.64
         ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            9000
-          ],
-          [
-            0.5,
-            24000
-          ]
-        ]
-      }
-    },
-    "A2L": {
-      "topology": {
-        "system_type": "trailing_arm",
-        "upright": {
-          "id": "hub_A2L",
-          "hardpoints": {
-            "wheel_center": [
+        "description": "Trailing arm",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a1r",
+        "name": "Wheel A1R",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 170,
+        "position": [
+          0.0,
+          0.925,
+          -0.49
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "trailing_arm_a1r",
+        "name": "Trailing Arm A1R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.275,
+          0.45,
+          -0.64
+        ],
+        "description": "Trailing arm",
+        "x_derived": true
+      },
+      {
+        "id": "a2_beam",
+        "name": "Axle body A2_beam",
+        "description": "Beam axle, housing or de Dion tube",
+        "category": "structural",
+        "mass": 190,
+        "position": [
+          -1.31,
+          0,
+          -0.49
+        ],
+        "markers": {
+          "wheel_center_a2l": {
+            "position": [
               -1.31,
               -0.925,
               -0.49
-            ],
-            "arm_axle_seat": [
+            ]
+          },
+          "arm_axle_seat_a2l": {
+            "position": [
               -1.31,
               -0.45,
               -0.49
-            ],
-            "damper_outboard": [
+            ]
+          },
+          "damper_outboard_a2l": {
+            "position": [
               -1.36,
               -0.53,
               -0.47
             ]
-          }
-        },
-        "links": [
-          {
-            "name": "trailing_arm",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -0.76,
-                -0.45,
-                -0.79
-              ]
-            ],
-            "outboard_ref": "hardpoints.arm_axle_seat",
-            "joint_type": "fixed",
-            "inboard_joint_type": "revolute"
-          }
-        ],
-        "axle_body": {
-          "id": "A2_beam",
-          "mass": 190,
-          "position": [
-            -1.31,
-            0,
-            -0.49
-          ]
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.5715,
-        "rim_width": 0.2286,
-        "mass": 170,
-        "multiplicity": 2,
-        "dual_spacing": 0.33,
-        "positions": [
-          {
-            "label": "inner",
-            "offset_outboard": -0.165,
-            "tire": {
-              "set_ref": "trailer_315_80r22_5",
-              "pressure": 800000
-            }
           },
-          {
-            "label": "outer",
-            "offset_outboard": 0.165,
-            "tire": {
-              "set_ref": "trailer_315_80r22_5",
-              "pressure": 800000
-            }
-          }
-        ]
-      },
-      "spring": {
-        "type": "air",
-        "rate": 160000,
-        "effective_area": 0.072,
-        "nominal_pressure": 480000,
-        "inboard_mount": [
-          -1.71,
-          -0.45,
-          -0.89
-        ],
-        "outboard_mount": [
-          -1.71,
-          -0.45,
-          -0.44
-        ]
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            4000
-          ],
-          [
-            0.5,
-            12000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            9000
-          ],
-          [
-            0.5,
-            24000
-          ]
-        ]
-      }
-    },
-    "A2R": {
-      "topology": {
-        "system_type": "trailing_arm",
-        "upright": {
-          "id": "hub_A2R",
-          "hardpoints": {
-            "wheel_center": [
+          "wheel_center_a2r": {
+            "position": [
               -1.31,
               0.925,
               -0.49
-            ],
-            "arm_axle_seat": [
+            ]
+          },
+          "arm_axle_seat_a2r": {
+            "position": [
               -1.31,
               0.45,
               -0.49
-            ],
-            "damper_outboard": [
+            ]
+          },
+          "damper_outboard_a2r": {
+            "position": [
               -1.36,
               0.53,
               -0.47
             ]
           }
         },
-        "links": [
-          {
-            "name": "trailing_arm",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -0.76,
-                0.45,
-                -0.79
-              ]
-            ],
-            "outboard_ref": "hardpoints.arm_axle_seat",
-            "joint_type": "fixed",
-            "inboard_joint_type": "revolute"
-          }
-        ],
-        "axle_body": {
-          "id": "A2_beam",
-          "mass": 190,
-          "position": [
-            -1.31,
-            0,
-            -0.49
-          ]
-        }
+        "x_derived": true
       },
-      "wheel": {
-        "rim_diameter": 0.5715,
-        "rim_width": 0.2286,
+      {
+        "id": "wheel_a2l",
+        "name": "Wheel A2L",
+        "description": "Rim + tyre",
+        "category": "structural",
         "mass": 170,
-        "multiplicity": 2,
-        "dual_spacing": 0.33,
-        "positions": [
-          {
-            "label": "inner",
-            "offset_outboard": -0.165,
-            "tire": {
-              "set_ref": "trailer_315_80r22_5",
-              "pressure": 800000
-            }
-          },
-          {
-            "label": "outer",
-            "offset_outboard": 0.165,
-            "tire": {
-              "set_ref": "trailer_315_80r22_5",
-              "pressure": 800000
-            }
-          }
-        ]
-      },
-      "spring": {
-        "type": "air",
-        "rate": 160000,
-        "effective_area": 0.072,
-        "nominal_pressure": 480000,
-        "inboard_mount": [
-          -1.71,
-          0.45,
-          -0.89
+        "position": [
+          -1.31,
+          -0.925,
+          -0.49
         ],
-        "outboard_mount": [
-          -1.71,
-          0.45,
-          -0.44
-        ]
+        "x_derived": true
       },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            4000
-          ],
-          [
-            0.5,
-            12000
-          ]
+      {
+        "id": "trailing_arm_a2l",
+        "name": "Trailing Arm A2L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -1.0350000000000001,
+          -0.45,
+          -0.64
         ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            9000
-          ],
-          [
-            0.5,
-            24000
-          ]
-        ]
-      }
-    },
-    "A3L": {
-      "topology": {
-        "system_type": "trailing_arm",
-        "upright": {
-          "id": "hub_A3L",
-          "hardpoints": {
-            "wheel_center": [
+        "description": "Trailing arm",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a2r",
+        "name": "Wheel A2R",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 170,
+        "position": [
+          -1.31,
+          0.925,
+          -0.49
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "trailing_arm_a2r",
+        "name": "Trailing Arm A2R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -1.0350000000000001,
+          0.45,
+          -0.64
+        ],
+        "description": "Trailing arm",
+        "x_derived": true
+      },
+      {
+        "id": "a3_beam",
+        "name": "Axle body A3_beam",
+        "description": "Beam axle, housing or de Dion tube",
+        "category": "structural",
+        "mass": 190,
+        "position": [
+          -2.62,
+          0,
+          -0.49
+        ],
+        "markers": {
+          "wheel_center_a3l": {
+            "position": [
               -2.62,
               -0.925,
               -0.49
-            ],
-            "arm_axle_seat": [
+            ]
+          },
+          "arm_axle_seat_a3l": {
+            "position": [
               -2.62,
               -0.45,
               -0.49
-            ],
-            "damper_outboard": [
+            ]
+          },
+          "damper_outboard_a3l": {
+            "position": [
               -2.67,
               -0.53,
               -0.47
             ]
-          }
-        },
-        "links": [
-          {
-            "name": "trailing_arm",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -2.07,
-                -0.45,
-                -0.79
-              ]
-            ],
-            "outboard_ref": "hardpoints.arm_axle_seat",
-            "joint_type": "fixed",
-            "inboard_joint_type": "revolute"
-          }
-        ],
-        "axle_body": {
-          "id": "A3_beam",
-          "mass": 190,
-          "position": [
-            -2.62,
-            0,
-            -0.49
-          ]
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.5715,
-        "rim_width": 0.2286,
-        "mass": 170,
-        "multiplicity": 2,
-        "dual_spacing": 0.33,
-        "positions": [
-          {
-            "label": "inner",
-            "offset_outboard": -0.165,
-            "tire": {
-              "set_ref": "trailer_315_80r22_5",
-              "pressure": 800000
-            }
           },
-          {
-            "label": "outer",
-            "offset_outboard": 0.165,
-            "tire": {
-              "set_ref": "trailer_315_80r22_5",
-              "pressure": 800000
-            }
-          }
-        ]
-      },
-      "spring": {
-        "type": "air",
-        "rate": 160000,
-        "effective_area": 0.072,
-        "nominal_pressure": 480000,
-        "inboard_mount": [
-          -3.02,
-          -0.45,
-          -0.89
-        ],
-        "outboard_mount": [
-          -3.02,
-          -0.45,
-          -0.44
-        ]
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            4000
-          ],
-          [
-            0.5,
-            12000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            9000
-          ],
-          [
-            0.5,
-            24000
-          ]
-        ]
-      }
-    },
-    "A3R": {
-      "topology": {
-        "system_type": "trailing_arm",
-        "upright": {
-          "id": "hub_A3R",
-          "hardpoints": {
-            "wheel_center": [
+          "wheel_center_a3r": {
+            "position": [
               -2.62,
               0.925,
               -0.49
-            ],
-            "arm_axle_seat": [
+            ]
+          },
+          "arm_axle_seat_a3r": {
+            "position": [
               -2.62,
               0.45,
               -0.49
-            ],
-            "damper_outboard": [
+            ]
+          },
+          "damper_outboard_a3r": {
+            "position": [
               -2.67,
               0.53,
               -0.47
             ]
           }
         },
-        "links": [
-          {
-            "name": "trailing_arm",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -2.07,
-                0.45,
-                -0.79
-              ]
-            ],
-            "outboard_ref": "hardpoints.arm_axle_seat",
-            "joint_type": "fixed",
-            "inboard_joint_type": "revolute"
-          }
-        ],
-        "axle_body": {
-          "id": "A3_beam",
-          "mass": 190,
-          "position": [
-            -2.62,
-            0,
-            -0.49
-          ]
-        }
+        "x_derived": true
       },
-      "wheel": {
-        "rim_diameter": 0.5715,
-        "rim_width": 0.2286,
+      {
+        "id": "wheel_a3l",
+        "name": "Wheel A3L",
+        "description": "Rim + tyre",
+        "category": "structural",
         "mass": 170,
-        "multiplicity": 2,
-        "dual_spacing": 0.33,
-        "positions": [
-          {
-            "label": "inner",
-            "offset_outboard": -0.165,
-            "tire": {
-              "set_ref": "trailer_315_80r22_5",
-              "pressure": 800000
-            }
-          },
-          {
-            "label": "outer",
-            "offset_outboard": 0.165,
-            "tire": {
-              "set_ref": "trailer_315_80r22_5",
-              "pressure": 800000
-            }
-          }
-        ]
-      },
-      "spring": {
-        "type": "air",
-        "rate": 160000,
-        "effective_area": 0.072,
-        "nominal_pressure": 480000,
-        "inboard_mount": [
-          -3.02,
-          0.45,
-          -0.89
+        "position": [
+          -2.62,
+          -0.925,
+          -0.49
         ],
-        "outboard_mount": [
-          -3.02,
-          0.45,
-          -0.44
-        ]
+        "x_derived": true
       },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            4000
-          ],
-          [
-            0.5,
-            12000
-          ]
+      {
+        "id": "trailing_arm_a3l",
+        "name": "Trailing Arm A3L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -2.3449999999999998,
+          -0.45,
+          -0.64
         ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            9000
-          ],
-          [
-            0.5,
-            24000
-          ]
-        ]
+        "description": "Trailing arm",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a3r",
+        "name": "Wheel A3R",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 170,
+        "position": [
+          -2.62,
+          0.925,
+          -0.49
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "trailing_arm_a3r",
+        "name": "Trailing Arm A3R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -2.3449999999999998,
+          0.45,
+          -0.64
+        ],
+        "description": "Trailing arm",
+        "x_derived": true
       }
-    }
+    ]
   },
   "axles": [
     {
@@ -849,5 +444,1461 @@
         }
       }
     }
-  }
+  },
+  "constraints": [
+    {
+      "id": "hinge_wheel_a1l",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a1_beam",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.925,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a1l",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.925,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_trailing_arm_a1l_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.55,
+          -0.45,
+          -0.79
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "trailing_arm_a1l",
+      "frame_b": {
+        "position": [
+          0.55,
+          -0.45,
+          -0.79
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_trailing_arm_a1l_outboard",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "trailing_arm_a1l",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.45,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a1_beam",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.45,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a1l",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.4,
+          -0.45,
+          -0.89
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a1_beam",
+      "frame_b": {
+        "position": [
+          -0.4,
+          -0.45,
+          -0.44
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_outboard_body_inferred": true,
+      "spring_type": "air",
+      "effective_area": 0.072,
+      "nominal_pressure": 480000,
+      "x_converted_from_wheel_rate": {
+        "motion_ratio": 1.0,
+        "estimated": true
+      },
+      "rate": 160000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a1l",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.925,
+          -0.79
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a1_beam",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.925,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          4000
+        ],
+        [
+          0.5,
+          12000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          9000
+        ],
+        [
+          0.5,
+          24000
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a1r",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a1_beam",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.925,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a1r",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.925,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_trailing_arm_a1r_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.55,
+          0.45,
+          -0.79
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "trailing_arm_a1r",
+      "frame_b": {
+        "position": [
+          0.55,
+          0.45,
+          -0.79
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_trailing_arm_a1r_outboard",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "trailing_arm_a1r",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.45,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a1_beam",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.45,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a1r",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.4,
+          0.45,
+          -0.89
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a1_beam",
+      "frame_b": {
+        "position": [
+          -0.4,
+          0.45,
+          -0.44
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_outboard_body_inferred": true,
+      "spring_type": "air",
+      "effective_area": 0.072,
+      "nominal_pressure": 480000,
+      "x_converted_from_wheel_rate": {
+        "motion_ratio": 1.0,
+        "estimated": true
+      },
+      "rate": 160000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a1r",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.925,
+          -0.79
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a1_beam",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.925,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          4000
+        ],
+        [
+          0.5,
+          12000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          9000
+        ],
+        [
+          0.5,
+          24000
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a2l",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a2_beam",
+      "frame_a": {
+        "position": [
+          -1.31,
+          -0.925,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a2l",
+      "frame_b": {
+        "position": [
+          -1.31,
+          -0.925,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_trailing_arm_a2l_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.76,
+          -0.45,
+          -0.79
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "trailing_arm_a2l",
+      "frame_b": {
+        "position": [
+          -0.76,
+          -0.45,
+          -0.79
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_trailing_arm_a2l_outboard",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "trailing_arm_a2l",
+      "frame_a": {
+        "position": [
+          -1.31,
+          -0.45,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a2_beam",
+      "frame_b": {
+        "position": [
+          -1.31,
+          -0.45,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a2l",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -1.71,
+          -0.45,
+          -0.89
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a2_beam",
+      "frame_b": {
+        "position": [
+          -1.71,
+          -0.45,
+          -0.44
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_outboard_body_inferred": true,
+      "spring_type": "air",
+      "effective_area": 0.072,
+      "nominal_pressure": 480000,
+      "x_converted_from_wheel_rate": {
+        "motion_ratio": 1.0,
+        "estimated": true
+      },
+      "rate": 160000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a2l",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -1.31,
+          -0.925,
+          -0.79
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a2_beam",
+      "frame_b": {
+        "position": [
+          -1.31,
+          -0.925,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          4000
+        ],
+        [
+          0.5,
+          12000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          9000
+        ],
+        [
+          0.5,
+          24000
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a2r",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a2_beam",
+      "frame_a": {
+        "position": [
+          -1.31,
+          0.925,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a2r",
+      "frame_b": {
+        "position": [
+          -1.31,
+          0.925,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_trailing_arm_a2r_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.76,
+          0.45,
+          -0.79
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "trailing_arm_a2r",
+      "frame_b": {
+        "position": [
+          -0.76,
+          0.45,
+          -0.79
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_trailing_arm_a2r_outboard",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "trailing_arm_a2r",
+      "frame_a": {
+        "position": [
+          -1.31,
+          0.45,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a2_beam",
+      "frame_b": {
+        "position": [
+          -1.31,
+          0.45,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a2r",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -1.71,
+          0.45,
+          -0.89
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a2_beam",
+      "frame_b": {
+        "position": [
+          -1.71,
+          0.45,
+          -0.44
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_outboard_body_inferred": true,
+      "spring_type": "air",
+      "effective_area": 0.072,
+      "nominal_pressure": 480000,
+      "x_converted_from_wheel_rate": {
+        "motion_ratio": 1.0,
+        "estimated": true
+      },
+      "rate": 160000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a2r",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -1.31,
+          0.925,
+          -0.79
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a2_beam",
+      "frame_b": {
+        "position": [
+          -1.31,
+          0.925,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          4000
+        ],
+        [
+          0.5,
+          12000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          9000
+        ],
+        [
+          0.5,
+          24000
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a3l",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a3_beam",
+      "frame_a": {
+        "position": [
+          -2.62,
+          -0.925,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a3l",
+      "frame_b": {
+        "position": [
+          -2.62,
+          -0.925,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_trailing_arm_a3l_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.07,
+          -0.45,
+          -0.79
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "trailing_arm_a3l",
+      "frame_b": {
+        "position": [
+          -2.07,
+          -0.45,
+          -0.79
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_trailing_arm_a3l_outboard",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "trailing_arm_a3l",
+      "frame_a": {
+        "position": [
+          -2.62,
+          -0.45,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a3_beam",
+      "frame_b": {
+        "position": [
+          -2.62,
+          -0.45,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a3l",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -3.02,
+          -0.45,
+          -0.89
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a3_beam",
+      "frame_b": {
+        "position": [
+          -3.02,
+          -0.45,
+          -0.44
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_outboard_body_inferred": true,
+      "spring_type": "air",
+      "effective_area": 0.072,
+      "nominal_pressure": 480000,
+      "x_converted_from_wheel_rate": {
+        "motion_ratio": 1.0,
+        "estimated": true
+      },
+      "rate": 160000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a3l",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.62,
+          -0.925,
+          -0.79
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a3_beam",
+      "frame_b": {
+        "position": [
+          -2.62,
+          -0.925,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          4000
+        ],
+        [
+          0.5,
+          12000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          9000
+        ],
+        [
+          0.5,
+          24000
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a3r",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a3_beam",
+      "frame_a": {
+        "position": [
+          -2.62,
+          0.925,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a3r",
+      "frame_b": {
+        "position": [
+          -2.62,
+          0.925,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_trailing_arm_a3r_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.07,
+          0.45,
+          -0.79
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "trailing_arm_a3r",
+      "frame_b": {
+        "position": [
+          -2.07,
+          0.45,
+          -0.79
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_trailing_arm_a3r_outboard",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "trailing_arm_a3r",
+      "frame_a": {
+        "position": [
+          -2.62,
+          0.45,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a3_beam",
+      "frame_b": {
+        "position": [
+          -2.62,
+          0.45,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a3r",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -3.02,
+          0.45,
+          -0.89
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a3_beam",
+      "frame_b": {
+        "position": [
+          -3.02,
+          0.45,
+          -0.44
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_outboard_body_inferred": true,
+      "spring_type": "air",
+      "effective_area": 0.072,
+      "nominal_pressure": 480000,
+      "x_converted_from_wheel_rate": {
+        "motion_ratio": 1.0,
+        "estimated": true
+      },
+      "rate": 160000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a3r",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.62,
+          0.925,
+          -0.79
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a3_beam",
+      "frame_b": {
+        "position": [
+          -2.62,
+          0.925,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          4000
+        ],
+        [
+          0.5,
+          12000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          9000
+        ],
+        [
+          0.5,
+          24000
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    }
+  ],
+  "wheel_stations": [
+    {
+      "id": "A1L",
+      "name": "A1L",
+      "wheel_body": "wheel_a1l",
+      "upright_body": "a1_beam",
+      "wheel_center_marker": "wheel_center_a1l",
+      "axle": "A1",
+      "side": "L",
+      "topology_hint": "trailing_arm",
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "mass": 170,
+        "multiplicity": 2,
+        "dual_spacing": 0.33,
+        "positions": [
+          {
+            "label": "inner",
+            "offset_outboard": -0.165,
+            "tire": {
+              "set_ref": "trailer_315_80r22_5",
+              "pressure": 800000
+            }
+          },
+          {
+            "label": "outer",
+            "offset_outboard": 0.165,
+            "tire": {
+              "set_ref": "trailer_315_80r22_5",
+              "pressure": 800000
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "A1R",
+      "name": "A1R",
+      "wheel_body": "wheel_a1r",
+      "upright_body": "a1_beam",
+      "wheel_center_marker": "wheel_center_a1r",
+      "axle": "A1",
+      "side": "R",
+      "topology_hint": "trailing_arm",
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "mass": 170,
+        "multiplicity": 2,
+        "dual_spacing": 0.33,
+        "positions": [
+          {
+            "label": "inner",
+            "offset_outboard": -0.165,
+            "tire": {
+              "set_ref": "trailer_315_80r22_5",
+              "pressure": 800000
+            }
+          },
+          {
+            "label": "outer",
+            "offset_outboard": 0.165,
+            "tire": {
+              "set_ref": "trailer_315_80r22_5",
+              "pressure": 800000
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "A2L",
+      "name": "A2L",
+      "wheel_body": "wheel_a2l",
+      "upright_body": "a2_beam",
+      "wheel_center_marker": "wheel_center_a2l",
+      "axle": "A2",
+      "side": "L",
+      "topology_hint": "trailing_arm",
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "mass": 170,
+        "multiplicity": 2,
+        "dual_spacing": 0.33,
+        "positions": [
+          {
+            "label": "inner",
+            "offset_outboard": -0.165,
+            "tire": {
+              "set_ref": "trailer_315_80r22_5",
+              "pressure": 800000
+            }
+          },
+          {
+            "label": "outer",
+            "offset_outboard": 0.165,
+            "tire": {
+              "set_ref": "trailer_315_80r22_5",
+              "pressure": 800000
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "A2R",
+      "name": "A2R",
+      "wheel_body": "wheel_a2r",
+      "upright_body": "a2_beam",
+      "wheel_center_marker": "wheel_center_a2r",
+      "axle": "A2",
+      "side": "R",
+      "topology_hint": "trailing_arm",
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "mass": 170,
+        "multiplicity": 2,
+        "dual_spacing": 0.33,
+        "positions": [
+          {
+            "label": "inner",
+            "offset_outboard": -0.165,
+            "tire": {
+              "set_ref": "trailer_315_80r22_5",
+              "pressure": 800000
+            }
+          },
+          {
+            "label": "outer",
+            "offset_outboard": 0.165,
+            "tire": {
+              "set_ref": "trailer_315_80r22_5",
+              "pressure": 800000
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "A3L",
+      "name": "A3L",
+      "wheel_body": "wheel_a3l",
+      "upright_body": "a3_beam",
+      "wheel_center_marker": "wheel_center_a3l",
+      "axle": "A3",
+      "side": "L",
+      "topology_hint": "trailing_arm",
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "mass": 170,
+        "multiplicity": 2,
+        "dual_spacing": 0.33,
+        "positions": [
+          {
+            "label": "inner",
+            "offset_outboard": -0.165,
+            "tire": {
+              "set_ref": "trailer_315_80r22_5",
+              "pressure": 800000
+            }
+          },
+          {
+            "label": "outer",
+            "offset_outboard": 0.165,
+            "tire": {
+              "set_ref": "trailer_315_80r22_5",
+              "pressure": 800000
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "A3R",
+      "name": "A3R",
+      "wheel_body": "wheel_a3r",
+      "upright_body": "a3_beam",
+      "wheel_center_marker": "wheel_center_a3r",
+      "axle": "A3",
+      "side": "R",
+      "topology_hint": "trailing_arm",
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "mass": 170,
+        "multiplicity": 2,
+        "dual_spacing": 0.33,
+        "positions": [
+          {
+            "label": "inner",
+            "offset_outboard": -0.165,
+            "tire": {
+              "set_ref": "trailer_315_80r22_5",
+              "pressure": 800000
+            }
+          },
+          {
+            "label": "outer",
+            "offset_outboard": 0.165,
+            "tire": {
+              "set_ref": "trailer_315_80r22_5",
+              "pressure": 800000
+            }
+          }
+        ]
+      }
+    }
+  ]
 }

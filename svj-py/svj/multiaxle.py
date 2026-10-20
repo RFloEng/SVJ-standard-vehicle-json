@@ -30,9 +30,32 @@ def canonical(key):
     return LEGACY.get(key, key)
 
 
+def _pseudo_suspension(doc):
+    """A corner-shaped view of the unified model (wheel_stations + constraints) so every rule below applies to it."""
+    stations = [s for s in doc.get("wheel_stations") or [] if isinstance(s, dict) and isinstance(s.get("id"), str)]
+    cons = [c for c in doc.get("constraints") or [] if isinstance(c, dict)]
+    body_ids = [b.get("id") for b in (doc.get("chassis") or {}).get("mass_bodies", []) if isinstance(b, dict) and isinstance(b.get("id"), str)]
+    shared = {}
+    for s in stations:
+        shared.setdefault(s.get("upright_body"), []).append(s["id"])
+    out = {}
+    for s in stations:
+        sfx = re.sub(r"[^a-z0-9_]+", "_", s["id"].lower()).strip("_")
+        spring = next((c for c in cons if c.get("type") == "spring" and str(c.get("id", "")).startswith("spring_") and str(c["id"]).endswith(sfx)), None)
+        topo = {"links": [{"name": b[: -len(sfx) - 1]} for b in body_ids if b.endswith("_" + sfx)]}
+        if len(shared.get(s.get("upright_body"), [])) > 1:
+            topo["axle_body"] = {"id": s.get("upright_body")}
+        out[s["id"]] = {"topology": topo, "wheel": s.get("wheel") or {},
+                        "spring": ({"type": spring.get("spring_type"), "coupling_ref": spring.get("coupling_ref") or s.get("coupling_ref")} if spring
+                   else {"type": "none", "coupling_ref": s.get("coupling_ref")})}
+    return out
+
+
 def check(doc):
     errors, warnings = [], []
     susp = doc.get("suspension")
+    if not isinstance(susp, dict) and isinstance(doc.get("wheel_stations"), list):
+        susp = _pseudo_suspension(doc)
     corners = _corner_keys(susp) if isinstance(susp, dict) else []
 
     # ── 1. naming form ──────────────────────────────────────────────────────

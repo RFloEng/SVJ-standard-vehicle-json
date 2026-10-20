@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99.4",
+    "version": "0.100",
     "description": "Formula F1 2025 — aero example with glTF visual bindings (v0.97 feature).",
     "coordinate_system": "SAE_J670",
     "units": "SI",
@@ -24,252 +24,2380 @@
   },
   "assets": {
     "meshes": [
-      { "id": "chassis_body",  "uri": "meshes/f1_chassis.glb",  "description": "Main chassis and bodywork" },
-      { "id": "wheel_set",     "uri": "meshes/f1_wheels.glb",   "description": "All four wheel assemblies" },
-      { "id": "aero_surfaces", "uri": "meshes/f1_aero.glb",     "description": "Wings, floor, DRS flap" }
+      {
+        "id": "chassis_body",
+        "uri": "meshes/f1_chassis.glb",
+        "description": "Main chassis and bodywork"
+      },
+      {
+        "id": "wheel_set",
+        "uri": "meshes/f1_wheels.glb",
+        "description": "All four wheel assemblies"
+      },
+      {
+        "id": "aero_surfaces",
+        "uri": "meshes/f1_aero.glb",
+        "description": "Wings, floor, DRS flap"
+      }
     ]
   },
   "chassis": {
     "mass_total": 798,
-    "wheelbase": 3.600,
-    "track_front": 1.600,
-    "track_rear": 1.550,
-    "center_of_gravity": [1.800, 0.0, 0.280],
-    "inertia": { "Ixx": 110.0, "Iyy": 870.0, "Izz": 900.0, "Ixy": 0.0, "Ixz": 0.0, "Iyz": 0.0 },
-    "visual": { "mesh_ref": "chassis_body", "node": "SVJ::body::chassis" }
-  },
-  "suspension": {
-    "FL": {
-      "topology": {
-        "system_type": "double_wishbone",
-        "x_actuation": "pushrod",
-        "upright": {
-          "id": "upright_fl",
-          "hardpoints": {
-            "upper_wishbone_outer":       [0.09,  0.76, 0.37],
-            "lower_wishbone_outer":       [0.11,  0.78, 0.23],
-            "tie_rod_outer":              [-0.04, 0.77, 0.29],
-            "pushrod_outer":              [0.04,  0.75, 0.30],
-            "wheel_center":               [0.00,  0.80, 0.295]
-          }
-        },
-        "links": [
-          {
-            "name": "upper_wishbone",
-            "type": "arm",
-            "inboard_points": [[0.10, 0.30, 0.38], [0.08, 0.30, 0.36]],
-            "outboard_ref": "hardpoints.upper_wishbone_outer"
-          },
-          {
-            "name": "lower_wishbone",
-            "type": "arm",
-            "inboard_points": [[0.12, 0.28, 0.24], [0.10, 0.28, 0.22]],
-            "outboard_ref": "hardpoints.lower_wishbone_outer"
-          },
-          {
-            "name": "tie_rod",
-            "type": "rod",
-            "inboard_points": [[-0.05, 0.30, 0.30]],
-            "outboard_ref": "hardpoints.tie_rod_outer"
-          },
-          {
-            "name": "pushrod",
-            "type": "rod",
-            "inboard_points": [[0.05, 0.32, 0.42]],
-            "outboard_ref": "hardpoints.pushrod_outer"
-          }
-        ]
-      },
-      "wheel":  { "rim_diameter": 0.330, "rim_width": 0.305 },
-      "spring": { "type": "coil", "rate": 120000 },
-      "damper": {
-        "bump_curve":    [[0.0,0],[0.1,1500],[0.5,5000],[1.0,8000]],
-        "rebound_curve": [[0.0,0],[0.1,2000],[0.5,7000],[1.0,11000]]
-      },
-      "visual": { "mesh_ref": "wheel_set", "node": "SVJ::body::upright_fl" }
+    "wheelbase": 3.6,
+    "track_front": 1.6,
+    "track_rear": 1.55,
+    "center_of_gravity": [
+      1.8,
+      0.0,
+      0.28
+    ],
+    "inertia": {
+      "Ixx": 110.0,
+      "Iyy": 870.0,
+      "Izz": 900.0,
+      "Ixy": 0.0,
+      "Ixz": 0.0,
+      "Iyz": 0.0
     },
-    "FR": {
-      "topology": {
-        "system_type": "double_wishbone",
-        "x_actuation": "pushrod",
-        "upright": {
-          "id": "upright_fr",
-          "hardpoints": {
-            "upper_wishbone_outer":       [0.09,  -0.76, 0.37],
-            "lower_wishbone_outer":       [0.11,  -0.78, 0.23],
-            "tie_rod_outer":              [-0.04, -0.77, 0.29],
-            "pushrod_outer":              [0.04,  -0.75, 0.30],
-            "wheel_center":               [0.00,  -0.80, 0.295]
-          }
-        },
-        "links": [
-          {
-            "name": "upper_wishbone",
-            "type": "arm",
-            "inboard_points": [[0.10, -0.30, 0.38], [0.08, -0.30, 0.36]],
-            "outboard_ref": "hardpoints.upper_wishbone_outer"
-          },
-          {
-            "name": "lower_wishbone",
-            "type": "arm",
-            "inboard_points": [[0.12, -0.28, 0.24], [0.10, -0.28, 0.22]],
-            "outboard_ref": "hardpoints.lower_wishbone_outer"
-          },
-          {
-            "name": "tie_rod",
-            "type": "rod",
-            "inboard_points": [[-0.05, -0.30, 0.30]],
-            "outboard_ref": "hardpoints.tie_rod_outer"
-          },
-          {
-            "name": "pushrod",
-            "type": "rod",
-            "inboard_points": [[0.05, -0.32, 0.42]],
-            "outboard_ref": "hardpoints.pushrod_outer"
-          }
-        ]
-      },
-      "wheel":  { "rim_diameter": 0.330, "rim_width": 0.305 },
-      "spring": { "type": "coil", "rate": 120000 },
-      "damper": {
-        "bump_curve":    [[0.0,0],[0.1,1500],[0.5,5000],[1.0,8000]],
-        "rebound_curve": [[0.0,0],[0.1,2000],[0.5,7000],[1.0,11000]]
-      },
-      "visual": { "mesh_ref": "wheel_set", "node": "SVJ::body::upright_fr" }
+    "visual": {
+      "mesh_ref": "chassis_body",
+      "node": "SVJ::body::chassis"
     },
-    "RL": {
-      "topology": {
-        "system_type": "double_wishbone",
-        "x_actuation": "pullrod",
-        "upright": {
-          "id": "upright_rl",
-          "hardpoints": {
-            "upper_wishbone_outer":       [-2.80,  0.74, 0.39],
-            "lower_wishbone_outer":       [-2.78,  0.76, 0.23],
-            "tie_rod_outer":              [-2.94,  0.75, 0.29],
-            "pullrod_outer":              [-2.84,  0.73, 0.28],
-            "wheel_center":               [-2.80,  0.80, 0.295]
+    "mass_bodies": [
+      {
+        "id": "upright_fl",
+        "name": "Upright FL",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.0,
+          0.8,
+          0.295
+        ],
+        "markers": {
+          "upper_wishbone_outer": {
+            "position": [
+              0.09,
+              0.76,
+              0.37
+            ]
+          },
+          "lower_wishbone_outer": {
+            "position": [
+              0.11,
+              0.78,
+              0.23
+            ]
+          },
+          "tie_rod_outer": {
+            "position": [
+              -0.04,
+              0.77,
+              0.29
+            ]
+          },
+          "pushrod_outer": {
+            "position": [
+              0.04,
+              0.75,
+              0.3
+            ]
+          },
+          "wheel_center": {
+            "position": [
+              0.0,
+              0.8,
+              0.295
+            ]
           }
         },
-        "links": [
-          {
-            "name": "upper_wishbone",
-            "type": "arm",
-            "inboard_points": [[-2.70, 0.28, 0.40], [-2.90, 0.28, 0.38]],
-            "outboard_ref": "hardpoints.upper_wishbone_outer"
-          },
-          {
-            "name": "lower_wishbone",
-            "type": "arm",
-            "inboard_points": [[-2.68, 0.26, 0.24], [-2.88, 0.26, 0.22]],
-            "outboard_ref": "hardpoints.lower_wishbone_outer"
-          },
-          {
-            "name": "tie_rod",
-            "type": "rod",
-            "inboard_points": [[-2.95, 0.28, 0.30]],
-            "outboard_ref": "hardpoints.tie_rod_outer"
-          },
-          {
-            "name": "pullrod",
-            "type": "rod",
-            "inboard_points": [[-2.85, 0.30, 0.22]],
-            "outboard_ref": "hardpoints.pullrod_outer"
-          }
-        ]
+        "description": "Upright / knuckle / hub carrier",
+        "x_derived": true
       },
-      "wheel":  { "rim_diameter": 0.330, "rim_width": 0.305 },
-      "spring": { "type": "coil", "rate": 140000 },
-      "damper": {
-        "bump_curve":    [[0.0,0],[0.1,1800],[0.5,5500],[1.0,9000]],
-        "rebound_curve": [[0.0,0],[0.1,2500],[0.5,8000],[1.0,12000]]
+      {
+        "id": "wheel_fl",
+        "name": "Wheel FL",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.0,
+          0.8,
+          0.295
+        ],
+        "x_derived": true
       },
-      "visual": { "mesh_ref": "wheel_set", "node": "SVJ::body::upright_rl" }
-    },
-    "RR": {
-      "topology": {
-        "system_type": "double_wishbone",
-        "x_actuation": "pullrod",
-        "upright": {
-          "id": "upright_rr",
-          "hardpoints": {
-            "upper_wishbone_outer":       [-2.80,  -0.74, 0.39],
-            "lower_wishbone_outer":       [-2.78,  -0.76, 0.23],
-            "tie_rod_outer":              [-2.94,  -0.75, 0.29],
-            "pullrod_outer":              [-2.84,  -0.73, 0.28],
-            "wheel_center":               [-2.80,  -0.80, 0.295]
+      {
+        "id": "upper_wishbone_fl",
+        "name": "Upper Wishbone FL",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.09,
+          0.53,
+          0.37
+        ],
+        "description": "Upper A-arm",
+        "x_derived": true
+      },
+      {
+        "id": "lower_wishbone_fl",
+        "name": "Lower Wishbone FL",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.11,
+          0.53,
+          0.22999999999999998
+        ],
+        "description": "Lower A-arm",
+        "x_derived": true
+      },
+      {
+        "id": "tie_rod_fl",
+        "name": "Tie Rod FL",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -0.045,
+          0.535,
+          0.295
+        ],
+        "description": "Steering tie rod / track rod",
+        "x_derived": true
+      },
+      {
+        "id": "rack",
+        "name": "Steering rack",
+        "description": "Steering rack / gear housing",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -0.05,
+          0.0,
+          0.3
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "pushrod_fl",
+        "name": "Pushrod FL",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.045,
+          0.535,
+          0.36
+        ],
+        "description": "Inboard-suspension actuation rod",
+        "x_derived": true
+      },
+      {
+        "id": "upright_fr",
+        "name": "Upright FR",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.0,
+          -0.8,
+          0.295
+        ],
+        "markers": {
+          "upper_wishbone_outer": {
+            "position": [
+              0.09,
+              -0.76,
+              0.37
+            ]
+          },
+          "lower_wishbone_outer": {
+            "position": [
+              0.11,
+              -0.78,
+              0.23
+            ]
+          },
+          "tie_rod_outer": {
+            "position": [
+              -0.04,
+              -0.77,
+              0.29
+            ]
+          },
+          "pushrod_outer": {
+            "position": [
+              0.04,
+              -0.75,
+              0.3
+            ]
+          },
+          "wheel_center": {
+            "position": [
+              0.0,
+              -0.8,
+              0.295
+            ]
           }
         },
-        "links": [
-          {
-            "name": "upper_wishbone",
-            "type": "arm",
-            "inboard_points": [[-2.70, -0.28, 0.40], [-2.90, -0.28, 0.38]],
-            "outboard_ref": "hardpoints.upper_wishbone_outer"
+        "description": "Upright / knuckle / hub carrier",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_fr",
+        "name": "Wheel FR",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.0,
+          -0.8,
+          0.295
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "upper_wishbone_fr",
+        "name": "Upper Wishbone FR",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.09,
+          -0.53,
+          0.37
+        ],
+        "description": "Upper A-arm",
+        "x_derived": true
+      },
+      {
+        "id": "lower_wishbone_fr",
+        "name": "Lower Wishbone FR",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.11,
+          -0.53,
+          0.22999999999999998
+        ],
+        "description": "Lower A-arm",
+        "x_derived": true
+      },
+      {
+        "id": "tie_rod_fr",
+        "name": "Tie Rod FR",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -0.045,
+          -0.535,
+          0.295
+        ],
+        "description": "Steering tie rod / track rod",
+        "x_derived": true
+      },
+      {
+        "id": "pushrod_fr",
+        "name": "Pushrod FR",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.045,
+          -0.535,
+          0.36
+        ],
+        "description": "Inboard-suspension actuation rod",
+        "x_derived": true
+      },
+      {
+        "id": "upright_rl",
+        "name": "Upright RL",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -2.8,
+          0.8,
+          0.295
+        ],
+        "markers": {
+          "upper_wishbone_outer": {
+            "position": [
+              -2.8,
+              0.74,
+              0.39
+            ]
           },
-          {
-            "name": "lower_wishbone",
-            "type": "arm",
-            "inboard_points": [[-2.68, -0.26, 0.24], [-2.88, -0.26, 0.22]],
-            "outboard_ref": "hardpoints.lower_wishbone_outer"
+          "lower_wishbone_outer": {
+            "position": [
+              -2.78,
+              0.76,
+              0.23
+            ]
           },
-          {
-            "name": "tie_rod",
-            "type": "rod",
-            "inboard_points": [[-2.95, -0.28, 0.30]],
-            "outboard_ref": "hardpoints.tie_rod_outer"
+          "tie_rod_outer": {
+            "position": [
+              -2.94,
+              0.75,
+              0.29
+            ]
           },
-          {
-            "name": "pullrod",
-            "type": "rod",
-            "inboard_points": [[-2.85, -0.30, 0.22]],
-            "outboard_ref": "hardpoints.pullrod_outer"
+          "pullrod_outer": {
+            "position": [
+              -2.84,
+              0.73,
+              0.28
+            ]
+          },
+          "wheel_center": {
+            "position": [
+              -2.8,
+              0.8,
+              0.295
+            ]
           }
-        ]
+        },
+        "description": "Upright / knuckle / hub carrier",
+        "x_derived": true
       },
-      "wheel":  { "rim_diameter": 0.330, "rim_width": 0.305 },
-      "spring": { "type": "coil", "rate": 140000 },
-      "damper": {
-        "bump_curve":    [[0.0,0],[0.1,1800],[0.5,5500],[1.0,9000]],
-        "rebound_curve": [[0.0,0],[0.1,2500],[0.5,8000],[1.0,12000]]
+      {
+        "id": "wheel_rl",
+        "name": "Wheel RL",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -2.8,
+          0.8,
+          0.295
+        ],
+        "x_derived": true
       },
-      "visual": { "mesh_ref": "wheel_set", "node": "SVJ::body::upright_rr" }
-    }
+      {
+        "id": "upper_wishbone_rl",
+        "name": "Upper Wishbone RL",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -2.8,
+          0.51,
+          0.39
+        ],
+        "description": "Upper A-arm",
+        "x_derived": true
+      },
+      {
+        "id": "lower_wishbone_rl",
+        "name": "Lower Wishbone RL",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -2.7800000000000002,
+          0.51,
+          0.22999999999999998
+        ],
+        "description": "Lower A-arm",
+        "x_derived": true
+      },
+      {
+        "id": "tie_rod_rl",
+        "name": "Tie Rod RL",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -2.9450000000000003,
+          0.515,
+          0.295
+        ],
+        "description": "Steering tie rod / track rod",
+        "x_derived": true
+      },
+      {
+        "id": "rack_a2",
+        "name": "Steering rack",
+        "description": "Steering rack / gear housing",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -2.95,
+          0.0,
+          0.3
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "pullrod_rl",
+        "name": "Pullrod RL",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -2.8449999999999998,
+          0.515,
+          0.25
+        ],
+        "description": "Inboard-suspension actuation rod",
+        "x_derived": true
+      },
+      {
+        "id": "upright_rr",
+        "name": "Upright RR",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -2.8,
+          -0.8,
+          0.295
+        ],
+        "markers": {
+          "upper_wishbone_outer": {
+            "position": [
+              -2.8,
+              -0.74,
+              0.39
+            ]
+          },
+          "lower_wishbone_outer": {
+            "position": [
+              -2.78,
+              -0.76,
+              0.23
+            ]
+          },
+          "tie_rod_outer": {
+            "position": [
+              -2.94,
+              -0.75,
+              0.29
+            ]
+          },
+          "pullrod_outer": {
+            "position": [
+              -2.84,
+              -0.73,
+              0.28
+            ]
+          },
+          "wheel_center": {
+            "position": [
+              -2.8,
+              -0.8,
+              0.295
+            ]
+          }
+        },
+        "description": "Upright / knuckle / hub carrier",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_rr",
+        "name": "Wheel RR",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -2.8,
+          -0.8,
+          0.295
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "upper_wishbone_rr",
+        "name": "Upper Wishbone RR",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -2.8,
+          -0.51,
+          0.39
+        ],
+        "description": "Upper A-arm",
+        "x_derived": true
+      },
+      {
+        "id": "lower_wishbone_rr",
+        "name": "Lower Wishbone RR",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -2.7800000000000002,
+          -0.51,
+          0.22999999999999998
+        ],
+        "description": "Lower A-arm",
+        "x_derived": true
+      },
+      {
+        "id": "tie_rod_rr",
+        "name": "Tie Rod RR",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -2.9450000000000003,
+          -0.515,
+          0.295
+        ],
+        "description": "Steering tie rod / track rod",
+        "x_derived": true
+      },
+      {
+        "id": "pullrod_rr",
+        "name": "Pullrod RR",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -2.8449999999999998,
+          -0.515,
+          0.25
+        ],
+        "description": "Inboard-suspension actuation rod",
+        "x_derived": true
+      }
+    ]
   },
   "aerodynamics": {
     "reference": {
-      "frontal_area": 1.50,
-      "planform_area": 7.20,
-      "reference_length": 3.60
+      "frontal_area": 1.5,
+      "planform_area": 7.2,
+      "reference_length": 3.6
     },
     "components": [
       {
         "name": "front_wing",
         "description": "Front wing assembly including endplates",
-        "Cl_contribution": -3.20,
-        "Cd_contribution":  0.28,
-        "visual": { "mesh_ref": "aero_surfaces", "node": "SVJ::body::front_wing" }
+        "Cl_contribution": -3.2,
+        "Cd_contribution": 0.28,
+        "visual": {
+          "mesh_ref": "aero_surfaces",
+          "node": "SVJ::body::front_wing"
+        }
       },
       {
         "name": "rear_wing",
         "description": "Rear wing main plane and beam wing",
-        "Cl_contribution": -2.80,
-        "Cd_contribution":  0.45,
-        "visual": { "mesh_ref": "aero_surfaces", "node": "SVJ::body::rear_wing" }
+        "Cl_contribution": -2.8,
+        "Cd_contribution": 0.45,
+        "visual": {
+          "mesh_ref": "aero_surfaces",
+          "node": "SVJ::body::rear_wing"
+        }
       },
       {
         "name": "floor",
         "description": "Underbody floor and diffuser",
-        "Cl_contribution": -5.10,
-        "Cd_contribution":  0.18,
-        "visual": { "mesh_ref": "aero_surfaces", "node": "SVJ::body::floor" }
+        "Cl_contribution": -5.1,
+        "Cd_contribution": 0.18,
+        "visual": {
+          "mesh_ref": "aero_surfaces",
+          "node": "SVJ::body::floor"
+        }
       }
     ],
     "x_drs": {
       "note": "DRS active aero — simulator-specific extension (x_ prefix = ignored by non-DRS tools)",
-      "delta_CL_open": 0.80,
+      "delta_CL_open": 0.8,
       "delta_CD_open": -0.12,
-      "visual_drs_flap": { "mesh_ref": "aero_surfaces", "node": "SVJ::helper::drs_flap" }
+      "visual_drs_flap": {
+        "mesh_ref": "aero_surfaces",
+        "node": "SVJ::helper::drs_flap"
+      }
     }
-  }
+  },
+  "constraints": [
+    {
+      "id": "hinge_wheel_fl",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "upright_fl",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.8,
+          0.295
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_fl",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.8,
+          0.295
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_upper_wishbone_fl_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.1,
+          0.3,
+          0.38
+        ],
+        "orientation": [
+          -0.0,
+          -0.9238795,
+          0.0,
+          0.3826834
+        ]
+      },
+      "body_b": "upper_wishbone_fl",
+      "frame_b": {
+        "position": [
+          0.1,
+          0.3,
+          0.38
+        ],
+        "orientation": [
+          -0.0,
+          -0.9238795,
+          0.0,
+          0.3826834
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_wishbone_fl_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "upper_wishbone_fl",
+      "frame_a": {
+        "position": [
+          0.09,
+          0.76,
+          0.37
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fl",
+      "frame_b": {
+        "position": [
+          0.09,
+          0.76,
+          0.37
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_lower_wishbone_fl_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.12,
+          0.28,
+          0.24
+        ],
+        "orientation": [
+          -0.0,
+          -0.9238795,
+          0.0,
+          0.3826834
+        ]
+      },
+      "body_b": "lower_wishbone_fl",
+      "frame_b": {
+        "position": [
+          0.12,
+          0.28,
+          0.24
+        ],
+        "orientation": [
+          -0.0,
+          -0.9238795,
+          0.0,
+          0.3826834
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_wishbone_fl_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "lower_wishbone_fl",
+      "frame_a": {
+        "position": [
+          0.11,
+          0.78,
+          0.23
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fl",
+      "frame_b": {
+        "position": [
+          0.11,
+          0.78,
+          0.23
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "slide_rack",
+      "type": "joint",
+      "joint_type": "translational",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.05,
+          0.0,
+          0.3
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "rack",
+      "frame_b": {
+        "position": [
+          -0.05,
+          0.0,
+          0.3
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_tie_rod_fl_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "rack",
+      "frame_a": {
+        "position": [
+          -0.05,
+          0.3,
+          0.3
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "tie_rod_fl",
+      "frame_b": {
+        "position": [
+          -0.05,
+          0.3,
+          0.3
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_tie_rod_fl_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "tie_rod_fl",
+      "frame_a": {
+        "position": [
+          -0.04,
+          0.77,
+          0.29
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fl",
+      "frame_b": {
+        "position": [
+          -0.04,
+          0.77,
+          0.29
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_pushrod_fl_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.05,
+          0.32,
+          0.42
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "pushrod_fl",
+      "frame_b": {
+        "position": [
+          0.05,
+          0.32,
+          0.42
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_pushrod_fl_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "pushrod_fl",
+      "frame_a": {
+        "position": [
+          0.04,
+          0.75,
+          0.3
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fl",
+      "frame_b": {
+        "position": [
+          0.04,
+          0.75,
+          0.3
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_fl",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.8,
+          -0.005
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fl",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.8,
+          0.295
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "coil",
+      "rate": 120000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_fl",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.8,
+          -0.005
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fl",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.8,
+          0.295
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0.0,
+          0
+        ],
+        [
+          0.1,
+          1500
+        ],
+        [
+          0.5,
+          5000
+        ],
+        [
+          1.0,
+          8000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0.0,
+          0
+        ],
+        [
+          0.1,
+          2000
+        ],
+        [
+          0.5,
+          7000
+        ],
+        [
+          1.0,
+          11000
+        ]
+      ],
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_fr",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "upright_fr",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.8,
+          0.295
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_fr",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.8,
+          0.295
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_upper_wishbone_fr_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.1,
+          -0.3,
+          0.38
+        ],
+        "orientation": [
+          -0.0,
+          -0.9238795,
+          0.0,
+          0.3826834
+        ]
+      },
+      "body_b": "upper_wishbone_fr",
+      "frame_b": {
+        "position": [
+          0.1,
+          -0.3,
+          0.38
+        ],
+        "orientation": [
+          -0.0,
+          -0.9238795,
+          0.0,
+          0.3826834
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_wishbone_fr_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "upper_wishbone_fr",
+      "frame_a": {
+        "position": [
+          0.09,
+          -0.76,
+          0.37
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fr",
+      "frame_b": {
+        "position": [
+          0.09,
+          -0.76,
+          0.37
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_lower_wishbone_fr_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.12,
+          -0.28,
+          0.24
+        ],
+        "orientation": [
+          -0.0,
+          -0.9238795,
+          0.0,
+          0.3826834
+        ]
+      },
+      "body_b": "lower_wishbone_fr",
+      "frame_b": {
+        "position": [
+          0.12,
+          -0.28,
+          0.24
+        ],
+        "orientation": [
+          -0.0,
+          -0.9238795,
+          0.0,
+          0.3826834
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_wishbone_fr_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "lower_wishbone_fr",
+      "frame_a": {
+        "position": [
+          0.11,
+          -0.78,
+          0.23
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fr",
+      "frame_b": {
+        "position": [
+          0.11,
+          -0.78,
+          0.23
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_tie_rod_fr_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "rack",
+      "frame_a": {
+        "position": [
+          -0.05,
+          -0.3,
+          0.3
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "tie_rod_fr",
+      "frame_b": {
+        "position": [
+          -0.05,
+          -0.3,
+          0.3
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_tie_rod_fr_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "tie_rod_fr",
+      "frame_a": {
+        "position": [
+          -0.04,
+          -0.77,
+          0.29
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fr",
+      "frame_b": {
+        "position": [
+          -0.04,
+          -0.77,
+          0.29
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_pushrod_fr_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.05,
+          -0.32,
+          0.42
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "pushrod_fr",
+      "frame_b": {
+        "position": [
+          0.05,
+          -0.32,
+          0.42
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_pushrod_fr_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "pushrod_fr",
+      "frame_a": {
+        "position": [
+          0.04,
+          -0.75,
+          0.3
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fr",
+      "frame_b": {
+        "position": [
+          0.04,
+          -0.75,
+          0.3
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_fr",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.8,
+          -0.005
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fr",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.8,
+          0.295
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "coil",
+      "rate": 120000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_fr",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.8,
+          -0.005
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fr",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.8,
+          0.295
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0.0,
+          0
+        ],
+        [
+          0.1,
+          1500
+        ],
+        [
+          0.5,
+          5000
+        ],
+        [
+          1.0,
+          8000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0.0,
+          0
+        ],
+        [
+          0.1,
+          2000
+        ],
+        [
+          0.5,
+          7000
+        ],
+        [
+          1.0,
+          11000
+        ]
+      ],
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_rl",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "upright_rl",
+      "frame_a": {
+        "position": [
+          -2.8,
+          0.8,
+          0.295
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_rl",
+      "frame_b": {
+        "position": [
+          -2.8,
+          0.8,
+          0.295
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_upper_wishbone_rl_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.7,
+          0.28,
+          0.4
+        ],
+        "orientation": [
+          -0.0,
+          -0.7414525,
+          0.0,
+          0.6710053
+        ]
+      },
+      "body_b": "upper_wishbone_rl",
+      "frame_b": {
+        "position": [
+          -2.7,
+          0.28,
+          0.4
+        ],
+        "orientation": [
+          -0.0,
+          -0.7414525,
+          0.0,
+          0.6710053
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_wishbone_rl_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "upper_wishbone_rl",
+      "frame_a": {
+        "position": [
+          -2.8,
+          0.74,
+          0.39
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_rl",
+      "frame_b": {
+        "position": [
+          -2.8,
+          0.74,
+          0.39
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_lower_wishbone_rl_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.68,
+          0.26,
+          0.24
+        ],
+        "orientation": [
+          -0.0,
+          -0.7414525,
+          0.0,
+          0.6710053
+        ]
+      },
+      "body_b": "lower_wishbone_rl",
+      "frame_b": {
+        "position": [
+          -2.68,
+          0.26,
+          0.24
+        ],
+        "orientation": [
+          -0.0,
+          -0.7414525,
+          0.0,
+          0.6710053
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_wishbone_rl_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "lower_wishbone_rl",
+      "frame_a": {
+        "position": [
+          -2.78,
+          0.76,
+          0.23
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_rl",
+      "frame_b": {
+        "position": [
+          -2.78,
+          0.76,
+          0.23
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "slide_rack_a2",
+      "type": "joint",
+      "joint_type": "translational",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.95,
+          0.0,
+          0.3
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "rack_a2",
+      "frame_b": {
+        "position": [
+          -2.95,
+          0.0,
+          0.3
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_tie_rod_rl_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "rack_a2",
+      "frame_a": {
+        "position": [
+          -2.95,
+          0.28,
+          0.3
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "tie_rod_rl",
+      "frame_b": {
+        "position": [
+          -2.95,
+          0.28,
+          0.3
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_tie_rod_rl_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "tie_rod_rl",
+      "frame_a": {
+        "position": [
+          -2.94,
+          0.75,
+          0.29
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_rl",
+      "frame_b": {
+        "position": [
+          -2.94,
+          0.75,
+          0.29
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_pullrod_rl_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.85,
+          0.3,
+          0.22
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "pullrod_rl",
+      "frame_b": {
+        "position": [
+          -2.85,
+          0.3,
+          0.22
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_pullrod_rl_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "pullrod_rl",
+      "frame_a": {
+        "position": [
+          -2.84,
+          0.73,
+          0.28
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_rl",
+      "frame_b": {
+        "position": [
+          -2.84,
+          0.73,
+          0.28
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_rl",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.8,
+          0.8,
+          -0.005
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_rl",
+      "frame_b": {
+        "position": [
+          -2.8,
+          0.8,
+          0.295
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "coil",
+      "rate": 140000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_rl",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.8,
+          0.8,
+          -0.005
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_rl",
+      "frame_b": {
+        "position": [
+          -2.8,
+          0.8,
+          0.295
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0.0,
+          0
+        ],
+        [
+          0.1,
+          1800
+        ],
+        [
+          0.5,
+          5500
+        ],
+        [
+          1.0,
+          9000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0.0,
+          0
+        ],
+        [
+          0.1,
+          2500
+        ],
+        [
+          0.5,
+          8000
+        ],
+        [
+          1.0,
+          12000
+        ]
+      ],
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_rr",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "upright_rr",
+      "frame_a": {
+        "position": [
+          -2.8,
+          -0.8,
+          0.295
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_rr",
+      "frame_b": {
+        "position": [
+          -2.8,
+          -0.8,
+          0.295
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_upper_wishbone_rr_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.7,
+          -0.28,
+          0.4
+        ],
+        "orientation": [
+          -0.0,
+          -0.7414525,
+          0.0,
+          0.6710053
+        ]
+      },
+      "body_b": "upper_wishbone_rr",
+      "frame_b": {
+        "position": [
+          -2.7,
+          -0.28,
+          0.4
+        ],
+        "orientation": [
+          -0.0,
+          -0.7414525,
+          0.0,
+          0.6710053
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_wishbone_rr_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "upper_wishbone_rr",
+      "frame_a": {
+        "position": [
+          -2.8,
+          -0.74,
+          0.39
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_rr",
+      "frame_b": {
+        "position": [
+          -2.8,
+          -0.74,
+          0.39
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_lower_wishbone_rr_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.68,
+          -0.26,
+          0.24
+        ],
+        "orientation": [
+          -0.0,
+          -0.7414525,
+          0.0,
+          0.6710053
+        ]
+      },
+      "body_b": "lower_wishbone_rr",
+      "frame_b": {
+        "position": [
+          -2.68,
+          -0.26,
+          0.24
+        ],
+        "orientation": [
+          -0.0,
+          -0.7414525,
+          0.0,
+          0.6710053
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_wishbone_rr_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "lower_wishbone_rr",
+      "frame_a": {
+        "position": [
+          -2.78,
+          -0.76,
+          0.23
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_rr",
+      "frame_b": {
+        "position": [
+          -2.78,
+          -0.76,
+          0.23
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_tie_rod_rr_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "rack_a2",
+      "frame_a": {
+        "position": [
+          -2.95,
+          -0.28,
+          0.3
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "tie_rod_rr",
+      "frame_b": {
+        "position": [
+          -2.95,
+          -0.28,
+          0.3
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_tie_rod_rr_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "tie_rod_rr",
+      "frame_a": {
+        "position": [
+          -2.94,
+          -0.75,
+          0.29
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_rr",
+      "frame_b": {
+        "position": [
+          -2.94,
+          -0.75,
+          0.29
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_pullrod_rr_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.85,
+          -0.3,
+          0.22
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "pullrod_rr",
+      "frame_b": {
+        "position": [
+          -2.85,
+          -0.3,
+          0.22
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_pullrod_rr_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "pullrod_rr",
+      "frame_a": {
+        "position": [
+          -2.84,
+          -0.73,
+          0.28
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_rr",
+      "frame_b": {
+        "position": [
+          -2.84,
+          -0.73,
+          0.28
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_rr",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.8,
+          -0.8,
+          -0.005
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_rr",
+      "frame_b": {
+        "position": [
+          -2.8,
+          -0.8,
+          0.295
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "coil",
+      "rate": 140000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_rr",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.8,
+          -0.8,
+          -0.005
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_rr",
+      "frame_b": {
+        "position": [
+          -2.8,
+          -0.8,
+          0.295
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0.0,
+          0
+        ],
+        [
+          0.1,
+          1800
+        ],
+        [
+          0.5,
+          5500
+        ],
+        [
+          1.0,
+          9000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0.0,
+          0
+        ],
+        [
+          0.1,
+          2500
+        ],
+        [
+          0.5,
+          8000
+        ],
+        [
+          1.0,
+          12000
+        ]
+      ],
+      "x_derived": true
+    }
+  ],
+  "wheel_stations": [
+    {
+      "id": "FL",
+      "name": "FL",
+      "wheel_body": "wheel_fl",
+      "upright_body": "upright_fl",
+      "wheel_center_marker": "wheel_center",
+      "steering_joint": "slide_rack",
+      "axle": "A1",
+      "side": "L",
+      "topology_hint": "double_wishbone",
+      "wheel": {
+        "rim_diameter": 0.33,
+        "rim_width": 0.305
+      },
+      "visual": {
+        "mesh_ref": "wheel_set",
+        "node": "SVJ::body::upright_fl"
+      },
+      "x_actuation": "pushrod"
+    },
+    {
+      "id": "FR",
+      "name": "FR",
+      "wheel_body": "wheel_fr",
+      "upright_body": "upright_fr",
+      "wheel_center_marker": "wheel_center",
+      "steering_joint": "slide_rack",
+      "axle": "A1",
+      "side": "R",
+      "topology_hint": "double_wishbone",
+      "wheel": {
+        "rim_diameter": 0.33,
+        "rim_width": 0.305
+      },
+      "visual": {
+        "mesh_ref": "wheel_set",
+        "node": "SVJ::body::upright_fr"
+      },
+      "x_actuation": "pushrod"
+    },
+    {
+      "id": "RL",
+      "name": "RL",
+      "wheel_body": "wheel_rl",
+      "upright_body": "upright_rl",
+      "wheel_center_marker": "wheel_center",
+      "steering_joint": "slide_rack_a2",
+      "axle": "A2",
+      "side": "L",
+      "topology_hint": "double_wishbone",
+      "wheel": {
+        "rim_diameter": 0.33,
+        "rim_width": 0.305
+      },
+      "visual": {
+        "mesh_ref": "wheel_set",
+        "node": "SVJ::body::upright_rl"
+      },
+      "x_actuation": "pullrod"
+    },
+    {
+      "id": "RR",
+      "name": "RR",
+      "wheel_body": "wheel_rr",
+      "upright_body": "upright_rr",
+      "wheel_center_marker": "wheel_center",
+      "steering_joint": "slide_rack_a2",
+      "axle": "A2",
+      "side": "R",
+      "topology_hint": "double_wishbone",
+      "wheel": {
+        "rim_diameter": 0.33,
+        "rim_width": 0.305
+      },
+      "visual": {
+        "mesh_ref": "wheel_set",
+        "node": "SVJ::body::upright_rr"
+      },
+      "x_actuation": "pullrod"
+    }
+  ]
 }

@@ -69,6 +69,8 @@ tractor.body_transforms("hitch_up")["implement"]     # (R, t) from the reference
 tractor.body_inertia("loader_boom")    # a body's 3x3 inertia in vehicle axes (object or matrix form, inertia_orientation applied)
 ```
 
+**Unified suspension (v0.100).** `Vehicle.is_unified` is true when the file uses `wheel_stations[]`; `.wheel_stations`, `.stations`, `.corner()`, `.hardpoints()` and `.joints()` then answer from bodies, joints and markers, and the old corner section keeps working (deprecated, `validate()` warns). `svj.migrate_suspension.migrate(doc)` returns `(new_doc, notes)`.
+
 `svj.validate()` also runs `svj/constraints.py` (an exact copy of `tools/constraints_check.py`): references, ranges, frame coincidence, connectivity, inertia plausibility, latches, couplings, drives and actuator reach in every pose. Poses follow `coupling` linkages: naming the tipper angle also moves the linked tailgate.
 
 ### Joint types

@@ -135,7 +135,8 @@ The pattern alone does not stop two exporters calling the same part `wishbone_up
 | `panhard_rod` | Panhard bar | `track_bar`, `lateral_rod` |
 | `watts_link_rod` / `watts_pivot` | Watt's linkage parts | `watts_arm`, `watts_centre` |
 | `axle_body` | Beam axle, housing or de Dion tube | `axle_housing`, `de_dion_tube`, `beam_axle` |
-| `spring` | Spring of any type | `coil`, `leaf_spring`, `air_spring` |
+| `spring` | Spring element (coil, air, …) | `coil`, `air_spring` |
+| `leaf_spring` | Leaf spring pack (modelled as a body with eye, slipper and seat joints, §25) | — |
 | `damper` | Damper body | `shock`, `shock_absorber` |
 | `arb` | Anti-roll bar | `sway_bar`, `stabiliser_bar`, `torsion_bar_arb` |
 | `drop_link` | ARB drop link | `arb_link`, `end_link` |
@@ -236,6 +237,7 @@ The list is open: a part that is not in it keeps its own lowercase name and is n
 | Hydraulic or pneumatic cylinder (`actuator`) | `<part>_cylinder` (not `_ram` or `_piston`; an electric one is `<part>_actuator`) | `loader_boom_cylinder`, `tipper_body_cylinder` |
 | Passive element (`spring`) | `<part>_strut` (gas strut) or `<part>_spring`, with `_l` / `_r` if paired | `hood_strut_l`, `tailgate_strut_r` |
 | Latch and detent | `<part>_latch` (closing latch, position 0), `<part>_check` (door-check detent) | `door_fl_latch`, `door_fl_check` |
+| Contact (rubber stop, seal, seat) | `<part>_stop`, with `_l` / `_r` if paired | `hood_stop_l`, `tailgate_stop_r` |
 | Coupling | `<driven_part>_link` | `tailgate_link` |
 | Pose | lowercase state names: `closed`, `transport`, `<part>_open`, `<part>_up`, `work` | `door_fl_open`, `tailgate_up`, `loader_dump` |
 
@@ -247,8 +249,9 @@ The list is open: a part that is not in it keeps its own lowercase name and is n
 | `<part>_hinge`, `<part>_slide`, `<part>_mount` | the parent (often `chassis`) | The matching frame on the parent side, named after the moving part |
 | `<element>_base`, `<element>_rod` | parent side, moving side | Ends of an actuator (`loader_boom_cylinder_base`, `loader_boom_cylinder_rod`) |
 | `<element>_base`, `<element>_end` | parent side, moving side | Ends of a spring or strut |
+| `<contact>_base`, `<contact>_pad` | parent side, moving side | The shape on the parent (a stop sphere) and on the moving part (a pad point) |
 
-`tools/constraints_check.py` raises the alias advisory for body ids and for actuators named `_ram` / `_piston`; markers and constraint ids are recommendations only.
+The suspension, steering and brake parts of the table above (upright, wishbones, links, tie rod, rack, arb, …) take part in the same advisory: a body that is one of them keeps the canonical name (`upright_fl`, `tie_rod_a2l`), with its meaning in `description` and a short label in `name`. `tools/constraints_check.py` raises the alias advisory for body ids (`knuckle_fr` → `upright_fr`, `lca_a2l` → `lower_wishbone_a2l`) and for actuators named `_ram` / `_piston`; markers and constraint ids are recommendations only. The mechanism is defined by the bodies and joints, never by a name.
 
 ---
 

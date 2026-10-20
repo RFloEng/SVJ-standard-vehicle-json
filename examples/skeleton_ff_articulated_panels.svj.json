@@ -1,8 +1,8 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99.7",
-    "description": "Skeleton: FWD hatchback with movable panels — two doors with latches and a detent (door check), a hood and a power-operated hatch on gas struts, with poses. Panel masses are part of the stated mass_total; geometry is illustrative.",
+    "version": "0.100",
+    "description": "Skeleton: FWD hatchback with movable panels — two doors with latches and a detent (door check), a hood and a power-operated hatch on gas struts, with rubber stops (contacts) and poses. Panel masses are part of the stated mass_total; geometry is illustrative.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
     "data_origin": {
@@ -40,7 +40,44 @@
           -0.625,
           -0.31
         ],
-        "parent": "chassis"
+        "parent": "chassis",
+        "markers": {
+          "strut_top": {
+            "position": [
+              0.0,
+              -0.52,
+              -0.62
+            ]
+          },
+          "strut_lower": {
+            "position": [
+              0.0,
+              -0.583,
+              -0.31
+            ]
+          },
+          "lower_ball_joint": {
+            "position": [
+              0.0,
+              -0.62,
+              -0.13
+            ]
+          },
+          "steering_tie_rod_end": {
+            "position": [
+              0.09,
+              -0.59,
+              -0.18
+            ]
+          },
+          "wheel_center": {
+            "position": [
+              0.0,
+              -0.77,
+              -0.31
+            ]
+          }
+        }
       },
       {
         "id": "strut_fl",
@@ -88,7 +125,44 @@
           0.625,
           -0.31
         ],
-        "parent": "chassis"
+        "parent": "chassis",
+        "markers": {
+          "strut_top": {
+            "position": [
+              0.0,
+              0.52,
+              -0.62
+            ]
+          },
+          "strut_lower": {
+            "position": [
+              0.0,
+              0.583,
+              -0.31
+            ]
+          },
+          "lower_ball_joint": {
+            "position": [
+              0.0,
+              0.62,
+              -0.13
+            ]
+          },
+          "steering_tie_rod_end": {
+            "position": [
+              0.09,
+              0.59,
+              -0.18
+            ]
+          },
+          "wheel_center": {
+            "position": [
+              0.0,
+              0.77,
+              -0.31
+            ]
+          }
+        }
       },
       {
         "id": "strut_fr",
@@ -292,6 +366,20 @@
               0.6,
               -0.82
             ]
+          },
+          "hood_stop_l_pad": {
+            "position": [
+              0.82,
+              -0.55,
+              -0.782
+            ]
+          },
+          "hood_stop_r_pad": {
+            "position": [
+              0.82,
+              0.55,
+              -0.782
+            ]
           }
         },
         "name": "Hood"
@@ -342,9 +430,144 @@
               0.62,
               -1.2
             ]
+          },
+          "tailgate_stop_l_pad": {
+            "position": [
+              -3.3,
+              -0.55,
+              -0.85
+            ]
+          },
+          "tailgate_stop_r_pad": {
+            "position": [
+              -3.3,
+              0.55,
+              -0.85
+            ]
           }
         },
         "name": "Tailgate"
+      },
+      {
+        "id": "wheel_fl",
+        "name": "Wheel FL",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.0,
+          -0.77,
+          -0.31
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "rack",
+        "name": "Steering rack",
+        "description": "Steering rack / gear housing",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.09,
+          0.0,
+          -0.18
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "wheel_fr",
+        "name": "Wheel FR",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.0,
+          0.77,
+          -0.31
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "torsion_beam_rear",
+        "name": "Axle body torsion_beam_rear",
+        "description": "Beam axle, housing or de Dion tube",
+        "category": "structural",
+        "mass": 15.0,
+        "position": [
+          -2.62,
+          -0.765,
+          -0.31
+        ],
+        "markers": {
+          "wheel_center_rl": {
+            "position": [
+              -2.62,
+              -0.765,
+              -0.31
+            ]
+          },
+          "damper_outboard_rl": {
+            "position": [
+              -2.62,
+              -0.5,
+              -0.13
+            ]
+          },
+          "wheel_center_rr": {
+            "position": [
+              -2.62,
+              0.765,
+              -0.31
+            ]
+          },
+          "damper_outboard_rr": {
+            "position": [
+              -2.62,
+              0.5,
+              -0.13
+            ]
+          }
+        },
+        "x_legacy_axle_body": {
+          "torsional_stiffness": 800.0,
+          "beam_type": "open_section",
+          "beam_position": [
+            -2.4,
+            0.0,
+            -0.2
+          ]
+        },
+        "visual": {
+          "mesh_ref": "skeleton_ff",
+          "node": "SVJ::helper::torsion_beam_rear"
+        },
+        "x_derived": true
+      },
+      {
+        "id": "wheel_rl",
+        "name": "Wheel RL",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -2.62,
+          -0.765,
+          -0.31
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "wheel_rr",
+        "name": "Wheel RR",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -2.62,
+          0.765,
+          -0.31
+        ],
+        "x_derived": true
       }
     ],
     "visual": {
@@ -431,6 +654,34 @@
           0.62,
           -1.05
         ]
+      },
+      "hood_stop_l_base": {
+        "position": [
+          0.82,
+          -0.55,
+          -0.77
+        ]
+      },
+      "hood_stop_r_base": {
+        "position": [
+          0.82,
+          0.55,
+          -0.77
+        ]
+      },
+      "tailgate_stop_l_base": {
+        "position": [
+          -3.288,
+          -0.55,
+          -0.85
+        ]
+      },
+      "tailgate_stop_r_base": {
+        "position": [
+          -3.288,
+          0.55,
+          -0.85
+        ]
       }
     }
   },
@@ -444,544 +695,6 @@
     "rack_travel": 0.14,
     "overall_ratio": 14.0,
     "lock_to_lock": 17.593
-  },
-  "suspension": {
-    "FL": {
-      "topology": {
-        "system_type": "macpherson",
-        "upright": {
-          "id": "upright_FL",
-          "mass": 9.0,
-          "hardpoints": {
-            "strut_top": [
-              0.0,
-              -0.52,
-              -0.62
-            ],
-            "strut_lower": [
-              0.0,
-              -0.583,
-              -0.31
-            ],
-            "lower_ball_joint": [
-              0.0,
-              -0.62,
-              -0.13
-            ],
-            "steering_tie_rod_end": [
-              0.09,
-              -0.59,
-              -0.18
-            ],
-            "wheel_center": [
-              0.0,
-              -0.77,
-              -0.31
-            ]
-          },
-          "body_ref": "upright_fl",
-          "cg_position": [
-            0.0225,
-            -0.625,
-            -0.31
-          ]
-        },
-        "links": [
-          {
-            "name": "strut",
-            "type": "strut",
-            "inboard_points": [
-              [
-                0.0,
-                -0.52,
-                -0.62
-              ]
-            ],
-            "outboard_ref": "hardpoints.strut_lower",
-            "joint_type": "translational",
-            "inboard_joint_type": "fixed",
-            "body_ref": "strut_fl",
-            "mass": 4.5,
-            "cg_position": [
-              0.0,
-              -0.52,
-              -0.62
-            ]
-          },
-          {
-            "name": "lower_control_arm",
-            "type": "arm",
-            "inboard_points": [
-              [
-                0.18,
-                -0.22,
-                -0.13
-              ],
-              [
-                -0.15,
-                -0.22,
-                -0.13
-              ]
-            ],
-            "outboard_ref": "hardpoints.lower_ball_joint",
-            "joint_type": "spherical",
-            "inboard_joint_type": "revolute",
-            "body_ref": "lower_control_arm_fl",
-            "mass": 3.5,
-            "cg_position": [
-              0.01,
-              -0.3533,
-              -0.13
-            ]
-          },
-          {
-            "name": "steering_tie_rod",
-            "type": "rod",
-            "inboard_points": [
-              [
-                0.09,
-                -0.15,
-                -0.18
-              ]
-            ],
-            "outboard_ref": "hardpoints.steering_tie_rod_end",
-            "joint_type": "spherical",
-            "inboard_joint_type": "spherical",
-            "body_ref": "steering_tie_rod_fl",
-            "mass": 0.8,
-            "cg_position": [
-              0.09,
-              -0.37,
-              -0.18
-            ]
-          }
-        ]
-      },
-      "wheel": {
-        "rim_diameter": 0.4064,
-        "rim_width": 0.1778
-      },
-      "spring": {
-        "type": "coilover",
-        "rate": 25000
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.05,
-            600
-          ],
-          [
-            0.2,
-            1500
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.05,
-            900
-          ],
-          [
-            0.2,
-            2300
-          ]
-        ]
-      },
-      "visual": {
-        "mesh_ref": "skeleton_ff",
-        "node": "SVJ::body::upright_fl"
-      }
-    },
-    "FR": {
-      "topology": {
-        "system_type": "macpherson",
-        "upright": {
-          "id": "upright_FR",
-          "mass": 9.0,
-          "hardpoints": {
-            "strut_top": [
-              0.0,
-              0.52,
-              -0.62
-            ],
-            "strut_lower": [
-              0.0,
-              0.583,
-              -0.31
-            ],
-            "lower_ball_joint": [
-              0.0,
-              0.62,
-              -0.13
-            ],
-            "steering_tie_rod_end": [
-              0.09,
-              0.59,
-              -0.18
-            ],
-            "wheel_center": [
-              0.0,
-              0.77,
-              -0.31
-            ]
-          },
-          "body_ref": "upright_fr",
-          "cg_position": [
-            0.0225,
-            0.625,
-            -0.31
-          ]
-        },
-        "links": [
-          {
-            "name": "strut",
-            "type": "strut",
-            "inboard_points": [
-              [
-                0.0,
-                0.52,
-                -0.62
-              ]
-            ],
-            "outboard_ref": "hardpoints.strut_lower",
-            "joint_type": "translational",
-            "inboard_joint_type": "fixed",
-            "body_ref": "strut_fr",
-            "mass": 4.5,
-            "cg_position": [
-              0.0,
-              0.52,
-              -0.62
-            ]
-          },
-          {
-            "name": "lower_control_arm",
-            "type": "arm",
-            "inboard_points": [
-              [
-                0.18,
-                0.22,
-                -0.13
-              ],
-              [
-                -0.15,
-                0.22,
-                -0.13
-              ]
-            ],
-            "outboard_ref": "hardpoints.lower_ball_joint",
-            "joint_type": "spherical",
-            "inboard_joint_type": "revolute",
-            "body_ref": "lower_control_arm_fr",
-            "mass": 3.5,
-            "cg_position": [
-              0.01,
-              0.3533,
-              -0.13
-            ]
-          },
-          {
-            "name": "steering_tie_rod",
-            "type": "rod",
-            "inboard_points": [
-              [
-                0.09,
-                0.15,
-                -0.18
-              ]
-            ],
-            "outboard_ref": "hardpoints.steering_tie_rod_end",
-            "joint_type": "spherical",
-            "inboard_joint_type": "spherical",
-            "body_ref": "steering_tie_rod_fr",
-            "mass": 0.8,
-            "cg_position": [
-              0.09,
-              0.37,
-              -0.18
-            ]
-          }
-        ]
-      },
-      "wheel": {
-        "rim_diameter": 0.4064,
-        "rim_width": 0.1778
-      },
-      "spring": {
-        "type": "coilover",
-        "rate": 25000
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.05,
-            600
-          ],
-          [
-            0.2,
-            1500
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.05,
-            900
-          ],
-          [
-            0.2,
-            2300
-          ]
-        ]
-      },
-      "visual": {
-        "mesh_ref": "skeleton_ff",
-        "node": "SVJ::body::upright_fr"
-      }
-    },
-    "RL": {
-      "topology": {
-        "system_type": "torsion_beam",
-        "upright": {
-          "id": "upright_RL",
-          "mass": 7.0,
-          "hardpoints": {
-            "wheel_center": [
-              -2.62,
-              -0.765,
-              -0.31
-            ],
-            "damper_outboard": [
-              -2.62,
-              -0.5,
-              -0.13
-            ]
-          },
-          "body_ref": "upright_rl",
-          "cg_position": [
-            -2.62,
-            -0.6325,
-            -0.22
-          ]
-        },
-        "links": [
-          {
-            "name": "trailing_arm",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -2.2,
-                -0.28,
-                -0.18
-              ],
-              [
-                -2.2,
-                -0.28,
-                -0.28
-              ]
-            ],
-            "outboard_ref": "hardpoints.wheel_center",
-            "joint_type": "revolute",
-            "inboard_joint_type": "revolute",
-            "body_ref": "trailing_arm_rl",
-            "mass": 5.5,
-            "cg_position": [
-              -2.34,
-              -0.4417,
-              -0.2567
-            ]
-          }
-        ],
-        "axle_body": {
-          "id": "torsion_beam_rear",
-          "mass": 15.0,
-          "torsional_stiffness": 800.0,
-          "beam_type": "open_section",
-          "beam_position": [
-            -2.4,
-            0.0,
-            -0.2
-          ],
-          "visual": {
-            "mesh_ref": "skeleton_ff",
-            "node": "SVJ::helper::torsion_beam_rear"
-          }
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.4064,
-        "rim_width": 0.1651
-      },
-      "spring": {
-        "type": "coil",
-        "rate": 22000
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.05,
-            500
-          ],
-          [
-            0.2,
-            1300
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.05,
-            750
-          ],
-          [
-            0.2,
-            1900
-          ]
-        ]
-      },
-      "visual": {
-        "mesh_ref": "skeleton_ff",
-        "node": "SVJ::body::upright_rl"
-      }
-    },
-    "RR": {
-      "topology": {
-        "system_type": "torsion_beam",
-        "upright": {
-          "id": "upright_RR",
-          "mass": 7.0,
-          "hardpoints": {
-            "wheel_center": [
-              -2.62,
-              0.765,
-              -0.31
-            ],
-            "damper_outboard": [
-              -2.62,
-              0.5,
-              -0.13
-            ]
-          },
-          "body_ref": "upright_rr",
-          "cg_position": [
-            -2.62,
-            0.6325,
-            -0.22
-          ]
-        },
-        "links": [
-          {
-            "name": "trailing_arm",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -2.2,
-                0.28,
-                -0.18
-              ],
-              [
-                -2.2,
-                0.28,
-                -0.28
-              ]
-            ],
-            "outboard_ref": "hardpoints.wheel_center",
-            "joint_type": "revolute",
-            "inboard_joint_type": "revolute",
-            "body_ref": "trailing_arm_rr",
-            "mass": 5.5,
-            "cg_position": [
-              -2.34,
-              0.4417,
-              -0.2567
-            ]
-          }
-        ],
-        "axle_body": {
-          "id": "torsion_beam_rear",
-          "mass": 15.0,
-          "torsional_stiffness": 800.0,
-          "beam_type": "open_section",
-          "beam_position": [
-            -2.4,
-            0.0,
-            -0.2
-          ],
-          "visual": {
-            "mesh_ref": "skeleton_ff",
-            "node": "SVJ::helper::torsion_beam_rear"
-          }
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.4064,
-        "rim_width": 0.1651
-      },
-      "spring": {
-        "type": "coil",
-        "rate": 22000
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.05,
-            500
-          ],
-          [
-            0.2,
-            1300
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.05,
-            750
-          ],
-          [
-            0.2,
-            1900
-          ]
-        ]
-      },
-      "visual": {
-        "mesh_ref": "skeleton_ff",
-        "node": "SVJ::body::upright_rr"
-      }
-    }
   },
   "powertrain": {
     "layout": "FF",
@@ -1242,6 +955,1204 @@
       "rate": 900,
       "preload": 150,
       "damping": 60
+    },
+    {
+      "id": "hood_stop_l",
+      "type": "contact",
+      "body_a": "chassis",
+      "marker_a": "hood_stop_l_base",
+      "shape_a": {
+        "type": "sphere",
+        "radius": 0.012
+      },
+      "body_b": "hood",
+      "marker_b": "hood_stop_l_pad",
+      "shape_b": {
+        "type": "point"
+      },
+      "law": {
+        "gap": 0.0,
+        "stiffness": 80000,
+        "damping": 400,
+        "friction": 0.3,
+        "restitution": 0.1
+      }
+    },
+    {
+      "id": "hood_stop_r",
+      "type": "contact",
+      "body_a": "chassis",
+      "marker_a": "hood_stop_r_base",
+      "shape_a": {
+        "type": "sphere",
+        "radius": 0.012
+      },
+      "body_b": "hood",
+      "marker_b": "hood_stop_r_pad",
+      "shape_b": {
+        "type": "point"
+      },
+      "law": {
+        "gap": 0.0,
+        "stiffness": 80000,
+        "damping": 400,
+        "friction": 0.3,
+        "restitution": 0.1
+      }
+    },
+    {
+      "id": "tailgate_stop_l",
+      "type": "contact",
+      "body_a": "chassis",
+      "marker_a": "tailgate_stop_l_base",
+      "shape_a": {
+        "type": "sphere",
+        "radius": 0.012
+      },
+      "body_b": "tailgate",
+      "marker_b": "tailgate_stop_l_pad",
+      "shape_b": {
+        "type": "point"
+      },
+      "law": {
+        "gap": 0.0,
+        "stiffness": 80000,
+        "damping": 400,
+        "friction": 0.3,
+        "restitution": 0.1
+      }
+    },
+    {
+      "id": "tailgate_stop_r",
+      "type": "contact",
+      "body_a": "chassis",
+      "marker_a": "tailgate_stop_r_base",
+      "shape_a": {
+        "type": "sphere",
+        "radius": 0.012
+      },
+      "body_b": "tailgate",
+      "marker_b": "tailgate_stop_r_pad",
+      "shape_b": {
+        "type": "point"
+      },
+      "law": {
+        "gap": 0.0,
+        "stiffness": 80000,
+        "damping": 400,
+        "friction": 0.3,
+        "restitution": 0.1
+      }
+    },
+    {
+      "id": "hinge_wheel_fl",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "upright_fl",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.77,
+          -0.31
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_fl",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.77,
+          -0.31
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_strut_fl_inboard",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.52,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "strut_fl",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.52,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "slide_strut_fl_outboard",
+      "type": "joint",
+      "joint_type": "translational",
+      "body_a": "strut_fl",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.583,
+          -0.31
+        ],
+        "orientation": [
+          0.1000799,
+          0.0,
+          0.0,
+          0.9949794
+        ]
+      },
+      "body_b": "upright_fl",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.583,
+          -0.31
+        ],
+        "orientation": [
+          0.1000799,
+          0.0,
+          0.0,
+          0.9949794
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_lower_control_arm_fl_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.18,
+          -0.22,
+          -0.13
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "lower_control_arm_fl",
+      "frame_b": {
+        "position": [
+          0.18,
+          -0.22,
+          -0.13
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_control_arm_fl_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "lower_control_arm_fl",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.62,
+          -0.13
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fl",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.62,
+          -0.13
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "slide_rack",
+      "type": "joint",
+      "joint_type": "translational",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.09,
+          0.0,
+          -0.18
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "rack",
+      "frame_b": {
+        "position": [
+          0.09,
+          0.0,
+          -0.18
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_steering_tie_rod_fl_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "rack",
+      "frame_a": {
+        "position": [
+          0.09,
+          -0.15,
+          -0.18
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "steering_tie_rod_fl",
+      "frame_b": {
+        "position": [
+          0.09,
+          -0.15,
+          -0.18
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_steering_tie_rod_fl_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "steering_tie_rod_fl",
+      "frame_a": {
+        "position": [
+          0.09,
+          -0.59,
+          -0.18
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fl",
+      "frame_b": {
+        "position": [
+          0.09,
+          -0.59,
+          -0.18
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_fl",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.77,
+          -0.61
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fl",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.77,
+          -0.31
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "coilover",
+      "rate": 25000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_fl",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.77,
+          -0.61
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fl",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.77,
+          -0.31
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.05,
+          600
+        ],
+        [
+          0.2,
+          1500
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.05,
+          900
+        ],
+        [
+          0.2,
+          2300
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_fr",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "upright_fr",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.77,
+          -0.31
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_fr",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.77,
+          -0.31
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_strut_fr_inboard",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.52,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "strut_fr",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.52,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "slide_strut_fr_outboard",
+      "type": "joint",
+      "joint_type": "translational",
+      "body_a": "strut_fr",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.583,
+          -0.31
+        ],
+        "orientation": [
+          -0.1000799,
+          0.0,
+          0.0,
+          0.9949794
+        ]
+      },
+      "body_b": "upright_fr",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.583,
+          -0.31
+        ],
+        "orientation": [
+          -0.1000799,
+          0.0,
+          0.0,
+          0.9949794
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_lower_control_arm_fr_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.18,
+          0.22,
+          -0.13
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "lower_control_arm_fr",
+      "frame_b": {
+        "position": [
+          0.18,
+          0.22,
+          -0.13
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_control_arm_fr_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "lower_control_arm_fr",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.62,
+          -0.13
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fr",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.62,
+          -0.13
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_steering_tie_rod_fr_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "rack",
+      "frame_a": {
+        "position": [
+          0.09,
+          0.15,
+          -0.18
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "steering_tie_rod_fr",
+      "frame_b": {
+        "position": [
+          0.09,
+          0.15,
+          -0.18
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_steering_tie_rod_fr_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "steering_tie_rod_fr",
+      "frame_a": {
+        "position": [
+          0.09,
+          0.59,
+          -0.18
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fr",
+      "frame_b": {
+        "position": [
+          0.09,
+          0.59,
+          -0.18
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_fr",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.77,
+          -0.61
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fr",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.77,
+          -0.31
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "coilover",
+      "rate": 25000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_fr",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.77,
+          -0.61
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fr",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.77,
+          -0.31
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.05,
+          600
+        ],
+        [
+          0.2,
+          1500
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.05,
+          900
+        ],
+        [
+          0.2,
+          2300
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_rl",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "torsion_beam_rear",
+      "frame_a": {
+        "position": [
+          -2.62,
+          -0.765,
+          -0.31
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_rl",
+      "frame_b": {
+        "position": [
+          -2.62,
+          -0.765,
+          -0.31
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_trailing_arm_rl_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.2,
+          -0.28,
+          -0.18
+        ],
+        "orientation": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "body_b": "trailing_arm_rl",
+      "frame_b": {
+        "position": [
+          -2.2,
+          -0.28,
+          -0.18
+        ],
+        "orientation": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_trailing_arm_rl_outboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "trailing_arm_rl",
+      "frame_a": {
+        "position": [
+          -2.62,
+          -0.765,
+          -0.31
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "torsion_beam_rear",
+      "frame_b": {
+        "position": [
+          -2.62,
+          -0.765,
+          -0.31
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_rl",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.62,
+          -0.765,
+          -0.61
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "torsion_beam_rear",
+      "frame_b": {
+        "position": [
+          -2.62,
+          -0.765,
+          -0.31
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "coil",
+      "rate": 22000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_rl",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.62,
+          -0.765,
+          -0.61
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "torsion_beam_rear",
+      "frame_b": {
+        "position": [
+          -2.62,
+          -0.765,
+          -0.31
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.05,
+          500
+        ],
+        [
+          0.2,
+          1300
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.05,
+          750
+        ],
+        [
+          0.2,
+          1900
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_rr",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "torsion_beam_rear",
+      "frame_a": {
+        "position": [
+          -2.62,
+          0.765,
+          -0.31
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_rr",
+      "frame_b": {
+        "position": [
+          -2.62,
+          0.765,
+          -0.31
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_trailing_arm_rr_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.2,
+          0.28,
+          -0.18
+        ],
+        "orientation": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "body_b": "trailing_arm_rr",
+      "frame_b": {
+        "position": [
+          -2.2,
+          0.28,
+          -0.18
+        ],
+        "orientation": [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_trailing_arm_rr_outboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "trailing_arm_rr",
+      "frame_a": {
+        "position": [
+          -2.62,
+          0.765,
+          -0.31
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "torsion_beam_rear",
+      "frame_b": {
+        "position": [
+          -2.62,
+          0.765,
+          -0.31
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_rr",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.62,
+          0.765,
+          -0.61
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "torsion_beam_rear",
+      "frame_b": {
+        "position": [
+          -2.62,
+          0.765,
+          -0.31
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "coil",
+      "rate": 22000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_rr",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.62,
+          0.765,
+          -0.61
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "torsion_beam_rear",
+      "frame_b": {
+        "position": [
+          -2.62,
+          0.765,
+          -0.31
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.05,
+          500
+        ],
+        [
+          0.2,
+          1300
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.05,
+          750
+        ],
+        [
+          0.2,
+          1900
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
     }
   ],
   "poses": [
@@ -1271,6 +2182,82 @@
       "id": "tailgate_up",
       "values": {
         "hinge_tailgate": 1.15
+      }
+    }
+  ],
+  "wheel_stations": [
+    {
+      "id": "FL",
+      "name": "FL",
+      "wheel_body": "wheel_fl",
+      "upright_body": "upright_fl",
+      "wheel_center_marker": "wheel_center",
+      "steering_joint": "slide_rack",
+      "axle": "A1",
+      "side": "L",
+      "topology_hint": "macpherson",
+      "wheel": {
+        "rim_diameter": 0.4064,
+        "rim_width": 0.1778
+      },
+      "visual": {
+        "mesh_ref": "skeleton_ff",
+        "node": "SVJ::body::upright_fl"
+      }
+    },
+    {
+      "id": "FR",
+      "name": "FR",
+      "wheel_body": "wheel_fr",
+      "upright_body": "upright_fr",
+      "wheel_center_marker": "wheel_center",
+      "steering_joint": "slide_rack",
+      "axle": "A1",
+      "side": "R",
+      "topology_hint": "macpherson",
+      "wheel": {
+        "rim_diameter": 0.4064,
+        "rim_width": 0.1778
+      },
+      "visual": {
+        "mesh_ref": "skeleton_ff",
+        "node": "SVJ::body::upright_fr"
+      }
+    },
+    {
+      "id": "RL",
+      "name": "RL",
+      "wheel_body": "wheel_rl",
+      "upright_body": "torsion_beam_rear",
+      "wheel_center_marker": "wheel_center_rl",
+      "axle": "A2",
+      "side": "L",
+      "topology_hint": "torsion_beam",
+      "wheel": {
+        "rim_diameter": 0.4064,
+        "rim_width": 0.1651
+      },
+      "visual": {
+        "mesh_ref": "skeleton_ff",
+        "node": "SVJ::body::upright_rl"
+      }
+    },
+    {
+      "id": "RR",
+      "name": "RR",
+      "wheel_body": "wheel_rr",
+      "upright_body": "torsion_beam_rear",
+      "wheel_center_marker": "wheel_center_rr",
+      "axle": "A2",
+      "side": "R",
+      "topology_hint": "torsion_beam",
+      "wheel": {
+        "rim_diameter": 0.4064,
+        "rim_width": 0.1651
+      },
+      "visual": {
+        "mesh_ref": "skeleton_ff",
+        "node": "SVJ::body::upright_rr"
       }
     }
   ]

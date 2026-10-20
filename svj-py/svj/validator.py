@@ -127,6 +127,10 @@ def _consistency_checks(data: dict) -> list[str]:
 
     # ── ARB consistency ──
     susp = data.get("suspension", {})
+    if susp:
+        warnings.append("suspension: the corner-based suspension section is deprecated since 0.100; migrate it with tools/migrate_suspension.py (spec §25)")
+    elif data.get("wheel_stations"):
+        susp = {s["id"]: s for s in data["wheel_stations"] if isinstance(s, dict) and isinstance(s.get("id"), str)}
     stations = [k for k in susp if STATION_RE.match(k)]
     arb_map: dict[str, float] = {}
     for corner in stations:

@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99.4",
+    "version": "0.100",
     "description": "8x4 rigid truck skeleton — leaf steer axle, steerable parallelogram pusher lift axle (self-steer), air-sprung tandem drive on one levelling circuit.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
@@ -29,6 +29,538 @@
       -3.4,
       0,
       -1.3
+    ],
+    "mass_bodies": [
+      {
+        "id": "a1_beam",
+        "name": "Axle body A1_beam",
+        "description": "Beam axle, housing or de Dion tube",
+        "category": "structural",
+        "mass": 320,
+        "position": [
+          0.0,
+          0,
+          -0.51
+        ],
+        "markers": {
+          "wheel_center_a1l": {
+            "position": [
+              0.0,
+              -1.025,
+              -0.51
+            ]
+          },
+          "spring_pad_a1l": {
+            "position": [
+              0.0,
+              -0.45,
+              -0.63
+            ]
+          },
+          "damper_outboard_a1l": {
+            "position": [
+              0.0,
+              -0.4,
+              -0.51
+            ]
+          },
+          "steering_tie_rod_end_a1l": {
+            "position": [
+              -0.18,
+              -0.905,
+              -0.46
+            ]
+          },
+          "wheel_center_a1r": {
+            "position": [
+              0.0,
+              1.025,
+              -0.51
+            ]
+          },
+          "spring_pad_a1r": {
+            "position": [
+              0.0,
+              0.45,
+              -0.63
+            ]
+          },
+          "damper_outboard_a1r": {
+            "position": [
+              0.0,
+              0.4,
+              -0.51
+            ]
+          },
+          "steering_tie_rod_end_a1r": {
+            "position": [
+              -0.18,
+              0.905,
+              -0.46
+            ]
+          }
+        },
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a1l",
+        "name": "Wheel A1L",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 110,
+        "position": [
+          0.0,
+          -1.025,
+          -0.51
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "leaf_spring_a1l",
+        "name": "Leaf Spring A1L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.0,
+          -0.45,
+          -0.6799999999999999
+        ],
+        "description": "Leaf spring pack",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a1r",
+        "name": "Wheel A1R",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 110,
+        "position": [
+          0.0,
+          1.025,
+          -0.51
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "leaf_spring_a1r",
+        "name": "Leaf Spring A1R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.0,
+          0.45,
+          -0.6799999999999999
+        ],
+        "description": "Leaf spring pack",
+        "x_derived": true
+      },
+      {
+        "id": "a2_lift_beam",
+        "name": "Axle body A2_lift_beam",
+        "description": "Beam axle, housing or de Dion tube",
+        "category": "structural",
+        "mass": 260,
+        "position": [
+          -2.9,
+          0,
+          -0.51
+        ],
+        "markers": {
+          "wheel_center_a2l": {
+            "position": [
+              -2.9,
+              -1.025,
+              -0.51
+            ]
+          },
+          "upper_beam_end_a2l": {
+            "position": [
+              -2.85,
+              -0.42,
+              -0.71
+            ]
+          },
+          "lower_beam_end_a2l": {
+            "position": [
+              -2.85,
+              -0.42,
+              -0.49
+            ]
+          },
+          "steering_tie_rod_end_a2l": {
+            "position": [
+              -3.1,
+              -0.875,
+              -0.51
+            ]
+          },
+          "wheel_center_a2r": {
+            "position": [
+              -2.9,
+              1.025,
+              -0.51
+            ]
+          },
+          "upper_beam_end_a2r": {
+            "position": [
+              -2.85,
+              0.42,
+              -0.71
+            ]
+          },
+          "lower_beam_end_a2r": {
+            "position": [
+              -2.85,
+              0.42,
+              -0.49
+            ]
+          },
+          "steering_tie_rod_end_a2r": {
+            "position": [
+              -3.1,
+              0.875,
+              -0.51
+            ]
+          }
+        },
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a2l",
+        "name": "Wheel A2L",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 110,
+        "position": [
+          -2.9,
+          -1.025,
+          -0.51
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "upper_beam_a2l",
+        "name": "Upper Beam A2L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -2.5250000000000004,
+          -0.42,
+          -0.71
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "lower_beam_a2l",
+        "name": "Lower Beam A2L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -2.5250000000000004,
+          -0.42,
+          -0.49
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a2r",
+        "name": "Wheel A2R",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 110,
+        "position": [
+          -2.9,
+          1.025,
+          -0.51
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "upper_beam_a2r",
+        "name": "Upper Beam A2R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -2.5250000000000004,
+          0.42,
+          -0.71
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "lower_beam_a2r",
+        "name": "Lower Beam A2R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -2.5250000000000004,
+          0.42,
+          -0.49
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "a3_housing",
+        "name": "Axle body A3_housing",
+        "description": "Beam axle, housing or de Dion tube",
+        "category": "structural",
+        "mass": 420,
+        "position": [
+          -4.45,
+          0,
+          -0.51
+        ],
+        "markers": {
+          "wheel_center_a3l": {
+            "position": [
+              -4.45,
+              -0.93,
+              -0.51
+            ]
+          },
+          "lower_rod_end_a3l": {
+            "position": [
+              -4.45,
+              -0.45,
+              -0.39
+            ]
+          },
+          "upper_rod_end_a3l": {
+            "position": [
+              -4.45,
+              -0.25,
+              -0.76
+            ]
+          },
+          "wheel_center_a3r": {
+            "position": [
+              -4.45,
+              0.93,
+              -0.51
+            ]
+          },
+          "lower_rod_end_a3r": {
+            "position": [
+              -4.45,
+              0.45,
+              -0.39
+            ]
+          },
+          "upper_rod_end_a3r": {
+            "position": [
+              -4.45,
+              0.25,
+              -0.76
+            ]
+          }
+        },
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a3l",
+        "name": "Wheel A3L",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 180,
+        "position": [
+          -4.45,
+          -0.93,
+          -0.51
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "lower_torque_rod_a3l",
+        "name": "Lower Torque Rod A3L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -4.140000000000001,
+          -0.45,
+          -0.42500000000000004
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "upper_torque_rod_a3l",
+        "name": "Upper Torque Rod A3L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -4.175,
+          -0.185,
+          -0.81
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a3r",
+        "name": "Wheel A3R",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 180,
+        "position": [
+          -4.45,
+          0.93,
+          -0.51
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "lower_torque_rod_a3r",
+        "name": "Lower Torque Rod A3R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -4.140000000000001,
+          0.45,
+          -0.42500000000000004
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "upper_torque_rod_a3r",
+        "name": "Upper Torque Rod A3R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -4.175,
+          0.185,
+          -0.81
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "a4_housing",
+        "name": "Axle body A4_housing",
+        "description": "Beam axle, housing or de Dion tube",
+        "category": "structural",
+        "mass": 420,
+        "position": [
+          -5.82,
+          0,
+          -0.51
+        ],
+        "markers": {
+          "wheel_center_a4l": {
+            "position": [
+              -5.82,
+              -0.93,
+              -0.51
+            ]
+          },
+          "lower_rod_end_a4l": {
+            "position": [
+              -5.82,
+              -0.45,
+              -0.39
+            ]
+          },
+          "upper_rod_end_a4l": {
+            "position": [
+              -5.82,
+              -0.25,
+              -0.76
+            ]
+          },
+          "wheel_center_a4r": {
+            "position": [
+              -5.82,
+              0.93,
+              -0.51
+            ]
+          },
+          "lower_rod_end_a4r": {
+            "position": [
+              -5.82,
+              0.45,
+              -0.39
+            ]
+          },
+          "upper_rod_end_a4r": {
+            "position": [
+              -5.82,
+              0.25,
+              -0.76
+            ]
+          }
+        },
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a4l",
+        "name": "Wheel A4L",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 180,
+        "position": [
+          -5.82,
+          -0.93,
+          -0.51
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "lower_torque_rod_a4l",
+        "name": "Lower Torque Rod A4L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -5.51,
+          -0.45,
+          -0.42500000000000004
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "upper_torque_rod_a4l",
+        "name": "Upper Torque Rod A4L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -5.545,
+          -0.185,
+          -0.81
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a4r",
+        "name": "Wheel A4R",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 180,
+        "position": [
+          -5.82,
+          0.93,
+          -0.51
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "lower_torque_rod_a4r",
+        "name": "Lower Torque Rod A4R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -5.51,
+          0.45,
+          -0.42500000000000004
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "upper_torque_rod_a4r",
+        "name": "Upper Torque Rod A4R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -5.545,
+          0.185,
+          -0.81
+        ],
+        "x_derived": true
+      }
     ]
   },
   "steering": {
@@ -58,920 +590,6 @@
         "centering_stiffness": 4000
       }
     ]
-  },
-  "suspension": {
-    "A1L": {
-      "topology": {
-        "system_type": "solid_axle",
-        "lateral_location": "leaf_located",
-        "upright": {
-          "id": "hub_A1L",
-          "hardpoints": {
-            "wheel_center": [
-              0.0,
-              -1.025,
-              -0.51
-            ],
-            "spring_pad": [
-              0.0,
-              -0.45,
-              -0.63
-            ],
-            "damper_outboard": [
-              0.0,
-              -0.4,
-              -0.51
-            ],
-            "steering_tie_rod_end": [
-              -0.18,
-              -0.905,
-              -0.46
-            ]
-          }
-        },
-        "links": [
-          {
-            "name": "leaf_spring",
-            "type": "arm",
-            "inboard_points": [
-              [
-                0.75,
-                -0.45,
-                -0.73
-              ],
-              [
-                -0.75,
-                -0.45,
-                -0.73
-              ]
-            ],
-            "outboard_ref": "hardpoints.spring_pad"
-          }
-        ],
-        "axle_body": {
-          "id": "A1_beam",
-          "mass": 320,
-          "position": [
-            0.0,
-            0,
-            -0.51
-          ]
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.5715,
-        "rim_width": 0.2286,
-        "mass": 110,
-        "set_ref": "steer_385_65r22_5"
-      },
-      "spring": {
-        "type": "leaf",
-        "rate": 280000,
-        "end_type_front": "eye",
-        "end_type_rear": "shackle"
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            6000
-          ],
-          [
-            0.5,
-            18000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            12000
-          ],
-          [
-            0.5,
-            30000
-          ]
-        ]
-      }
-    },
-    "A1R": {
-      "topology": {
-        "system_type": "solid_axle",
-        "lateral_location": "leaf_located",
-        "upright": {
-          "id": "hub_A1R",
-          "hardpoints": {
-            "wheel_center": [
-              0.0,
-              1.025,
-              -0.51
-            ],
-            "spring_pad": [
-              0.0,
-              0.45,
-              -0.63
-            ],
-            "damper_outboard": [
-              0.0,
-              0.4,
-              -0.51
-            ],
-            "steering_tie_rod_end": [
-              -0.18,
-              0.905,
-              -0.46
-            ]
-          }
-        },
-        "links": [
-          {
-            "name": "leaf_spring",
-            "type": "arm",
-            "inboard_points": [
-              [
-                0.75,
-                0.45,
-                -0.73
-              ],
-              [
-                -0.75,
-                0.45,
-                -0.73
-              ]
-            ],
-            "outboard_ref": "hardpoints.spring_pad"
-          }
-        ],
-        "axle_body": {
-          "id": "A1_beam",
-          "mass": 320,
-          "position": [
-            0.0,
-            0,
-            -0.51
-          ]
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.5715,
-        "rim_width": 0.2286,
-        "mass": 110,
-        "set_ref": "steer_385_65r22_5"
-      },
-      "spring": {
-        "type": "leaf",
-        "rate": 280000,
-        "end_type_front": "eye",
-        "end_type_rear": "shackle"
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            6000
-          ],
-          [
-            0.5,
-            18000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            12000
-          ],
-          [
-            0.5,
-            30000
-          ]
-        ]
-      }
-    },
-    "A2L": {
-      "topology": {
-        "system_type": "parallelogram",
-        "upright": {
-          "id": "hub_A2L",
-          "hardpoints": {
-            "wheel_center": [
-              -2.9,
-              -1.025,
-              -0.51
-            ],
-            "upper_beam_end": [
-              -2.85,
-              -0.42,
-              -0.71
-            ],
-            "lower_beam_end": [
-              -2.85,
-              -0.42,
-              -0.49
-            ],
-            "steering_tie_rod_end": [
-              -3.1,
-              -0.875,
-              -0.51
-            ]
-          }
-        },
-        "links": [
-          {
-            "name": "upper_beam",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -2.2,
-                -0.42,
-                -0.71
-              ]
-            ],
-            "outboard_ref": "hardpoints.upper_beam_end"
-          },
-          {
-            "name": "lower_beam",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -2.2,
-                -0.42,
-                -0.49
-              ]
-            ],
-            "outboard_ref": "hardpoints.lower_beam_end"
-          }
-        ],
-        "axle_body": {
-          "id": "A2_lift_beam",
-          "mass": 260,
-          "position": [
-            -2.9,
-            0,
-            -0.51
-          ]
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.5715,
-        "rim_width": 0.2286,
-        "mass": 110,
-        "set_ref": "steer_385_65r22_5"
-      },
-      "spring": {
-        "type": "air",
-        "rate": 120000,
-        "effective_area": 0.05,
-        "nominal_pressure": 450000
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            3000
-          ],
-          [
-            0.5,
-            9000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            6000
-          ],
-          [
-            0.5,
-            18000
-          ]
-        ]
-      }
-    },
-    "A2R": {
-      "topology": {
-        "system_type": "parallelogram",
-        "upright": {
-          "id": "hub_A2R",
-          "hardpoints": {
-            "wheel_center": [
-              -2.9,
-              1.025,
-              -0.51
-            ],
-            "upper_beam_end": [
-              -2.85,
-              0.42,
-              -0.71
-            ],
-            "lower_beam_end": [
-              -2.85,
-              0.42,
-              -0.49
-            ],
-            "steering_tie_rod_end": [
-              -3.1,
-              0.875,
-              -0.51
-            ]
-          }
-        },
-        "links": [
-          {
-            "name": "upper_beam",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -2.2,
-                0.42,
-                -0.71
-              ]
-            ],
-            "outboard_ref": "hardpoints.upper_beam_end"
-          },
-          {
-            "name": "lower_beam",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -2.2,
-                0.42,
-                -0.49
-              ]
-            ],
-            "outboard_ref": "hardpoints.lower_beam_end"
-          }
-        ],
-        "axle_body": {
-          "id": "A2_lift_beam",
-          "mass": 260,
-          "position": [
-            -2.9,
-            0,
-            -0.51
-          ]
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.5715,
-        "rim_width": 0.2286,
-        "mass": 110,
-        "set_ref": "steer_385_65r22_5"
-      },
-      "spring": {
-        "type": "air",
-        "rate": 120000,
-        "effective_area": 0.05,
-        "nominal_pressure": 450000
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            3000
-          ],
-          [
-            0.5,
-            9000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            6000
-          ],
-          [
-            0.5,
-            18000
-          ]
-        ]
-      }
-    },
-    "A3L": {
-      "topology": {
-        "system_type": "solid_axle",
-        "lateral_location": "torque_rods",
-        "upright": {
-          "id": "hub_A3L",
-          "hardpoints": {
-            "wheel_center": [
-              -4.45,
-              -0.93,
-              -0.51
-            ],
-            "lower_rod_end": [
-              -4.45,
-              -0.45,
-              -0.39
-            ],
-            "upper_rod_end": [
-              -4.45,
-              -0.25,
-              -0.76
-            ]
-          }
-        },
-        "links": [
-          {
-            "name": "lower_torque_rod",
-            "type": "torque_rod",
-            "inboard_points": [
-              [
-                -3.83,
-                -0.45,
-                -0.46
-              ]
-            ],
-            "outboard_ref": "hardpoints.lower_rod_end"
-          },
-          {
-            "name": "upper_torque_rod",
-            "type": "torque_rod",
-            "inboard_points": [
-              [
-                -3.9,
-                -0.12,
-                -0.86
-              ]
-            ],
-            "outboard_ref": "hardpoints.upper_rod_end"
-          }
-        ],
-        "axle_body": {
-          "id": "A3_housing",
-          "mass": 420,
-          "position": [
-            -4.45,
-            0,
-            -0.51
-          ]
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.5715,
-        "rim_width": 0.2286,
-        "mass": 180,
-        "multiplicity": 2,
-        "dual_spacing": 0.33,
-        "positions": [
-          {
-            "label": "inner",
-            "offset_outboard": -0.165,
-            "tire": {
-              "set_ref": "drive_315_80r22_5",
-              "pressure": 850000
-            }
-          },
-          {
-            "label": "outer",
-            "offset_outboard": 0.165,
-            "tire": {
-              "set_ref": "drive_315_80r22_5",
-              "pressure": 850000
-            }
-          }
-        ]
-      },
-      "spring": {
-        "type": "air",
-        "rate": 180000,
-        "effective_area": 0.075,
-        "nominal_pressure": 550000
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            6000
-          ],
-          [
-            0.5,
-            18000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            12000
-          ],
-          [
-            0.5,
-            30000
-          ]
-        ]
-      }
-    },
-    "A3R": {
-      "topology": {
-        "system_type": "solid_axle",
-        "lateral_location": "torque_rods",
-        "upright": {
-          "id": "hub_A3R",
-          "hardpoints": {
-            "wheel_center": [
-              -4.45,
-              0.93,
-              -0.51
-            ],
-            "lower_rod_end": [
-              -4.45,
-              0.45,
-              -0.39
-            ],
-            "upper_rod_end": [
-              -4.45,
-              0.25,
-              -0.76
-            ]
-          }
-        },
-        "links": [
-          {
-            "name": "lower_torque_rod",
-            "type": "torque_rod",
-            "inboard_points": [
-              [
-                -3.83,
-                0.45,
-                -0.46
-              ]
-            ],
-            "outboard_ref": "hardpoints.lower_rod_end"
-          },
-          {
-            "name": "upper_torque_rod",
-            "type": "torque_rod",
-            "inboard_points": [
-              [
-                -3.9,
-                0.12,
-                -0.86
-              ]
-            ],
-            "outboard_ref": "hardpoints.upper_rod_end"
-          }
-        ],
-        "axle_body": {
-          "id": "A3_housing",
-          "mass": 420,
-          "position": [
-            -4.45,
-            0,
-            -0.51
-          ]
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.5715,
-        "rim_width": 0.2286,
-        "mass": 180,
-        "multiplicity": 2,
-        "dual_spacing": 0.33,
-        "positions": [
-          {
-            "label": "inner",
-            "offset_outboard": -0.165,
-            "tire": {
-              "set_ref": "drive_315_80r22_5",
-              "pressure": 850000
-            }
-          },
-          {
-            "label": "outer",
-            "offset_outboard": 0.165,
-            "tire": {
-              "set_ref": "drive_315_80r22_5",
-              "pressure": 850000
-            }
-          }
-        ]
-      },
-      "spring": {
-        "type": "air",
-        "rate": 180000,
-        "effective_area": 0.075,
-        "nominal_pressure": 550000
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            6000
-          ],
-          [
-            0.5,
-            18000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            12000
-          ],
-          [
-            0.5,
-            30000
-          ]
-        ]
-      }
-    },
-    "A4L": {
-      "topology": {
-        "system_type": "solid_axle",
-        "lateral_location": "torque_rods",
-        "upright": {
-          "id": "hub_A4L",
-          "hardpoints": {
-            "wheel_center": [
-              -5.82,
-              -0.93,
-              -0.51
-            ],
-            "lower_rod_end": [
-              -5.82,
-              -0.45,
-              -0.39
-            ],
-            "upper_rod_end": [
-              -5.82,
-              -0.25,
-              -0.76
-            ]
-          }
-        },
-        "links": [
-          {
-            "name": "lower_torque_rod",
-            "type": "torque_rod",
-            "inboard_points": [
-              [
-                -5.2,
-                -0.45,
-                -0.46
-              ]
-            ],
-            "outboard_ref": "hardpoints.lower_rod_end"
-          },
-          {
-            "name": "upper_torque_rod",
-            "type": "torque_rod",
-            "inboard_points": [
-              [
-                -5.27,
-                -0.12,
-                -0.86
-              ]
-            ],
-            "outboard_ref": "hardpoints.upper_rod_end"
-          }
-        ],
-        "axle_body": {
-          "id": "A4_housing",
-          "mass": 420,
-          "position": [
-            -5.82,
-            0,
-            -0.51
-          ]
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.5715,
-        "rim_width": 0.2286,
-        "mass": 180,
-        "multiplicity": 2,
-        "dual_spacing": 0.33,
-        "positions": [
-          {
-            "label": "inner",
-            "offset_outboard": -0.165,
-            "tire": {
-              "set_ref": "drive_315_80r22_5",
-              "pressure": 850000
-            }
-          },
-          {
-            "label": "outer",
-            "offset_outboard": 0.165,
-            "tire": {
-              "set_ref": "drive_315_80r22_5",
-              "pressure": 850000
-            }
-          }
-        ]
-      },
-      "spring": {
-        "type": "air",
-        "rate": 180000,
-        "effective_area": 0.075,
-        "nominal_pressure": 550000
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            6000
-          ],
-          [
-            0.5,
-            18000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            12000
-          ],
-          [
-            0.5,
-            30000
-          ]
-        ]
-      }
-    },
-    "A4R": {
-      "topology": {
-        "system_type": "solid_axle",
-        "lateral_location": "torque_rods",
-        "upright": {
-          "id": "hub_A4R",
-          "hardpoints": {
-            "wheel_center": [
-              -5.82,
-              0.93,
-              -0.51
-            ],
-            "lower_rod_end": [
-              -5.82,
-              0.45,
-              -0.39
-            ],
-            "upper_rod_end": [
-              -5.82,
-              0.25,
-              -0.76
-            ]
-          }
-        },
-        "links": [
-          {
-            "name": "lower_torque_rod",
-            "type": "torque_rod",
-            "inboard_points": [
-              [
-                -5.2,
-                0.45,
-                -0.46
-              ]
-            ],
-            "outboard_ref": "hardpoints.lower_rod_end"
-          },
-          {
-            "name": "upper_torque_rod",
-            "type": "torque_rod",
-            "inboard_points": [
-              [
-                -5.27,
-                0.12,
-                -0.86
-              ]
-            ],
-            "outboard_ref": "hardpoints.upper_rod_end"
-          }
-        ],
-        "axle_body": {
-          "id": "A4_housing",
-          "mass": 420,
-          "position": [
-            -5.82,
-            0,
-            -0.51
-          ]
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.5715,
-        "rim_width": 0.2286,
-        "mass": 180,
-        "multiplicity": 2,
-        "dual_spacing": 0.33,
-        "positions": [
-          {
-            "label": "inner",
-            "offset_outboard": -0.165,
-            "tire": {
-              "set_ref": "drive_315_80r22_5",
-              "pressure": 850000
-            }
-          },
-          {
-            "label": "outer",
-            "offset_outboard": 0.165,
-            "tire": {
-              "set_ref": "drive_315_80r22_5",
-              "pressure": 850000
-            }
-          }
-        ]
-      },
-      "spring": {
-        "type": "air",
-        "rate": 180000,
-        "effective_area": 0.075,
-        "nominal_pressure": 550000
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            6000
-          ],
-          [
-            0.5,
-            18000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            12000
-          ],
-          [
-            0.5,
-            30000
-          ]
-        ]
-      }
-    }
   },
   "axles": [
     {
@@ -1062,5 +680,2319 @@
         }
       }
     }
-  }
+  },
+  "constraints": [
+    {
+      "id": "hinge_wheel_a1l",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a1_beam",
+      "frame_a": {
+        "position": [
+          0.0,
+          -1.025,
+          -0.51
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a1l",
+      "frame_b": {
+        "position": [
+          0.0,
+          -1.025,
+          -0.51
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_leaf_spring_a1l_front_eye",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.75,
+          -0.45,
+          -0.73
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "leaf_spring_a1l",
+      "frame_b": {
+        "position": [
+          0.75,
+          -0.45,
+          -0.73
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "slide_leaf_spring_a1l_rear_end",
+      "type": "joint",
+      "joint_type": "translational",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.75,
+          -0.45,
+          -0.73
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "leaf_spring_a1l",
+      "frame_b": {
+        "position": [
+          -0.75,
+          -0.45,
+          -0.73
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_leaf_spring_a1l_seat",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "leaf_spring_a1l",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.45,
+          -0.63
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a1_beam",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.45,
+          -0.63
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a1l",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          -1.025,
+          -0.81
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a1_beam",
+      "frame_b": {
+        "position": [
+          0.0,
+          -1.025,
+          -0.51
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "leaf",
+      "end_type_front": "eye",
+      "end_type_rear": "shackle",
+      "rate": 280000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a1l",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          -1.025,
+          -0.81
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a1_beam",
+      "frame_b": {
+        "position": [
+          0.0,
+          -1.025,
+          -0.51
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          6000
+        ],
+        [
+          0.5,
+          18000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          12000
+        ],
+        [
+          0.5,
+          30000
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a1r",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a1_beam",
+      "frame_a": {
+        "position": [
+          0.0,
+          1.025,
+          -0.51
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a1r",
+      "frame_b": {
+        "position": [
+          0.0,
+          1.025,
+          -0.51
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_leaf_spring_a1r_front_eye",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.75,
+          0.45,
+          -0.73
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "leaf_spring_a1r",
+      "frame_b": {
+        "position": [
+          0.75,
+          0.45,
+          -0.73
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "slide_leaf_spring_a1r_rear_end",
+      "type": "joint",
+      "joint_type": "translational",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.75,
+          0.45,
+          -0.73
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "leaf_spring_a1r",
+      "frame_b": {
+        "position": [
+          -0.75,
+          0.45,
+          -0.73
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_leaf_spring_a1r_seat",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "leaf_spring_a1r",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.45,
+          -0.63
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a1_beam",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.45,
+          -0.63
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a1r",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          1.025,
+          -0.81
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a1_beam",
+      "frame_b": {
+        "position": [
+          0.0,
+          1.025,
+          -0.51
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "leaf",
+      "end_type_front": "eye",
+      "end_type_rear": "shackle",
+      "rate": 280000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a1r",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          1.025,
+          -0.81
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a1_beam",
+      "frame_b": {
+        "position": [
+          0.0,
+          1.025,
+          -0.51
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          6000
+        ],
+        [
+          0.5,
+          18000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          12000
+        ],
+        [
+          0.5,
+          30000
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a2l",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a2_lift_beam",
+      "frame_a": {
+        "position": [
+          -2.9,
+          -1.025,
+          -0.51
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a2l",
+      "frame_b": {
+        "position": [
+          -2.9,
+          -1.025,
+          -0.51
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_upper_beam_a2l_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.2,
+          -0.42,
+          -0.71
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "upper_beam_a2l",
+      "frame_b": {
+        "position": [
+          -2.2,
+          -0.42,
+          -0.71
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_upper_beam_a2l_outboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "upper_beam_a2l",
+      "frame_a": {
+        "position": [
+          -2.85,
+          -0.42,
+          -0.71
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "a2_lift_beam",
+      "frame_b": {
+        "position": [
+          -2.85,
+          -0.42,
+          -0.71
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_lower_beam_a2l_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.2,
+          -0.42,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "lower_beam_a2l",
+      "frame_b": {
+        "position": [
+          -2.2,
+          -0.42,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_lower_beam_a2l_outboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "lower_beam_a2l",
+      "frame_a": {
+        "position": [
+          -2.85,
+          -0.42,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "a2_lift_beam",
+      "frame_b": {
+        "position": [
+          -2.85,
+          -0.42,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a2l",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.9,
+          -1.025,
+          -0.81
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a2_lift_beam",
+      "frame_b": {
+        "position": [
+          -2.9,
+          -1.025,
+          -0.51
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "air",
+      "effective_area": 0.05,
+      "nominal_pressure": 450000,
+      "rate": 120000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a2l",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.9,
+          -1.025,
+          -0.81
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a2_lift_beam",
+      "frame_b": {
+        "position": [
+          -2.9,
+          -1.025,
+          -0.51
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          3000
+        ],
+        [
+          0.5,
+          9000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          6000
+        ],
+        [
+          0.5,
+          18000
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a2r",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a2_lift_beam",
+      "frame_a": {
+        "position": [
+          -2.9,
+          1.025,
+          -0.51
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a2r",
+      "frame_b": {
+        "position": [
+          -2.9,
+          1.025,
+          -0.51
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_upper_beam_a2r_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.2,
+          0.42,
+          -0.71
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "upper_beam_a2r",
+      "frame_b": {
+        "position": [
+          -2.2,
+          0.42,
+          -0.71
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_upper_beam_a2r_outboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "upper_beam_a2r",
+      "frame_a": {
+        "position": [
+          -2.85,
+          0.42,
+          -0.71
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "a2_lift_beam",
+      "frame_b": {
+        "position": [
+          -2.85,
+          0.42,
+          -0.71
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_lower_beam_a2r_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.2,
+          0.42,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "lower_beam_a2r",
+      "frame_b": {
+        "position": [
+          -2.2,
+          0.42,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_lower_beam_a2r_outboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "lower_beam_a2r",
+      "frame_a": {
+        "position": [
+          -2.85,
+          0.42,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "a2_lift_beam",
+      "frame_b": {
+        "position": [
+          -2.85,
+          0.42,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a2r",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.9,
+          1.025,
+          -0.81
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a2_lift_beam",
+      "frame_b": {
+        "position": [
+          -2.9,
+          1.025,
+          -0.51
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "air",
+      "effective_area": 0.05,
+      "nominal_pressure": 450000,
+      "rate": 120000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a2r",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.9,
+          1.025,
+          -0.81
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a2_lift_beam",
+      "frame_b": {
+        "position": [
+          -2.9,
+          1.025,
+          -0.51
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          3000
+        ],
+        [
+          0.5,
+          9000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          6000
+        ],
+        [
+          0.5,
+          18000
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a3l",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a3_housing",
+      "frame_a": {
+        "position": [
+          -4.45,
+          -0.93,
+          -0.51
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a3l",
+      "frame_b": {
+        "position": [
+          -4.45,
+          -0.93,
+          -0.51
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_torque_rod_a3l_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -3.83,
+          -0.45,
+          -0.46
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "lower_torque_rod_a3l",
+      "frame_b": {
+        "position": [
+          -3.83,
+          -0.45,
+          -0.46
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_torque_rod_a3l_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "lower_torque_rod_a3l",
+      "frame_a": {
+        "position": [
+          -4.45,
+          -0.45,
+          -0.39
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a3_housing",
+      "frame_b": {
+        "position": [
+          -4.45,
+          -0.45,
+          -0.39
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_torque_rod_a3l_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -3.9,
+          -0.12,
+          -0.86
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upper_torque_rod_a3l",
+      "frame_b": {
+        "position": [
+          -3.9,
+          -0.12,
+          -0.86
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_torque_rod_a3l_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "upper_torque_rod_a3l",
+      "frame_a": {
+        "position": [
+          -4.45,
+          -0.25,
+          -0.76
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a3_housing",
+      "frame_b": {
+        "position": [
+          -4.45,
+          -0.25,
+          -0.76
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a3l",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -4.45,
+          -0.93,
+          -0.81
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a3_housing",
+      "frame_b": {
+        "position": [
+          -4.45,
+          -0.93,
+          -0.51
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "air",
+      "effective_area": 0.075,
+      "nominal_pressure": 550000,
+      "rate": 180000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a3l",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -4.45,
+          -0.93,
+          -0.81
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a3_housing",
+      "frame_b": {
+        "position": [
+          -4.45,
+          -0.93,
+          -0.51
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          6000
+        ],
+        [
+          0.5,
+          18000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          12000
+        ],
+        [
+          0.5,
+          30000
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a3r",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a3_housing",
+      "frame_a": {
+        "position": [
+          -4.45,
+          0.93,
+          -0.51
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a3r",
+      "frame_b": {
+        "position": [
+          -4.45,
+          0.93,
+          -0.51
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_torque_rod_a3r_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -3.83,
+          0.45,
+          -0.46
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "lower_torque_rod_a3r",
+      "frame_b": {
+        "position": [
+          -3.83,
+          0.45,
+          -0.46
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_torque_rod_a3r_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "lower_torque_rod_a3r",
+      "frame_a": {
+        "position": [
+          -4.45,
+          0.45,
+          -0.39
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a3_housing",
+      "frame_b": {
+        "position": [
+          -4.45,
+          0.45,
+          -0.39
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_torque_rod_a3r_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -3.9,
+          0.12,
+          -0.86
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upper_torque_rod_a3r",
+      "frame_b": {
+        "position": [
+          -3.9,
+          0.12,
+          -0.86
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_torque_rod_a3r_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "upper_torque_rod_a3r",
+      "frame_a": {
+        "position": [
+          -4.45,
+          0.25,
+          -0.76
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a3_housing",
+      "frame_b": {
+        "position": [
+          -4.45,
+          0.25,
+          -0.76
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a3r",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -4.45,
+          0.93,
+          -0.81
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a3_housing",
+      "frame_b": {
+        "position": [
+          -4.45,
+          0.93,
+          -0.51
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "air",
+      "effective_area": 0.075,
+      "nominal_pressure": 550000,
+      "rate": 180000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a3r",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -4.45,
+          0.93,
+          -0.81
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a3_housing",
+      "frame_b": {
+        "position": [
+          -4.45,
+          0.93,
+          -0.51
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          6000
+        ],
+        [
+          0.5,
+          18000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          12000
+        ],
+        [
+          0.5,
+          30000
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a4l",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a4_housing",
+      "frame_a": {
+        "position": [
+          -5.82,
+          -0.93,
+          -0.51
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a4l",
+      "frame_b": {
+        "position": [
+          -5.82,
+          -0.93,
+          -0.51
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_torque_rod_a4l_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -5.2,
+          -0.45,
+          -0.46
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "lower_torque_rod_a4l",
+      "frame_b": {
+        "position": [
+          -5.2,
+          -0.45,
+          -0.46
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_torque_rod_a4l_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "lower_torque_rod_a4l",
+      "frame_a": {
+        "position": [
+          -5.82,
+          -0.45,
+          -0.39
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a4_housing",
+      "frame_b": {
+        "position": [
+          -5.82,
+          -0.45,
+          -0.39
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_torque_rod_a4l_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -5.27,
+          -0.12,
+          -0.86
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upper_torque_rod_a4l",
+      "frame_b": {
+        "position": [
+          -5.27,
+          -0.12,
+          -0.86
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_torque_rod_a4l_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "upper_torque_rod_a4l",
+      "frame_a": {
+        "position": [
+          -5.82,
+          -0.25,
+          -0.76
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a4_housing",
+      "frame_b": {
+        "position": [
+          -5.82,
+          -0.25,
+          -0.76
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a4l",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -5.82,
+          -0.93,
+          -0.81
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a4_housing",
+      "frame_b": {
+        "position": [
+          -5.82,
+          -0.93,
+          -0.51
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "air",
+      "effective_area": 0.075,
+      "nominal_pressure": 550000,
+      "rate": 180000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a4l",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -5.82,
+          -0.93,
+          -0.81
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a4_housing",
+      "frame_b": {
+        "position": [
+          -5.82,
+          -0.93,
+          -0.51
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          6000
+        ],
+        [
+          0.5,
+          18000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          12000
+        ],
+        [
+          0.5,
+          30000
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a4r",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a4_housing",
+      "frame_a": {
+        "position": [
+          -5.82,
+          0.93,
+          -0.51
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a4r",
+      "frame_b": {
+        "position": [
+          -5.82,
+          0.93,
+          -0.51
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_torque_rod_a4r_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -5.2,
+          0.45,
+          -0.46
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "lower_torque_rod_a4r",
+      "frame_b": {
+        "position": [
+          -5.2,
+          0.45,
+          -0.46
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_torque_rod_a4r_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "lower_torque_rod_a4r",
+      "frame_a": {
+        "position": [
+          -5.82,
+          0.45,
+          -0.39
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a4_housing",
+      "frame_b": {
+        "position": [
+          -5.82,
+          0.45,
+          -0.39
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_torque_rod_a4r_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -5.27,
+          0.12,
+          -0.86
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upper_torque_rod_a4r",
+      "frame_b": {
+        "position": [
+          -5.27,
+          0.12,
+          -0.86
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_torque_rod_a4r_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "upper_torque_rod_a4r",
+      "frame_a": {
+        "position": [
+          -5.82,
+          0.25,
+          -0.76
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a4_housing",
+      "frame_b": {
+        "position": [
+          -5.82,
+          0.25,
+          -0.76
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a4r",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -5.82,
+          0.93,
+          -0.81
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a4_housing",
+      "frame_b": {
+        "position": [
+          -5.82,
+          0.93,
+          -0.51
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "air",
+      "effective_area": 0.075,
+      "nominal_pressure": 550000,
+      "rate": 180000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a4r",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -5.82,
+          0.93,
+          -0.81
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a4_housing",
+      "frame_b": {
+        "position": [
+          -5.82,
+          0.93,
+          -0.51
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          6000
+        ],
+        [
+          0.5,
+          18000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          12000
+        ],
+        [
+          0.5,
+          30000
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    }
+  ],
+  "wheel_stations": [
+    {
+      "id": "A1L",
+      "name": "A1L",
+      "wheel_body": "wheel_a1l",
+      "upright_body": "a1_beam",
+      "wheel_center_marker": "wheel_center_a1l",
+      "axle": "A1",
+      "side": "L",
+      "topology_hint": "solid_axle",
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "mass": 110,
+        "set_ref": "steer_385_65r22_5"
+      },
+      "x_lateral_location": "leaf_located"
+    },
+    {
+      "id": "A1R",
+      "name": "A1R",
+      "wheel_body": "wheel_a1r",
+      "upright_body": "a1_beam",
+      "wheel_center_marker": "wheel_center_a1r",
+      "axle": "A1",
+      "side": "R",
+      "topology_hint": "solid_axle",
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "mass": 110,
+        "set_ref": "steer_385_65r22_5"
+      },
+      "x_lateral_location": "leaf_located"
+    },
+    {
+      "id": "A2L",
+      "name": "A2L",
+      "wheel_body": "wheel_a2l",
+      "upright_body": "a2_lift_beam",
+      "wheel_center_marker": "wheel_center_a2l",
+      "axle": "A2",
+      "side": "L",
+      "topology_hint": "parallelogram",
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "mass": 110,
+        "set_ref": "steer_385_65r22_5"
+      }
+    },
+    {
+      "id": "A2R",
+      "name": "A2R",
+      "wheel_body": "wheel_a2r",
+      "upright_body": "a2_lift_beam",
+      "wheel_center_marker": "wheel_center_a2r",
+      "axle": "A2",
+      "side": "R",
+      "topology_hint": "parallelogram",
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "mass": 110,
+        "set_ref": "steer_385_65r22_5"
+      }
+    },
+    {
+      "id": "A3L",
+      "name": "A3L",
+      "wheel_body": "wheel_a3l",
+      "upright_body": "a3_housing",
+      "wheel_center_marker": "wheel_center_a3l",
+      "axle": "A3",
+      "side": "L",
+      "topology_hint": "solid_axle",
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "mass": 180,
+        "multiplicity": 2,
+        "dual_spacing": 0.33,
+        "positions": [
+          {
+            "label": "inner",
+            "offset_outboard": -0.165,
+            "tire": {
+              "set_ref": "drive_315_80r22_5",
+              "pressure": 850000
+            }
+          },
+          {
+            "label": "outer",
+            "offset_outboard": 0.165,
+            "tire": {
+              "set_ref": "drive_315_80r22_5",
+              "pressure": 850000
+            }
+          }
+        ]
+      },
+      "x_lateral_location": "torque_rods"
+    },
+    {
+      "id": "A3R",
+      "name": "A3R",
+      "wheel_body": "wheel_a3r",
+      "upright_body": "a3_housing",
+      "wheel_center_marker": "wheel_center_a3r",
+      "axle": "A3",
+      "side": "R",
+      "topology_hint": "solid_axle",
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "mass": 180,
+        "multiplicity": 2,
+        "dual_spacing": 0.33,
+        "positions": [
+          {
+            "label": "inner",
+            "offset_outboard": -0.165,
+            "tire": {
+              "set_ref": "drive_315_80r22_5",
+              "pressure": 850000
+            }
+          },
+          {
+            "label": "outer",
+            "offset_outboard": 0.165,
+            "tire": {
+              "set_ref": "drive_315_80r22_5",
+              "pressure": 850000
+            }
+          }
+        ]
+      },
+      "x_lateral_location": "torque_rods"
+    },
+    {
+      "id": "A4L",
+      "name": "A4L",
+      "wheel_body": "wheel_a4l",
+      "upright_body": "a4_housing",
+      "wheel_center_marker": "wheel_center_a4l",
+      "axle": "A4",
+      "side": "L",
+      "topology_hint": "solid_axle",
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "mass": 180,
+        "multiplicity": 2,
+        "dual_spacing": 0.33,
+        "positions": [
+          {
+            "label": "inner",
+            "offset_outboard": -0.165,
+            "tire": {
+              "set_ref": "drive_315_80r22_5",
+              "pressure": 850000
+            }
+          },
+          {
+            "label": "outer",
+            "offset_outboard": 0.165,
+            "tire": {
+              "set_ref": "drive_315_80r22_5",
+              "pressure": 850000
+            }
+          }
+        ]
+      },
+      "x_lateral_location": "torque_rods"
+    },
+    {
+      "id": "A4R",
+      "name": "A4R",
+      "wheel_body": "wheel_a4r",
+      "upright_body": "a4_housing",
+      "wheel_center_marker": "wheel_center_a4r",
+      "axle": "A4",
+      "side": "R",
+      "topology_hint": "solid_axle",
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "mass": 180,
+        "multiplicity": 2,
+        "dual_spacing": 0.33,
+        "positions": [
+          {
+            "label": "inner",
+            "offset_outboard": -0.165,
+            "tire": {
+              "set_ref": "drive_315_80r22_5",
+              "pressure": 850000
+            }
+          },
+          {
+            "label": "outer",
+            "offset_outboard": 0.165,
+            "tire": {
+              "set_ref": "drive_315_80r22_5",
+              "pressure": 850000
+            }
+          }
+        ]
+      },
+      "x_lateral_location": "torque_rods"
+    }
+  ]
 }
