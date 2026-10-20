@@ -1,6 +1,6 @@
 # SVJ glTF Node Naming Convention
 
-> **Status:** Adopted in SVJ v0.97; wheel-station names extended in v0.99; category set and link/steering bindings extended in v0.99.2  
+> **Status:** Adopted in SVJ v0.97; wheel-station names extended in v0.99; category set and link/steering bindings extended in v0.99.2; movable parts and attachments added in v0.99.7  
 > **Scope:** Applies to all glTF (`.glb` / `.gltf`) assets referenced from an SVJ file via the `assets.meshes` block.
 
 ---
@@ -188,6 +188,67 @@ A wishbone or tie rod is geometry between two hardpoints, not a body with a fram
 | `scale_to_length` | `false` | `false`: the mesh keeps its authored size and is only translated and rotated. `true`: it is stretched along `mesh_axis` only (never the other two axes) to span the hardpoint distance exactly. |
 
 The outboard end is the upright hardpoint named by the link's `outboard_ref`. Roll about the link axis is not defined by the binding — author it into the mesh.
+
+---
+
+## Movable parts, attachments and their connections *(SVJ v0.99.7)*
+
+Spec §24 describes doors, hoods, cabs, tipper bodies, loaders and implements as bodies joined by constraints. As with suspension parts, the same part must get the same name from every exporter, so these names are the **recommended vocabulary**.
+
+### Body ids and display names
+
+- A body's **`id`** is the stable key every reference uses (`parent`, constraints, poses, the glTF node `SVJ::body::<id>`). Use the canonical part name below, lowercase `[a-z0-9_]`, **part first, side last**, and no `.` (reserved for the bodies of an attached unit).
+- A body, constraint or pose may also carry a **`name`**: a short human label for display (`"Front-left door"`). It is free text; only `id` is matched.
+- **Side suffix:** `_fl` `_fr` `_rl` `_rr` for doors, windows and seats; `_l` `_r` for mirrors and other left/right pairs (`door_fl`, `mirror_r`). Aliases such as `door_lf`, `front_left_door` and `left_side_mirror` normalise to these.
+
+| Canonical id | Part | Common aliases in other tools |
+|---|---|---|
+| `door` | Side door (with a side suffix: `door_fl`, `door_fr`, `door_rl`, `door_rr`) | `car_door` |
+| `hood` | Front lid over the engine or luggage space | `bonnet`, `engine_hood`, `engine_bonnet` |
+| `trunk` | Rear luggage lid of a saloon | `boot`, `boot_lid`, `trunk_lid`, `deck_lid`, `rear_lid` |
+| `tailgate` | Rear opening of a hatchback, estate, SUV or truck bed | `liftgate`, `lift_gate`, `hatch`, `rear_hatch`, `hatchback`, `tail_gate` |
+| `fuel_flap` | Fuel filler flap | `fuel_door`, `fuel_filler_flap`, `filler_flap`, `fuel_cap_door`, `gas_door` |
+| `charge_flap` | Charge port flap | `charge_port_door`, `charge_door`, `charging_flap` |
+| `mirror` | Exterior mirror (`mirror_l`, `mirror_r`) | `side_mirror`, `wing_mirror`, `door_mirror` |
+| `wiper` | Wiper arm | `windscreen_wiper`, `windshield_wiper` |
+| `sunroof` | Sliding or tilting roof panel | `sun_roof`, `moonroof` |
+| `cab` | Tilting or fixed truck / tractor cab | `cabin`, `driver_cab`, `cab_shell`, `truck_cab` |
+| `tipper_body` | Tipping load body | `tipper`, `dump_body`, `dump_box`, `dumper_body`, `tipper_box` |
+| `loader_boom` | Front loader boom | `front_loader_boom`, `loader_arm`, `front_loader_arm` |
+| `loader_bucket` | Front loader bucket or implement carrier | `front_loader_bucket`, `loader_shovel`, `front_bucket` |
+| `boom` | Boom of an excavator or crane | `crane_boom`, `excavator_boom` |
+| `stick` | Excavator stick | `dipper`, `dipper_stick`, `dipper_arm` |
+| `bucket` | Excavator bucket | `excavator_bucket` |
+| `swing_frame` | Rotating upper frame of an excavator or crane | `turret`, `upper_structure`, `superstructure` |
+| `hitch_lift_arm` | Rear hitch lift arm | `lift_arm`, `rockshaft_arm` |
+| `hitch_lower_link` | Rear hitch lower link | `lower_link`, `lift_link`, `three_point_lower_link` |
+| `hitch_top_link` | Rear hitch top link | `top_link`, `upper_link`, `third_link` |
+| `hitch_drawbar` | Drawbar | `drawbar`, `draw_bar` |
+| `implement` | Mounted or trailed working equipment | `tool`, `working_implement` |
+
+The list is open: a part that is not in it keeps its own lowercase name and is not flagged. Only an *alias* of a listed part is flagged (`mass_body 'hatch': use the canonical part name 'tailgate'`) so that two files never name the same part differently.
+
+### Constraints, elements and poses
+
+| What | Pattern | Examples |
+|---|---|---|
+| Revolute / translational / spherical / fixed joint | `hinge_<part>`, `slide_<part>`, `ball_<part>`, `fixed_<part>` | `hinge_door_fl`, `hinge_loader_boom`, `fixed_implement` |
+| Hydraulic or pneumatic cylinder (`actuator`) | `<part>_cylinder` (not `_ram` or `_piston`; an electric one is `<part>_actuator`) | `loader_boom_cylinder`, `tipper_body_cylinder` |
+| Passive element (`spring`) | `<part>_strut` (gas strut) or `<part>_spring`, with `_l` / `_r` if paired | `hood_strut_l`, `tailgate_strut_r` |
+| Latch and detent | `<part>_latch` (closing latch, position 0), `<part>_check` (door-check detent) | `door_fl_latch`, `door_fl_check` |
+| Coupling | `<driven_part>_link` | `tailgate_link` |
+| Pose | lowercase state names: `closed`, `transport`, `<part>_open`, `<part>_up`, `work` | `door_fl_open`, `tailgate_up`, `loader_dump` |
+
+### Marker names
+
+| Marker | On | Meaning |
+|---|---|---|
+| `hinge`, `slide`, `ball`, `mount` | the moving part | Its own frame at the joint (revolute, translational, spherical, fixed) |
+| `<part>_hinge`, `<part>_slide`, `<part>_mount` | the parent (often `chassis`) | The matching frame on the parent side, named after the moving part |
+| `<element>_base`, `<element>_rod` | parent side, moving side | Ends of an actuator (`loader_boom_cylinder_base`, `loader_boom_cylinder_rod`) |
+| `<element>_base`, `<element>_end` | parent side, moving side | Ends of a spring or strut |
+
+`tools/constraints_check.py` raises the alias advisory for body ids and for actuators named `_ram` / `_piston`; markers and constraint ids are recommendations only.
 
 ---
 

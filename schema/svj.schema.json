@@ -39,9 +39,11 @@
             "0.99.2",
             "0.99.3",
             "0.99.4",
-            "0.99.5"
+            "0.99.5",
+            "0.99.6",
+            "0.99.7"
           ],
-          "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations). '0.99.1' adds axle_groups, plated masses and explicit wheelbase definitions. '0.99.2' extends the glTF visual binding layer: full category set, visual on links/steering/wheels/brakes/springs/dampers/aero, and the 'placement' field for parts defined by hardpoints. '0.99.3' adds differential control: lock_control (dynamic differential lock) and transfer_case.coupling (torque-limited centre coupling). '0.99.4' adds the strut_lower hardpoint convention for MacPherson/Chapman struts and damper.reference ('damper' or 'wheel'). '0.99.5' adds movable parts: constraints[] (joint, spring, actuator between mass bodies), poses[] and chassis.markers."
+          "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations). '0.99.1' adds axle_groups, plated masses and explicit wheelbase definitions. '0.99.2' extends the glTF visual binding layer: full category set, visual on links/steering/wheels/brakes/springs/dampers/aero, and the 'placement' field for parts defined by hardpoints. '0.99.3' adds differential control: lock_control (dynamic differential lock) and transfer_case.coupling (torque-limited centre coupling). '0.99.4' adds the strut_lower hardpoint convention for MacPherson/Chapman struts and damper.reference ('damper' or 'wheel'). '0.99.5' adds movable parts: constraints[] (joint, spring, actuator between mass bodies), poses[] and chassis.markers. '0.99.6' completes the constraint set: latch, coupling and joint.drive. '0.99.7' adds the optional display name on bodies, constraints and poses, and the naming vocabulary for movable parts."
         },
         "description": {
           "type": "string"
@@ -299,6 +301,11 @@
             "$ref": "#/definitions/mass_body"
           },
           "minItems": 1
+        },
+        "mass_bodies_complete": {
+          "type": "boolean",
+          "default": false,
+          "description": "true: mass_bodies is an exhaustive decomposition, so \u03a3 mass_bodies + \u03a3 unsprung = mass_total (spec 7.2.2). Default false: the bodies are a partial list (movable parts, attachments) and the rest of the vehicle is everything not listed."
         },
         "markers": {
           "type": "object",
@@ -3267,6 +3274,10 @@
         "id": {
           "type": "string"
         },
+        "name": {
+          "type": "string",
+          "description": "Short human-readable label for display (e.g. 'Front-left door'). `id` stays the stable key that everything references."
+        },
         "description": {
           "type": "string"
         },
@@ -5365,13 +5376,11 @@
       "additionalProperties": false
     },
     "constraint": {
-      "description": "A physical connection between two bodies (spec 24): a kinematic joint, a passive spring/damper element or a linear actuator. Frames are markers (mass_body.markers / chassis.markers) or inline frames; the two frames of a joint coincide at the reference pose and the joint axis is the +Z axis of the frame.",
+      "description": "A physical connection (spec 24): a kinematic joint, a passive spring/damper, a linear actuator, a latch that holds a joint, or a coupling that links two joints. joint / spring / actuator connect two bodies through markers or inline frames (the joint axis is the +Z axis of the frame; the two frames of a joint coincide at the reference pose); latch and coupling refer to joints by id.",
       "type": "object",
       "required": [
         "id",
-        "type",
-        "body_a",
-        "body_b"
+        "type"
       ],
       "additionalProperties": true,
       "properties": {
@@ -5379,12 +5388,18 @@
           "type": "string",
           "minLength": 1
         },
+        "name": {
+          "type": "string",
+          "description": "Short human-readable label for display (e.g. 'Front-left door'). `id` stays the stable key that everything references."
+        },
         "type": {
           "type": "string",
           "enum": [
             "joint",
             "spring",
-            "actuator"
+            "actuator",
+            "latch",
+            "coupling"
           ]
         },
         "description": {
@@ -5392,11 +5407,11 @@
         },
         "body_a": {
           "type": "string",
-          "description": "Reference (parent) side: a mass_bodies id, 'chassis' or 'ground'."
+          "description": "Reference (parent) side: a mass_bodies id, 'chassis' or 'ground'. Required for joint, spring and actuator."
         },
         "body_b": {
           "type": "string",
-          "description": "Moving side: a mass_bodies id, 'chassis' or 'ground'."
+          "description": "Moving side: a mass_bodies id, 'chassis' or 'ground'. Required for joint, spring and actuator."
         },
         "marker_a": {
           "type": "string"
@@ -5554,36 +5569,157 @@
           "type": "number",
           "exclusiveMinimum": 0,
           "description": "N; alternative to bore_diameter + max_pressure."
+        },
+        "drive": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": [
+            "mode"
+          ],
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "free",
+                "position",
+                "velocity",
+                "force"
+              ],
+              "description": "free: unpowered. position: the drive holds / seeks `target`. velocity: it runs at `target`. force: it applies `target` as a constant torque / force."
+            },
+            "target": {
+              "type": "number",
+              "description": "Position (rad / m), velocity (rad/s, m/s) or force (N*m, N) depending on mode."
+            },
+            "max_force": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Torque (N*m) or force (N) the drive can apply."
+            },
+            "max_rate": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Maximum speed (rad/s or m/s)."
+            },
+            "stiffness": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Position-loop gain (N*m/rad or N/m) in position mode."
+            },
+            "damping": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Velocity-loop gain (N*m*s/rad or N*s/m)."
+            }
+          },
+          "description": "Optional actuation of a one-coordinate joint (a motor, a powered hinge): the joint is otherwise free."
+        },
+        "joint_ref": {
+          "type": "string",
+          "description": "latch: id of the joint it holds."
+        },
+        "coordinate": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2,
+          "default": 0,
+          "description": "latch: which coordinate of the joint is held (0 for one-coordinate joints)."
+        },
+        "position": {
+          "type": "number",
+          "description": "latch: coordinate value at which the latch engages (rad / m)."
+        },
+        "holding_force": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "latch: torque (N*m) or force (N) above which it lets go."
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "latched",
+            "released"
+          ],
+          "default": "released",
+          "description": "latch: engaged or not at the reference pose. A latch that is 'latched' at the reference pose must engage at position 0."
+        },
+        "joint_a": {
+          "type": "string",
+          "description": "coupling: id of the first joint."
+        },
+        "joint_b": {
+          "type": "string",
+          "description": "coupling: id of the second joint."
+        },
+        "ratio": {
+          "type": "number",
+          "description": "coupling: q_b = ratio * q_a (non-zero)."
+        },
+        "coordinate_a": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2,
+          "default": 0
+        },
+        "coordinate_b": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2,
+          "default": 0
         }
       },
       "allOf": [
         {
-          "anyOf": [
-            {
-              "required": [
-                "marker_a"
-              ]
+          "if": {
+            "properties": {
+              "type": {
+                "enum": [
+                  "joint",
+                  "spring",
+                  "actuator"
+                ]
+              }
             },
-            {
-              "required": [
-                "frame_a"
-              ]
-            }
-          ]
-        },
-        {
-          "anyOf": [
-            {
-              "required": [
-                "marker_b"
-              ]
-            },
-            {
-              "required": [
-                "frame_b"
-              ]
-            }
-          ]
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "body_a",
+              "body_b"
+            ],
+            "allOf": [
+              {
+                "anyOf": [
+                  {
+                    "required": [
+                      "marker_a"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "frame_a"
+                    ]
+                  }
+                ]
+              },
+              {
+                "anyOf": [
+                  {
+                    "required": [
+                      "marker_b"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "frame_b"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
         },
         {
           "if": {
@@ -5645,6 +5781,44 @@
               "stroke"
             ]
           }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "latch"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "joint_ref",
+              "position",
+              "holding_force"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "coupling"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "joint_a",
+              "joint_b",
+              "ratio"
+            ]
+          }
         }
       ]
     },
@@ -5659,6 +5833,10 @@
         "id": {
           "type": "string",
           "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "description": "Short human-readable label for display (e.g. 'Front-left door'). `id` stays the stable key that everything references."
         },
         "description": {
           "type": "string"

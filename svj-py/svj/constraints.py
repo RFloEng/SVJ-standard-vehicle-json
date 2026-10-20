@@ -1,8 +1,8 @@
 """
-SVJ Constraints Checker and Kinematics (v0.99.5)
+SVJ Constraints Checker and Kinematics (v0.99.7)
 ================================================
 Cross-reference rules for movable parts (spec §24, proposals/svj_articulated_parts_proposal.md):
-`constraints[]` (joint / spring / actuator), `poses[]` and `chassis.markers`, plus the forward
+`constraints[]` (joint / spring / actuator / latch / coupling), `poses[]` and `chassis.markers`, plus the forward
 kinematics that turn a pose into rigid-body transforms, element lengths and a composite CG.
 
 Used automatically by tools/validate.py; can also run standalone.
@@ -28,6 +28,108 @@ AXIS_TOL = 1e-4            # 1 - |cos| between the two Z axes
 QUAT_ERROR = 1e-2
 QUAT_WARN = 1e-3
 LEN_TOL = 1e-6
+
+
+
+# ── naming vocabulary (docs/naming_convention.md, "Movable parts and attachments") ─────
+_SIDE_SUFFIX = {"fl": "fl", "lf": "fl", "fr": "fr", "rf": "fr", "rl": "rl", "lr": "rl", "lb": "rl", "rr": "rr", "rb": "rr",
+                "l": "l", "r": "r", "left": "l", "right": "r"}
+_SIDE_PREFIX = {"front_left": "fl", "front_right": "fr", "rear_left": "rl", "rear_right": "rr", "left": "l", "right": "r",
+                "fl": "fl", "fr": "fr", "rl": "rl", "rr": "rr"}
+PART_CANONICAL = {"door", "hood", "trunk", "tailgate", "fuel_flap", "charge_flap", "mirror", "wiper", "sunroof", "cab", "tipper_body", "loader_boom", "loader_bucket", "boom", "stick", "bucket", "swing_frame", "hitch_lift_arm", "hitch_lower_link", "hitch_top_link", "hitch_drawbar", "implement"}
+PART_ALIASES = {
+    "car_door": "door",
+    "bonnet": "hood",
+    "engine_hood": "hood",
+    "engine_bonnet": "hood",
+    "boot": "trunk",
+    "boot_lid": "trunk",
+    "trunk_lid": "trunk",
+    "deck_lid": "trunk",
+    "rear_lid": "trunk",
+    "liftgate": "tailgate",
+    "lift_gate": "tailgate",
+    "hatch": "tailgate",
+    "rear_hatch": "tailgate",
+    "hatchback": "tailgate",
+    "tail_gate": "tailgate",
+    "fuel_door": "fuel_flap",
+    "fuel_filler_flap": "fuel_flap",
+    "filler_flap": "fuel_flap",
+    "fuel_cap_door": "fuel_flap",
+    "gas_door": "fuel_flap",
+    "charge_port_door": "charge_flap",
+    "charge_door": "charge_flap",
+    "charging_flap": "charge_flap",
+    "side_mirror": "mirror",
+    "wing_mirror": "mirror",
+    "door_mirror": "mirror",
+    "windscreen_wiper": "wiper",
+    "windshield_wiper": "wiper",
+    "sun_roof": "sunroof",
+    "moonroof": "sunroof",
+    "cabin": "cab",
+    "driver_cab": "cab",
+    "cab_shell": "cab",
+    "truck_cab": "cab",
+    "tipper": "tipper_body",
+    "dump_body": "tipper_body",
+    "dump_box": "tipper_body",
+    "dumper_body": "tipper_body",
+    "tipper_box": "tipper_body",
+    "front_loader_boom": "loader_boom",
+    "loader_arm": "loader_boom",
+    "front_loader_arm": "loader_boom",
+    "front_loader_bucket": "loader_bucket",
+    "loader_shovel": "loader_bucket",
+    "front_bucket": "loader_bucket",
+    "crane_boom": "boom",
+    "excavator_boom": "boom",
+    "dipper": "stick",
+    "dipper_stick": "stick",
+    "dipper_arm": "stick",
+    "excavator_bucket": "bucket",
+    "turret": "swing_frame",
+    "upper_structure": "swing_frame",
+    "superstructure": "swing_frame",
+    "lift_arm": "hitch_lift_arm",
+    "rockshaft_arm": "hitch_lift_arm",
+    "lower_link": "hitch_lower_link",
+    "lift_link": "hitch_lower_link",
+    "three_point_lower_link": "hitch_lower_link",
+    "top_link": "hitch_top_link",
+    "upper_link": "hitch_top_link",
+    "third_link": "hitch_top_link",
+    "drawbar": "hitch_drawbar",
+    "draw_bar": "hitch_drawbar",
+    "tool": "implement",
+    "working_implement": "implement",
+}
+_ACTUATOR_ALIAS_SUFFIX = ("_ram", "_piston")
+
+
+def canonical_part_id(pid):
+    """The canonical spelling of a movable-part id, or None when the id is not a known part.
+
+    Normalises case and separators, moves a side prefix (`front_left_door`) to a suffix, maps known
+    aliases (`bonnet` -> `hood`, `hatch` -> `tailgate`) and keeps the side (`door_lf` -> `door_fl`).
+    """
+    if not isinstance(pid, str):
+        return None
+    base = "_".join(pid.strip().lower().replace("-", "_").split())
+    side = None
+    for pre in sorted(_SIDE_PREFIX, key=len, reverse=True):
+        if base.startswith(pre + "_"):
+            side, base = _SIDE_PREFIX[pre], base[len(pre) + 1:]
+            break
+    else:
+        head, _, tail = base.rpartition("_")
+        if head and tail in _SIDE_SUFFIX:
+            base, side = head, _SIDE_SUFFIX[tail]
+    base = PART_ALIASES.get(base, base)
+    if base not in PART_CANONICAL:
+        return None
+    return base + ("_" + side if side else "")
 
 
 # ── small vector / matrix helpers (3x3 row-major tuples) ──────────────────────
@@ -172,7 +274,44 @@ def pose_values(doc, pose=None):
                 break
         else:
             raise KeyError(f"no pose '{pose}'")
-    return {k: (list(v) if isinstance(v, (list, tuple)) else [v]) for k, v in pose.items()}
+    vals = {k: (list(v) if isinstance(v, (list, tuple)) else [v]) for k, v in pose.items()}
+    return apply_couplings(doc, vals)
+
+
+def apply_couplings(doc, vals):
+    """Fill in coordinates fixed by `coupling` constraints (q_b = ratio * q_a).
+
+    A coupled joint the pose does not name takes its value from the joint it is coupled to,
+    in either direction, and chains of couplings propagate. Values the pose names are kept.
+    """
+    cps = _constraints(doc, "coupling")
+    if not cps:
+        return vals
+    joints = {c.get("id"): c for c in _constraints(doc, "joint")}
+
+    def put(jid, i, x):
+        dof = DOF.get((joints.get(jid) or {}).get("joint_type"), 0)
+        v = list(vals.get(jid) or [])
+        v += [0.0] * (dof - len(v))
+        if i < len(v):
+            v[i] = x
+            vals[jid] = v
+
+    explicit = set(vals)
+    for _ in range(len(cps) + 1):
+        changed = False
+        for c in cps:
+            ja, jb, r = c.get("joint_a"), c.get("joint_b"), c.get("ratio")
+            ia, ib = c.get("coordinate_a", 0) or 0, c.get("coordinate_b", 0) or 0
+            if ja not in joints or jb not in joints or not isinstance(r, (int, float)) or r == 0:
+                continue
+            if ja in vals and jb not in vals and ia < len(vals[ja]):
+                put(jb, ib, r * vals[ja][ia]); changed = True
+            elif jb in vals and ja not in vals and ib < len(vals[jb]):
+                put(ja, ia, vals[jb][ib] / r); changed = True
+        if not changed:
+            break
+    return vals
 
 
 def body_transforms(doc, pose=None):
@@ -419,6 +558,18 @@ def check(doc):
                 warnings.append(f"{where}: inertia_orientation without inertia")
             _quat_issue(f"{where}.inertia_orientation", b["inertia_orientation"], errors, warnings)
 
+    # ── naming advisories: a known alias where the canonical part name exists ───
+    for bid in bodies:
+        canon = canonical_part_id(bid)
+        if canon is not None and canon != bid:
+            warnings.append(f"mass_body '{bid}': use the canonical part name '{canon}' (docs/naming_convention.md)")
+    for c in cons:
+        cid = c.get("id")
+        if c.get("type") == "actuator" and isinstance(cid, str):
+            for suf in _ACTUATOR_ALIAS_SUFFIX:
+                if cid.endswith(suf):
+                    warnings.append(f"constraints '{cid}': name hydraulic actuators '<part>_cylinder', not '{suf}'")
+
     if not cons and not poses:
         return errors, warnings
 
@@ -428,13 +579,16 @@ def check(doc):
             warnings.append(f"chassis.mass_bodies '{bid}': '.' is reserved for qualified ids of attached units")
 
     # ── per constraint ─────────────────────────────────────────────────────
-    seen_ids, joints = {}, []
+    seen_ids, joints, linkers = {}, [], []
     for i, c in enumerate(cons):
         cid = c.get("id")
         where = f"constraints[{i}] '{cid}'"
         if cid in seen_ids:
             errors.append(f"{where}: duplicate constraint id")
         seen_ids[cid] = c
+        if c.get("type") in ("latch", "coupling"):
+            linkers.append((i, c))
+            continue
         a, b = c.get("body_a"), c.get("body_b")
         ok = True
         for side, bid in (("a", a), ("b", b)):
@@ -473,6 +627,19 @@ def check(doc):
                         errors.append(f"{where}: range.min ({lo}) is greater than range.max ({hi})")
                     elif (lo is not None and lo > 0) or (hi is not None and hi < 0):
                         errors.append(f"{where}: the reference pose (0) lies outside the range [{lo}, {hi}]")
+            drv = c.get("drive")
+            if isinstance(drv, dict):
+                if dof is not None and dof != 1:
+                    errors.append(f"{where}: drive is defined for one-coordinate joints (this one has {dof})")
+                mode = drv.get("mode")
+                if mode in ("position", "velocity", "force") and not isinstance(drv.get("target"), (int, float)):
+                    errors.append(f"{where}: drive mode '{mode}' needs a target")
+                if mode in ("position", "velocity", "force") and not isinstance(drv.get("max_force"), (int, float)):
+                    warnings.append(f"{where}: a powered drive without max_force has an unknown capability")
+                if mode == "position" and rl and isinstance(drv.get("target"), (int, float)):
+                    lo, hi = rl[0][0], rl[1][0]
+                    if (lo is not None and drv["target"] < lo - 1e-9) or (hi is not None and drv["target"] > hi + 1e-9):
+                        errors.append(f"{where}: drive target {drv['target']} is outside the joint range [{lo}, {hi}]")
             if ok and len(frames) == 2:
                 pa, pb = frames["a"][0], frames["b"][0]
                 if math.dist(pa, pb) > COINCIDE_TOL:
@@ -547,6 +714,68 @@ def check(doc):
 
     # ── poses ──────────────────────────────────────────────────────────────
     jmap = {c.get("id"): c for c in joints}
+
+    def jrange(j, k):
+        dof = DOF.get(j.get("joint_type"), 0)
+        rl = _range_lists(j.get("range"), dof, "", []) if j.get("range") is not None and dof else None
+        return (rl[0][k], rl[1][k]) if rl and k < dof else (None, None)
+
+    couplings = []
+    driven = {}
+    for i, c in linkers:
+        where = f"constraints[{i}] '{c.get('id')}'"
+        if c.get("type") == "latch":
+            j = jmap.get(c.get("joint_ref"))
+            if j is None:
+                errors.append(f"{where}: joint_ref '{c.get('joint_ref')}' is not a joint id")
+                continue
+            k = c.get("coordinate", 0) or 0
+            if k >= DOF.get(j.get("joint_type"), 0):
+                errors.append(f"{where}: coordinate {k} does not exist on a {j.get('joint_type')} joint")
+                continue
+            lo, hi = jrange(j, k)
+            pos = c.get("position")
+            if isinstance(pos, (int, float)) and ((lo is not None and pos < lo - 1e-9) or (hi is not None and pos > hi + 1e-9)):
+                errors.append(f"{where}: position {pos} is outside the joint range [{lo}, {hi}]")
+            if c.get("state") == "latched" and isinstance(pos, (int, float)) and abs(pos) > 1e-6:
+                errors.append(f"{where}: a latch that is 'latched' at the reference pose must engage at position 0, not {pos}")
+        else:
+            ja, jb = jmap.get(c.get("joint_a")), jmap.get(c.get("joint_b"))
+            r = c.get("ratio")
+            bad = False
+            for name, j in (("joint_a", ja), ("joint_b", jb)):
+                if j is None:
+                    errors.append(f"{where}: {name} '{c.get(name)}' is not a joint id")
+                    bad = True
+            if bad:
+                continue
+            if c.get("joint_a") == c.get("joint_b") and (c.get("coordinate_a", 0) or 0) == (c.get("coordinate_b", 0) or 0):
+                errors.append(f"{where}: a coupling needs two different joint coordinates")
+                continue
+            for name, j, key in (("joint_a", ja, "coordinate_a"), ("joint_b", jb, "coordinate_b")):
+                if (c.get(key, 0) or 0) >= DOF.get(j.get("joint_type"), 0):
+                    errors.append(f"{where}: {key} {c.get(key, 0) or 0} does not exist on a {j.get('joint_type')} joint")
+                    bad = True
+            if bad:
+                continue
+            if not isinstance(r, (int, float)) or r == 0:
+                errors.append(f"{where}: ratio must be a non-zero number")
+                continue
+            ia, ib = c.get("coordinate_a", 0) or 0, c.get("coordinate_b", 0) or 0
+            couplings.append((c, ia, ib, r))
+            key = (c.get("joint_b"), ib)
+            driven[key] = driven.get(key, 0) + 1
+            la, ha = jrange(ja, ia)
+            lb, hb = jrange(jb, ib)
+            img = [None if v is None else v * r for v in (la, ha)]
+            if r < 0:
+                img.reverse()
+            if (lb is not None and img[0] is not None and img[0] < lb - 1e-9) or (hb is not None and img[1] is not None and img[1] > hb + 1e-9):
+                warnings.append(f"{where}: the range of '{c.get('joint_a')}' maps outside the range of '{c.get('joint_b')}' through ratio {r}")
+    for (jid, k), n in driven.items():
+        if n > 1:
+            warnings.append(f"joint '{jid}' coordinate {k} is driven by {n} couplings (over-constrained)")
+
     seen_poses = set()
     settings = {s.get("name") for comp in ((doc.get("aerodynamics") or {}).get("components") or []) if isinstance(comp, dict)
                 for s in (comp.get("settings") or []) if isinstance(s, dict)}
@@ -576,6 +805,22 @@ def check(doc):
                     lo, hi = rl[0][k], rl[1][k]
                     if (lo is not None and vec[k] < lo - 1e-9) or (hi is not None and vec[k] > hi + 1e-9):
                         errors.append(f"{where}: '{jid}' value {vec[k]} is outside its range [{lo}, {hi}]")
+        if good and couplings:
+            vals_p = {k: (list(v) if isinstance(v, (list, tuple)) else [v]) for k, v in (p.get("values") or {}).items()}
+            given = set(vals_p)
+            derived = apply_couplings(doc, {k: list(v) for k, v in vals_p.items()})
+            for c, ia, ib, r in couplings:
+                ja, jb = c.get("joint_a"), c.get("joint_b")
+                if ja in given and jb in given and ia < len(vals_p[ja]) and ib < len(vals_p[jb]) \
+                        and abs(vals_p[jb][ib] - r * vals_p[ja][ia]) > 1e-6:
+                    errors.append(f"{where}: '{jb}' = {vals_p[jb][ib]} violates coupling '{c.get('id')}' (expected {r * vals_p[ja][ia]:.6g})")
+            for jid, vec in derived.items():
+                if jid in given or jid not in jmap:
+                    continue
+                for k, x in enumerate(vec):
+                    lo, hi = jrange(jmap[jid], k)
+                    if (lo is not None and x < lo - 1e-9) or (hi is not None and x > hi + 1e-9):
+                        errors.append(f"{where}: '{jid}' reaches {x:.4g} through a coupling, outside its range [{lo}, {hi}]")
         ref = p.get("aero_setting_ref")
         if ref is not None and ref not in settings:
             errors.append(f"{where}: aero_setting_ref '{ref}' is not an aerodynamics.components[].settings name")

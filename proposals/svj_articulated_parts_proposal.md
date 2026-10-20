@@ -117,7 +117,7 @@ Optional top-level `poses[]`:
 "poses": [
   { "id": "closed" },
   { "id": "door_open",  "values": { "hinge_door_fl": 1.1 } },
-  { "id": "loader_up",  "values": { "boom_pivot": 0.85, "bucket_pivot": -0.4 } },
+  { "id": "loader_up",  "values": { "hinge_loader_boom": 0.85, "hinge_loader_bucket": -0.4 } },
   { "id": "hood_up",    "values": { "hinge_hood": 0.95 }, "aero_setting_ref": "hood_open" }
 ]
 ```
@@ -193,14 +193,14 @@ Tractor front loader (a chain; the boom cylinder is checked against its stroke i
 
 ```json
 "constraints": [
-  { "id": "boom_pivot",   "type": "joint", "joint_type": "revolute", "body_a": "chassis", "marker_a": "boom_pivot",
-    "body_b": "boom", "marker_b": "pivot", "range": { "min": -0.15, "max": 0.95 } },
-  { "id": "bucket_pivot", "type": "joint", "joint_type": "revolute", "body_a": "boom", "marker_a": "bucket_pivot",
-    "body_b": "bucket", "marker_b": "pivot", "range": { "min": -0.9, "max": 0.7 } },
-  { "id": "boom_cylinder", "type": "actuator", "body_a": "chassis", "marker_a": "cyl_base",
-    "body_b": "boom", "marker_b": "cyl_rod", "retracted_length": 0.62, "stroke": { "min": 0.0, "max": 0.46 } },
-  { "id": "bucket_cylinder", "type": "actuator", "body_a": "boom", "marker_a": "bcyl_base",
-    "body_b": "bucket", "marker_b": "bcyl_rod", "retracted_length": 0.48, "stroke": { "min": 0.0, "max": 0.36 } }
+  { "id": "hinge_loader_boom",   "type": "joint", "joint_type": "revolute", "body_a": "chassis", "marker_a": "loader_boom_hinge",
+    "body_b": "loader_boom", "marker_b": "hinge", "range": { "min": -0.15, "max": 0.95 } },
+  { "id": "hinge_loader_bucket", "type": "joint", "joint_type": "revolute", "body_a": "loader_boom", "marker_a": "loader_bucket_hinge",
+    "body_b": "loader_bucket", "marker_b": "hinge", "range": { "min": -0.9, "max": 0.7 } },
+  { "id": "loader_boom_cylinder", "type": "actuator", "body_a": "chassis", "marker_a": "loader_boom_cylinder_base",
+    "body_b": "loader_boom", "marker_b": "loader_boom_cylinder_rod", "retracted_length": 0.62, "stroke": { "min": 0.0, "max": 0.46 } },
+  { "id": "loader_bucket_cylinder", "type": "actuator", "body_a": "loader_boom", "marker_a": "loader_bucket_cylinder_base",
+    "body_b": "loader_bucket", "marker_b": "loader_bucket_cylinder_rod", "retracted_length": 0.48, "stroke": { "min": 0.0, "max": 0.36 } }
 ]
 ```
 
@@ -266,6 +266,6 @@ ignore the blocks still see a valid vehicle in its reference pose.
 |---|---|---|
 | 1 | `constraints[]` with `joint` (all types, vector coordinates), `spring`, `actuator`; `poses[]`; `chassis.markers`; checker rules 1–12 (except `latch`/`contact`); forward kinematics, CG and element lengths per pose in `svj-py`; two examples (car panels; tractor with front loader and hitch) | Both examples validate, FK reproduces the expected poses and the stroke checks pass |
 | 2 | Viewer poses panel and animation | Poses animate the bound meshes about the hinges |
-| 3 | `latch`, `coupling`, rotary `joint.drive` | A tilt-cab / tipper example |
+| 3 | `latch`, `coupling`, rotary `joint.drive` — **implemented in v0.99.6** | A tilt-cab / tipper example (`skeleton_dump_truck_tipper_cab`) |
 | 4 | Attachments: interfaces, qualified ids, joint object in the combination file | A loader file fitted to a tractor file |
 | 5 | `contact` (needs the geometry decision, question 1) | A hood-on-rubber example |

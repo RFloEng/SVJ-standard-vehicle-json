@@ -64,12 +64,12 @@ tractor.pose_cg()                      # {'cg': [...], 'delta': [0, 0, 0], 'mass
 tractor.pose_cg("loader_dump")["cg"]   # composite CG with the boom raised
 tractor.pose_inertia("loader_dump")    # composite inertia about that CG (spec 7.1 object)
 tractor.pose_inertia("loader_dump", form="matrix")   # the 3x3 tensor
-tractor.element_lengths("loader_dump") # {'boom_cylinder': 1.359, ...} metres
+tractor.element_lengths("loader_dump") # {'loader_boom_cylinder': 1.359, ...} metres
 tractor.body_transforms("hitch_up")["implement"]     # (R, t) from the reference pose
 tractor.body_inertia("loader_boom")    # a body's 3x3 inertia in vehicle axes (object or matrix form, inertia_orientation applied)
 ```
 
-`svj.validate()` also runs `svj/constraints.py` (an exact copy of `tools/constraints_check.py`): references, ranges, frame coincidence, connectivity, inertia plausibility and actuator reach in every pose.
+`svj.validate()` also runs `svj/constraints.py` (an exact copy of `tools/constraints_check.py`): references, ranges, frame coincidence, connectivity, inertia plausibility, latches, couplings, drives and actuator reach in every pose. Poses follow `coupling` linkages: naming the tipper angle also moves the linked tailgate.
 
 ### Joint types
 

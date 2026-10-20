@@ -1,8 +1,8 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99.5",
-    "description": "Skeleton: FWD hatchback with movable panels — two doors (revolute), a hood and a hatch on gas struts, with poses. Panel masses are part of the stated mass_total; geometry is illustrative.",
+    "version": "0.99.7",
+    "description": "Skeleton: FWD hatchback with movable panels — two doors with latches and a detent (door check), a hood and a power-operated hatch on gas struts, with poses. Panel masses are part of the stated mass_total; geometry is illustrative.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
     "data_origin": {
@@ -207,7 +207,8 @@
               1
             ]
           }
-        }
+        },
+        "name": "Front-left door"
       },
       {
         "id": "door_fr",
@@ -242,7 +243,8 @@
               0
             ]
           }
-        }
+        },
+        "name": "Front-right door"
       },
       {
         "id": "hood",
@@ -277,24 +279,25 @@
               0.7071068
             ]
           },
-          "hood_strut_l": {
+          "hood_strut_l_end": {
             "position": [
               0.2,
               -0.6,
               -0.82
             ]
           },
-          "hood_strut_r": {
+          "hood_strut_r_end": {
             "position": [
               0.2,
               0.6,
               -0.82
             ]
           }
-        }
+        },
+        "name": "Hood"
       },
       {
-        "id": "hatch",
+        "id": "tailgate",
         "description": "Tailgate / hatch",
         "category": "structural",
         "mass": 9.0,
@@ -326,21 +329,22 @@
               0.7071068
             ]
           },
-          "hatch_strut_l": {
+          "tailgate_strut_l_end": {
             "position": [
               -2.8,
               -0.62,
               -1.2
             ]
           },
-          "hatch_strut_r": {
+          "tailgate_strut_r_end": {
             "position": [
               -2.8,
               0.62,
               -1.2
             ]
           }
-        }
+        },
+        "name": "Tailgate"
       }
     ],
     "visual": {
@@ -387,7 +391,7 @@
           0.7071068
         ]
       },
-      "hatch_hinge": {
+      "tailgate_hinge": {
         "position": [
           -2.25,
           0.0,
@@ -414,14 +418,14 @@
           -0.58
         ]
       },
-      "hatch_strut_l_base": {
+      "tailgate_strut_l_base": {
         "position": [
           -2.35,
           -0.62,
           -1.05
         ]
       },
-      "hatch_strut_r_base": {
+      "tailgate_strut_r_base": {
         "position": [
           -2.35,
           0.62,
@@ -1122,18 +1126,74 @@
       "friction": 0.4
     },
     {
-      "id": "hinge_hatch",
+      "id": "hinge_tailgate",
       "type": "joint",
       "joint_type": "revolute",
       "body_a": "chassis",
-      "marker_a": "hatch_hinge",
-      "body_b": "hatch",
+      "marker_a": "tailgate_hinge",
+      "body_b": "tailgate",
       "marker_b": "hinge",
       "range": {
         "min": 0.0,
         "max": 1.3
       },
-      "friction": 0.4
+      "friction": 0.4,
+      "drive": {
+        "mode": "position",
+        "target": 0.0,
+        "max_force": 400.0,
+        "max_rate": 0.8,
+        "stiffness": 2500,
+        "damping": 60
+      }
+    },
+    {
+      "id": "door_fl_latch",
+      "type": "latch",
+      "joint_ref": "hinge_door_fl",
+      "position": 0.0,
+      "holding_force": 60.0,
+      "state": "latched"
+    },
+    {
+      "id": "door_fl_check",
+      "type": "latch",
+      "joint_ref": "hinge_door_fl",
+      "position": 0.55,
+      "holding_force": 8.0,
+      "state": "released"
+    },
+    {
+      "id": "door_fr_latch",
+      "type": "latch",
+      "joint_ref": "hinge_door_fr",
+      "position": 0.0,
+      "holding_force": 60.0,
+      "state": "latched"
+    },
+    {
+      "id": "door_fr_check",
+      "type": "latch",
+      "joint_ref": "hinge_door_fr",
+      "position": 0.55,
+      "holding_force": 8.0,
+      "state": "released"
+    },
+    {
+      "id": "hood_latch",
+      "type": "latch",
+      "joint_ref": "hinge_hood",
+      "position": 0.0,
+      "holding_force": 150.0,
+      "state": "latched"
+    },
+    {
+      "id": "tailgate_latch",
+      "type": "latch",
+      "joint_ref": "hinge_tailgate",
+      "position": 0.0,
+      "holding_force": 120.0,
+      "state": "latched"
     },
     {
       "id": "hood_strut_l",
@@ -1141,7 +1201,7 @@
       "body_a": "chassis",
       "marker_a": "hood_strut_l_base",
       "body_b": "hood",
-      "marker_b": "hood_strut_l",
+      "marker_b": "hood_strut_l_end",
       "free_length": 0.346,
       "rate": 900,
       "preload": 150,
@@ -1153,31 +1213,31 @@
       "body_a": "chassis",
       "marker_a": "hood_strut_r_base",
       "body_b": "hood",
-      "marker_b": "hood_strut_r",
+      "marker_b": "hood_strut_r_end",
       "free_length": 0.346,
       "rate": 900,
       "preload": 150,
       "damping": 60
     },
     {
-      "id": "hatch_strut_l",
+      "id": "tailgate_strut_l",
       "type": "spring",
       "body_a": "chassis",
-      "marker_a": "hatch_strut_l_base",
-      "body_b": "hatch",
-      "marker_b": "hatch_strut_l",
+      "marker_a": "tailgate_strut_l_base",
+      "body_b": "tailgate",
+      "marker_b": "tailgate_strut_l_end",
       "free_length": 0.427,
       "rate": 900,
       "preload": 150,
       "damping": 60
     },
     {
-      "id": "hatch_strut_r",
+      "id": "tailgate_strut_r",
       "type": "spring",
       "body_a": "chassis",
-      "marker_a": "hatch_strut_r_base",
-      "body_b": "hatch",
-      "marker_b": "hatch_strut_r",
+      "marker_a": "tailgate_strut_r_base",
+      "body_b": "tailgate",
+      "marker_b": "tailgate_strut_r_end",
       "free_length": 0.427,
       "rate": 900,
       "preload": 150,
@@ -1208,9 +1268,9 @@
       }
     },
     {
-      "id": "hatch_up",
+      "id": "tailgate_up",
       "values": {
-        "hinge_hatch": 1.15
+        "hinge_tailgate": 1.15
       }
     }
   ]

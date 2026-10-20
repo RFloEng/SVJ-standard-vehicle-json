@@ -1,0 +1,1219 @@
+{
+  "_metadata": {
+    "specification": "SVJ",
+    "version": "0.99.7",
+    "description": "Skeleton: 6x4 dump truck with a forward-tilting cab, a tipper body on two rams and a tailgate that opens through a linkage as the body tips. Demonstrates latches, couplings and actuators with poses. The cab, tipper and tailgate are part of the stated mass_total; geometry and masses are illustrative.",
+    "coordinate_system": "SAE_J670",
+    "units": "SI",
+    "author": "RFloEng",
+    "data_origin": {
+      "type": "calculated",
+      "detail": "Skeleton example; cab, tipper and tailgate geometry and masses are illustrative. The composite inertia is a typical estimate (Ixx 14000, Iyy 180000, Izz 185000 kg m2).",
+      "confidence": "low"
+    },
+    "alignment_convention": "relative_to_centerline"
+  },
+  "vehicle_info": {
+    "make": "Generic",
+    "model": "6x4 dump truck, tilting cab and tipper",
+    "drive_type": "RWD",
+    "wheel_formula": "6x4",
+    "vehicle_class": "heavy_truck"
+  },
+  "chassis": {
+    "mass_total": 26000,
+    "wheelbase": 4.52,
+    "track_front": 2.05,
+    "track_rear": 1.86,
+    "center_of_gravity": [
+      -3.1,
+      0,
+      -1.25
+    ],
+    "mass_unsprung_per_corner": {
+      "A1L": 520,
+      "A1R": 520,
+      "A2L": 700,
+      "A2R": 700,
+      "A3L": 700,
+      "A3R": 700
+    },
+    "wheelbase_reference": "bogie_centre",
+    "inertia": {
+      "Ixx": 14000.0,
+      "Iyy": 180000.0,
+      "Izz": 185000.0,
+      "Ixy": 0.0,
+      "Ixz": 0.0,
+      "Iyz": 0.0
+    },
+    "markers": {
+      "cab_hinge": {
+        "position": [
+          0.55,
+          0.0,
+          -1.1
+        ],
+        "orientation": [
+          0.7071068,
+          0,
+          0,
+          0.7071068
+        ]
+      },
+      "cab_cylinder_base": {
+        "position": [
+          0.15,
+          0.0,
+          -0.8
+        ]
+      },
+      "tipper_body_hinge": {
+        "position": [
+          -6.3,
+          0.0,
+          -1.15
+        ],
+        "orientation": [
+          -0.7071068,
+          0,
+          0,
+          0.7071068
+        ]
+      },
+      "tipper_body_cylinder_base": {
+        "position": [
+          -4.3,
+          0.0,
+          -0.95
+        ]
+      }
+    },
+    "mass_bodies": [
+      {
+        "id": "cab",
+        "description": "Tilting cab",
+        "category": "structural",
+        "mass": 1100.0,
+        "position": [
+          -0.35,
+          0.0,
+          -1.95
+        ],
+        "parent": "chassis",
+        "inertia": {
+          "Ixx": 762.67,
+          "Iyy": 565.58,
+          "Izz": 858.92,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        },
+        "markers": {
+          "hinge": {
+            "position": [
+              0.55,
+              0.0,
+              -1.1
+            ],
+            "orientation": [
+              0.7071068,
+              0,
+              0,
+              0.7071068
+            ]
+          },
+          "cab_cylinder_rod": {
+            "position": [
+              -0.6,
+              0.0,
+              -1.6
+            ]
+          }
+        },
+        "name": "Tilting cab"
+      },
+      {
+        "id": "tipper_body",
+        "description": "Tipper body",
+        "category": "attachment",
+        "mass": 3800.0,
+        "position": [
+          -4.35,
+          0.0,
+          -1.95
+        ],
+        "parent": "chassis",
+        "inertia": {
+          "Ixx": 2359.17,
+          "Iyy": 5601.83,
+          "Izz": 6890.67,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        },
+        "markers": {
+          "hinge": {
+            "position": [
+              -6.3,
+              0.0,
+              -1.15
+            ],
+            "orientation": [
+              -0.7071068,
+              0,
+              0,
+              0.7071068
+            ]
+          },
+          "tipper_body_cylinder_rod": {
+            "position": [
+              -3.05,
+              0.0,
+              -1.5
+            ]
+          },
+          "tailgate_hinge": {
+            "position": [
+              -6.32,
+              0.0,
+              -2.45
+            ],
+            "orientation": [
+              0.7071068,
+              0,
+              0,
+              0.7071068
+            ]
+          }
+        },
+        "name": "Tipper body"
+      },
+      {
+        "id": "tailgate",
+        "description": "Tailgate",
+        "category": "attachment",
+        "mass": 350.0,
+        "position": [
+          -6.35,
+          0.0,
+          -1.85
+        ],
+        "parent": "tipper_body",
+        "inertia": {
+          "Ixx": 203.29,
+          "Iyy": 35.71,
+          "Izz": 168.42,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        },
+        "markers": {
+          "hinge": {
+            "position": [
+              -6.32,
+              0.0,
+              -2.45
+            ],
+            "orientation": [
+              0.7071068,
+              0,
+              0,
+              0.7071068
+            ]
+          }
+        },
+        "name": "Tailgate"
+      }
+    ]
+  },
+  "steering": {
+    "type": "recirculating_ball",
+    "rack_position": [
+      0.35,
+      -0.55,
+      -0.95
+    ],
+    "rack_travel": 0.12,
+    "overall_ratio": 22.0,
+    "lock_to_lock": 34.558,
+    "axle_ref": "A1",
+    "power_assist": {
+      "type": "hydraulic"
+    }
+  },
+  "suspension": {
+    "A1L": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "leaf_located",
+        "upright": {
+          "id": "hub_A1L",
+          "hardpoints": {
+            "wheel_center": [
+              0.0,
+              -1.025,
+              -0.51
+            ],
+            "spring_pad": [
+              0.0,
+              -0.45,
+              -0.63
+            ],
+            "damper_outboard": [
+              0.0,
+              -0.4,
+              -0.51
+            ],
+            "steering_tie_rod_end": [
+              -0.18,
+              -0.905,
+              -0.46
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "leaf_spring",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.75,
+                -0.45,
+                -0.73
+              ],
+              [
+                -0.75,
+                -0.45,
+                -0.73
+              ]
+            ],
+            "outboard_ref": "hardpoints.spring_pad"
+          }
+        ],
+        "axle_body": {
+          "id": "A1_beam",
+          "mass": 320,
+          "position": [
+            0.0,
+            0,
+            -0.51
+          ]
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "mass": 110,
+        "set_ref": "steer_385_65r22_5"
+      },
+      "spring": {
+        "type": "leaf",
+        "rate": 280000,
+        "leaf_count": 3,
+        "end_type_front": "eye",
+        "end_type_rear": "shackle",
+        "hysteresis_force": 1500
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            6000
+          ],
+          [
+            0.5,
+            18000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            12000
+          ],
+          [
+            0.5,
+            30000
+          ]
+        ]
+      }
+    },
+    "A1R": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "leaf_located",
+        "upright": {
+          "id": "hub_A1R",
+          "hardpoints": {
+            "wheel_center": [
+              0.0,
+              1.025,
+              -0.51
+            ],
+            "spring_pad": [
+              0.0,
+              0.45,
+              -0.63
+            ],
+            "damper_outboard": [
+              0.0,
+              0.4,
+              -0.51
+            ],
+            "steering_tie_rod_end": [
+              -0.18,
+              0.905,
+              -0.46
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "leaf_spring",
+            "type": "arm",
+            "inboard_points": [
+              [
+                0.75,
+                0.45,
+                -0.73
+              ],
+              [
+                -0.75,
+                0.45,
+                -0.73
+              ]
+            ],
+            "outboard_ref": "hardpoints.spring_pad"
+          }
+        ],
+        "axle_body": {
+          "id": "A1_beam",
+          "mass": 320,
+          "position": [
+            0.0,
+            0,
+            -0.51
+          ]
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "mass": 110,
+        "set_ref": "steer_385_65r22_5"
+      },
+      "spring": {
+        "type": "leaf",
+        "rate": 280000,
+        "leaf_count": 3,
+        "end_type_front": "eye",
+        "end_type_rear": "shackle",
+        "hysteresis_force": 1500
+      },
+      "damper": {
+        "type": "twin_tube",
+        "bump_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            6000
+          ],
+          [
+            0.5,
+            18000
+          ]
+        ],
+        "rebound_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.1,
+            12000
+          ],
+          [
+            0.5,
+            30000
+          ]
+        ]
+      }
+    },
+    "A2L": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "torque_rods",
+        "upright": {
+          "id": "hub_A2L",
+          "hardpoints": {
+            "wheel_center": [
+              -3.835,
+              -0.93,
+              -0.51
+            ],
+            "lower_rod_end": [
+              -3.835,
+              -0.45,
+              -0.39
+            ],
+            "upper_rod_end": [
+              -3.835,
+              -0.25,
+              -0.76
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "lower_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                -3.215,
+                -0.45,
+                -0.46
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_rod_end"
+          },
+          {
+            "name": "upper_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                -3.285,
+                -0.12,
+                -0.86
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_rod_end"
+          }
+        ],
+        "axle_body": {
+          "id": "A2_housing",
+          "mass": 420,
+          "position": [
+            -3.835,
+            0,
+            -0.51
+          ]
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "mass": 180,
+        "multiplicity": 2,
+        "dual_spacing": 0.33,
+        "positions": [
+          {
+            "label": "inner",
+            "offset_outboard": -0.165,
+            "tire": {
+              "set_ref": "drive_315_80r22_5",
+              "pressure": 850000
+            }
+          },
+          {
+            "label": "outer",
+            "offset_outboard": 0.165,
+            "tire": {
+              "set_ref": "drive_315_80r22_5",
+              "pressure": 850000
+            }
+          }
+        ]
+      },
+      "spring": {
+        "type": "none",
+        "coupling_ref": "rear_bogie_L"
+      },
+      "damper": {
+        "type": "none"
+      }
+    },
+    "A2R": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "torque_rods",
+        "upright": {
+          "id": "hub_A2R",
+          "hardpoints": {
+            "wheel_center": [
+              -3.835,
+              0.93,
+              -0.51
+            ],
+            "lower_rod_end": [
+              -3.835,
+              0.45,
+              -0.39
+            ],
+            "upper_rod_end": [
+              -3.835,
+              0.25,
+              -0.76
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "lower_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                -3.215,
+                0.45,
+                -0.46
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_rod_end"
+          },
+          {
+            "name": "upper_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                -3.285,
+                0.12,
+                -0.86
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_rod_end"
+          }
+        ],
+        "axle_body": {
+          "id": "A2_housing",
+          "mass": 420,
+          "position": [
+            -3.835,
+            0,
+            -0.51
+          ]
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "mass": 180,
+        "multiplicity": 2,
+        "dual_spacing": 0.33,
+        "positions": [
+          {
+            "label": "inner",
+            "offset_outboard": -0.165,
+            "tire": {
+              "set_ref": "drive_315_80r22_5",
+              "pressure": 850000
+            }
+          },
+          {
+            "label": "outer",
+            "offset_outboard": 0.165,
+            "tire": {
+              "set_ref": "drive_315_80r22_5",
+              "pressure": 850000
+            }
+          }
+        ]
+      },
+      "spring": {
+        "type": "none",
+        "coupling_ref": "rear_bogie_R"
+      },
+      "damper": {
+        "type": "none"
+      }
+    },
+    "A3L": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "torque_rods",
+        "upright": {
+          "id": "hub_A3L",
+          "hardpoints": {
+            "wheel_center": [
+              -5.205,
+              -0.93,
+              -0.51
+            ],
+            "lower_rod_end": [
+              -5.205,
+              -0.45,
+              -0.39
+            ],
+            "upper_rod_end": [
+              -5.205,
+              -0.25,
+              -0.76
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "lower_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                -4.585,
+                -0.45,
+                -0.46
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_rod_end"
+          },
+          {
+            "name": "upper_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                -4.655,
+                -0.12,
+                -0.86
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_rod_end"
+          }
+        ],
+        "axle_body": {
+          "id": "A3_housing",
+          "mass": 420,
+          "position": [
+            -5.205,
+            0,
+            -0.51
+          ]
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "mass": 180,
+        "multiplicity": 2,
+        "dual_spacing": 0.33,
+        "positions": [
+          {
+            "label": "inner",
+            "offset_outboard": -0.165,
+            "tire": {
+              "set_ref": "drive_315_80r22_5",
+              "pressure": 850000
+            }
+          },
+          {
+            "label": "outer",
+            "offset_outboard": 0.165,
+            "tire": {
+              "set_ref": "drive_315_80r22_5",
+              "pressure": 850000
+            }
+          }
+        ]
+      },
+      "spring": {
+        "type": "none",
+        "coupling_ref": "rear_bogie_L"
+      },
+      "damper": {
+        "type": "none"
+      }
+    },
+    "A3R": {
+      "topology": {
+        "system_type": "solid_axle",
+        "lateral_location": "torque_rods",
+        "upright": {
+          "id": "hub_A3R",
+          "hardpoints": {
+            "wheel_center": [
+              -5.205,
+              0.93,
+              -0.51
+            ],
+            "lower_rod_end": [
+              -5.205,
+              0.45,
+              -0.39
+            ],
+            "upper_rod_end": [
+              -5.205,
+              0.25,
+              -0.76
+            ]
+          }
+        },
+        "links": [
+          {
+            "name": "lower_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                -4.585,
+                0.45,
+                -0.46
+              ]
+            ],
+            "outboard_ref": "hardpoints.lower_rod_end"
+          },
+          {
+            "name": "upper_torque_rod",
+            "type": "torque_rod",
+            "inboard_points": [
+              [
+                -4.655,
+                0.12,
+                -0.86
+              ]
+            ],
+            "outboard_ref": "hardpoints.upper_rod_end"
+          }
+        ],
+        "axle_body": {
+          "id": "A3_housing",
+          "mass": 420,
+          "position": [
+            -5.205,
+            0,
+            -0.51
+          ]
+        }
+      },
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "mass": 180,
+        "multiplicity": 2,
+        "dual_spacing": 0.33,
+        "positions": [
+          {
+            "label": "inner",
+            "offset_outboard": -0.165,
+            "tire": {
+              "set_ref": "drive_315_80r22_5",
+              "pressure": 850000
+            }
+          },
+          {
+            "label": "outer",
+            "offset_outboard": 0.165,
+            "tire": {
+              "set_ref": "drive_315_80r22_5",
+              "pressure": 850000
+            }
+          }
+        ]
+      },
+      "spring": {
+        "type": "none",
+        "coupling_ref": "rear_bogie_R"
+      },
+      "damper": {
+        "type": "none"
+      }
+    }
+  },
+  "axles": [
+    {
+      "id": "A1",
+      "label": "steer",
+      "position_x": 0.0,
+      "track": 2.05,
+      "steered": true,
+      "driven": false,
+      "max_load": 78500
+    },
+    {
+      "id": "A2",
+      "label": "drive",
+      "position_x": -3.835,
+      "track": 1.86,
+      "steered": false,
+      "driven": true,
+      "max_load": 127500
+    },
+    {
+      "id": "A3",
+      "label": "drive",
+      "position_x": -5.205,
+      "track": 1.86,
+      "steered": false,
+      "driven": true,
+      "max_load": 127500
+    }
+  ],
+  "suspension_couplings": [
+    {
+      "id": "rear_bogie_L",
+      "type": "walking_beam",
+      "side": "L",
+      "axle_refs": [
+        "A2",
+        "A3"
+      ],
+      "description": "Floating walking beam on rubber bolster spring; torque rods react drive/brake torque.",
+      "pivot_position": [
+        -4.52,
+        -0.55,
+        -0.63
+      ],
+      "beam_length": 1.37,
+      "pivot_type": "floating",
+      "mass": 95,
+      "inertia": {
+        "Iyy": 18.0
+      },
+      "end_points": [
+        [
+          -3.835,
+          -0.55,
+          -0.51
+        ],
+        [
+          -5.205,
+          -0.55,
+          -0.51
+        ]
+      ],
+      "end_bushings": {
+        "rate_z": 15000000.0,
+        "rate_x": 4000000.0
+      },
+      "centre_spring": {
+        "type": "rubber_block",
+        "rate": 900000,
+        "rate_curve": [
+          [
+            0.0,
+            0
+          ],
+          [
+            0.04,
+            30000
+          ],
+          [
+            0.08,
+            110000
+          ],
+          [
+            0.11,
+            260000
+          ]
+        ]
+      },
+      "torque_rod_refs": [
+        "A2L.links.lower_torque_rod",
+        "A3L.links.lower_torque_rod"
+      ]
+    },
+    {
+      "id": "rear_bogie_R",
+      "type": "walking_beam",
+      "side": "R",
+      "axle_refs": [
+        "A2",
+        "A3"
+      ],
+      "description": "Floating walking beam on rubber bolster spring; torque rods react drive/brake torque.",
+      "pivot_position": [
+        -4.52,
+        0.55,
+        -0.63
+      ],
+      "beam_length": 1.37,
+      "pivot_type": "floating",
+      "mass": 95,
+      "inertia": {
+        "Iyy": 18.0
+      },
+      "end_points": [
+        [
+          -3.835,
+          0.55,
+          -0.51
+        ],
+        [
+          -5.205,
+          0.55,
+          -0.51
+        ]
+      ],
+      "end_bushings": {
+        "rate_z": 15000000.0,
+        "rate_x": 4000000.0
+      },
+      "centre_spring": {
+        "type": "rubber_block",
+        "rate": 900000,
+        "rate_curve": [
+          [
+            0.0,
+            0
+          ],
+          [
+            0.04,
+            30000
+          ],
+          [
+            0.08,
+            110000
+          ],
+          [
+            0.11,
+            260000
+          ]
+        ]
+      },
+      "torque_rod_refs": [
+        "A2R.links.lower_torque_rod",
+        "A3R.links.lower_torque_rod"
+      ]
+    }
+  ],
+  "tires": {
+    "sets": {
+      "steer_385_65r22_5": {
+        "description": "Steer axle tyre, single",
+        "source": "estimated",
+        "size_code": "385/65R22.5",
+        "pressure": 850000,
+        "dimensions": {
+          "section_width": 0.385,
+          "aspect_ratio": 0.65,
+          "overall_diameter": 1.072
+        }
+      },
+      "drive_315_80r22_5": {
+        "description": "Drive/trailer axle tyre, dual fitment",
+        "source": "estimated",
+        "size_code": "315/80R22.5",
+        "pressure": 850000,
+        "dimensions": {
+          "section_width": 0.315,
+          "aspect_ratio": 0.8,
+          "overall_diameter": 1.076
+        }
+      }
+    }
+  },
+  "powertrain": {
+    "layout": "multi_axle",
+    "engine": {
+      "torque_curve": [
+        [
+          900,
+          1800
+        ],
+        [
+          1100,
+          2600
+        ],
+        [
+          1500,
+          2600
+        ],
+        [
+          2000,
+          2100
+        ]
+      ],
+      "displacement": 12.8,
+      "configuration": "I6"
+    },
+    "driveshafts": [
+      {
+        "id": "prop_main",
+        "from": "gearbox",
+        "to": "diff_A2"
+      },
+      {
+        "id": "prop_inter",
+        "from": "diff_A2",
+        "to": "diff_A3"
+      }
+    ],
+    "differentials": [
+      {
+        "id": "diff_inter",
+        "location": "inter_axle",
+        "type": "open",
+        "final_drive": 1.0,
+        "axle_ref": "A2"
+      },
+      {
+        "id": "diff_A2",
+        "location": "rear",
+        "type": "open",
+        "final_drive": 4.1,
+        "axle_ref": "A2",
+        "through_drive": true
+      },
+      {
+        "id": "diff_A3",
+        "location": "rear",
+        "type": "open",
+        "final_drive": 4.1,
+        "axle_ref": "A3"
+      }
+    ],
+    "half_shafts": {
+      "A2L": {
+        "diff_ref": "diff_A2"
+      },
+      "A2R": {
+        "diff_ref": "diff_A2"
+      },
+      "A3L": {
+        "diff_ref": "diff_A3"
+      },
+      "A3R": {
+        "diff_ref": "diff_A3"
+      }
+    }
+  },
+  "constraints": [
+    {
+      "id": "hinge_cab",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "marker_a": "cab_hinge",
+      "body_b": "cab",
+      "marker_b": "hinge",
+      "range": {
+        "min": 0.0,
+        "max": 1.05
+      },
+      "stop": {
+        "stiffness": 400000.0,
+        "damping": 3000
+      },
+      "friction": 80.0
+    },
+    {
+      "id": "hinge_tipper_body",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "marker_a": "tipper_body_hinge",
+      "body_b": "tipper_body",
+      "marker_b": "hinge",
+      "range": {
+        "min": 0.0,
+        "max": 0.95
+      },
+      "stop": {
+        "stiffness": 1000000.0,
+        "damping": 8000
+      },
+      "friction": 300.0
+    },
+    {
+      "id": "hinge_tailgate",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "tipper_body",
+      "marker_a": "tailgate_hinge",
+      "body_b": "tailgate",
+      "marker_b": "hinge",
+      "range": {
+        "min": 0.0,
+        "max": 1.2
+      },
+      "stop": {
+        "stiffness": 200000.0,
+        "damping": 1500
+      },
+      "friction": 50.0
+    },
+    {
+      "id": "tailgate_link",
+      "type": "coupling",
+      "joint_a": "hinge_tipper_body",
+      "joint_b": "hinge_tailgate",
+      "ratio": 0.8
+    },
+    {
+      "id": "cab_latch",
+      "type": "latch",
+      "joint_ref": "hinge_cab",
+      "position": 0.0,
+      "holding_force": 4000.0,
+      "state": "latched"
+    },
+    {
+      "id": "tipper_body_latch",
+      "type": "latch",
+      "joint_ref": "hinge_tipper_body",
+      "position": 0.0,
+      "holding_force": 25000.0,
+      "state": "latched"
+    },
+    {
+      "id": "cab_cylinder",
+      "type": "actuator",
+      "body_a": "chassis",
+      "marker_a": "cab_cylinder_base",
+      "body_b": "cab",
+      "marker_b": "cab_cylinder_rod",
+      "retracted_length": 1.087,
+      "stroke": {
+        "min": 0.0,
+        "max": 0.492
+      },
+      "bore_diameter": 0.06,
+      "rod_diameter": 0.035,
+      "max_pressure": 15000000
+    },
+    {
+      "id": "tipper_body_cylinder",
+      "type": "actuator",
+      "body_a": "chassis",
+      "marker_a": "tipper_body_cylinder_base",
+      "body_b": "tipper_body",
+      "marker_b": "tipper_body_cylinder_rod",
+      "retracted_length": 1.356,
+      "stroke": {
+        "min": 0.0,
+        "max": 1.727
+      },
+      "bore_diameter": 0.16,
+      "rod_diameter": 0.1,
+      "max_pressure": 21000000
+    }
+  ],
+  "poses": [
+    {
+      "id": "transport"
+    },
+    {
+      "id": "cab_tilted",
+      "values": {
+        "hinge_cab": 0.95
+      }
+    },
+    {
+      "id": "tip_30deg",
+      "values": {
+        "hinge_tipper_body": 0.5236
+      }
+    },
+    {
+      "id": "tip_full",
+      "values": {
+        "hinge_tipper_body": 0.95
+      }
+    }
+  ]
+}
