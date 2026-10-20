@@ -54,6 +54,23 @@ truck.suspension_couplings  # walking beams, rockers, air/hydraulic circuits
 
 `svj.validate()` runs the multi-axle cross-reference rules (spec §23.7), the differential-control rules (spec §10.6.1, §10.8.1) and the multibody cross-references (`body_ref`, `parent`, `outboard_ref`, unit quaternions), reporting them as warnings. They live in `svj/multiaxle.py`, `svj/drivetrain.py` and `svj/multibody.py`, exact copies of `tools/multiaxle_check.py`, `tools/drivetrain_check.py` and `tools/multibody_check.py` in the spec repo — a test fails if a pair drifts apart.
 
+### Movable parts (spec §24)
+
+Doors, hoods, loaders and implements are `mass_bodies` joined by `constraints`; poses name configurations.
+
+```python
+tractor = svj.load("examples/skeleton_tractor_loader_hitch.svj.json")
+tractor.pose_cg()                      # {'cg': [...], 'delta': [0, 0, 0], 'mass': 3110.0}   reference pose
+tractor.pose_cg("loader_dump")["cg"]   # composite CG with the boom raised
+tractor.pose_inertia("loader_dump")    # composite inertia about that CG (spec 7.1 object)
+tractor.pose_inertia("loader_dump", form="matrix")   # the 3x3 tensor
+tractor.element_lengths("loader_dump") # {'boom_cylinder': 1.359, ...} metres
+tractor.body_transforms("hitch_up")["implement"]     # (R, t) from the reference pose
+tractor.body_inertia("loader_boom")    # a body's 3x3 inertia in vehicle axes (object or matrix form, inertia_orientation applied)
+```
+
+`svj.validate()` also runs `svj/constraints.py` (an exact copy of `tools/constraints_check.py`): references, ranges, frame coincidence, connectivity, inertia plausibility and actuator reach in every pose.
+
 ### Joint types
 
 `car.joints()` returns every suspension link with its effective joint types: an explicit `joint_type` / `inboard_joint_type` wins, a missing one is inferred from `system_type` and the link type (spec §9.2.3.2).

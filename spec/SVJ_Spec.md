@@ -1,4 +1,4 @@
-# Standard Vehicle JSON (SVJ) Specification v0.99.4
+# Standard Vehicle JSON (SVJ) Specification v0.99.5
 
 ## 1. Overview & Philosophy
 
@@ -202,6 +202,7 @@ Every top-level key except `_metadata` is OPTIONAL. A file containing only `_met
 | `track_rear`               | number     | YES      | Rear track width (m) — track at the last axle; `0` for a single centreline wheel |
 | `center_of_gravity`        | [x, y, z]  | YES      | CG position in vehicle reference frame (m)              |
 | `inertia`                  | object     | no       | See §7.1                                                |
+| `markers`                  | object     | no       | Named frames fixed to the chassis (hinge points, cylinder bases, hitch pins); the chassis side of a constraint (§24.2) *(v0.99.5)* |
 
 ### 7.1 `inertia`
 
@@ -241,7 +242,10 @@ The optional `mass_bodies` array breaks down the vehicle's sprung mass into indi
 | `category`    | string  | no       | See §7.2.1 for recommended values                    |
 | `mass`        | number  | YES      | Body mass (kg)                                       |
 | `position`    | [x,y,z] | YES     | CG of this body in the vehicle reference frame (m)    |
-| `inertia`     | object  | no       | Inertia tensor about this body's own CG (§7.1 format)|
+| `inertia`     | object \| 3×3 | no  | Inertia tensor about this body's own CG: the §7.1 object, or the full symmetric matrix *(v0.99.5, §24.2)* |
+| `inertia_orientation` | [qx,qy,qz,qw] | no | Frame in which `inertia` is expressed (e.g. principal axes), relative to the vehicle axes; default identity *(v0.99.5)* |
+| `parent`      | string  | no       | Parent body id; `chassis` (default), `ground` or another body. A body no constraint mentions is welded to it (§24.2) |
+| `markers`     | object  | no       | Named frames `{position, orientation}` fixed to this body (§24.2) |
 
 #### 7.2.1 Recommended `category` Values
 
@@ -253,6 +257,7 @@ The optional `mass_bodies` array breaks down the vehicle's sprung mass into indi
 | `"payload"`    | Driver, passenger, luggage                                     |
 | `"ballast"`    | Added weight for balance tuning                                |
 | `"electrical"` | Battery pack, motors, inverters (EV/hybrid)                    |
+| `"attachment"` | Loader, implement, body or other equipment that is not part of the base vehicle *(v0.99.5)* |
 | `"other"`      | Anything that does not fit the above                           |
 
 #### 7.2.2 Relationship to Composite Fields
@@ -2387,6 +2392,7 @@ This section is **optional**. It provides a standard place to record performance
 
 | Version | Changes                                                                                    |
 |---------|--------------------------------------------------------------------------------------------|
+| 0.99.5  | **Movable parts and attachments** (§24): top-level `constraints[]` — `joint` (revolute, translational, cylindrical, spherical, universal, planar, fixed, with vector coordinates, ranges, end stops, friction, damping, bushing), `spring`, `actuator` (stroke, bore/pressure force limits) — between `mass_bodies`, `chassis`/`ground`, joined by markers; `poses[]`; `chassis.markers`; `mass_body.inertia` may be a full 3×3 matrix and gets `inertia_orientation`; `category: "attachment"`. Forward kinematics, per-pose CG, composite inertia and actuator-reach checks in the new `tools/constraints_check.py` (mirrored in `svj-py`). Additive: every earlier file stays valid. Origin: `proposals/svj_articulated_parts_proposal.md` |
 | 0.99.4  | **Strut and damper conventions** (from converter feedback): the MacPherson/Chapman strut link now ends at the new `strut_lower` hardpoint (lower clamp on the upright) instead of `strut_top`, which had made every strut link zero-length (§9.2.1, §9.2.2.1); `damper.reference` `"damper"` (default) or `"wheel"` for dampers specified at the wheel (§9.4); `inboard_point` / `outboard_point` flagged as misspellings of `inboard_mount` / `outboard_mount`. Additive: older files stay valid, the checker warns about zero-length links. Five shipped examples corrected |
 | 0.99.3  | **Differential control** (§10.6.1, §10.8.1): optional `lock_control` on differentials and `transfer_case.center_diff` (ordered stages — input → curve → multiply/add — with a time-constant filter and clamps; one chain or an array of chains for separate power/coast), and optional `transfer_case.coupling` (`max_torque`, `ramp_torque`, `mechanism`) for torque-limited on-demand AWD. Additive: every v0.96–v0.99.2 file stays valid. New `tools/drivetrain_check.py` (mirrored in `svj-py`). Origin: `proposals/svj_differential_control_proposal.md` |
 | 0.99.2  | **Visual binding layer, part 2** (§22): one category set shared by schema, spec and `docs/naming_convention.md` (`body`, `suspension`, `steering`, `wheel`, `brake`, `powertrain`, `aero`, `helper`, `lod`); `visual` defined on suspension links, uprights, axle bodies, wheels and dual-wheel positions, springs, dampers, ARBs, brake discs and calipers, steering rack/column/wheel, powertrain units, driveshafts and aero components; new `placement` (`rigid` \| `link_between_points`) with `mesh_axis`, `from_point` and `scale_to_length` for parts defined by hardpoints; `x_`/`_` keys allowed inside `visual`; `tools/integrity_check.py` rewritten (id resolution for every carrier, placement and category rules). Additive — every v0.96–v0.99.1 file, including all v0.97 bindings, remains valid. |
@@ -2908,6 +2914,150 @@ Front and rear groups are taken from `axle_groups` (the group containing `A1`, a
 
 ---
 
+## 24. Movable Parts and Attachments *(v0.99.5)*
+
+This section is **optional**. A file without `constraints` and `poses` is fully valid and describes the vehicle in a single rigid configuration. Readers that do not handle movable parts MUST ignore both and treat every body as welded to its `parent`.
+
+### 24.1 Purpose and model
+
+SVJ describes a vehicle as a set of rigid bodies with **mass properties**, connected by **constraints** and **force elements**. This section adds the missing connection layer so that doors, hoods, tilt cabs, tipper bodies, tractor loaders, three-point hitches, excavator arms and cranes are physical, simulatable assemblies and not frozen geometry:
+
+- a **part** is a `chassis.mass_bodies[]` entry: mass, CG, full inertia tensor, named `markers` (§24.2);
+- a **joint** removes degrees of freedom between two parts, with limits, end stops, friction, damping and optional compliance (§24.4);
+- a **spring** is a passive force element between two markers (§24.5);
+- an **actuator** is a linear drive (hydraulic or electric ram) with a stroke and force limits (§24.6);
+- a **pose** is a named set of joint coordinates (§24.7); every pose has a derived composite mass, CG, inertia and element lengths (§24.8).
+
+All positions and orientations are in the vehicle frame **at the reference pose**: the configuration in which the file's geometry, meshes and `mass_bodies` positions are authored and every joint coordinate is zero.
+
+### 24.2 Parts
+
+| Field | Where | Description |
+|---|---|---|
+| `mass`, `position`, `inertia` | `mass_bodies[]` | Mass (kg), CG in the vehicle frame (m), inertia about the body's own CG |
+| `inertia` as a matrix | `mass_bodies[]` | The full symmetric tensor `[[Ixx,-Ixy,-Ixz],[-Ixy,Iyy,-Iyz],[-Ixz,-Iyz,Izz]]` (kg·m²) instead of the object of §7.1; the two forms are equivalent |
+| `inertia_orientation` | `mass_bodies[]` | Optional unit quaternion giving the frame in which `inertia` is expressed (typically the principal axes), relative to the vehicle axes. The vehicle-axes tensor is `R · I · Rᵀ`. Default identity |
+| `markers` | `mass_bodies[]`, `chassis` | Named frames `{position, orientation}` fixed to the body (hinge points, cylinder ends, hitch pins). `chassis.markers` are the frames on the chassis side of a joint |
+| `parent` | `mass_bodies[]` | Hierarchy (§7.2). A body no constraint mentions is **welded** to its `parent` and follows it; a body named by a joint moves as the joint allows |
+| `category: "attachment"` | `mass_bodies[]` | Recommended for loaders, implements and bodies that are not part of the base vehicle |
+
+`ground` and `chassis` are the two implicit root bodies. Body ids MUST NOT contain `.`: the dot is reserved for qualifying the bodies of an attached unit (`loader.boom`, planned §24.11). The recommended `category` set of §7.2.1 gains `"attachment"`.
+
+A body that moves needs a positive mass and a physically possible inertia tensor (positive definite and satisfying the triangle inequalities); a moving body without `inertia` is treated as a point mass and the checker warns.
+
+### 24.3 `constraints[]`
+
+Optional top-level array. Common fields:
+
+| Key | Type | Required | Description |
+|---|---|---|---|
+| `id` | string | YES | Unique id |
+| `type` | string | YES | `"joint"`, `"spring"`, `"actuator"` |
+| `body_a`, `body_b` | string | YES | Body ids (`mass_bodies[].id`, `"chassis"`, `"ground"`); `body_a` is the reference (parent) side, `body_b` the moving side |
+| `marker_a`, `marker_b` | string | one of marker/frame per side | Marker names on the respective body (`mass_body.markers`, or `chassis.markers`) |
+| `frame_a`, `frame_b` | object | | Inline `{position, orientation}` instead of a marker (required for `ground`) |
+| `description` | string | no | |
+
+**Frame convention.** The axis of a joint is the **+Z axis of its frame**; the frame's `orientation` quaternion therefore *is* the hinge, slide or hinge-plane direction (the ADAMS marker convention). At the reference pose the two frames of a joint **coincide** and their Z axes are parallel.
+
+### 24.4 `joint`
+
+`joint_type` selects the motion of `body_b` relative to `body_a`. The joint coordinate is a vector, measured in the `body_a` frame from the reference pose (all zero):
+
+| `joint_type` | Coordinate | Motion |
+|---|---|---|
+| `revolute` | `[θ]` | rotation about frame Z |
+| `translational` | `[d]` | translation along frame Z |
+| `cylindrical` | `[θ, d]` | rotation about and translation along frame Z |
+| `spherical` | `[rx, ry, rz]` | rotation vector (axis × angle) about the frame origin |
+| `universal` | `[θx, θy]` | rotation about frame X, then about frame Y |
+| `planar` | `[x, y, θ]` | translation in the frame XY plane and rotation about Z |
+| `fixed` | `[]` | no motion: a rigid attachment that is still a separate body |
+
+| Key | Description |
+|---|---|
+| `range` | `{min, max}`: numbers for a one-coordinate joint, arrays (`null` = free) otherwise; rad or m. The reference pose (0) MUST lie inside |
+| `stop` | `{stiffness, damping, restitution}` of the end stops at `min` / `max`; omitted = rigid stop |
+| `friction` | Coulomb friction torque (N·m) or force (N) |
+| `damping` | Viscous damping (N·m·s/rad or N·s/m) |
+| `bushing` | Compliance instead of a perfect joint: a `bushing_obj` (§9.2.5) in the frame |
+
+### 24.5 `spring`
+
+A passive force element between the two markers.
+
+| Key | Description |
+|---|---|
+| `rate` / `rate_curve` | Linear rate (N/m) or force–length curve (`curve2d`, strictly increasing x); exactly one |
+| `free_length` | Length at zero force (m) |
+| `preload` | Force at `free_length` (N) |
+| `damping` | Viscous damping along the element (N·s/m) |
+
+### 24.6 `actuator`
+
+A linear drive between the two markers: a hydraulic cylinder or electric ram on a loader, tipper, tilt cab or hitch.
+
+| Key | Description |
+|---|---|
+| `retracted_length` | Distance between the two frames fully retracted (m) |
+| `stroke` | `{min, max}` extension from `retracted_length` (m); working length = `retracted_length + stroke` |
+| `bore_diameter`, `rod_diameter`, `max_pressure` | m, m, Pa: push force limit = `p · π/4 · D²`, pull force limit = `p · π/4 · (D² − d²)` |
+| `max_force` | N, an alternative to bore and pressure |
+| `damping` | N·s/m |
+
+An actuator produces force; it does not impose a kinematic relation. The poses set the joint coordinates and the checker derives each actuator's length from the geometry and verifies that it lies inside its reach, which is the solver-free test that a cylinder really lifts a boom to the stated pose.
+
+### 24.7 `poses[]`
+
+```json
+"poses": [
+  { "id": "closed" },
+  { "id": "loader_dump", "values": { "boom_pivot": 0.9, "bucket_pivot": -0.8 } },
+  { "id": "hood_up", "values": { "hinge_hood": 0.95 }, "aero_setting_ref": "hood_open" }
+]
+```
+
+`values` maps a joint id to its coordinate (a number for one-coordinate joints, an array otherwise, rad / m); joints not named stay at 0. A pose without `values` is the reference pose. `aero_setting_ref` may name an `aerodynamics.components[].settings[].name` that applies in the pose.
+
+### 24.8 Derived quantities
+
+For a pose, a tool computes (`tools/constraints_check.py`, `svj.constraints`, `Vehicle.pose_*`):
+
+1. **Body transforms.** Starting with the identity at `chassis` and `ground`, each joint gives its child `X_b = X_a ∘ M`, where `M` is the joint motion expressed about the `body_a` frame in reference-world coordinates (`M = F · L(q) · F⁻¹`, `F` the frame, `L` the local motion of the table above). Bodies welded through `parent` inherit their parent's transform.
+2. **CG.** `CG(pose) = CG_ref + Σ mᵢ (Xᵢ(pᵢ) − pᵢ) / M`, with `M = mass_total`.
+3. **Composite inertia.** From `chassis.inertia` (reference pose, about `CG_ref`): for every moved body replace its reference contribution `I_i + mᵢ·S(pᵢ − CG_ref)` by `R I_i Rᵀ + mᵢ·S(Xᵢ(pᵢ) − CG_ref)`, then move the reference point to the new CG (`I_cg = I_o − M·S(δ)`), where `S(d) = |d|²·1 − d dᵀ`. A body without inertia counts as a point mass. Returned as the §7.1 object or as the 3×3 matrix.
+4. **Element lengths** of springs and actuators from their two frames after transformation.
+
+`mass_total`, `center_of_gravity` and `inertia` keep describing the reference pose and, when attachments are modelled inside the file, MUST include them. Closed kinematic loops (a four-bar linkage) are allowed but are not solved: poses give the independent coordinates and the checker warns.
+
+### 24.9 Mapping to multibody tools
+
+| SVJ | Multibody entity (ADAMS terms) |
+|---|---|
+| `mass_bodies[]` (`mass`, `inertia`, `position`) | PART with mass, inertia and a centre-of-mass MARKER |
+| `markers`, `chassis.markers`, inline frames | MARKER (position + orientation) |
+| `constraints[]` `joint` | JOINT of the same type (revolute, translational, cylindrical, spherical, universal, planar, fixed) |
+| `range` + `stop` | joint LIMIT / bump-stop force |
+| `friction`, `damping` | joint friction and damping |
+| `bushing` | BUSHING instead of a joint |
+| `spring` | SPRINGDAMPER |
+| `actuator` | cylinder force element (SFORCE / hydraulic) driven by the stroke |
+| `poses[]` | initial-condition sets (joint displacements with zero velocity) |
+| planned: `contact`, `latch`, `coupling`, rotary drive | CONTACT, state-dependent force, COUPLER / GEAR, MOTION |
+
+### 24.10 Validation rules
+
+`tools/constraints_check.py` (run by `tools/validate.py`; mirrored as `svj-py/svj/constraints.py`) enforces:
+
+- **Errors:** `body_a` / `body_b` exist and differ; each side has a marker or frame and the marker exists; unique constraint and pose ids; unit quaternions; `range.min ≤ range.max` per coordinate, array length matching the joint type, reference pose inside the range; pose values have the right length, are inside the ranges and name joints; the two frames of a joint coincide (1 mm) and their Z axes are parallel at the reference pose; no body is connected to the roots only through unreachable joints (no floating bodies); `spring` has one of `rate` / `rate_curve`; `actuator.stroke.min ≤ max` and `rod_diameter < bore_diameter`; for the reference pose and every pose, each actuator's derived length lies within its reach; `aero_setting_ref` resolves; an inertia matrix is symmetric; a moving body has positive mass.
+- **Warnings:** a moving body without an inertia tensor or with a physically impossible one; an actuator without `max_force` or `bore_diameter` + `max_pressure`; a body that is the child of more than one joint (closed loop / over-constraint); a body whose `parent` differs from its joint's `body_a`; a spring or actuator whose end frames coincide; `.` in a body id.
+
+### 24.11 Not covered yet
+
+Planned in `proposals/svj_articulated_parts_proposal.md`: `latch`, `coupling` (linked joints), rotary drives on a joint, `contact` between unjointed bodies, solving closed loops, and **attachments defined in their own files** that mount on declared vehicle interfaces (the combination file and `coupling_points` of `proposals/trailer_coupling_research.md`, using the same joint object, with qualified body ids `unit.body`).
+
+---
+
 ## 21. Roadmap
 
 | Section           | Version  | Status                                             |
@@ -2929,5 +3079,6 @@ Front and rear groups are taken from `axle_groups` (the group containing `A1`, a
 | Validation, benchmarks, overrides | v0.98 | ✅ Done                                 |
 | Multi-axle vehicles | v0.99  | ✅ Done — §23, 13 system_types, suspension couplings |
 | Axle groups, plated masses, wheelbase definitions | v0.99.1 | ✅ Done — first real multi-axle example (MAN TGS 8x4) |
+| Movable parts, attachments (joints, springs, actuators, poses) | v0.99.5 | ✅ Done — §24; contacts, latches, attachment files planned |
 | Articulated combinations (tractor/trailer/dolly) | — | Planned (§23.8)            |
 | v1.0 freeze       | —        | After converter feedback on v0.99                   |

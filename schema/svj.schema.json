@@ -38,9 +38,10 @@
             "0.99.1",
             "0.99.2",
             "0.99.3",
-            "0.99.4"
+            "0.99.4",
+            "0.99.5"
           ],
-          "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations). '0.99.1' adds axle_groups, plated masses and explicit wheelbase definitions. '0.99.2' extends the glTF visual binding layer: full category set, visual on links/steering/wheels/brakes/springs/dampers/aero, and the 'placement' field for parts defined by hardpoints. '0.99.3' adds differential control: lock_control (dynamic differential lock) and transfer_case.coupling (torque-limited centre coupling). '0.99.4' adds the strut_lower hardpoint convention for MacPherson/Chapman struts and damper.reference ('damper' or 'wheel')."
+          "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations). '0.99.1' adds axle_groups, plated masses and explicit wheelbase definitions. '0.99.2' extends the glTF visual binding layer: full category set, visual on links/steering/wheels/brakes/springs/dampers/aero, and the 'placement' field for parts defined by hardpoints. '0.99.3' adds differential control: lock_control (dynamic differential lock) and transfer_case.coupling (torque-limited centre coupling). '0.99.4' adds the strut_lower hardpoint convention for MacPherson/Chapman struts and damper.reference ('damper' or 'wheel'). '0.99.5' adds movable parts: constraints[] (joint, spring, actuator between mass bodies), poses[] and chassis.markers."
         },
         "description": {
           "type": "string"
@@ -298,6 +299,13 @@
             "$ref": "#/definitions/mass_body"
           },
           "minItems": 1
+        },
+        "markers": {
+          "type": "object",
+          "description": "Named reference frames fixed to the chassis (hinge points, cylinder bases, hitch pins). Same shape as mass_body.markers; referenced by constraints with body 'chassis'.",
+          "additionalProperties": {
+            "$ref": "#/definitions/marker"
+          }
         },
         "chassis_stiffness": {
           "type": "object",
@@ -747,6 +755,20 @@
         "$ref": "#/definitions/suspension_coupling"
       },
       "description": "Inter-axle load-sharing elements (rockers, walking beams, trunnion springs, pneumatic/hydraulic circuits). See spec \u00a723.5."
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/constraint"
+      },
+      "description": "Joints, springs and actuators between mass bodies (spec 24)."
+    },
+    "poses": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/pose"
+      },
+      "description": "Named configurations of the constraints (spec 24)."
     },
     "powertrain": {
       "type": "object",
@@ -3257,7 +3279,8 @@
             "payload",
             "ballast",
             "electrical",
-            "other"
+            "other",
+            "attachment"
           ]
         },
         "mass": {
@@ -3268,31 +3291,11 @@
           "$ref": "#/definitions/vec3"
         },
         "inertia": {
-          "type": "object",
-          "properties": {
-            "Ixx": {
-              "type": "number",
-              "minimum": 0
-            },
-            "Iyy": {
-              "type": "number",
-              "minimum": 0
-            },
-            "Izz": {
-              "type": "number",
-              "minimum": 0
-            },
-            "Ixz": {
-              "type": "number"
-            },
-            "Ixy": {
-              "type": "number"
-            },
-            "Iyz": {
-              "type": "number"
-            }
-          },
-          "additionalProperties": true
+          "$ref": "#/definitions/inertia_tensor"
+        },
+        "inertia_orientation": {
+          "$ref": "#/definitions/orientation",
+          "description": "Orientation of the frame in which `inertia` is given (e.g. the principal axes), relative to the vehicle axes. Default identity. The vehicle-axes tensor is R*I*R^T."
         },
         "parent": {
           "type": "string",
@@ -5338,6 +5341,394 @@
           "minItems": 1,
           "items": {
             "$ref": "#/definitions/lock_control_chain"
+          }
+        }
+      ]
+    },
+    "frame": {
+      "description": "Inline reference frame: position in the vehicle frame (m) and an optional orientation quaternion.",
+      "type": "object",
+      "required": [
+        "position"
+      ],
+      "properties": {
+        "position": {
+          "$ref": "#/definitions/vec3"
+        },
+        "orientation": {
+          "$ref": "#/definitions/orientation"
+        }
+      },
+      "patternProperties": {
+        "^(x_|_)": {}
+      },
+      "additionalProperties": false
+    },
+    "constraint": {
+      "description": "A physical connection between two bodies (spec 24): a kinematic joint, a passive spring/damper element or a linear actuator. Frames are markers (mass_body.markers / chassis.markers) or inline frames; the two frames of a joint coincide at the reference pose and the joint axis is the +Z axis of the frame.",
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "body_a",
+        "body_b"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "joint",
+            "spring",
+            "actuator"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "body_a": {
+          "type": "string",
+          "description": "Reference (parent) side: a mass_bodies id, 'chassis' or 'ground'."
+        },
+        "body_b": {
+          "type": "string",
+          "description": "Moving side: a mass_bodies id, 'chassis' or 'ground'."
+        },
+        "marker_a": {
+          "type": "string"
+        },
+        "marker_b": {
+          "type": "string"
+        },
+        "frame_a": {
+          "$ref": "#/definitions/frame"
+        },
+        "frame_b": {
+          "$ref": "#/definitions/frame"
+        },
+        "joint_type": {
+          "type": "string",
+          "enum": [
+            "revolute",
+            "translational",
+            "cylindrical",
+            "spherical",
+            "universal",
+            "planar",
+            "fixed"
+          ],
+          "description": "Coordinates: revolute [theta], translational [d], cylindrical [theta, d], spherical [rx, ry, rz], universal [thetaX, thetaY], planar [x, y, theta], fixed []."
+        },
+        "range": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "min": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "minItems": 1,
+                  "maxItems": 3
+                }
+              ]
+            },
+            "max": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "minItems": 1,
+                  "maxItems": 3
+                }
+              ]
+            }
+          },
+          "description": "Joint coordinate limits (rad / m): numbers for one-coordinate joints, arrays (null = free) otherwise. The reference pose (0) must lie inside."
+        },
+        "stop": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "stiffness": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "damping": {
+              "type": "number",
+              "minimum": 0
+            },
+            "restitution": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "description": "End-stop compliance at range.min / range.max; omitted = rigid stop."
+        },
+        "friction": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Coulomb friction torque (N*m) or force (N)."
+        },
+        "damping": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Viscous damping: N*m*s/rad, N*s/m (joint) or N*s/m along a spring/actuator."
+        },
+        "bushing": {
+          "$ref": "#/definitions/bushing_obj"
+        },
+        "rate": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Spring rate (N/m)."
+        },
+        "rate_curve": {
+          "$ref": "#/definitions/curve2d"
+        },
+        "free_length": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "preload": {
+          "type": "number",
+          "description": "Spring preload force at free_length (N)."
+        },
+        "retracted_length": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Actuator length between its two frames fully retracted (m)."
+        },
+        "stroke": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "min",
+            "max"
+          ],
+          "properties": {
+            "min": {
+              "type": "number"
+            },
+            "max": {
+              "type": "number"
+            }
+          },
+          "description": "Actuator extension range from the retracted length (m)."
+        },
+        "bore_diameter": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "rod_diameter": {
+          "type": "number",
+          "minimum": 0
+        },
+        "max_pressure": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Pa; with bore (and rod) diameter gives the push and pull force limits."
+        },
+        "max_force": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "N; alternative to bore_diameter + max_pressure."
+        }
+      },
+      "allOf": [
+        {
+          "anyOf": [
+            {
+              "required": [
+                "marker_a"
+              ]
+            },
+            {
+              "required": [
+                "frame_a"
+              ]
+            }
+          ]
+        },
+        {
+          "anyOf": [
+            {
+              "required": [
+                "marker_b"
+              ]
+            },
+            {
+              "required": [
+                "frame_b"
+              ]
+            }
+          ]
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "joint"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "joint_type"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "spring"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "anyOf": [
+              {
+                "required": [
+                  "rate"
+                ]
+              },
+              {
+                "required": [
+                  "rate_curve"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "actuator"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "retracted_length",
+              "stroke"
+            ]
+          }
+        }
+      ]
+    },
+    "pose": {
+      "description": "A named configuration: joint coordinates for any subset of joints; unnamed joints stay at 0 (the reference pose).",
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "values": {
+          "type": "object",
+          "additionalProperties": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "maxItems": 3
+              }
+            ]
+          },
+          "description": "joint id -> coordinate (number for one-coordinate joints, array otherwise), rad / m."
+        },
+        "aero_setting_ref": {
+          "type": "string",
+          "description": "Name of an aerodynamics.components[].settings entry that applies in this pose."
+        }
+      }
+    },
+    "inertia_tensor": {
+      "description": "Rigid-body inertia about the body's own CG (spec 7.1): either the object form {Ixx, Iyy, Izz, Ixy, Ixz, Iyz} or the full symmetric 3x3 tensor [[Ixx,-Ixy,-Ixz],[-Ixy,Iyy,-Iyz],[-Ixz,-Iyz,Izz]] (kg*m^2). Expressed in the vehicle axes unless the body gives inertia_orientation.",
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "Ixx": {
+              "type": "number",
+              "minimum": 0
+            },
+            "Iyy": {
+              "type": "number",
+              "minimum": 0
+            },
+            "Izz": {
+              "type": "number",
+              "minimum": 0
+            },
+            "Ixz": {
+              "type": "number"
+            },
+            "Ixy": {
+              "type": "number"
+            },
+            "Iyz": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": true,
+          "description": "Inertia as Ixx/Iyy/Izz and products Ixy/Ixz/Iyz (spec 7.1)."
+        },
+        {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "number"
+            }
           }
         }
       ]

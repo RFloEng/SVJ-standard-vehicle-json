@@ -1,6 +1,12 @@
-# Proposal: movable parts and constraints between parts
+# Proposal: movable parts, constraints between parts, and attachments
 
-**Status:** draft for discussion — nothing implemented · **Target:** additive, after v0.99.4 · **Builds on:** §7.2 `mass_bodies` (v0.96 `parent`, `markers`), §9.2.3.2 joint types, §22 visual binding
+**Status:** phase 1 implemented in v0.99.5 (spec §24); later phases open · **Target:** additive, after v0.99.4 · **Builds on:** §7.2 `mass_bodies` (v0.96 `parent`, `markers`), §9.2.3.2 joint types, §22 visual binding, `proposals/trailer_coupling_research.md`
+
+> Revision notes: generalised after the observation that movable parts are also the way to add
+> **attachments** to a vehicle (a tractor's front loader, three-point hitch and implements, an
+> excavator arm, a crane, a tipper body). Added: joints of every type with vector coordinates,
+> a linear `actuator` element (hydraulic ram) with stroke-feasibility checks, element lengths per pose,
+> and a path to attachments defined in their own files that reuses the planned combination file.
 
 ## 1. The gap
 
@@ -12,18 +18,19 @@ named `markers`, a `visual` binding). What it cannot say is **how a part is allo
 - `suspension_couplings` (§23.5) relate axles, not arbitrary bodies.
 - The only moving-part construct is aerodynamic: `aerodynamics.components[].settings` and `active_systems.drs`.
 
-So a door, hood, tailgate, tilt cab, tipper body, folding mirror or seat is stored as a rigid body
-with a mass and a mesh, frozen in one pose. Nothing says that it swings, where its hinge is,
-what stops it, what holds it, or that it rests against another panel.
+So a door, hood, tilt cab, tipper body, loader arm or implement is stored as a rigid body with a
+mass and a mesh, frozen in one pose. Nothing says that it swings, where its hinge is, what drives
+it, what stops it, or that it hangs from another moving part.
 
 ## 2. Requirements
 
 1. A movable part **has mass** (it already does: it is a `mass_body`).
-2. A part **can move** relative to another part: hinge, slide, ball, planar, and so on, with limits.
-3. Constraints are **between any two parts**, not only "attached to the parent": a hood rests on
-   bump rubbers, a door check holds a door at a detent, two doors are linked, a latch holds a lid.
-4. Additive and optional: a file without the new block is unchanged; simple readers ignore it.
-5. Solver-agnostic: describe the physics (frames, limits, stiffness, friction), not a solver's syntax.
+2. A part **can move** relative to another part with any joint (hinge, slide, ball, universal, planar, …) and limits.
+3. Constraints are **between any two parts**, not only "attached to the parent": a hood rests on bump rubbers, a gas strut pushes a lid, a cylinder drives a boom, two doors are linked.
+4. **General kinematic trees**, not a fixed list of parts: a loader is chassis → boom → bucket, a hitch is chassis → lift arm → lower link → implement; the same mechanism describes a door, an excavator, a crane or a forklift mast.
+5. **Attachments**: an implement or body that can be fitted to different vehicles is its own SVJ file, mounted on a vehicle interface (§3.6). One joint definition serves both the articulations inside a file and the connections between files.
+6. Additive and optional: a file without the new blocks is unchanged; simple readers ignore them.
+7. Solver-agnostic: describe the physics (frames, limits, stiffness, friction, stroke), not a solver's syntax.
 
 ## 3. Design
 
@@ -31,75 +38,76 @@ what stops it, what holds it, or that it rests against another panel.
 
 No new "part" object. A mass body is the part; its `position` and `markers` are in the vehicle
 frame **at the reference pose** (the pose the file's geometry and meshes are authored in).
-Rule: a body that no constraint mentions is **welded to its `parent`** (today's behaviour). A body
-named by a `joint` moves as that joint allows.
+Rule: a body that no constraint mentions is **welded to its `parent`** (today's behaviour); a body
+named by a `joint` moves as that joint allows, carrying everything welded to it.
 
-`ground` and `chassis` are the two implicit root bodies (as in the v0.96 `parent` text).
+The part is a full physical rigid body: `mass`, `position` (CG), and an **inertia tensor** that may be given as the §7.1 object or as the full symmetric 3×3 matrix, optionally in a rotated frame (`inertia_orientation`, e.g. the principal axes), as in multibody tools. A moving body without inertia is treated as a point mass and the checker warns.
+
+`ground` and `chassis` are the two implicit root bodies. `category` gains the recommended value
+`attachment` for loaders, implements and bodies that are not part of the base vehicle. Body ids must
+not contain `.`: the dot is reserved for qualifying a body of an attached unit (`loader.boom`, §3.6).
 
 ### 3.2 New top-level `constraints[]`
 
-An array like `suspension_couplings`: each entry joins two bodies through two **markers** (named
-frames from `mass_body.markers`; `chassis`/`ground` use `chassis.markers` / the vehicle origin).
-Convention (ADAMS-style, stated once): a revolute or translational joint acts about / along the
-**+Z axis of the marker frame**; the marker's `orientation` quaternion (§4.1 of the multibody
-proposal) therefore *is* the hinge axis.
+An array like `suspension_couplings`: each entry connects two bodies through two **frames**, given as
+**markers** (named frames from `mass_body.markers` or `chassis.markers`) or inline `frame_a` /
+`frame_b` `{position, orientation}`. Convention (ADAMS-style, stated once): a joint's axis is the
+**+Z axis of the marker frame**; the marker's `orientation` quaternion therefore *is* the hinge axis.
+At the reference pose the two frames of a joint **coincide**.
 
 Common fields:
 
 | Key | Type | Description |
 |---|---|---|
 | `id` | string | Unique id |
-| `type` | string | `joint`, `spring`, `contact`, `latch`, `coupling` |
-| `body_a`, `body_b` | string | Body ids (`mass_bodies[].id`, `chassis`, `ground`). `body_a` is the reference side |
-| `marker_a`, `marker_b` | string | Marker names on the respective bodies. For `chassis` and `ground` an inline `frame_a` / `frame_b` `{position, orientation}` may be used instead |
+| `type` | string | Phase 1: `joint`, `spring`, `actuator`. Later: `latch`, `contact`, `coupling` |
+| `body_a`, `body_b` | string | Body ids (`mass_bodies[].id`, `chassis`, `ground`). `body_a` is the reference (parent) side |
+| `marker_a`, `marker_b` / `frame_a`, `frame_b` | | One of each pair per side |
 | `description` | string | |
 
-Type-specific fields:
+**`joint`** — kinematic connection. The joint coordinate is a vector whose length depends on the type;
+it is measured in the `body_a` marker frame from the reference pose (all zero):
 
-**`joint`** — kinematic connection
+| `joint_type` | Coordinate | Motion of `body_b` relative to `body_a` |
+|---|---|---|
+| `revolute` | `[θ]` | rotation about marker Z |
+| `translational` | `[d]` | translation along marker Z |
+| `cylindrical` | `[θ, d]` | rotation about and translation along marker Z |
+| `spherical` | `[rx, ry, rz]` | rotation vector (axis × angle) about the marker origin |
+| `universal` | `[θx, θy]` | rotation about marker X, then about marker Y |
+| `planar` | `[x, y, θ]` | translation in the marker XY plane and rotation about Z |
+| `fixed` | `[]` | none (a rigid attachment that is still a separate body) |
 
 | Key | Description |
 |---|---|
-| `joint_type` | `revolute`, `translational`, `cylindrical`, `spherical`, `universal`, `planar`, `fixed` (the §9.2.3.2 set) |
-| `range` | `{min, max}` of the joint coordinate (rad for rotation, m for translation), measured from the reference pose = 0 |
-| `stop` | `{stiffness, damping, restitution}` of the end stops reached at `min` / `max` (omit = rigid stop) |
+| `range` | `{min, max}`: numbers for a one-coordinate joint, arrays (one entry per coordinate, `null` = free) otherwise. Rad / m. The reference pose (0) must lie inside |
+| `stop` | `{stiffness, damping, restitution}` of the end stops (omit = rigid stop) |
 | `friction` | Coulomb friction torque (N·m) or force (N) |
 | `damping` | Viscous damping (N·m·s/rad or N·s/m) |
-| `bushing` | Optional compliance instead of a perfect joint: a `bushing_obj` (§9.2.5), expressed in the marker frame |
-| `drive` | Optional actuation: `{mode: "free"\|"position"\|"velocity"\|"force", target, max_force, rate}` — a hydraulic ram on a tipper or tilt cab, an electric window |
+| `bushing` | Optional compliance instead of a perfect joint: a `bushing_obj` (§9.2.5) in the marker frame |
 
-**`spring`** — force element between two markers (gas strut, door check spring, return spring)
+**`spring`** — passive force element between two markers (gas strut, return spring, door check)
 
 | Key | Description |
 |---|---|
-| `rate` / `rate_curve` | Linear rate (N/m) or force–length curve (`curve2d`) |
+| `rate` / `rate_curve` | Linear rate (N/m) or force–length curve (`curve2d`); exactly one |
 | `free_length`, `preload` | As in §9.3 |
 | `damping` | Viscous damping along the element (N·s/m) |
-| `actuated` | Optional `{stroke, ...}` for a ram |
 
-**`contact`** — one-sided contact between two bodies that are *not* jointed to each other (hood on its
-bump rubbers, door against the seal, flap on its seat)
+**`actuator`** — linear drive between two markers (hydraulic or electric ram: loader, tipper, tilt cab, hitch lift)
 
 | Key | Description |
 |---|---|
-| `shape_a`, `shape_b` | Contact primitives attached to the markers: `{type: "point"\|"plane"\|"sphere"\|"cylinder"\|"box", size…}` |
-| `gap` | Clearance at the reference pose (m); negative = pre-compressed |
-| `stiffness`, `damping`, `friction`, `restitution` | Contact law |
+| `retracted_length` | Length between the two markers fully retracted (m) |
+| `stroke` | `{min, max}` extension from the retracted length (m); the working length is `retracted_length + stroke` |
+| `bore_diameter`, `rod_diameter` | m, optional (with a supply pressure they give the force limits) |
+| `max_pressure` / `max_force` | Pa / N, optional |
+| `damping` | N·s/m, optional |
 
-**`latch`** — holds a joint until released
-
-| Key | Description |
-|---|---|
-| `joint_ref` | `id` of a `joint` |
-| `position` | Coordinate at which it latches |
-| `holding_force` | Torque / force above which it lets go (N·m or N) |
-| `state` | `latched` \| `released` at the reference pose |
-
-**`coupling`** — kinematic relation between two joints (linked or mirrored doors, scissor hinge, rack and pinion)
-
-| Key | Description |
-|---|---|
-| `joint_a`, `joint_b`, `ratio` | `q_b = ratio · q_a` |
+An actuator is a force-producing element, not a kinematic constraint. The poses (§3.3) set the joint
+coordinates; each element's length in a pose is derived from the geometry, and the checker confirms an
+actuator can physically reach it. This is the quick, solver-free test that a loader's cylinder
+really lifts the boom to the stated height.
 
 ### 3.3 Named poses
 
@@ -108,132 +116,156 @@ Optional top-level `poses[]`:
 ```json
 "poses": [
   { "id": "closed" },
-  { "id": "door_l_open", "values": { "hinge_door_l": 1.1 } },
-  { "id": "hood_up",     "values": { "hinge_hood": 0.9 }, "aero_setting_ref": "hood_open" }
+  { "id": "door_open",  "values": { "hinge_door_fl": 1.1 } },
+  { "id": "loader_up",  "values": { "boom_pivot": 0.85, "bucket_pivot": -0.4 } },
+  { "id": "hood_up",    "values": { "hinge_hood": 0.95 }, "aero_setting_ref": "hood_open" }
 ]
 ```
 
-`closed` is the reference pose: every joint coordinate is 0. A pose assigns a coordinate to joints (rad / m). Poses let tools show and compare configurations
-and compute derived data per pose (§3.4); `aero_setting_ref` may name an
-`aerodynamics.components[].settings[].name` so an open panel can change Cd and Cl through the
-mechanism that already exists (§13.5.1).
+`closed` (or any pose with no `values`) is the reference pose: every joint coordinate is 0. `values`
+maps a joint id to its coordinate: a number for one-coordinate joints, an array for the others. A pose
+may also name an `aerodynamics.components[].settings[].name` (`aero_setting_ref`) so an open panel
+changes Cd and Cl through the mechanism that already exists (§13.5.1).
 
-### 3.4 Mass and CG per pose
+### 3.4 Mass, CG and element lengths per pose
 
-Mass bodies already carry mass and CG at the reference pose, so the composite fields
-(`mass_total`, `center_of_gravity`) keep describing the reference pose. A tool computes the CG and
-inertia for any pose by forward kinematics over the constraint graph rooted at `chassis`: each
-moving body's position and inertia are carried by the rigid transform of its joint chain. Closed
-loops (a four-bar) are allowed in the file but need a solver; the checker only warns.
+Mass bodies carry mass and CG at the reference pose, so the composite fields (`mass_total`,
+`center_of_gravity`) keep describing the reference pose. For any pose a tool computes
+
+- the **CG**: `CG(pose) = CG_ref + Σ mᵢ (Xᵢ(pᵢ) − pᵢ) / M`, where `Xᵢ` is the rigid transform the joint chain gives body *i*;
+- the **length of every `spring` / `actuator`** from its two marker positions after transformation.
+
+Closed kinematic loops (a four-bar linkage) are allowed in a file but are not solved by phase 1: the
+poses give the independent coordinates.
 
 ### 3.5 Visual
 
 `mass_body.visual` already binds a glTF node. Under a pose the node follows the body frame:
 `T = FK(pose) · (authored placement)`. The motion is a rigid transform **about the joint axis in the
-vehicle frame**, so it does not depend on where the node's own origin sits (a door mesh whose
-origin is its centre still swings about the hinge line). This is exactly what a viewer needs to
-animate a pose, and what the per-part mesh fitting in the viewer can be used to align.
+vehicle frame**, so it does not depend on where the node's own origin sits (a door mesh whose origin is
+its centre still swings about the hinge line).
 
-## 4. Worked example (excerpt)
+### 3.6 Attachments (phase 4; design constraints for phases 1–3)
+
+An attachment is a normal SVJ file (an "implement" or "body": loader, mower, plough, crane, tipper body)
+that declares the **interfaces** it can be fitted with. The vehicle declares matching interfaces. This is
+the same mechanism as `coupling_points` and the combination file in `proposals/trailer_coupling_research.md`;
+this proposal supplies the missing piece, the **joint object**, so one definition serves both uses:
+
+- inside a file: `constraints[]` entry of type `joint`;
+- between files: a combination `connections[].joint` (the object listed in §3.2 minus the body/frame fields).
+
+Interfaces are named frames with a role and a size, e.g. `three_point_lower_link` (category and pin
+diameters), `three_point_top_link`, `loader_mount`, `pto_shaft`, `fifth_wheel`; compatible roles and
+sizes are checked as in the trailer research (rules C2/C3). A fitted attachment appears in the
+combination file as a unit; its bodies and joints are addressed with qualified ids
+(`loader.boom`, `loader.hinge_boom`), which is why `.` is reserved in ids (§3.1). Mass and CG of the
+whole combination, and the pose, are then computed over the union of the units' bodies.
+
+Phases 1–3 therefore keep every id file-local and every joint self-contained, so nothing has to change
+when attachments arrive.
+
+## 4. Worked examples (excerpts)
+
+Hood with a gas strut (positive rotation opens it: marker +Z points along +Y, so a positive angle raises
+the front edge):
 
 ```json
 "chassis": {
+  "markers": { "hood_hinge":  { "position": [-0.30, 0.0, -0.80], "orientation": [-0.7071, 0, 0, 0.7071] },
+               "hood_strut_base": { "position": [-0.05, -0.55, -0.56] } },
   "mass_bodies": [
-    { "id": "door_l", "category": "structural", "mass": 14.5, "position": [-1.05, -0.78, -0.62],
-      "parent": "chassis",
-      "inertia": { "Ixx": 0.9, "Iyy": 1.1, "Izz": 0.4 },
-      "markers": { "hinge": { "position": [-0.62, -0.80, -0.55], "orientation": [0, 0, 0, 1] } },
-      "visual": { "node": "SVJ::body::door_l" } },
-    { "id": "hood", "category": "structural", "mass": 11.0, "position": [0.55, 0.0, -0.78],
-      "markers": { "hinge": { "position": [-0.05, 0.0, -0.80], "orientation": [0.7071, 0, 0, 0.7071] },
-                   "strut": { "position": [0.35, -0.45, -0.82] },
-                   "stop_l": { "position": [1.10, -0.40, -0.74] } } }
-  ],
-  "markers": { "hood_hinge": { "position": [-0.05, 0.0, -0.80], "orientation": [0.7071, 0, 0, 0.7071] },
-               "hood_strut": { "position": [0.30, -0.45, -0.55] },
-               "hood_stop_l": { "position": [1.10, -0.40, -0.72] } }
+    { "id": "hood", "category": "structural", "mass": 10.0, "position": [0.55, 0.0, -0.80],
+      "markers": { "hinge": { "position": [-0.30, 0.0, -0.80], "orientation": [-0.7071, 0, 0, 0.7071] },
+                   "strut": { "position": [0.25, -0.55, -0.82] } } }
+  ]
 },
 "constraints": [
-  { "id": "hinge_door_l", "type": "joint", "joint_type": "revolute",
-    "body_a": "chassis", "frame_a": { "position": [-0.62, -0.80, -0.55], "orientation": [0, 0, 0, 1] },
-    "body_b": "door_l", "marker_b": "hinge",
-    "range": { "min": 0.0, "max": 1.15 }, "stop": { "stiffness": 20000, "damping": 150 }, "friction": 0.6 },
-  { "id": "door_l_check", "type": "latch", "joint_ref": "hinge_door_l",
-    "position": 0.55, "holding_force": 8.0, "state": "released" },
   { "id": "hinge_hood", "type": "joint", "joint_type": "revolute",
     "body_a": "chassis", "marker_a": "hood_hinge", "body_b": "hood", "marker_b": "hinge",
     "range": { "min": 0.0, "max": 1.0 } },
-  { "id": "hood_gas_strut", "type": "spring", "body_a": "chassis", "marker_a": "hood_strut",
-    "body_b": "hood", "marker_b": "strut", "free_length": 0.38, "rate": 900, "preload": 180, "damping": 60 },
-  { "id": "hood_on_rubber_l", "type": "contact", "body_a": "chassis", "marker_a": "hood_stop_l",
-    "body_b": "hood", "marker_b": "stop_l",
-    "shape_a": { "type": "plane" }, "shape_b": { "type": "point" },
-    "gap": 0.0, "stiffness": 80000, "damping": 400, "friction": 0.3 }
-],
-"poses": [ { "id": "closed" }, { "id": "door_l_open", "values": { "hinge_door_l": 1.1 } },
-           { "id": "hood_up", "values": { "hinge_hood": 0.95 } } ]
+  { "id": "hood_gas_strut", "type": "spring", "body_a": "chassis", "marker_a": "hood_strut_base",
+    "body_b": "hood", "marker_b": "strut", "free_length": 0.34, "rate": 900, "preload": 180, "damping": 60 }
+]
 ```
 
-The example uses `chassis.markers` for the frames that sit on the chassis side; this adds a
-`markers` object to `chassis` (same shape as `mass_body.markers`).
+Tractor front loader (a chain; the boom cylinder is checked against its stroke in every pose):
+
+```json
+"constraints": [
+  { "id": "boom_pivot",   "type": "joint", "joint_type": "revolute", "body_a": "chassis", "marker_a": "boom_pivot",
+    "body_b": "boom", "marker_b": "pivot", "range": { "min": -0.15, "max": 0.95 } },
+  { "id": "bucket_pivot", "type": "joint", "joint_type": "revolute", "body_a": "boom", "marker_a": "bucket_pivot",
+    "body_b": "bucket", "marker_b": "pivot", "range": { "min": -0.9, "max": 0.7 } },
+  { "id": "boom_cylinder", "type": "actuator", "body_a": "chassis", "marker_a": "cyl_base",
+    "body_b": "boom", "marker_b": "cyl_rod", "retracted_length": 0.62, "stroke": { "min": 0.0, "max": 0.46 } },
+  { "id": "bucket_cylinder", "type": "actuator", "body_a": "boom", "marker_a": "bcyl_base",
+    "body_b": "bucket", "marker_b": "bcyl_rod", "retracted_length": 0.48, "stroke": { "min": 0.0, "max": 0.36 } }
+]
+```
 
 ## 5. Where it matters
 
 | Use | Needs |
 |---|---|
-| Doors, hood, boot, tailgate, fuel flap | `joint` + `range` + `poses`; `spring` / `latch` for stays and detents |
-| Tilt cab, tipper body, crane, folding trailer | `joint` + `drive` (rams); `poses` for the CG in each state |
-| Mirror, wiper, seat, window | `joint` / `translational` + `coupling` for linked motion |
+| Doors, hood, boot, tailgate, fuel flap | `joint` + `range` + `poses`; `spring` for stays |
+| Tractor front loader, excavator arm, crane, forklift mast | Joint chains, `actuator` with stroke check, `poses` for transport / dig / dump |
+| Three-point hitch, implements, mowers, ploughs | Lift arm and links as joints, the implement as a `fixed`/hinged body; attachment files in phase 4 |
+| Tilt cab, tipper body, folding trailer | `joint` + `actuator`; CG in each state |
+| Mirror, wiper, seat, window | one-coordinate joints; `coupling` for linked motion (phase 3) |
 | Pit stop, side load with a door open | Mass and CG per pose (§3.4) |
 | Aero flaps and hood vents | `poses[].aero_setting_ref` onto the existing aero settings |
-| Multibody export | The joints map to joint entities and the springs to force elements; the existing marker convention carries the axes |
-| Articulated combinations (planned §23.8) | The same `joint` between two bodies is a fifth wheel or hitch; body ids would then have to be qualified per vehicle (open question 7) |
+| Multibody export | Joints map to joint entities, springs and actuators to force elements; the marker convention carries the axes |
+| Articulated combinations (§23.8) | The same joint object in a combination `connections[].joint` |
 
 ## 6. Checker rules (`tools/constraints_check.py`, mirrored in `svj-py`)
 
 | # | Rule | Severity |
 |---|---|---|
-| 1 | `body_a` / `body_b` exist (`mass_bodies`, `chassis`, `ground`); `marker_*` resolve on their body | error |
-| 2 | Constraint ids unique; `joint_ref`, `joint_a`, `joint_b` name a `joint`; a `coupling` joins two different joints | error |
-| 3 | `range.min ≤ range.max`; `0` lies inside the range (the reference pose is legal); pose values lie inside the ranges | error |
-| 4 | Marker orientation quaternions are unit length (the existing v0.96 rule) | error |
-| 5 | Every body named by a `joint` has a path of joints back to `chassis` / `ground` (no floating bodies) | error |
+| 1 | `body_a` / `body_b` exist (`mass_bodies`, `chassis`, `ground`) and differ; `marker_*` resolve; each side has a marker or an inline frame | error |
+| 2 | Constraint ids unique; body ids contain no `.` | error / warning |
+| 3 | `range.min ≤ range.max` per coordinate and its length matches the joint type; 0 lies inside; pose values have the right length and lie inside the range; pose ids unique; pose value ids name joints | error |
+| 4 | Frame orientation quaternions are unit length | error |
+| 5 | Every body named by a `joint` is connected to `chassis` / `ground` through joints (no floating bodies) | error |
 | 6 | A body with a joint and a different explicit `parent` | warning |
-| 7 | Closed kinematic loops, or more than 6 constrained DOF between two bodies | warning ("needs a solver / over-constrained") |
-| 8 | `contact` shapes lack the size their type needs; `spring` with `rate` and `rate_curve` both set | error |
-| 9 | A moved body has `mass` ≤ 0 or no `inertia` when a drive or spring acts on it | warning |
-| 10 | Pose ids unique; `aero_setting_ref` resolves | error |
+| 7 | A body that is `body_b` of more than one joint, or two joints between the same pair (closed loop / over-constraint) | warning |
+| 8 | `spring` with both `rate` and `rate_curve`; `actuator` with `stroke.min > stroke.max` | error |
+| 9 | The two frames of a joint coincide at the reference pose (1 mm) and their Z axes are parallel (axis-bearing joint types) | error |
+| 10 | `aero_setting_ref` resolves | error |
+| 11 | For each pose, each `actuator`'s derived length lies inside `[retracted_length + stroke.min, retracted_length + stroke.max]` | error |
+| 12 | A `spring` / `actuator` whose two end frames coincide (zero length) in the reference pose | warning |
 
 ## 7. Viewer (after the schema)
 
 - **Poses panel:** dropdown of poses and a slider per joint coordinate; the bound glTF nodes animate about the joint axes (§3.5); hinge axes and range arcs drawn as helpers.
-- **CG and mass readout per pose.**
-- Springs drawn as lines with the live length; contacts shown when `gap` closes.
-- With the existing per-part mesh fitting (viewer v4.4), the hinge marker can be snapped onto the mesh's hinge line, then the corrected SVJ saved.
+- **CG and mass readout per pose**; actuators and springs drawn as lines with the live length and a stroke bar (red outside the stroke).
+- With the per-part mesh fitting (viewer v4.4), a hinge marker can be snapped onto the mesh's hinge line, then the corrected SVJ saved.
 
 ## 8. Compatibility
 
 Everything is optional. A file without `constraints` / `poses` is unchanged, and `parent` keeps its
-v0.96 meaning (hierarchy; welded unless a constraint says otherwise). `chassis.markers` is new but
-has the same shape as the existing `mass_body.markers`. Readers that ignore the block still see a
-valid vehicle in its reference pose.
+v0.96 meaning (hierarchy; welded unless a constraint says otherwise). `chassis.markers` is new but has the
+same shape as the existing `mass_body.markers`; `category` gains the value `attachment`. Readers that
+ignore the blocks still see a valid vehicle in its reference pose.
 
 ## 9. Open questions
 
-1. **Contact geometry.** Are primitives at markers enough for a first release, or do bodies need collision proxies (a glTF node, a convex hull)? Primitives keep it solver-neutral; proxies make exact contact possible.
-2. **Closed loops.** Allow them in v1 (flagged), or restrict `joint`s to a tree and express a four-bar through a `coupling`?
-3. **One list or several.** `constraints[]` with a `type` (above) versus separate `joints[]`, `force_elements[]`, `contacts[]`. A single list keeps referencing simple; several lists match how solvers group them.
-4. **Chassis markers.** Add `chassis.markers`, or require a `helper` body for chassis-side frames?
-5. **Poses in an override file.** Are poses part of the vehicle or a variant concern (§3.4 override files)?
-6. **Time-dependent behaviour.** `latch` and `drive` imply commands over time. Keep the file to the static parameters, and leave scenarios and control to the simulator?
-7. **Qualified ids across vehicles** (tractor/trailer) — shared with the articulated-combination work.
-8. **Aero coupling.** Is `aero_setting_ref` enough for panels that change Cd and Cl, or do we need a continuous map from joint coordinate to coefficient?
+1. **Contact geometry** (phase 5): primitives at markers, or collision proxies (a glTF node, a hull)?
+2. **Closed loops:** solve them (loader linkages, four-bar hitches) or keep poses as independent coordinates plus the stroke check?
+3. **One list or several:** a single `constraints[]` with `type`, or separate `joints[]`, `force_elements[]`?
+4. **Poses in an override file:** are poses part of the vehicle or of a variant?
+5. **Time-dependent behaviour:** `latch` / commands over time stay out of the file; leave scenarios and control to the simulator?
+6. **Attachments in the same file or separate:** allow both (a small implement can be `category: "attachment"` bodies inside the host), with the separate file as the interchangeable form?
+7. **Interface vocabulary:** roles and sizes for agricultural interfaces (ISO 730 three-point, loader mounts, PTO) alongside the trailer roles.
+8. **Loads in tools:** model a carried load (bucket, bale) as a `payload` body joined with a `fixed` joint that poses can attach and detach?
+9. **Rotary drives** (slew rings, hydraulic motors, electric hinges) on a joint (`joint.drive`), phase 3.
 
-## 10. Suggested phases
+## 10. Phases
 
 | Phase | Content | Exit criterion |
 |---|---|---|
-| 1 | `constraints[]` with `joint` and `spring`; `poses[]`; `chassis.markers`; checker rules 1–7 and 10; forward kinematics and CG per pose in `svj-py`; one worked example (doors and hood) | The example validates and `svj-py` returns the CG for each pose |
+| 1 | `constraints[]` with `joint` (all types, vector coordinates), `spring`, `actuator`; `poses[]`; `chassis.markers`; checker rules 1–12 (except `latch`/`contact`); forward kinematics, CG and element lengths per pose in `svj-py`; two examples (car panels; tractor with front loader and hitch) | Both examples validate, FK reproduces the expected poses and the stroke checks pass |
 | 2 | Viewer poses panel and animation | Poses animate the bound meshes about the hinges |
-| 3 | `latch`, `coupling`, `drive` | A tilt-cab / tipper example |
-| 4 | `contact` (needs the geometry decision, question 1) | A hood-on-rubber example |
+| 3 | `latch`, `coupling`, rotary `joint.drive` | A tilt-cab / tipper example |
+| 4 | Attachments: interfaces, qualified ids, joint object in the combination file | A loader file fitted to a tractor file |
+| 5 | `contact` (needs the geometry decision, question 1) | A hood-on-rubber example |
