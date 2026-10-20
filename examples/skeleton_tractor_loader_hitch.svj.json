@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99.5",
+    "version": "0.99.7",
     "description": "Skeleton: 4WD tractor with a front loader (boom, bucket, two cylinders) and a rear three-point-style hitch carrying an implement. Demonstrates constraints, actuators and poses; the composite mass, CG and inertia include the attachments in the reference pose. Attachment geometry is illustrative and the base vehicle data is the 4WD skeleton's.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
@@ -218,7 +218,7 @@
           "Iyz": 0.0
         },
         "markers": {
-          "pivot": {
+          "hinge": {
             "position": [
               -0.4,
               0.0,
@@ -231,7 +231,7 @@
               0.7071068
             ]
           },
-          "bucket_pivot": {
+          "loader_bucket_hinge": {
             "position": [
               2.2,
               0.0,
@@ -244,21 +244,22 @@
               0.7071068
             ]
           },
-          "cyl_rod": {
+          "loader_boom_cylinder_rod": {
             "position": [
               0.75,
               0.0,
               -1.22
             ]
           },
-          "bcyl_base": {
+          "loader_bucket_cylinder_base": {
             "position": [
               1.55,
               0.0,
               -1.12
             ]
           }
-        }
+        },
+        "name": "Loader boom"
       },
       {
         "id": "loader_bucket",
@@ -280,7 +281,7 @@
           "Iyz": 0.0
         },
         "markers": {
-          "pivot": {
+          "hinge": {
             "position": [
               2.2,
               0.0,
@@ -293,14 +294,15 @@
               0.7071068
             ]
           },
-          "bcyl_rod": {
+          "loader_bucket_cylinder_rod": {
             "position": [
               2.42,
               0.0,
               -1.1
             ]
           }
-        }
+        },
+        "name": "Loader bucket"
       },
       {
         "id": "hitch_lower_link",
@@ -322,7 +324,7 @@
           "Iyz": 0.0
         },
         "markers": {
-          "pivot": {
+          "hinge": {
             "position": [
               -3.35,
               0.0,
@@ -335,21 +337,22 @@
               0.7071068
             ]
           },
-          "end": {
+          "implement_mount": {
             "position": [
               -4.35,
               0.0,
               -0.6
             ]
           },
-          "cyl_rod": {
+          "hitch_lower_link_cylinder_rod": {
             "position": [
               -3.85,
               0.0,
               -0.78
             ]
           }
-        }
+        },
+        "name": "Hitch lower links"
       },
       {
         "id": "implement",
@@ -378,7 +381,8 @@
               -0.6
             ]
           }
-        }
+        },
+        "name": "Implement"
       }
     ],
     "visual": {
@@ -386,7 +390,7 @@
       "node": "SVJ::body::chassis"
     },
     "markers": {
-      "boom_pivot": {
+      "loader_boom_hinge": {
         "position": [
           -0.4,
           0.0,
@@ -399,14 +403,14 @@
           0.7071068
         ]
       },
-      "cyl_base": {
+      "loader_boom_cylinder_base": {
         "position": [
           0.1,
           0.0,
           -0.7
         ]
       },
-      "hitch_pivot": {
+      "hitch_lower_link_hinge": {
         "position": [
           -3.35,
           0.0,
@@ -419,7 +423,7 @@
           0.7071068
         ]
       },
-      "hitch_cyl_base": {
+      "hitch_lower_link_cylinder_base": {
         "position": [
           -3.05,
           0.0,
@@ -1133,13 +1137,13 @@
   },
   "constraints": [
     {
-      "id": "boom_pivot",
+      "id": "hinge_loader_boom",
       "type": "joint",
       "joint_type": "revolute",
       "body_a": "chassis",
-      "marker_a": "boom_pivot",
+      "marker_a": "loader_boom_hinge",
       "body_b": "loader_boom",
-      "marker_b": "pivot",
+      "marker_b": "hinge",
       "range": {
         "min": -0.15,
         "max": 0.95
@@ -1151,13 +1155,13 @@
       "friction": 40.0
     },
     {
-      "id": "bucket_pivot",
+      "id": "hinge_loader_bucket",
       "type": "joint",
       "joint_type": "revolute",
       "body_a": "loader_boom",
-      "marker_a": "bucket_pivot",
+      "marker_a": "loader_bucket_hinge",
       "body_b": "loader_bucket",
-      "marker_b": "pivot",
+      "marker_b": "hinge",
       "range": {
         "min": -0.9,
         "max": 0.7
@@ -1169,13 +1173,13 @@
       "friction": 25.0
     },
     {
-      "id": "hitch_pivot",
+      "id": "hinge_hitch_lower_link",
       "type": "joint",
       "joint_type": "revolute",
       "body_a": "chassis",
-      "marker_a": "hitch_pivot",
+      "marker_a": "hitch_lower_link_hinge",
       "body_b": "hitch_lower_link",
-      "marker_b": "pivot",
+      "marker_b": "hinge",
       "range": {
         "min": -0.2,
         "max": 0.9
@@ -1183,21 +1187,21 @@
       "friction": 30.0
     },
     {
-      "id": "implement_mount",
+      "id": "fixed_implement",
       "type": "joint",
       "joint_type": "fixed",
       "body_a": "hitch_lower_link",
-      "marker_a": "end",
+      "marker_a": "implement_mount",
       "body_b": "implement",
       "marker_b": "mount"
     },
     {
-      "id": "boom_cylinder",
+      "id": "loader_boom_cylinder",
       "type": "actuator",
       "body_a": "chassis",
-      "marker_a": "cyl_base",
+      "marker_a": "loader_boom_cylinder_base",
       "body_b": "loader_boom",
-      "marker_b": "cyl_rod",
+      "marker_b": "loader_boom_cylinder_rod",
       "retracted_length": 0.738,
       "stroke": {
         "min": 0.0,
@@ -1208,12 +1212,12 @@
       "max_pressure": 18000000
     },
     {
-      "id": "bucket_cylinder",
+      "id": "loader_bucket_cylinder",
       "type": "actuator",
       "body_a": "loader_boom",
-      "marker_a": "bcyl_base",
+      "marker_a": "loader_bucket_cylinder_base",
       "body_b": "loader_bucket",
-      "marker_b": "bcyl_rod",
+      "marker_b": "loader_bucket_cylinder_rod",
       "retracted_length": 0.683,
       "stroke": {
         "min": 0.0,
@@ -1224,12 +1228,12 @@
       "max_pressure": 18000000
     },
     {
-      "id": "hitch_cylinder",
+      "id": "hitch_lower_link_cylinder",
       "type": "actuator",
       "body_a": "chassis",
-      "marker_a": "hitch_cyl_base",
+      "marker_a": "hitch_lower_link_cylinder_base",
       "body_b": "hitch_lower_link",
-      "marker_b": "cyl_rod",
+      "marker_b": "hitch_lower_link_cylinder_rod",
       "retracted_length": 0.436,
       "stroke": {
         "min": 0.0,
@@ -1247,36 +1251,36 @@
     {
       "id": "loader_dig",
       "values": {
-        "boom_pivot": -0.12,
-        "bucket_pivot": -0.6
+        "hinge_loader_boom": -0.12,
+        "hinge_loader_bucket": -0.6
       }
     },
     {
       "id": "loader_carry",
       "values": {
-        "boom_pivot": 0.2,
-        "bucket_pivot": 0.45
+        "hinge_loader_boom": 0.2,
+        "hinge_loader_bucket": 0.45
       }
     },
     {
       "id": "loader_dump",
       "values": {
-        "boom_pivot": 0.9,
-        "bucket_pivot": -0.8
+        "hinge_loader_boom": 0.9,
+        "hinge_loader_bucket": -0.8
       }
     },
     {
       "id": "hitch_up",
       "values": {
-        "hitch_pivot": 0.8
+        "hinge_hitch_lower_link": 0.8
       }
     },
     {
       "id": "work_all_up",
       "values": {
-        "boom_pivot": 0.6,
-        "bucket_pivot": 0.2,
-        "hitch_pivot": 0.5
+        "hinge_loader_boom": 0.6,
+        "hinge_loader_bucket": 0.2,
+        "hinge_hitch_lower_link": 0.5
       }
     }
   ]

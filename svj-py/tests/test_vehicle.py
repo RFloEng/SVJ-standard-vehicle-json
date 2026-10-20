@@ -561,14 +561,14 @@ class TestConstraints:
         assert moved("door_fl", "door_fl_open")[1] < pos["door_fl"][1] - 0.3       # left door swings out (-Y)
         assert moved("door_fr", "doors_open")[1] > pos["door_fr"][1] + 0.3         # right door swings out (+Y)
         assert moved("hood", "hood_up")[2] < pos["hood"][2] - 0.3                  # hood rises (Z is down)
-        assert moved("hatch", "hatch_up")[2] < pos["hatch"][2] - 0.2               # hatch rises
+        assert moved("tailgate", "tailgate_up")[2] < pos["tailgate"][2] - 0.2               # hatch rises
 
     def test_rotation_keeps_distances(self):
         import math
         from svj.constraints import apply, body_transforms
         d = _doc(TRACTOR)
         X = body_transforms(d, "loader_dump")
-        pivot = d["chassis"]["markers"]["boom_pivot"]["position"]
+        pivot = d["chassis"]["markers"]["loader_boom_hinge"]["position"]
         tip = [2.20, 0.0, -0.90]
         assert math.dist(pivot, tip) == pytest.approx(math.dist(pivot, apply(X["loader_boom"], tip)), abs=1e-9)
         assert apply(X["loader_boom"], pivot) == pytest.approx(pivot, abs=1e-9)    # the pivot itself does not move
@@ -576,10 +576,10 @@ class TestConstraints:
     def test_welded_bodies_follow_parent_and_chain(self):
         from svj.constraints import apply, body_transforms
         d = _doc(TRACTOR)
-        X = body_transforms(d, {"hitch_pivot": 0.5})
+        X = body_transforms(d, {"hinge_hitch_lower_link": 0.5})
         a, b = X["hitch_lower_link"], X["implement"]
         assert a[0] == b[0]
-        p = d["chassis"]["markers"]["hitch_pivot"]["position"]
+        p = d["chassis"]["markers"]["hitch_lower_link_hinge"]["position"]
         assert apply(a, p) == pytest.approx(p, abs=1e-9)
         end = [-4.35, 0.0, -0.60]
         assert apply(b, end) == pytest.approx(apply(a, end), abs=1e-9)
@@ -601,7 +601,7 @@ class TestConstraints:
         from svj.constraints import (_inertia_mat, _madd, _mm, _steiner, _sub, _tr, apply, body_transforms,
                                       pose_cg, pose_inertia)
         d = _doc(TRACTOR)
-        pose = {"boom_pivot": 0.6, "bucket_pivot": 0.2}
+        pose = {"hinge_loader_boom": 0.6, "hinge_loader_bucket": 0.2}
         X = body_transforms(d, pose)
         cg0 = tuple(d["chassis"]["center_of_gravity"])
         acc = _inertia_mat(d["chassis"]["inertia"])
@@ -620,12 +620,12 @@ class TestConstraints:
     def test_actuator_reach_and_pose_stroke(self):
         from svj.constraints import check, element_lengths
         d = _doc(TRACTOR)
-        length = element_lengths(d, "loader_dump")["boom_cylinder"]
-        c = next(x for x in d["constraints"] if x["id"] == "boom_cylinder")
+        length = element_lengths(d, "loader_dump")["loader_boom_cylinder"]
+        c = next(x for x in d["constraints"] if x["id"] == "loader_boom_cylinder")
         assert c["retracted_length"] <= length <= c["retracted_length"] + c["stroke"]["max"]
         c["stroke"]["max"] = 0.2                                                    # too short for the dump pose
         errors, _ = check(d)
-        assert any("loader_dump" in e and "boom_cylinder" in e and "reach" in e for e in errors)
+        assert any("loader_dump" in e and "loader_boom_cylinder" in e and "reach" in e for e in errors)
 
     def test_reference_and_range_rules(self):
         from svj.constraints import check
@@ -641,7 +641,7 @@ class TestConstraints:
     def test_frames_must_coincide_and_axes_align(self):
         from svj.constraints import check
         d = _doc(PANELS)
-        next(b for b in d["chassis"]["mass_bodies"] if b["id"] == "hatch")["markers"]["hinge"]["position"][0] += 0.05
+        next(b for b in d["chassis"]["mass_bodies"] if b["id"] == "tailgate")["markers"]["hinge"]["position"][0] += 0.05
         errors, _ = check(d)
         assert any("must coincide" in e for e in errors)
         d = _doc(PANELS)
@@ -671,12 +671,12 @@ class TestConstraints:
         d = _doc(TRACTOR)
         del next(b for b in d["chassis"]["mass_bodies"] if b["id"] == "loader_boom")["inertia"]
         next(b for b in d["chassis"]["mass_bodies"] if b["id"] == "loader_bucket")["inertia"] = {"Ixx": 1.0, "Iyy": 1.0, "Izz": 5.0}
-        act = next(c for c in d["constraints"] if c["id"] == "boom_cylinder")
+        act = next(c for c in d["constraints"] if c["id"] == "loader_boom_cylinder")
         del act["bore_diameter"], act["rod_diameter"], act["max_pressure"]
         _, warnings = check(d)
         assert any("loader_boom" in w and "no inertia" in w for w in warnings)
         assert any("loader_bucket" in w and "not physically possible" in w for w in warnings)
-        assert any("boom_cylinder" in w and "force capability" in w for w in warnings)
+        assert any("loader_boom_cylinder" in w and "force capability" in w for w in warnings)
 
     def test_actuator_force_limits(self):
         import math
@@ -700,7 +700,7 @@ class TestConstraints:
         v = load(TRACTOR, validate_on_load=False)
         assert len(v.constraints) == 7 and {p["id"] for p in v.poses} >= {"transport", "loader_dump"}
         assert v.pose_cg("loader_dump")["cg"][2] < v.pose_cg()["cg"][2]
-        assert set(v.element_lengths("loader_dump")) == {"boom_cylinder", "bucket_cylinder", "hitch_cylinder"}
+        assert set(v.element_lengths("loader_dump")) == {"loader_boom_cylinder", "loader_bucket_cylinder", "hitch_lower_link_cylinder"}
         assert v.pose_inertia("hitch_up")["Iyy"] > 0
         assert v.body_transforms()["implement"][1] == (0.0, 0.0, 0.0)
 
@@ -759,3 +759,238 @@ class TestConstraints:
         assert v.body_inertia("nope") is None
         mm = v.pose_inertia("loader_dump", form="matrix")
         assert mm[1][1] == pytest.approx(v.pose_inertia("loader_dump")["Iyy"])
+
+
+TRUCK = EXAMPLES_DIR / "skeleton_dump_truck_tipper_cab.svj.json"
+
+
+class TestLatchCouplingDrive:
+    """v0.99.6: latch, coupling, joint.drive."""
+
+    def test_new_examples_are_clean(self):
+        from svj.constraints import check
+        for path in (PANELS, TRUCK):
+            d = _doc(path)
+            assert check(d) == ([], []), path.name
+            assert validate(d, schema_path=SCHEMA) == [], path.name
+
+    def test_coupling_derives_coordinates_both_ways(self):
+        from svj.constraints import pose_values
+        d = _doc(TRUCK)
+        v = pose_values(d, {"hinge_tipper_body": 0.5})
+        assert v["hinge_tailgate"] == pytest.approx([0.4])
+        v = pose_values(d, {"hinge_tailgate": 0.4})
+        assert v["hinge_tipper_body"] == pytest.approx([0.5])
+        v = pose_values(d, {"hinge_cab": 0.2})
+        assert "hinge_tailgate" not in v and "hinge_tipper_body" not in v
+
+    def test_coupled_joint_moves_in_kinematics(self):
+        from svj.constraints import apply, body_transforms
+        d = _doc(TRUCK)
+        tip = body_transforms(d, {"hinge_tipper_body": 0.9})
+        # the tailgate rides on the tipped body and swings a further 0.72 rad about its own hinge
+        both = body_transforms(d, {"hinge_tipper_body": 0.9, "hinge_tailgate": 0.72})
+        gate_only = body_transforms(d, {"hinge_tipper_body": 0.9, "hinge_tailgate": 0.0})
+        p = next(b for b in d["chassis"]["mass_bodies"] if b["id"] == "tailgate")["position"]
+        assert apply(tip["tailgate"], p) == pytest.approx(apply(both["tailgate"], p), abs=1e-9)
+        assert apply(tip["tailgate"], p) != pytest.approx(apply(gate_only["tailgate"], p), abs=1e-6)
+
+    def test_pose_cg_uses_the_coupled_tailgate(self):
+        from svj.constraints import pose_cg
+        d = _doc(TRUCK)
+        a = pose_cg(d, {"hinge_tipper_body": 0.9})["cg"]
+        b = pose_cg(d, {"hinge_tipper_body": 0.9, "hinge_tailgate": 0.0})["cg"]
+        assert a != pytest.approx(b, abs=1e-9)
+
+    def test_coupling_rules(self):
+        from svj.constraints import check
+        d = _doc(TRUCK)
+        link = next(c for c in d["constraints"] if c["id"] == "tailgate_link")
+        d["poses"].append({"id": "bad", "values": {"hinge_tipper_body": 0.5, "hinge_tailgate": 0.9}})
+        errors, _ = check(d)
+        assert any("violates coupling" in e for e in errors)
+        d = _doc(TRUCK)
+        next(c for c in d["constraints"] if c["id"] == "tailgate_link")["ratio"] = 2.0
+        errors, warnings = check(d)
+        assert any("tip_full" in e and "through a coupling" in e for e in errors)
+        assert any("maps outside the range" in w for w in warnings)
+        d = _doc(TRUCK)
+        link = next(c for c in d["constraints"] if c["id"] == "tailgate_link")
+        link["joint_b"] = "hinge_tipper_body"
+        errors, _ = check(d)
+        assert any("two different joint coordinates" in e for e in errors)
+        link["joint_b"] = "ghost"
+        errors, _ = check(d)
+        assert any("'ghost' is not a joint id" in e for e in errors)
+        link["joint_b"] = "hinge_tailgate"
+        link["ratio"] = 0
+        errors, _ = check(d)
+        assert any("non-zero" in e for e in errors)
+
+    def test_double_driven_coordinate_warns(self):
+        from svj.constraints import check
+        d = _doc(TRUCK)
+        d["constraints"].append({"id": "second", "type": "coupling", "joint_a": "hinge_cab", "joint_b": "hinge_tailgate", "ratio": 0.1})
+        _, warnings = check(d)
+        assert any("driven by 2 couplings" in w for w in warnings)
+
+    def test_latch_rules(self):
+        from svj.constraints import check
+        d = _doc(PANELS)
+        latch = next(c for c in d["constraints"] if c["id"] == "hood_latch")
+        latch["position"] = 0.3
+        errors, _ = check(d)
+        assert any("must engage at position 0" in e for e in errors)
+        latch["position"] = 5.0
+        errors, _ = check(d)
+        assert any("outside the joint range" in e for e in errors)
+        latch["position"] = 0.0
+        latch["joint_ref"] = "nope"
+        errors, _ = check(d)
+        assert any("joint_ref 'nope'" in e for e in errors)
+        latch["joint_ref"] = "hinge_hood"
+        latch["coordinate"] = 1
+        errors, _ = check(d)
+        assert any("coordinate 1 does not exist" in e for e in errors)
+
+    def test_detent_latch_may_be_released_anywhere_in_range(self):
+        from svj.constraints import check
+        d = _doc(PANELS)
+        check_latch = next(c for c in d["constraints"] if c["id"] == "door_fl_check")
+        assert check_latch["state"] == "released" and check_latch["position"] == 0.55
+        assert check(d) == ([], [])
+
+    def test_drive_rules(self):
+        from svj.constraints import check
+        d = _doc(PANELS)
+        hatch = next(c for c in d["constraints"] if c["id"] == "hinge_tailgate")
+        del hatch["drive"]["target"]
+        errors, _ = check(d)
+        assert any("needs a target" in e for e in errors)
+        hatch["drive"]["target"] = 9.0
+        errors, _ = check(d)
+        assert any("outside the joint range" in e for e in errors)
+        hatch["drive"].update({"target": 0.0})
+        del hatch["drive"]["max_force"]
+        _, warnings = check(d)
+        assert any("without max_force" in w for w in warnings)
+        d = _doc(PANELS)
+        hatch = next(c for c in d["constraints"] if c["id"] == "hinge_tailgate")
+        hatch["joint_type"] = "cylindrical"
+        hatch["range"] = {"min": [0.0, 0.0], "max": [1.3, 0.1]}
+        errors, _ = check(d)
+        assert any("one-coordinate joints" in e for e in errors)
+
+    def test_schema_for_new_types(self):
+        d = _doc(TRUCK)
+        link = next(c for c in d["constraints"] if c["id"] == "tailgate_link")
+        del link["ratio"]
+        assert validate(d, schema_path=SCHEMA)
+        d = _doc(TRUCK)
+        next(c for c in d["constraints"] if c["id"] == "cab_latch").pop("holding_force")
+        assert validate(d, schema_path=SCHEMA)
+        d = _doc(PANELS)
+        next(c for c in d["constraints"] if c["id"] == "hinge_tailgate")["drive"]["mode"] = "turbo"
+        assert validate(d, schema_path=SCHEMA)
+        d = _doc(TRUCK)
+        next(c for c in d["constraints"] if c["id"] == "cab_latch")["state"] = "maybe"
+        assert validate(d, schema_path=SCHEMA)
+
+    def test_truck_physics_sanity(self):
+        from svj.constraints import check, element_lengths, pose_cg
+        d = _doc(TRUCK)
+        ref, full = pose_cg(d), pose_cg(d, "tip_full")
+        assert full["cg"][0] < ref["cg"][0] and full["cg"][2] < ref["cg"][2]        # CG moves back and up when tipping
+        assert pose_cg(d, "cab_tilted")["cg"][0] > ref["cg"][0]                     # cab tilts forward
+        ram = next(c for c in d["constraints"] if c["id"] == "tipper_body_cylinder")
+        length = element_lengths(d, "tip_full")["tipper_body_cylinder"]
+        assert ram["retracted_length"] <= length <= ram["retracted_length"] + ram["stroke"]["max"]
+
+    def test_partial_mass_decomposition(self):
+        d = _doc(TRUCK)
+        assert validate(d, schema_path=SCHEMA) == []                       # a partial list of bodies is fine
+        d["chassis"]["mass_bodies_complete"] = True
+        assert any("mass_bodies_complete is true" in w for w in validate(d, schema_path=SCHEMA))
+        d["chassis"]["mass_bodies_complete"] = False
+        d["chassis"]["mass_total"] = 5000.0                                # listed masses exceed the total
+        assert any("exceeds mass_total" in w for w in validate(d, schema_path=SCHEMA))
+        d["chassis"]["mass_bodies_complete"] = "yes"
+        assert validate(d, schema_path=SCHEMA)                             # schema: boolean
+
+
+class TestPartNaming:
+    """v0.99.7: display `name`, canonical part vocabulary, alias advisories."""
+
+    def test_canonical_part_id(self):
+        from svj.constraints import canonical_part_id as c
+        assert c("door_fl") == "door_fl"                      # already canonical
+        assert c("bonnet") == "hood"
+        assert c("Engine-Bonnet") == "hood"
+        assert c("hatch") == "tailgate" and c("liftgate") == "tailgate"
+        assert c("boot_lid") == "trunk"
+        assert c("front_left_door") == "door_fl"              # side prefix moves to a suffix
+        assert c("door_lf") == "door_fl" and c("door_rb") == "door_rr"
+        assert c("left_side_mirror") == "mirror_l"
+        assert c("side_mirror_left") == "mirror_l"
+        assert c("tipper") == "tipper_body" and c("dump_box") == "tipper_body"
+        assert c("front_loader_bucket") == "loader_bucket"
+        assert c("lower_link") == "hitch_lower_link" and c("top_link") == "hitch_top_link"
+        assert c("dipper") == "stick"
+        assert c("upright_fl") is None and c("engine") is None and c("front_subframe") is None   # not in the vocabulary: no opinion
+        assert c(None) is None and c(5) is None
+
+    def test_alias_advisory_on_bodies(self):
+        from svj.constraints import check
+        d = _doc(PANELS)
+        next(b for b in d["chassis"]["mass_bodies"] if b["id"] == "tailgate")["id"] = "hatch"
+        for cn in d["constraints"]:
+            for k in ("body_a", "body_b"):
+                if cn.get(k) == "tailgate":
+                    cn[k] = "hatch"
+        errors, warnings = check(d)
+        assert not errors
+        assert any("'hatch'" in w and "'tailgate'" in w and "canonical" in w for w in warnings)
+
+    def test_unknown_names_are_not_flagged(self):
+        from svj.constraints import check
+        d = _doc(TRACTOR)
+        for b in d["chassis"]["mass_bodies"]:
+            if b["id"] == "implement":
+                b["id"] = "my_custom_plough"
+        for cn in d["constraints"]:
+            for k in ("body_a", "body_b"):
+                if cn.get(k) == "implement":
+                    cn[k] = "my_custom_plough"
+        for b in d["chassis"]["mass_bodies"]:
+            if b.get("parent") == "implement":
+                b["parent"] = "my_custom_plough"
+        _, warnings = check(d)
+        assert not any("canonical" in w for w in warnings)
+
+    def test_actuator_suffix_advisory(self):
+        from svj.constraints import check
+        d = _doc(TRUCK)
+        next(c for c in d["constraints"] if c["id"] == "tipper_body_cylinder")["id"] = "tipper_ram"
+        _, warnings = check(d)
+        assert any("tipper_ram" in w and "_cylinder" in w for w in warnings)
+
+    def test_shipped_examples_follow_the_vocabulary(self):
+        from svj.constraints import PART_ALIASES, PART_CANONICAL, canonical_part_id
+        assert not (set(PART_ALIASES) & PART_CANONICAL)       # an alias is never also canonical
+        assert set(PART_ALIASES.values()) <= PART_CANONICAL
+        for path in (PANELS, TRACTOR, TRUCK):
+            for b in _doc(path)["chassis"]["mass_bodies"]:
+                canon = canonical_part_id(b["id"])
+                assert canon in (None, b["id"]), (path.name, b["id"], canon)
+
+    def test_name_field(self):
+        d = _doc(PANELS)
+        door = next(b for b in d["chassis"]["mass_bodies"] if b["id"] == "door_fl")
+        assert door["name"] == "Front-left door"
+        assert validate(d, schema_path=SCHEMA) == []
+        door["name"] = 5
+        assert validate(d, schema_path=SCHEMA)
+        d = _doc(PANELS)
+        d["constraints"][0]["name"] = "Left door hinge"
+        d["poses"][1]["name"] = "Left door open"
+        assert validate(d, schema_path=SCHEMA) == []

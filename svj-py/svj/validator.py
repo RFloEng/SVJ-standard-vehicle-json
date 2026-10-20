@@ -96,10 +96,15 @@ def _consistency_checks(data: dict) -> list[str]:
         unsprung_sum = sum(v for k, v in unsprung.items() if isinstance(v, (int, float)))
         total_computed = body_sum + unsprung_sum
         total_stated = chassis.get("mass_total", 0)
-        if total_stated and abs(total_computed - total_stated) > 1.0:
+        if total_stated and chassis.get("mass_bodies_complete") is True and abs(total_computed - total_stated) > 1.0:
             warnings.append(
                 f"consistency: mass_bodies({body_sum:.1f}) + unsprung({unsprung_sum:.1f}) "
-                f"= {total_computed:.1f} ≠ mass_total({total_stated:.1f})"
+                f"= {total_computed:.1f} ≠ mass_total({total_stated:.1f}) (mass_bodies_complete is true)"
+            )
+        elif total_stated and total_computed > total_stated + 1.0:
+            warnings.append(
+                f"consistency: mass_bodies({body_sum:.1f}) + unsprung({unsprung_sum:.1f}) "
+                f"= {total_computed:.1f} exceeds mass_total({total_stated:.1f})"
             )
 
     # ── CG position ──

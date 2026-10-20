@@ -50,7 +50,25 @@ Everything is optional. A file with just metadata and suspension is valid — us
 
 ---
 
-## v0.99.5 — Movable Parts and Attachments *(new)*
+## v0.99.7 — Part Names *(new)*
+
+Parts need names other people (and other tools) understand. Bodies, constraints and poses may now carry a short display **`name`** next to their stable `id`, and [`docs/naming_convention.md`](docs/naming_convention.md) gains a recommended **vocabulary for movable parts and attachments**: doors, hood, trunk, tailgate, flaps, mirrors, cab, tipper body, front loader, excavator parts, three-point hitch parts and implements, each with the aliases other tools use, side suffixes (`door_fl`, `mirror_r`), patterns for joint, cylinder, strut, latch and pose ids (`hinge_door_fl`, `loader_boom_cylinder`, `door_fl_latch`) and marker names (`hinge`, `<part>_hinge`, `<element>_base` / `_rod`). The checker flags an *alias* of a listed part (`hatch` for `tailgate`) and leaves unlisted names alone. The three movable-part examples follow it.
+
+---
+
+## v0.99.6 — Constraint Set Completed
+
+The movable-parts model of v0.99.5 gains the rest of what a real assembly needs:
+
+- **`latch`** — holds a joint at a position until a force releases it: door and hood latches, door-check detents, cab and tipper locks.
+- **`coupling`** — `q_b = ratio · q_a`: a linkage that makes one joint follow another (self-opening tailgate, a parallel-lift loader keeping the bucket level, mirrored doors). A pose names one joint and the coupled one is derived.
+- **`joint.drive`** — a motor or powered hinge on a one-coordinate joint (`position`, `velocity` or `force` mode, with torque / force and speed limits): a power liftgate, a slew drive.
+- **Partial decompositions** — `mass_bodies` no longer has to cover the whole vehicle: listing only the movable parts and attachments is valid (the remainder is the rest of the vehicle); `chassis.mass_bodies_complete: true` asks for the exhaustive check.
+- **`examples/skeleton_dump_truck_tipper_cab.svj.json`** — tilting cab on a ram with a lock, tipper body on a ram with a hook, tailgate opened by a linkage as the body tips (coupling), poses for transport, cab tilted, 30° and full tip with the per-pose CG and ram lengths.
+
+---
+
+## v0.99.5 — Movable Parts and Attachments
 
 A vehicle can now carry **physical, articulated parts**: doors, hood, tilt cab, tipper body, and equipment such as a tractor's front loader or three-point hitch. A part is a `mass_body` (mass, CG, full inertia tensor, markers); `constraints[]` connect parts, and `poses[]` name configurations.
 
@@ -62,13 +80,13 @@ A vehicle can now carry **physical, articulated parts**: doors, hood, tilt cab, 
 
 ```json
 "constraints": [
-  { "id": "boom_pivot", "type": "joint", "joint_type": "revolute", "body_a": "chassis", "marker_a": "boom_pivot",
-    "body_b": "loader_boom", "marker_b": "pivot", "range": { "min": -0.15, "max": 0.95 } },
-  { "id": "boom_cylinder", "type": "actuator", "body_a": "chassis", "marker_a": "cyl_base",
-    "body_b": "loader_boom", "marker_b": "cyl_rod", "retracted_length": 0.82, "stroke": { "min": 0, "max": 0.55 },
+  { "id": "hinge_loader_boom", "type": "joint", "joint_type": "revolute", "body_a": "chassis", "marker_a": "loader_boom_hinge",
+    "body_b": "loader_boom", "marker_b": "hinge", "range": { "min": -0.15, "max": 0.95 } },
+  { "id": "loader_boom_cylinder", "type": "actuator", "body_a": "chassis", "marker_a": "loader_boom_cylinder_base",
+    "body_b": "loader_boom", "marker_b": "loader_boom_cylinder_rod", "retracted_length": 0.82, "stroke": { "min": 0, "max": 0.55 },
     "bore_diameter": 0.08, "rod_diameter": 0.045, "max_pressure": 18000000 }
 ],
-"poses": [ { "id": "transport" }, { "id": "loader_dump", "values": { "boom_pivot": 0.9, "bucket_pivot": -0.8 } } ]
+"poses": [ { "id": "transport" }, { "id": "loader_dump", "values": { "hinge_loader_boom": 0.9, "hinge_loader_bucket": -0.8 } } ]
 ```
 
 `python tools/constraints_check.py --poses examples/skeleton_tractor_loader_hitch.svj.json` prints the CG, inertia and element lengths of every pose. `tools/constraints_check.py` runs from `tools/validate.py` (mirrored in `svj-py`, with `Vehicle.pose_cg()`, `pose_inertia()`, `element_lengths()`, `body_transforms()`). Contacts, latches, linked joints and attachments in their own files are planned; viewer animation of poses is the next step. Details: [`spec/SVJ_Spec.md` §24](spec/SVJ_Spec.md), [`proposals/svj_articulated_parts_proposal.md`](proposals/svj_articulated_parts_proposal.md).
@@ -336,7 +354,8 @@ All example files validate against the current schema (`tools/validate.py`). The
 | `skeleton_4wd_solid_axle.svj.json` | 4WD | `macpherson` | `solid_axle` |
 | `skeleton_awd_ondemand_diff_control.svj.json` | AWD | `macpherson` | `solid_axle` — on-demand coupling, modulated centre lock, separate power/coast chains on the rear LSD *(v0.99.3)* |
 | `skeleton_visual_binding_dw_corner.svj.json` | — | `double_wishbone` corner with 45 glTF bindings *(v0.99.2)* | — |
-| `skeleton_ff_articulated_panels.svj.json` | FWD | `macpherson` | `torsion_beam` — two doors, hood and hatch as hinged bodies with gas struts and poses *(v0.99.5)* |
+| `skeleton_ff_articulated_panels.svj.json` | FWD | `macpherson` | `torsion_beam` — two doors with latches and door-check detents, hood, and a power-operated hatch, as hinged bodies with gas struts and poses *(v0.99.6)* |
+| `skeleton_dump_truck_tipper_cab.svj.json` | 6x4 | leaf | walking-beam tandem — tilting cab, tipper body on rams, tailgate linked to the body, locks *(v0.99.6)* |
 | `skeleton_tractor_loader_hitch.svj.json` | 4WD | `macpherson` | `solid_axle` — tractor with front loader (boom, bucket, three cylinders), rear hitch and implement; composite mass, CG and inertia include the attachments *(v0.99.5)* |
 | `tire_mf62_245_40r18.svj.json` | — | Standalone Pacejka MF 6.2 tire file | — |
 
@@ -370,7 +389,7 @@ All example files validate against the current schema (`tools/validate.py`). The
 
 ```
 schema/
-  ├── svj.schema.json             JSON Schema Draft-07 (v0.99.5)
+  ├── svj.schema.json             JSON Schema Draft-07 (v0.99.6)
   └── svj-override.schema.json    Override file structure (v0.98)
 spec/
   └── SVJ_Spec.md                 Human-readable specification (§1–§23)
@@ -386,7 +405,7 @@ tools/
   ├── validate.py                 Schema + cross-reference validation (multi-axle, drivetrain, multibody, constraints)
   ├── multiaxle_check.py          Multi-axle cross-reference rules (v0.99)
   ├── drivetrain_check.py         Differential-control rules (v0.99.3)
-  ├── constraints_check.py        Movable parts: checks, kinematics, per-pose CG / inertia (v0.99.5)
+  ├── constraints_check.py        Movable parts: checks, kinematics, per-pose CG / inertia (v0.99.5–0.99.6)
   ├── multibody_check.py          Multibody cross-references + joint-type inference (v0.96 fields)
   ├── validate_override.py        Override file resolution + validation (v0.98)
   └── integrity_check.py          glTF visual binding checks (v0.99.2)
