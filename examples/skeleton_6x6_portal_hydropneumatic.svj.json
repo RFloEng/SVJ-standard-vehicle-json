@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99.4",
+    "version": "0.100",
     "description": "6x6 special off-road vehicle skeleton — portal beam axles with hub reduction, hydropneumatic struts, front roll interconnection and per-side pitch interconnection across the rear tandem.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
@@ -37,7 +37,428 @@
       "A2R": 420,
       "A3L": 420,
       "A3R": 420
-    }
+    },
+    "mass_bodies": [
+      {
+        "id": "a1_housing",
+        "name": "Axle body A1_housing",
+        "description": "Beam axle, housing or de Dion tube",
+        "category": "structural",
+        "mass": 380,
+        "position": [
+          0.0,
+          0,
+          -0.55
+        ],
+        "markers": {
+          "wheel_center_a1l": {
+            "position": [
+              0.0,
+              -0.975,
+              -0.55
+            ]
+          },
+          "lower_rod_end_a1l": {
+            "position": [
+              0.0,
+              -0.45,
+              -0.43
+            ]
+          },
+          "upper_rod_end_a1l": {
+            "position": [
+              0.0,
+              -0.25,
+              -0.8
+            ]
+          },
+          "steering_tie_rod_end_a1l": {
+            "position": [
+              -0.2,
+              -0.8,
+              -0.55
+            ]
+          },
+          "wheel_center_a1r": {
+            "position": [
+              0.0,
+              0.975,
+              -0.55
+            ]
+          },
+          "lower_rod_end_a1r": {
+            "position": [
+              0.0,
+              0.45,
+              -0.43
+            ]
+          },
+          "upper_rod_end_a1r": {
+            "position": [
+              0.0,
+              0.25,
+              -0.8
+            ]
+          },
+          "steering_tie_rod_end_a1r": {
+            "position": [
+              -0.2,
+              0.8,
+              -0.55
+            ]
+          }
+        },
+        "x_legacy_axle_body": {
+          "portal_drop": 0.14,
+          "hub_reduction_ratio": 1.95
+        },
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a1l",
+        "name": "Wheel A1L",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 180,
+        "position": [
+          0.0,
+          -0.975,
+          -0.55
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "lower_torque_rod_a1l",
+        "name": "Lower Torque Rod A1L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.31,
+          -0.45,
+          -0.46499999999999997
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "upper_torque_rod_a1l",
+        "name": "Upper Torque Rod A1L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.275,
+          -0.185,
+          -0.8500000000000001
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a1r",
+        "name": "Wheel A1R",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 180,
+        "position": [
+          0.0,
+          0.975,
+          -0.55
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "lower_torque_rod_a1r",
+        "name": "Lower Torque Rod A1R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.31,
+          0.45,
+          -0.46499999999999997
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "upper_torque_rod_a1r",
+        "name": "Upper Torque Rod A1R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.275,
+          0.185,
+          -0.8500000000000001
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "a2_housing",
+        "name": "Axle body A2_housing",
+        "description": "Beam axle, housing or de Dion tube",
+        "category": "structural",
+        "mass": 380,
+        "position": [
+          -3.0,
+          0,
+          -0.55
+        ],
+        "markers": {
+          "wheel_center_a2l": {
+            "position": [
+              -3.0,
+              -0.975,
+              -0.55
+            ]
+          },
+          "lower_rod_end_a2l": {
+            "position": [
+              -3.0,
+              -0.45,
+              -0.43
+            ]
+          },
+          "upper_rod_end_a2l": {
+            "position": [
+              -3.0,
+              -0.25,
+              -0.8
+            ]
+          },
+          "wheel_center_a2r": {
+            "position": [
+              -3.0,
+              0.975,
+              -0.55
+            ]
+          },
+          "lower_rod_end_a2r": {
+            "position": [
+              -3.0,
+              0.45,
+              -0.43
+            ]
+          },
+          "upper_rod_end_a2r": {
+            "position": [
+              -3.0,
+              0.25,
+              -0.8
+            ]
+          }
+        },
+        "x_legacy_axle_body": {
+          "portal_drop": 0.14,
+          "hub_reduction_ratio": 1.95
+        },
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a2l",
+        "name": "Wheel A2L",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 180,
+        "position": [
+          -3.0,
+          -0.975,
+          -0.55
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "lower_torque_rod_a2l",
+        "name": "Lower Torque Rod A2L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -2.69,
+          -0.45,
+          -0.46499999999999997
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "upper_torque_rod_a2l",
+        "name": "Upper Torque Rod A2L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -2.725,
+          -0.185,
+          -0.8500000000000001
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a2r",
+        "name": "Wheel A2R",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 180,
+        "position": [
+          -3.0,
+          0.975,
+          -0.55
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "lower_torque_rod_a2r",
+        "name": "Lower Torque Rod A2R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -2.69,
+          0.45,
+          -0.46499999999999997
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "upper_torque_rod_a2r",
+        "name": "Upper Torque Rod A2R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -2.725,
+          0.185,
+          -0.8500000000000001
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "a3_housing",
+        "name": "Axle body A3_housing",
+        "description": "Beam axle, housing or de Dion tube",
+        "category": "structural",
+        "mass": 380,
+        "position": [
+          -4.3,
+          0,
+          -0.55
+        ],
+        "markers": {
+          "wheel_center_a3l": {
+            "position": [
+              -4.3,
+              -0.975,
+              -0.55
+            ]
+          },
+          "lower_rod_end_a3l": {
+            "position": [
+              -4.3,
+              -0.45,
+              -0.43
+            ]
+          },
+          "upper_rod_end_a3l": {
+            "position": [
+              -4.3,
+              -0.25,
+              -0.8
+            ]
+          },
+          "wheel_center_a3r": {
+            "position": [
+              -4.3,
+              0.975,
+              -0.55
+            ]
+          },
+          "lower_rod_end_a3r": {
+            "position": [
+              -4.3,
+              0.45,
+              -0.43
+            ]
+          },
+          "upper_rod_end_a3r": {
+            "position": [
+              -4.3,
+              0.25,
+              -0.8
+            ]
+          }
+        },
+        "x_legacy_axle_body": {
+          "portal_drop": 0.14,
+          "hub_reduction_ratio": 1.95
+        },
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a3l",
+        "name": "Wheel A3L",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 180,
+        "position": [
+          -4.3,
+          -0.975,
+          -0.55
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "lower_torque_rod_a3l",
+        "name": "Lower Torque Rod A3L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -3.99,
+          -0.45,
+          -0.46499999999999997
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "upper_torque_rod_a3l",
+        "name": "Upper Torque Rod A3L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -4.025,
+          -0.185,
+          -0.8500000000000001
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a3r",
+        "name": "Wheel A3R",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 180,
+        "position": [
+          -4.3,
+          0.975,
+          -0.55
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "lower_torque_rod_a3r",
+        "name": "Lower Torque Rod A3R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -3.99,
+          0.45,
+          -0.46499999999999997
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "upper_torque_rod_a3r",
+        "name": "Upper Torque Rod A3R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -4.025,
+          0.185,
+          -0.8500000000000001
+        ],
+        "x_derived": true
+      }
+    ]
   },
   "steering": {
     "type": "recirculating_ball",
@@ -52,522 +473,6 @@
     "axle_ref": "A1",
     "power_assist": {
       "type": "hydraulic"
-    }
-  },
-  "suspension": {
-    "A1L": {
-      "topology": {
-        "system_type": "solid_axle",
-        "lateral_location": "torque_rods",
-        "upright": {
-          "id": "hub_A1L",
-          "hardpoints": {
-            "wheel_center": [
-              0.0,
-              -0.975,
-              -0.55
-            ],
-            "lower_rod_end": [
-              0.0,
-              -0.45,
-              -0.43
-            ],
-            "upper_rod_end": [
-              0.0,
-              -0.25,
-              -0.8
-            ],
-            "steering_tie_rod_end": [
-              -0.2,
-              -0.8,
-              -0.55
-            ]
-          }
-        },
-        "links": [
-          {
-            "name": "lower_torque_rod",
-            "type": "torque_rod",
-            "inboard_points": [
-              [
-                0.62,
-                -0.45,
-                -0.5
-              ]
-            ],
-            "outboard_ref": "hardpoints.lower_rod_end"
-          },
-          {
-            "name": "upper_torque_rod",
-            "type": "torque_rod",
-            "inboard_points": [
-              [
-                0.55,
-                -0.12,
-                -0.9
-              ]
-            ],
-            "outboard_ref": "hardpoints.upper_rod_end"
-          }
-        ],
-        "axle_body": {
-          "id": "A1_housing",
-          "mass": 380,
-          "position": [
-            0.0,
-            0,
-            -0.55
-          ],
-          "portal_drop": 0.14,
-          "hub_reduction_ratio": 1.95
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.508,
-        "rim_width": 0.305,
-        "mass": 180,
-        "set_ref": "offroad_365_80r20"
-      },
-      "spring": {
-        "type": "hydropneumatic",
-        "rate": 150000,
-        "hydropneumatic": {
-          "gas_precharge_pressure": 3000000.0,
-          "gas_volume": 0.0018,
-          "polytropic_index": 1.3,
-          "piston_area": 0.005,
-          "rod_area": 0.002,
-          "static_pressure": 6500000.0
-        }
-      },
-      "damper": {
-        "type": "hydraulic_strut"
-      }
-    },
-    "A1R": {
-      "topology": {
-        "system_type": "solid_axle",
-        "lateral_location": "torque_rods",
-        "upright": {
-          "id": "hub_A1R",
-          "hardpoints": {
-            "wheel_center": [
-              0.0,
-              0.975,
-              -0.55
-            ],
-            "lower_rod_end": [
-              0.0,
-              0.45,
-              -0.43
-            ],
-            "upper_rod_end": [
-              0.0,
-              0.25,
-              -0.8
-            ],
-            "steering_tie_rod_end": [
-              -0.2,
-              0.8,
-              -0.55
-            ]
-          }
-        },
-        "links": [
-          {
-            "name": "lower_torque_rod",
-            "type": "torque_rod",
-            "inboard_points": [
-              [
-                0.62,
-                0.45,
-                -0.5
-              ]
-            ],
-            "outboard_ref": "hardpoints.lower_rod_end"
-          },
-          {
-            "name": "upper_torque_rod",
-            "type": "torque_rod",
-            "inboard_points": [
-              [
-                0.55,
-                0.12,
-                -0.9
-              ]
-            ],
-            "outboard_ref": "hardpoints.upper_rod_end"
-          }
-        ],
-        "axle_body": {
-          "id": "A1_housing",
-          "mass": 380,
-          "position": [
-            0.0,
-            0,
-            -0.55
-          ],
-          "portal_drop": 0.14,
-          "hub_reduction_ratio": 1.95
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.508,
-        "rim_width": 0.305,
-        "mass": 180,
-        "set_ref": "offroad_365_80r20"
-      },
-      "spring": {
-        "type": "hydropneumatic",
-        "rate": 150000,
-        "hydropneumatic": {
-          "gas_precharge_pressure": 3000000.0,
-          "gas_volume": 0.0018,
-          "polytropic_index": 1.3,
-          "piston_area": 0.005,
-          "rod_area": 0.002,
-          "static_pressure": 6500000.0
-        }
-      },
-      "damper": {
-        "type": "hydraulic_strut"
-      }
-    },
-    "A2L": {
-      "topology": {
-        "system_type": "solid_axle",
-        "lateral_location": "torque_rods",
-        "upright": {
-          "id": "hub_A2L",
-          "hardpoints": {
-            "wheel_center": [
-              -3.0,
-              -0.975,
-              -0.55
-            ],
-            "lower_rod_end": [
-              -3.0,
-              -0.45,
-              -0.43
-            ],
-            "upper_rod_end": [
-              -3.0,
-              -0.25,
-              -0.8
-            ]
-          }
-        },
-        "links": [
-          {
-            "name": "lower_torque_rod",
-            "type": "torque_rod",
-            "inboard_points": [
-              [
-                -2.38,
-                -0.45,
-                -0.5
-              ]
-            ],
-            "outboard_ref": "hardpoints.lower_rod_end"
-          },
-          {
-            "name": "upper_torque_rod",
-            "type": "torque_rod",
-            "inboard_points": [
-              [
-                -2.45,
-                -0.12,
-                -0.9
-              ]
-            ],
-            "outboard_ref": "hardpoints.upper_rod_end"
-          }
-        ],
-        "axle_body": {
-          "id": "A2_housing",
-          "mass": 380,
-          "position": [
-            -3.0,
-            0,
-            -0.55
-          ],
-          "portal_drop": 0.14,
-          "hub_reduction_ratio": 1.95
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.508,
-        "rim_width": 0.305,
-        "mass": 180,
-        "set_ref": "offroad_365_80r20"
-      },
-      "spring": {
-        "type": "hydropneumatic",
-        "rate": 150000,
-        "hydropneumatic": {
-          "gas_precharge_pressure": 3000000.0,
-          "gas_volume": 0.0018,
-          "polytropic_index": 1.3,
-          "piston_area": 0.005,
-          "rod_area": 0.002,
-          "static_pressure": 6500000.0
-        }
-      },
-      "damper": {
-        "type": "hydraulic_strut"
-      }
-    },
-    "A2R": {
-      "topology": {
-        "system_type": "solid_axle",
-        "lateral_location": "torque_rods",
-        "upright": {
-          "id": "hub_A2R",
-          "hardpoints": {
-            "wheel_center": [
-              -3.0,
-              0.975,
-              -0.55
-            ],
-            "lower_rod_end": [
-              -3.0,
-              0.45,
-              -0.43
-            ],
-            "upper_rod_end": [
-              -3.0,
-              0.25,
-              -0.8
-            ]
-          }
-        },
-        "links": [
-          {
-            "name": "lower_torque_rod",
-            "type": "torque_rod",
-            "inboard_points": [
-              [
-                -2.38,
-                0.45,
-                -0.5
-              ]
-            ],
-            "outboard_ref": "hardpoints.lower_rod_end"
-          },
-          {
-            "name": "upper_torque_rod",
-            "type": "torque_rod",
-            "inboard_points": [
-              [
-                -2.45,
-                0.12,
-                -0.9
-              ]
-            ],
-            "outboard_ref": "hardpoints.upper_rod_end"
-          }
-        ],
-        "axle_body": {
-          "id": "A2_housing",
-          "mass": 380,
-          "position": [
-            -3.0,
-            0,
-            -0.55
-          ],
-          "portal_drop": 0.14,
-          "hub_reduction_ratio": 1.95
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.508,
-        "rim_width": 0.305,
-        "mass": 180,
-        "set_ref": "offroad_365_80r20"
-      },
-      "spring": {
-        "type": "hydropneumatic",
-        "rate": 150000,
-        "hydropneumatic": {
-          "gas_precharge_pressure": 3000000.0,
-          "gas_volume": 0.0018,
-          "polytropic_index": 1.3,
-          "piston_area": 0.005,
-          "rod_area": 0.002,
-          "static_pressure": 6500000.0
-        }
-      },
-      "damper": {
-        "type": "hydraulic_strut"
-      }
-    },
-    "A3L": {
-      "topology": {
-        "system_type": "solid_axle",
-        "lateral_location": "torque_rods",
-        "upright": {
-          "id": "hub_A3L",
-          "hardpoints": {
-            "wheel_center": [
-              -4.3,
-              -0.975,
-              -0.55
-            ],
-            "lower_rod_end": [
-              -4.3,
-              -0.45,
-              -0.43
-            ],
-            "upper_rod_end": [
-              -4.3,
-              -0.25,
-              -0.8
-            ]
-          }
-        },
-        "links": [
-          {
-            "name": "lower_torque_rod",
-            "type": "torque_rod",
-            "inboard_points": [
-              [
-                -3.68,
-                -0.45,
-                -0.5
-              ]
-            ],
-            "outboard_ref": "hardpoints.lower_rod_end"
-          },
-          {
-            "name": "upper_torque_rod",
-            "type": "torque_rod",
-            "inboard_points": [
-              [
-                -3.75,
-                -0.12,
-                -0.9
-              ]
-            ],
-            "outboard_ref": "hardpoints.upper_rod_end"
-          }
-        ],
-        "axle_body": {
-          "id": "A3_housing",
-          "mass": 380,
-          "position": [
-            -4.3,
-            0,
-            -0.55
-          ],
-          "portal_drop": 0.14,
-          "hub_reduction_ratio": 1.95
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.508,
-        "rim_width": 0.305,
-        "mass": 180,
-        "set_ref": "offroad_365_80r20"
-      },
-      "spring": {
-        "type": "hydropneumatic",
-        "rate": 150000,
-        "hydropneumatic": {
-          "gas_precharge_pressure": 3000000.0,
-          "gas_volume": 0.0018,
-          "polytropic_index": 1.3,
-          "piston_area": 0.005,
-          "rod_area": 0.002,
-          "static_pressure": 6500000.0
-        }
-      },
-      "damper": {
-        "type": "hydraulic_strut"
-      }
-    },
-    "A3R": {
-      "topology": {
-        "system_type": "solid_axle",
-        "lateral_location": "torque_rods",
-        "upright": {
-          "id": "hub_A3R",
-          "hardpoints": {
-            "wheel_center": [
-              -4.3,
-              0.975,
-              -0.55
-            ],
-            "lower_rod_end": [
-              -4.3,
-              0.45,
-              -0.43
-            ],
-            "upper_rod_end": [
-              -4.3,
-              0.25,
-              -0.8
-            ]
-          }
-        },
-        "links": [
-          {
-            "name": "lower_torque_rod",
-            "type": "torque_rod",
-            "inboard_points": [
-              [
-                -3.68,
-                0.45,
-                -0.5
-              ]
-            ],
-            "outboard_ref": "hardpoints.lower_rod_end"
-          },
-          {
-            "name": "upper_torque_rod",
-            "type": "torque_rod",
-            "inboard_points": [
-              [
-                -3.75,
-                0.12,
-                -0.9
-              ]
-            ],
-            "outboard_ref": "hardpoints.upper_rod_end"
-          }
-        ],
-        "axle_body": {
-          "id": "A3_housing",
-          "mass": 380,
-          "position": [
-            -4.3,
-            0,
-            -0.55
-          ],
-          "portal_drop": 0.14,
-          "hub_reduction_ratio": 1.95
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.508,
-        "rim_width": 0.305,
-        "mass": 180,
-        "set_ref": "offroad_365_80r20"
-      },
-      "spring": {
-        "type": "hydropneumatic",
-        "rate": 150000,
-        "hydropneumatic": {
-          "gas_precharge_pressure": 3000000.0,
-          "gas_volume": 0.0018,
-          "polytropic_index": 1.3,
-          "piston_area": 0.005,
-          "rod_area": 0.002,
-          "static_pressure": 6500000.0
-        }
-      },
-      "damper": {
-        "type": "hydraulic_strut"
-      }
     }
   },
   "axles": [
@@ -701,5 +606,1395 @@
         "diff_ref": "diff_A3"
       }
     }
-  }
+  },
+  "constraints": [
+    {
+      "id": "hinge_wheel_a1l",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a1_housing",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.975,
+          -0.55
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a1l",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.975,
+          -0.55
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_torque_rod_a1l_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.62,
+          -0.45,
+          -0.5
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "lower_torque_rod_a1l",
+      "frame_b": {
+        "position": [
+          0.62,
+          -0.45,
+          -0.5
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_torque_rod_a1l_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "lower_torque_rod_a1l",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.45,
+          -0.43
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a1_housing",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.45,
+          -0.43
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_torque_rod_a1l_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.55,
+          -0.12,
+          -0.9
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upper_torque_rod_a1l",
+      "frame_b": {
+        "position": [
+          0.55,
+          -0.12,
+          -0.9
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_torque_rod_a1l_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "upper_torque_rod_a1l",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.25,
+          -0.8
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a1_housing",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.25,
+          -0.8
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a1l",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.975,
+          -0.85
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a1_housing",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.975,
+          -0.55
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "hydropneumatic",
+      "hydropneumatic": {
+        "gas_precharge_pressure": 3000000.0,
+        "gas_volume": 0.0018,
+        "polytropic_index": 1.3,
+        "piston_area": 0.005,
+        "rod_area": 0.002,
+        "static_pressure": 6500000.0
+      },
+      "rate": 150000.0,
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a1r",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a1_housing",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.975,
+          -0.55
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a1r",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.975,
+          -0.55
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_torque_rod_a1r_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.62,
+          0.45,
+          -0.5
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "lower_torque_rod_a1r",
+      "frame_b": {
+        "position": [
+          0.62,
+          0.45,
+          -0.5
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_torque_rod_a1r_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "lower_torque_rod_a1r",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.45,
+          -0.43
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a1_housing",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.45,
+          -0.43
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_torque_rod_a1r_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.55,
+          0.12,
+          -0.9
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upper_torque_rod_a1r",
+      "frame_b": {
+        "position": [
+          0.55,
+          0.12,
+          -0.9
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_torque_rod_a1r_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "upper_torque_rod_a1r",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.25,
+          -0.8
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a1_housing",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.25,
+          -0.8
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a1r",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.975,
+          -0.85
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a1_housing",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.975,
+          -0.55
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "hydropneumatic",
+      "hydropneumatic": {
+        "gas_precharge_pressure": 3000000.0,
+        "gas_volume": 0.0018,
+        "polytropic_index": 1.3,
+        "piston_area": 0.005,
+        "rod_area": 0.002,
+        "static_pressure": 6500000.0
+      },
+      "rate": 150000.0,
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a2l",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a2_housing",
+      "frame_a": {
+        "position": [
+          -3.0,
+          -0.975,
+          -0.55
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a2l",
+      "frame_b": {
+        "position": [
+          -3.0,
+          -0.975,
+          -0.55
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_torque_rod_a2l_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.38,
+          -0.45,
+          -0.5
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "lower_torque_rod_a2l",
+      "frame_b": {
+        "position": [
+          -2.38,
+          -0.45,
+          -0.5
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_torque_rod_a2l_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "lower_torque_rod_a2l",
+      "frame_a": {
+        "position": [
+          -3.0,
+          -0.45,
+          -0.43
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a2_housing",
+      "frame_b": {
+        "position": [
+          -3.0,
+          -0.45,
+          -0.43
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_torque_rod_a2l_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.45,
+          -0.12,
+          -0.9
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upper_torque_rod_a2l",
+      "frame_b": {
+        "position": [
+          -2.45,
+          -0.12,
+          -0.9
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_torque_rod_a2l_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "upper_torque_rod_a2l",
+      "frame_a": {
+        "position": [
+          -3.0,
+          -0.25,
+          -0.8
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a2_housing",
+      "frame_b": {
+        "position": [
+          -3.0,
+          -0.25,
+          -0.8
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a2l",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -3.0,
+          -0.975,
+          -0.85
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a2_housing",
+      "frame_b": {
+        "position": [
+          -3.0,
+          -0.975,
+          -0.55
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "hydropneumatic",
+      "hydropneumatic": {
+        "gas_precharge_pressure": 3000000.0,
+        "gas_volume": 0.0018,
+        "polytropic_index": 1.3,
+        "piston_area": 0.005,
+        "rod_area": 0.002,
+        "static_pressure": 6500000.0
+      },
+      "rate": 150000.0,
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a2r",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a2_housing",
+      "frame_a": {
+        "position": [
+          -3.0,
+          0.975,
+          -0.55
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a2r",
+      "frame_b": {
+        "position": [
+          -3.0,
+          0.975,
+          -0.55
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_torque_rod_a2r_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.38,
+          0.45,
+          -0.5
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "lower_torque_rod_a2r",
+      "frame_b": {
+        "position": [
+          -2.38,
+          0.45,
+          -0.5
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_torque_rod_a2r_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "lower_torque_rod_a2r",
+      "frame_a": {
+        "position": [
+          -3.0,
+          0.45,
+          -0.43
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a2_housing",
+      "frame_b": {
+        "position": [
+          -3.0,
+          0.45,
+          -0.43
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_torque_rod_a2r_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.45,
+          0.12,
+          -0.9
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upper_torque_rod_a2r",
+      "frame_b": {
+        "position": [
+          -2.45,
+          0.12,
+          -0.9
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_torque_rod_a2r_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "upper_torque_rod_a2r",
+      "frame_a": {
+        "position": [
+          -3.0,
+          0.25,
+          -0.8
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a2_housing",
+      "frame_b": {
+        "position": [
+          -3.0,
+          0.25,
+          -0.8
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a2r",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -3.0,
+          0.975,
+          -0.85
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a2_housing",
+      "frame_b": {
+        "position": [
+          -3.0,
+          0.975,
+          -0.55
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "hydropneumatic",
+      "hydropneumatic": {
+        "gas_precharge_pressure": 3000000.0,
+        "gas_volume": 0.0018,
+        "polytropic_index": 1.3,
+        "piston_area": 0.005,
+        "rod_area": 0.002,
+        "static_pressure": 6500000.0
+      },
+      "rate": 150000.0,
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a3l",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a3_housing",
+      "frame_a": {
+        "position": [
+          -4.3,
+          -0.975,
+          -0.55
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a3l",
+      "frame_b": {
+        "position": [
+          -4.3,
+          -0.975,
+          -0.55
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_torque_rod_a3l_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -3.68,
+          -0.45,
+          -0.5
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "lower_torque_rod_a3l",
+      "frame_b": {
+        "position": [
+          -3.68,
+          -0.45,
+          -0.5
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_torque_rod_a3l_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "lower_torque_rod_a3l",
+      "frame_a": {
+        "position": [
+          -4.3,
+          -0.45,
+          -0.43
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a3_housing",
+      "frame_b": {
+        "position": [
+          -4.3,
+          -0.45,
+          -0.43
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_torque_rod_a3l_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -3.75,
+          -0.12,
+          -0.9
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upper_torque_rod_a3l",
+      "frame_b": {
+        "position": [
+          -3.75,
+          -0.12,
+          -0.9
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_torque_rod_a3l_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "upper_torque_rod_a3l",
+      "frame_a": {
+        "position": [
+          -4.3,
+          -0.25,
+          -0.8
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a3_housing",
+      "frame_b": {
+        "position": [
+          -4.3,
+          -0.25,
+          -0.8
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a3l",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -4.3,
+          -0.975,
+          -0.85
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a3_housing",
+      "frame_b": {
+        "position": [
+          -4.3,
+          -0.975,
+          -0.55
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "hydropneumatic",
+      "hydropneumatic": {
+        "gas_precharge_pressure": 3000000.0,
+        "gas_volume": 0.0018,
+        "polytropic_index": 1.3,
+        "piston_area": 0.005,
+        "rod_area": 0.002,
+        "static_pressure": 6500000.0
+      },
+      "rate": 150000.0,
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a3r",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a3_housing",
+      "frame_a": {
+        "position": [
+          -4.3,
+          0.975,
+          -0.55
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a3r",
+      "frame_b": {
+        "position": [
+          -4.3,
+          0.975,
+          -0.55
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_torque_rod_a3r_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -3.68,
+          0.45,
+          -0.5
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "lower_torque_rod_a3r",
+      "frame_b": {
+        "position": [
+          -3.68,
+          0.45,
+          -0.5
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_torque_rod_a3r_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "lower_torque_rod_a3r",
+      "frame_a": {
+        "position": [
+          -4.3,
+          0.45,
+          -0.43
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a3_housing",
+      "frame_b": {
+        "position": [
+          -4.3,
+          0.45,
+          -0.43
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_torque_rod_a3r_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -3.75,
+          0.12,
+          -0.9
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upper_torque_rod_a3r",
+      "frame_b": {
+        "position": [
+          -3.75,
+          0.12,
+          -0.9
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_torque_rod_a3r_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "upper_torque_rod_a3r",
+      "frame_a": {
+        "position": [
+          -4.3,
+          0.25,
+          -0.8
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a3_housing",
+      "frame_b": {
+        "position": [
+          -4.3,
+          0.25,
+          -0.8
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a3r",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -4.3,
+          0.975,
+          -0.85
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a3_housing",
+      "frame_b": {
+        "position": [
+          -4.3,
+          0.975,
+          -0.55
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "hydropneumatic",
+      "hydropneumatic": {
+        "gas_precharge_pressure": 3000000.0,
+        "gas_volume": 0.0018,
+        "polytropic_index": 1.3,
+        "piston_area": 0.005,
+        "rod_area": 0.002,
+        "static_pressure": 6500000.0
+      },
+      "rate": 150000.0,
+      "x_derived": true
+    }
+  ],
+  "wheel_stations": [
+    {
+      "id": "A1L",
+      "name": "A1L",
+      "wheel_body": "wheel_a1l",
+      "upright_body": "a1_housing",
+      "wheel_center_marker": "wheel_center_a1l",
+      "axle": "A1",
+      "side": "L",
+      "topology_hint": "solid_axle",
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.305,
+        "mass": 180,
+        "set_ref": "offroad_365_80r20"
+      },
+      "x_lateral_location": "torque_rods"
+    },
+    {
+      "id": "A1R",
+      "name": "A1R",
+      "wheel_body": "wheel_a1r",
+      "upright_body": "a1_housing",
+      "wheel_center_marker": "wheel_center_a1r",
+      "axle": "A1",
+      "side": "R",
+      "topology_hint": "solid_axle",
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.305,
+        "mass": 180,
+        "set_ref": "offroad_365_80r20"
+      },
+      "x_lateral_location": "torque_rods"
+    },
+    {
+      "id": "A2L",
+      "name": "A2L",
+      "wheel_body": "wheel_a2l",
+      "upright_body": "a2_housing",
+      "wheel_center_marker": "wheel_center_a2l",
+      "axle": "A2",
+      "side": "L",
+      "topology_hint": "solid_axle",
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.305,
+        "mass": 180,
+        "set_ref": "offroad_365_80r20"
+      },
+      "x_lateral_location": "torque_rods"
+    },
+    {
+      "id": "A2R",
+      "name": "A2R",
+      "wheel_body": "wheel_a2r",
+      "upright_body": "a2_housing",
+      "wheel_center_marker": "wheel_center_a2r",
+      "axle": "A2",
+      "side": "R",
+      "topology_hint": "solid_axle",
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.305,
+        "mass": 180,
+        "set_ref": "offroad_365_80r20"
+      },
+      "x_lateral_location": "torque_rods"
+    },
+    {
+      "id": "A3L",
+      "name": "A3L",
+      "wheel_body": "wheel_a3l",
+      "upright_body": "a3_housing",
+      "wheel_center_marker": "wheel_center_a3l",
+      "axle": "A3",
+      "side": "L",
+      "topology_hint": "solid_axle",
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.305,
+        "mass": 180,
+        "set_ref": "offroad_365_80r20"
+      },
+      "x_lateral_location": "torque_rods"
+    },
+    {
+      "id": "A3R",
+      "name": "A3R",
+      "wheel_body": "wheel_a3r",
+      "upright_body": "a3_housing",
+      "wheel_center_marker": "wheel_center_a3r",
+      "axle": "A3",
+      "side": "R",
+      "topology_hint": "solid_axle",
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.305,
+        "mass": 180,
+        "set_ref": "offroad_365_80r20"
+      },
+      "x_lateral_location": "torque_rods"
+    }
+  ]
 }

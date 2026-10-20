@@ -41,9 +41,11 @@
             "0.99.4",
             "0.99.5",
             "0.99.6",
-            "0.99.7"
+            "0.99.7",
+            "0.99.8",
+            "0.100"
           ],
-          "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations). '0.99.1' adds axle_groups, plated masses and explicit wheelbase definitions. '0.99.2' extends the glTF visual binding layer: full category set, visual on links/steering/wheels/brakes/springs/dampers/aero, and the 'placement' field for parts defined by hardpoints. '0.99.3' adds differential control: lock_control (dynamic differential lock) and transfer_case.coupling (torque-limited centre coupling). '0.99.4' adds the strut_lower hardpoint convention for MacPherson/Chapman struts and damper.reference ('damper' or 'wheel'). '0.99.5' adds movable parts: constraints[] (joint, spring, actuator between mass bodies), poses[] and chassis.markers. '0.99.6' completes the constraint set: latch, coupling and joint.drive. '0.99.7' adds the optional display name on bodies, constraints and poses, and the naming vocabulary for movable parts."
+          "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations). '0.99.1' adds axle_groups, plated masses and explicit wheelbase definitions. '0.99.2' extends the glTF visual binding layer: full category set, visual on links/steering/wheels/brakes/springs/dampers/aero, and the 'placement' field for parts defined by hardpoints. '0.99.3' adds differential control: lock_control (dynamic differential lock) and transfer_case.coupling (torque-limited centre coupling). '0.99.4' adds the strut_lower hardpoint convention for MacPherson/Chapman struts and damper.reference ('damper' or 'wheel'). '0.99.5' adds movable parts: constraints[] (joint, spring, actuator between mass bodies), poses[] and chassis.markers. '0.99.6' completes the constraint set: latch, coupling and joint.drive. '0.99.7' adds the optional display name on bodies, constraints and poses, and the naming vocabulary for movable parts. '0.99.8' adds the contact constraint (primitives at markers with a penalty law). '0.100' unifies the suspension: wheel stations are bodies, joints and elements (spring, damper; linear or torsional) with a thin wheel_stations[] list and anti_roll_bars[]; the corner-based suspension section is deprecated."
         },
         "description": {
           "type": "string"
@@ -622,7 +624,7 @@
     },
     "suspension": {
       "type": "object",
-      "description": "Wheel stations keyed FL/FR/RL/RR (2-axle vehicles) or A{n}{L|R|C} (any axle count). The two forms must not be mixed.",
+      "description": "DEPRECATED since 0.100 (accepted for one more release; validators warn). Wheel stations keyed FL/FR/RL/RR or A{n}{L|R|C}. Use mass_bodies + constraints + wheel_stations instead (spec 25); tools/migrate_suspension.py converts a file.",
       "minProperties": 1,
       "patternProperties": {
         "^(FL|FR|RL|RR|A([1-9][0-9]?)(L|R|C))$": {
@@ -632,6 +634,21 @@
         "^_": {}
       },
       "additionalProperties": false
+    },
+    "wheel_stations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/wheel_station"
+      },
+      "description": "Wheel stations of the unified suspension model (spec 25)."
+    },
+    "anti_roll_bars": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/anti_roll_bar"
+      }
     },
     "axles": {
       "type": "array",
@@ -3296,7 +3313,8 @@
         },
         "mass": {
           "type": "number",
-          "exclusiveMinimum": 0
+          "minimum": 0,
+          "description": "Body mass (kg). Must be > 0 unless the body is generated (x_derived: true), where 0 means the source data gave no mass."
         },
         "position": {
           "$ref": "#/definitions/vec3"
@@ -3324,7 +3342,30 @@
           "$ref": "#/definitions/visual_binding",
           "description": "Optional glTF visual binding for this mass component."
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "not": {
+              "properties": {
+                "x_derived": {
+                  "const": true
+                }
+              },
+              "required": [
+                "x_derived"
+              ]
+            }
+          },
+          "then": {
+            "properties": {
+              "mass": {
+                "exclusiveMinimum": 0
+              }
+            }
+          }
+        }
+      ]
     },
     "tire_set": {
       "type": "object",
@@ -5399,7 +5440,9 @@
             "spring",
             "actuator",
             "latch",
-            "coupling"
+            "coupling",
+            "contact",
+            "damper"
           ]
         },
         "description": {
@@ -5517,14 +5560,15 @@
         "rate": {
           "type": "number",
           "exclusiveMinimum": 0,
-          "description": "Spring rate (N/m)."
+          "description": "spring: rate (N/m for a linear spring, N*m/rad for a torsional one)."
         },
         "rate_curve": {
           "$ref": "#/definitions/curve2d"
         },
         "free_length": {
           "type": "number",
-          "exclusiveMinimum": 0
+          "exclusiveMinimum": 0,
+          "description": "linear spring: length at zero force (m)."
         },
         "preload": {
           "type": "number",
@@ -5666,6 +5710,90 @@
           "minimum": 0,
           "maximum": 2,
           "default": 0
+        },
+        "shape_a": {
+          "$ref": "#/definitions/contact_shape"
+        },
+        "shape_b": {
+          "$ref": "#/definitions/contact_shape"
+        },
+        "law": {
+          "type": "object",
+          "required": [
+            "stiffness"
+          ],
+          "additionalProperties": true,
+          "properties": {
+            "gap": {
+              "type": "number",
+              "default": 0,
+              "description": "Signed distance between the two shapes at the reference pose (m): > 0 clearance, 0 touching, < 0 pre-compressed."
+            },
+            "stiffness": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Normal stiffness (N/m)."
+            },
+            "damping": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Normal damping (N*s/m)."
+            },
+            "friction": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Coulomb friction coefficient (dimensionless)."
+            },
+            "restitution": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "description": "contact: one-sided penalty law between the two shapes. Contact with the ground or soil is not described here."
+        },
+        "reference": {
+          "type": "string",
+          "enum": [
+            "element",
+            "wheel"
+          ],
+          "default": "element",
+          "description": "spring / damper: where the rate or the curves are defined. 'element' (default): along the element itself, between its two frames. 'wheel': at the wheel, per metre of wheel travel; the element then stands for a vertical wheel-level spring or damper and its frames are nominal (chassis above the wheel centre, wheel carrier at the wheel centre). A converter without suspension geometry says 'wheel'."
+        },
+        "spring_type": {
+          "type": "string",
+          "description": "spring: informational kind (coil, coilover, torsion_bar, leaf, air, rubber_torsion, rubber_block, hydropneumatic, hydraulic, none)."
+        },
+        "mass": {
+          "type": "number",
+          "minimum": 0,
+          "description": "spring / damper: element mass (kg), informational."
+        },
+        "bump_curve": {
+          "$ref": "#/definitions/curve2d",
+          "description": "damper: [[velocity m/s, force N], ...] in compression (velocity along the element, or at the wheel when reference is 'wheel')."
+        },
+        "rebound_curve": {
+          "$ref": "#/definitions/curve2d",
+          "description": "damper: [[velocity m/s, force N], ...] in extension."
+        },
+        "free_angle": {
+          "type": "number",
+          "description": "torsional spring: angle at zero torque (rad)."
+        },
+        "visual": {
+          "$ref": "#/definitions/visual_binding",
+          "description": "Optional glTF binding for a spring or damper (spec 22)."
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "linear",
+            "torsional"
+          ],
+          "default": "linear",
+          "description": "spring / damper: 'linear' acts along the line between its two frames (N/m, N, m); 'torsional' acts about the +Z axis shared by its two frames (N*m/rad, N*m, rad, rad/s): a torsion bar, an anti-roll bar half, a twist beam, a rotary damper."
         }
       },
       "allOf": [
@@ -5676,7 +5804,9 @@
                 "enum": [
                   "joint",
                   "spring",
-                  "actuator"
+                  "actuator",
+                  "contact",
+                  "damper"
                 ]
               }
             },
@@ -5743,6 +5873,15 @@
             "properties": {
               "type": {
                 "const": "spring"
+              },
+              "spring_type": {
+                "not": {
+                  "enum": [
+                    "hydropneumatic",
+                    "hydraulic",
+                    "none"
+                  ]
+                }
               }
             },
             "required": [
@@ -5817,6 +5956,52 @@
               "joint_a",
               "joint_b",
               "ratio"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "contact"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "shape_a",
+              "shape_b",
+              "law"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "damper"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "anyOf": [
+              {
+                "required": [
+                  "bump_curve",
+                  "rebound_curve"
+                ]
+              },
+              {
+                "required": [
+                  "damping"
+                ]
+              }
             ]
           }
         }
@@ -5910,6 +6095,185 @@
           }
         }
       ]
+    },
+    "contact_shape": {
+      "description": "A contact primitive attached to a constraint frame. The shape is centred on the frame origin and its axes are the frame axes; a plane has its normal along +Z (the free side is +Z), a cylinder its axis along Z.",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "point",
+            "plane",
+            "sphere",
+            "box",
+            "cylinder"
+          ]
+        },
+        "radius": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "sphere and cylinder (m)."
+        },
+        "length": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "cylinder, along its axis (m)."
+        },
+        "size": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "minItems": 3,
+          "maxItems": 3,
+          "description": "box: full lengths along the frame X, Y, Z (m)."
+        }
+      }
+    },
+    "wheel_station": {
+      "description": "The non-mechanical data of one wheel station (spec 25): which bodies are its wheel and wheel carrier, the wheel and tyre, brake and reference alignment. The mechanism itself (links, joints, springs, dampers) is in mass_bodies and constraints.",
+      "type": "object",
+      "required": [
+        "id",
+        "wheel_body"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^(FL|FR|RL|RR|A([1-9][0-9]?)(L|R|C))$",
+          "description": "Station name as in spec 23.1; also the key of mass_unsprung_per_corner."
+        },
+        "name": {
+          "type": "string"
+        },
+        "axle": {
+          "type": "string",
+          "pattern": "^A([1-9][0-9]?)$"
+        },
+        "side": {
+          "type": "string",
+          "enum": [
+            "L",
+            "R",
+            "C"
+          ]
+        },
+        "wheel_body": {
+          "type": "string",
+          "description": "mass_bodies id of the rotating wheel (rim + tyre)."
+        },
+        "upright_body": {
+          "type": "string",
+          "description": "mass_bodies id of the wheel carrier (upright, hub carrier or axle body) the wheel is hinged to."
+        },
+        "wheel_center_marker": {
+          "type": "string",
+          "default": "wheel_center",
+          "description": "Name of the marker on upright_body at the wheel centre: where an analysis reads wheel travel, camber and toe."
+        },
+        "steering_joint": {
+          "type": "string",
+          "description": "id of the joint the steering drives for this station (the rack slide of a rack-and-pinion system); absent when the station is not steered."
+        },
+        "coupling_ref": {
+          "type": "string",
+          "description": "id of the suspension_couplings entry that springs this station when it has no spring element of its own."
+        },
+        "topology_hint": {
+          "type": "string",
+          "description": "Optional descriptive label (double_wishbone, macpherson, solid_axle, ...). Nothing is derived from it."
+        },
+        "wheel": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Rim and wheel data (rim_diameter, rim_width, rim_offset, loaded_radius, multiplicity, positions, ...)."
+        },
+        "tire": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Tyre set reference and per-station overrides."
+        },
+        "brake": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "alignment": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Declared reference alignment (camber, toe, caster, caster_trail, kpi, scrub_radius). It follows from the geometry; a tool can compute and compare it."
+        },
+        "static_setup": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "compliance_summary": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "visual": {
+          "$ref": "#/definitions/visual_binding"
+        }
+      },
+      "patternProperties": {
+        "^(x_|_)": {}
+      }
+    },
+    "anti_roll_bar": {
+      "description": "An anti-roll bar shared by the stations of an axle, as data: the bar itself is not modelled as bodies until its geometry is known (then use two bar-half bodies and a torsional spring).",
+      "type": "object",
+      "required": [
+        "id",
+        "bar_rate"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "stations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 2,
+          "description": "Wheel station ids the bar connects."
+        },
+        "bar_rate": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Torsional stiffness of the bar (N*m/rad)."
+        },
+        "wheel_rate_equiv": {
+          "type": "number",
+          "description": "Equivalent wheel rate contribution (N/m)."
+        },
+        "motion_ratio": {
+          "type": "number",
+          "description": "Bar arm displacement / wheel displacement."
+        },
+        "mass": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Full bar mass (kg)."
+        },
+        "drop_link_mounts": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/vec3"
+          },
+          "description": "station id -> drop link attachment point."
+        }
+      },
+      "patternProperties": {
+        "^(x_|_)": {}
+      }
     }
   }
 }

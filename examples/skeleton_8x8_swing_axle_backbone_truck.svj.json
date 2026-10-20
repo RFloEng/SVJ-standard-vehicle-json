@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99.4",
+    "version": "0.100",
     "description": "8x8 off-road truck skeleton in the backbone-tube layout: swing half-axles on every station, two mechanically linked steered front axles, rear tandem half-axles sharing one longitudinal leaf spring per side.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
@@ -39,7 +39,469 @@
       "A3R": 850,
       "A4L": 850,
       "A4R": 850
-    }
+    },
+    "mass_bodies": [
+      {
+        "id": "hub_a1l",
+        "name": "Hub A1L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.0,
+          -1.015,
+          -0.62
+        ],
+        "markers": {
+          "wheel_center": {
+            "position": [
+              0.0,
+              -1.015,
+              -0.62
+            ]
+          },
+          "damper_outboard": {
+            "position": [
+              0.0,
+              -0.72,
+              -0.67
+            ]
+          },
+          "steering_tie_rod_end": {
+            "position": [
+              -0.2,
+              -0.835,
+              -0.57
+            ]
+          }
+        },
+        "description": "Rotating hub",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a1l",
+        "name": "Wheel A1L",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 260,
+        "position": [
+          0.0,
+          -1.015,
+          -0.62
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "swing_arm_a1l",
+        "name": "Swing Arm A1L",
+        "category": "structural",
+        "mass": 180,
+        "position": [
+          0.0,
+          -0.5674999999999999,
+          -0.62
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "hub_a1r",
+        "name": "Hub A1R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.0,
+          1.015,
+          -0.62
+        ],
+        "markers": {
+          "wheel_center": {
+            "position": [
+              0.0,
+              1.015,
+              -0.62
+            ]
+          },
+          "damper_outboard": {
+            "position": [
+              0.0,
+              0.72,
+              -0.67
+            ]
+          },
+          "steering_tie_rod_end": {
+            "position": [
+              -0.2,
+              0.835,
+              -0.57
+            ]
+          }
+        },
+        "description": "Rotating hub",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a1r",
+        "name": "Wheel A1R",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 260,
+        "position": [
+          0.0,
+          1.015,
+          -0.62
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "swing_arm_a1r",
+        "name": "Swing Arm A1R",
+        "category": "structural",
+        "mass": 180,
+        "position": [
+          0.0,
+          0.5674999999999999,
+          -0.62
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "hub_a2l",
+        "name": "Hub A2L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -1.65,
+          -1.015,
+          -0.62
+        ],
+        "markers": {
+          "wheel_center": {
+            "position": [
+              -1.65,
+              -1.015,
+              -0.62
+            ]
+          },
+          "damper_outboard": {
+            "position": [
+              -1.65,
+              -0.72,
+              -0.67
+            ]
+          },
+          "steering_tie_rod_end": {
+            "position": [
+              -1.85,
+              -0.835,
+              -0.57
+            ]
+          }
+        },
+        "description": "Rotating hub",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a2l",
+        "name": "Wheel A2L",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 260,
+        "position": [
+          -1.65,
+          -1.015,
+          -0.62
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "swing_arm_a2l",
+        "name": "Swing Arm A2L",
+        "category": "structural",
+        "mass": 180,
+        "position": [
+          -1.65,
+          -0.5674999999999999,
+          -0.62
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "hub_a2r",
+        "name": "Hub A2R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -1.65,
+          1.015,
+          -0.62
+        ],
+        "markers": {
+          "wheel_center": {
+            "position": [
+              -1.65,
+              1.015,
+              -0.62
+            ]
+          },
+          "damper_outboard": {
+            "position": [
+              -1.65,
+              0.72,
+              -0.67
+            ]
+          },
+          "steering_tie_rod_end": {
+            "position": [
+              -1.85,
+              0.835,
+              -0.57
+            ]
+          }
+        },
+        "description": "Rotating hub",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a2r",
+        "name": "Wheel A2R",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 260,
+        "position": [
+          -1.65,
+          1.015,
+          -0.62
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "swing_arm_a2r",
+        "name": "Swing Arm A2R",
+        "category": "structural",
+        "mass": 180,
+        "position": [
+          -1.65,
+          0.5674999999999999,
+          -0.62
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "hub_a3l",
+        "name": "Hub A3L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -4.1,
+          -1.015,
+          -0.62
+        ],
+        "markers": {
+          "wheel_center": {
+            "position": [
+              -4.1,
+              -1.015,
+              -0.62
+            ]
+          },
+          "damper_outboard": {
+            "position": [
+              -4.1,
+              -0.72,
+              -0.67
+            ]
+          }
+        },
+        "description": "Rotating hub",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a3l",
+        "name": "Wheel A3L",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 260,
+        "position": [
+          -4.1,
+          -1.015,
+          -0.62
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "swing_arm_a3l",
+        "name": "Swing Arm A3L",
+        "category": "structural",
+        "mass": 180,
+        "position": [
+          -4.1,
+          -0.5674999999999999,
+          -0.62
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "hub_a3r",
+        "name": "Hub A3R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -4.1,
+          1.015,
+          -0.62
+        ],
+        "markers": {
+          "wheel_center": {
+            "position": [
+              -4.1,
+              1.015,
+              -0.62
+            ]
+          },
+          "damper_outboard": {
+            "position": [
+              -4.1,
+              0.72,
+              -0.67
+            ]
+          }
+        },
+        "description": "Rotating hub",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a3r",
+        "name": "Wheel A3R",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 260,
+        "position": [
+          -4.1,
+          1.015,
+          -0.62
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "swing_arm_a3r",
+        "name": "Swing Arm A3R",
+        "category": "structural",
+        "mass": 180,
+        "position": [
+          -4.1,
+          0.5674999999999999,
+          -0.62
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "hub_a4l",
+        "name": "Hub A4L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -5.42,
+          -1.015,
+          -0.62
+        ],
+        "markers": {
+          "wheel_center": {
+            "position": [
+              -5.42,
+              -1.015,
+              -0.62
+            ]
+          },
+          "damper_outboard": {
+            "position": [
+              -5.42,
+              -0.72,
+              -0.67
+            ]
+          }
+        },
+        "description": "Rotating hub",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a4l",
+        "name": "Wheel A4L",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 260,
+        "position": [
+          -5.42,
+          -1.015,
+          -0.62
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "swing_arm_a4l",
+        "name": "Swing Arm A4L",
+        "category": "structural",
+        "mass": 180,
+        "position": [
+          -5.42,
+          -0.5674999999999999,
+          -0.62
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "hub_a4r",
+        "name": "Hub A4R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -5.42,
+          1.015,
+          -0.62
+        ],
+        "markers": {
+          "wheel_center": {
+            "position": [
+              -5.42,
+              1.015,
+              -0.62
+            ]
+          },
+          "damper_outboard": {
+            "position": [
+              -5.42,
+              0.72,
+              -0.67
+            ]
+          }
+        },
+        "description": "Rotating hub",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a4r",
+        "name": "Wheel A4R",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 260,
+        "position": [
+          -5.42,
+          1.015,
+          -0.62
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "swing_arm_a4r",
+        "name": "Swing Arm A4R",
+        "category": "structural",
+        "mass": 180,
+        "position": [
+          -5.42,
+          0.5674999999999999,
+          -0.62
+        ],
+        "x_derived": true
+      }
+    ]
   },
   "steering": {
     "type": "recirculating_ball",
@@ -70,680 +532,6 @@
         ]
       }
     ]
-  },
-  "suspension": {
-    "A1L": {
-      "topology": {
-        "system_type": "swing_axle",
-        "upright": {
-          "id": "hub_A1L",
-          "hardpoints": {
-            "wheel_center": [
-              0.0,
-              -1.015,
-              -0.62
-            ],
-            "damper_outboard": [
-              0.0,
-              -0.72,
-              -0.67
-            ],
-            "steering_tie_rod_end": [
-              -0.2,
-              -0.835,
-              -0.57
-            ]
-          }
-        },
-        "links": [
-          {
-            "name": "swing_arm",
-            "type": "arm",
-            "inboard_points": [
-              [
-                0.22,
-                -0.12,
-                -0.62
-              ],
-              [
-                -0.22,
-                -0.12,
-                -0.62
-              ]
-            ],
-            "outboard_ref": "hardpoints.wheel_center",
-            "mass": 180
-          }
-        ]
-      },
-      "wheel": {
-        "rim_diameter": 0.508,
-        "rim_width": 0.33,
-        "mass": 260,
-        "set_ref": "offroad_14_00r20"
-      },
-      "spring": {
-        "type": "torsion_bar",
-        "rate": 210000,
-        "torsional_rate": 240000
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            5000
-          ],
-          [
-            0.6,
-            16000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            10000
-          ],
-          [
-            0.6,
-            28000
-          ]
-        ]
-      }
-    },
-    "A1R": {
-      "topology": {
-        "system_type": "swing_axle",
-        "upright": {
-          "id": "hub_A1R",
-          "hardpoints": {
-            "wheel_center": [
-              0.0,
-              1.015,
-              -0.62
-            ],
-            "damper_outboard": [
-              0.0,
-              0.72,
-              -0.67
-            ],
-            "steering_tie_rod_end": [
-              -0.2,
-              0.835,
-              -0.57
-            ]
-          }
-        },
-        "links": [
-          {
-            "name": "swing_arm",
-            "type": "arm",
-            "inboard_points": [
-              [
-                0.22,
-                0.12,
-                -0.62
-              ],
-              [
-                -0.22,
-                0.12,
-                -0.62
-              ]
-            ],
-            "outboard_ref": "hardpoints.wheel_center",
-            "mass": 180
-          }
-        ]
-      },
-      "wheel": {
-        "rim_diameter": 0.508,
-        "rim_width": 0.33,
-        "mass": 260,
-        "set_ref": "offroad_14_00r20"
-      },
-      "spring": {
-        "type": "torsion_bar",
-        "rate": 210000,
-        "torsional_rate": 240000
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            5000
-          ],
-          [
-            0.6,
-            16000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            10000
-          ],
-          [
-            0.6,
-            28000
-          ]
-        ]
-      }
-    },
-    "A2L": {
-      "topology": {
-        "system_type": "swing_axle",
-        "upright": {
-          "id": "hub_A2L",
-          "hardpoints": {
-            "wheel_center": [
-              -1.65,
-              -1.015,
-              -0.62
-            ],
-            "damper_outboard": [
-              -1.65,
-              -0.72,
-              -0.67
-            ],
-            "steering_tie_rod_end": [
-              -1.85,
-              -0.835,
-              -0.57
-            ]
-          }
-        },
-        "links": [
-          {
-            "name": "swing_arm",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -1.43,
-                -0.12,
-                -0.62
-              ],
-              [
-                -1.87,
-                -0.12,
-                -0.62
-              ]
-            ],
-            "outboard_ref": "hardpoints.wheel_center",
-            "mass": 180
-          }
-        ]
-      },
-      "wheel": {
-        "rim_diameter": 0.508,
-        "rim_width": 0.33,
-        "mass": 260,
-        "set_ref": "offroad_14_00r20"
-      },
-      "spring": {
-        "type": "torsion_bar",
-        "rate": 210000,
-        "torsional_rate": 240000
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            5000
-          ],
-          [
-            0.6,
-            16000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            10000
-          ],
-          [
-            0.6,
-            28000
-          ]
-        ]
-      }
-    },
-    "A2R": {
-      "topology": {
-        "system_type": "swing_axle",
-        "upright": {
-          "id": "hub_A2R",
-          "hardpoints": {
-            "wheel_center": [
-              -1.65,
-              1.015,
-              -0.62
-            ],
-            "damper_outboard": [
-              -1.65,
-              0.72,
-              -0.67
-            ],
-            "steering_tie_rod_end": [
-              -1.85,
-              0.835,
-              -0.57
-            ]
-          }
-        },
-        "links": [
-          {
-            "name": "swing_arm",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -1.43,
-                0.12,
-                -0.62
-              ],
-              [
-                -1.87,
-                0.12,
-                -0.62
-              ]
-            ],
-            "outboard_ref": "hardpoints.wheel_center",
-            "mass": 180
-          }
-        ]
-      },
-      "wheel": {
-        "rim_diameter": 0.508,
-        "rim_width": 0.33,
-        "mass": 260,
-        "set_ref": "offroad_14_00r20"
-      },
-      "spring": {
-        "type": "torsion_bar",
-        "rate": 210000,
-        "torsional_rate": 240000
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            5000
-          ],
-          [
-            0.6,
-            16000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            10000
-          ],
-          [
-            0.6,
-            28000
-          ]
-        ]
-      }
-    },
-    "A3L": {
-      "topology": {
-        "system_type": "swing_axle",
-        "upright": {
-          "id": "hub_A3L",
-          "hardpoints": {
-            "wheel_center": [
-              -4.1,
-              -1.015,
-              -0.62
-            ],
-            "damper_outboard": [
-              -4.1,
-              -0.72,
-              -0.67
-            ]
-          }
-        },
-        "links": [
-          {
-            "name": "swing_arm",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -3.88,
-                -0.12,
-                -0.62
-              ],
-              [
-                -4.32,
-                -0.12,
-                -0.62
-              ]
-            ],
-            "outboard_ref": "hardpoints.wheel_center",
-            "mass": 180
-          }
-        ]
-      },
-      "wheel": {
-        "rim_diameter": 0.508,
-        "rim_width": 0.33,
-        "mass": 260,
-        "set_ref": "offroad_14_00r20"
-      },
-      "spring": {
-        "type": "none",
-        "coupling_ref": "rear_leaf_L"
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            5000
-          ],
-          [
-            0.6,
-            16000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            10000
-          ],
-          [
-            0.6,
-            28000
-          ]
-        ]
-      }
-    },
-    "A3R": {
-      "topology": {
-        "system_type": "swing_axle",
-        "upright": {
-          "id": "hub_A3R",
-          "hardpoints": {
-            "wheel_center": [
-              -4.1,
-              1.015,
-              -0.62
-            ],
-            "damper_outboard": [
-              -4.1,
-              0.72,
-              -0.67
-            ]
-          }
-        },
-        "links": [
-          {
-            "name": "swing_arm",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -3.88,
-                0.12,
-                -0.62
-              ],
-              [
-                -4.32,
-                0.12,
-                -0.62
-              ]
-            ],
-            "outboard_ref": "hardpoints.wheel_center",
-            "mass": 180
-          }
-        ]
-      },
-      "wheel": {
-        "rim_diameter": 0.508,
-        "rim_width": 0.33,
-        "mass": 260,
-        "set_ref": "offroad_14_00r20"
-      },
-      "spring": {
-        "type": "none",
-        "coupling_ref": "rear_leaf_R"
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            5000
-          ],
-          [
-            0.6,
-            16000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            10000
-          ],
-          [
-            0.6,
-            28000
-          ]
-        ]
-      }
-    },
-    "A4L": {
-      "topology": {
-        "system_type": "swing_axle",
-        "upright": {
-          "id": "hub_A4L",
-          "hardpoints": {
-            "wheel_center": [
-              -5.42,
-              -1.015,
-              -0.62
-            ],
-            "damper_outboard": [
-              -5.42,
-              -0.72,
-              -0.67
-            ]
-          }
-        },
-        "links": [
-          {
-            "name": "swing_arm",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -5.2,
-                -0.12,
-                -0.62
-              ],
-              [
-                -5.64,
-                -0.12,
-                -0.62
-              ]
-            ],
-            "outboard_ref": "hardpoints.wheel_center",
-            "mass": 180
-          }
-        ]
-      },
-      "wheel": {
-        "rim_diameter": 0.508,
-        "rim_width": 0.33,
-        "mass": 260,
-        "set_ref": "offroad_14_00r20"
-      },
-      "spring": {
-        "type": "none",
-        "coupling_ref": "rear_leaf_L"
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            5000
-          ],
-          [
-            0.6,
-            16000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            10000
-          ],
-          [
-            0.6,
-            28000
-          ]
-        ]
-      }
-    },
-    "A4R": {
-      "topology": {
-        "system_type": "swing_axle",
-        "upright": {
-          "id": "hub_A4R",
-          "hardpoints": {
-            "wheel_center": [
-              -5.42,
-              1.015,
-              -0.62
-            ],
-            "damper_outboard": [
-              -5.42,
-              0.72,
-              -0.67
-            ]
-          }
-        },
-        "links": [
-          {
-            "name": "swing_arm",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -5.2,
-                0.12,
-                -0.62
-              ],
-              [
-                -5.64,
-                0.12,
-                -0.62
-              ]
-            ],
-            "outboard_ref": "hardpoints.wheel_center",
-            "mass": 180
-          }
-        ]
-      },
-      "wheel": {
-        "rim_diameter": 0.508,
-        "rim_width": 0.33,
-        "mass": 260,
-        "set_ref": "offroad_14_00r20"
-      },
-      "spring": {
-        "type": "none",
-        "coupling_ref": "rear_leaf_R"
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            5000
-          ],
-          [
-            0.6,
-            16000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            10000
-          ],
-          [
-            0.6,
-            28000
-          ]
-        ]
-      }
-    }
   },
   "axles": [
     {
@@ -1010,5 +798,1069 @@
         }
       }
     }
-  }
+  },
+  "constraints": [
+    {
+      "id": "hinge_wheel_a1l",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "hub_a1l",
+      "frame_a": {
+        "position": [
+          0.0,
+          -1.015,
+          -0.62
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a1l",
+      "frame_b": {
+        "position": [
+          0.0,
+          -1.015,
+          -0.62
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a1l",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          -1.015,
+          -0.92
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a1l",
+      "frame_b": {
+        "position": [
+          0.0,
+          -1.015,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "torsion_bar",
+      "torsional_rate": 240000,
+      "kind": "torsional",
+      "rate": 210000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a1l",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          -1.015,
+          -0.92
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a1l",
+      "frame_b": {
+        "position": [
+          0.0,
+          -1.015,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          5000
+        ],
+        [
+          0.6,
+          16000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          10000
+        ],
+        [
+          0.6,
+          28000
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a1r",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "hub_a1r",
+      "frame_a": {
+        "position": [
+          0.0,
+          1.015,
+          -0.62
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a1r",
+      "frame_b": {
+        "position": [
+          0.0,
+          1.015,
+          -0.62
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a1r",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          1.015,
+          -0.92
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a1r",
+      "frame_b": {
+        "position": [
+          0.0,
+          1.015,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "torsion_bar",
+      "torsional_rate": 240000,
+      "kind": "torsional",
+      "rate": 210000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a1r",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          1.015,
+          -0.92
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a1r",
+      "frame_b": {
+        "position": [
+          0.0,
+          1.015,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          5000
+        ],
+        [
+          0.6,
+          16000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          10000
+        ],
+        [
+          0.6,
+          28000
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a2l",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "hub_a2l",
+      "frame_a": {
+        "position": [
+          -1.65,
+          -1.015,
+          -0.62
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a2l",
+      "frame_b": {
+        "position": [
+          -1.65,
+          -1.015,
+          -0.62
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a2l",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -1.65,
+          -1.015,
+          -0.92
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a2l",
+      "frame_b": {
+        "position": [
+          -1.65,
+          -1.015,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "torsion_bar",
+      "torsional_rate": 240000,
+      "kind": "torsional",
+      "rate": 210000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a2l",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -1.65,
+          -1.015,
+          -0.92
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a2l",
+      "frame_b": {
+        "position": [
+          -1.65,
+          -1.015,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          5000
+        ],
+        [
+          0.6,
+          16000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          10000
+        ],
+        [
+          0.6,
+          28000
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a2r",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "hub_a2r",
+      "frame_a": {
+        "position": [
+          -1.65,
+          1.015,
+          -0.62
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a2r",
+      "frame_b": {
+        "position": [
+          -1.65,
+          1.015,
+          -0.62
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a2r",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -1.65,
+          1.015,
+          -0.92
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a2r",
+      "frame_b": {
+        "position": [
+          -1.65,
+          1.015,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "torsion_bar",
+      "torsional_rate": 240000,
+      "kind": "torsional",
+      "rate": 210000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a2r",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -1.65,
+          1.015,
+          -0.92
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a2r",
+      "frame_b": {
+        "position": [
+          -1.65,
+          1.015,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          5000
+        ],
+        [
+          0.6,
+          16000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          10000
+        ],
+        [
+          0.6,
+          28000
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a3l",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "hub_a3l",
+      "frame_a": {
+        "position": [
+          -4.1,
+          -1.015,
+          -0.62
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a3l",
+      "frame_b": {
+        "position": [
+          -4.1,
+          -1.015,
+          -0.62
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "damper_a3l",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -4.1,
+          -1.015,
+          -0.92
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a3l",
+      "frame_b": {
+        "position": [
+          -4.1,
+          -1.015,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          5000
+        ],
+        [
+          0.6,
+          16000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          10000
+        ],
+        [
+          0.6,
+          28000
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a3r",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "hub_a3r",
+      "frame_a": {
+        "position": [
+          -4.1,
+          1.015,
+          -0.62
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a3r",
+      "frame_b": {
+        "position": [
+          -4.1,
+          1.015,
+          -0.62
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "damper_a3r",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -4.1,
+          1.015,
+          -0.92
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a3r",
+      "frame_b": {
+        "position": [
+          -4.1,
+          1.015,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          5000
+        ],
+        [
+          0.6,
+          16000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          10000
+        ],
+        [
+          0.6,
+          28000
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a4l",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "hub_a4l",
+      "frame_a": {
+        "position": [
+          -5.42,
+          -1.015,
+          -0.62
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a4l",
+      "frame_b": {
+        "position": [
+          -5.42,
+          -1.015,
+          -0.62
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "damper_a4l",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -5.42,
+          -1.015,
+          -0.92
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a4l",
+      "frame_b": {
+        "position": [
+          -5.42,
+          -1.015,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          5000
+        ],
+        [
+          0.6,
+          16000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          10000
+        ],
+        [
+          0.6,
+          28000
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a4r",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "hub_a4r",
+      "frame_a": {
+        "position": [
+          -5.42,
+          1.015,
+          -0.62
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a4r",
+      "frame_b": {
+        "position": [
+          -5.42,
+          1.015,
+          -0.62
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "damper_a4r",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -5.42,
+          1.015,
+          -0.92
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a4r",
+      "frame_b": {
+        "position": [
+          -5.42,
+          1.015,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          5000
+        ],
+        [
+          0.6,
+          16000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          10000
+        ],
+        [
+          0.6,
+          28000
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    }
+  ],
+  "wheel_stations": [
+    {
+      "id": "A1L",
+      "name": "A1L",
+      "wheel_body": "wheel_a1l",
+      "upright_body": "hub_a1l",
+      "wheel_center_marker": "wheel_center",
+      "axle": "A1",
+      "side": "L",
+      "topology_hint": "swing_axle",
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.33,
+        "mass": 260,
+        "set_ref": "offroad_14_00r20"
+      }
+    },
+    {
+      "id": "A1R",
+      "name": "A1R",
+      "wheel_body": "wheel_a1r",
+      "upright_body": "hub_a1r",
+      "wheel_center_marker": "wheel_center",
+      "axle": "A1",
+      "side": "R",
+      "topology_hint": "swing_axle",
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.33,
+        "mass": 260,
+        "set_ref": "offroad_14_00r20"
+      }
+    },
+    {
+      "id": "A2L",
+      "name": "A2L",
+      "wheel_body": "wheel_a2l",
+      "upright_body": "hub_a2l",
+      "wheel_center_marker": "wheel_center",
+      "axle": "A2",
+      "side": "L",
+      "topology_hint": "swing_axle",
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.33,
+        "mass": 260,
+        "set_ref": "offroad_14_00r20"
+      }
+    },
+    {
+      "id": "A2R",
+      "name": "A2R",
+      "wheel_body": "wheel_a2r",
+      "upright_body": "hub_a2r",
+      "wheel_center_marker": "wheel_center",
+      "axle": "A2",
+      "side": "R",
+      "topology_hint": "swing_axle",
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.33,
+        "mass": 260,
+        "set_ref": "offroad_14_00r20"
+      }
+    },
+    {
+      "id": "A3L",
+      "name": "A3L",
+      "wheel_body": "wheel_a3l",
+      "upright_body": "hub_a3l",
+      "wheel_center_marker": "wheel_center",
+      "coupling_ref": "rear_leaf_L",
+      "axle": "A3",
+      "side": "L",
+      "topology_hint": "swing_axle",
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.33,
+        "mass": 260,
+        "set_ref": "offroad_14_00r20"
+      }
+    },
+    {
+      "id": "A3R",
+      "name": "A3R",
+      "wheel_body": "wheel_a3r",
+      "upright_body": "hub_a3r",
+      "wheel_center_marker": "wheel_center",
+      "coupling_ref": "rear_leaf_R",
+      "axle": "A3",
+      "side": "R",
+      "topology_hint": "swing_axle",
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.33,
+        "mass": 260,
+        "set_ref": "offroad_14_00r20"
+      }
+    },
+    {
+      "id": "A4L",
+      "name": "A4L",
+      "wheel_body": "wheel_a4l",
+      "upright_body": "hub_a4l",
+      "wheel_center_marker": "wheel_center",
+      "coupling_ref": "rear_leaf_L",
+      "axle": "A4",
+      "side": "L",
+      "topology_hint": "swing_axle",
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.33,
+        "mass": 260,
+        "set_ref": "offroad_14_00r20"
+      }
+    },
+    {
+      "id": "A4R",
+      "name": "A4R",
+      "wheel_body": "wheel_a4r",
+      "upright_body": "hub_a4r",
+      "wheel_center_marker": "wheel_center",
+      "coupling_ref": "rear_leaf_R",
+      "axle": "A4",
+      "side": "R",
+      "topology_hint": "swing_axle",
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.33,
+        "mass": 260,
+        "set_ref": "offroad_14_00r20"
+      }
+    }
+  ]
 }

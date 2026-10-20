@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99.4",
+    "version": "0.100",
     "coordinate_system": "SAE_J670",
     "units": "SI",
     "description": "TATRA T 815-7N0R99 8x8.1R high-mobility heavy-duty cargo/troop carrier with crane. Central backbone tube with independently swinging half-axles and air springs on all four axles, two steered front axles, wheel hub reductions. Axle spacings, overall dimensions, weights, tyres, powertrain and performance are published; geometry details and rates are estimates.",
@@ -68,7 +68,525 @@
       "measurement_method": "estimated",
       "torsional_stiffness": 20000,
       "_note": "Backbone tube joined to a ladder frame by cross-members: published as exceptionally resistant to twist and bending; value is an estimate"
-    }
+    },
+    "mass_bodies": [
+      {
+        "id": "hub_a1l",
+        "name": "Hub A1L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.0,
+          -1.036,
+          -0.585
+        ],
+        "markers": {
+          "wheel_center": {
+            "position": [
+              0.0,
+              -1.036,
+              -0.585
+            ]
+          },
+          "damper_outboard": {
+            "position": [
+              0.0,
+              -0.8,
+              -0.685
+            ]
+          },
+          "swing_pivot": {
+            "position": [
+              0.0,
+              -0.1,
+              -0.585
+            ]
+          },
+          "steering_tie_rod_end": {
+            "position": [
+              -0.25,
+              -0.816,
+              -0.535
+            ]
+          }
+        },
+        "description": "Rotating hub",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a1l",
+        "name": "Wheel A1L",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.0,
+          -1.036,
+          -0.585
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "swing_half_axle_a1l",
+        "name": "Swing Half Axle A1L",
+        "category": "structural",
+        "mass": 260,
+        "position": [
+          0.0,
+          -0.5680000000000001,
+          -0.585
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "hub_a1r",
+        "name": "Hub A1R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.0,
+          1.036,
+          -0.585
+        ],
+        "markers": {
+          "wheel_center": {
+            "position": [
+              0.0,
+              1.036,
+              -0.585
+            ]
+          },
+          "damper_outboard": {
+            "position": [
+              0.0,
+              0.8,
+              -0.685
+            ]
+          },
+          "swing_pivot": {
+            "position": [
+              0.0,
+              0.1,
+              -0.585
+            ]
+          },
+          "steering_tie_rod_end": {
+            "position": [
+              -0.25,
+              0.816,
+              -0.535
+            ]
+          }
+        },
+        "description": "Rotating hub",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a1r",
+        "name": "Wheel A1R",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.0,
+          1.036,
+          -0.585
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "swing_half_axle_a1r",
+        "name": "Swing Half Axle A1R",
+        "category": "structural",
+        "mass": 260,
+        "position": [
+          0.0,
+          0.5680000000000001,
+          -0.585
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "hub_a2l",
+        "name": "Hub A2L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -1.95,
+          -1.036,
+          -0.585
+        ],
+        "markers": {
+          "wheel_center": {
+            "position": [
+              -1.95,
+              -1.036,
+              -0.585
+            ]
+          },
+          "damper_outboard": {
+            "position": [
+              -1.95,
+              -0.8,
+              -0.685
+            ]
+          },
+          "swing_pivot": {
+            "position": [
+              -1.95,
+              -0.1,
+              -0.585
+            ]
+          },
+          "steering_tie_rod_end": {
+            "position": [
+              -2.2,
+              -0.816,
+              -0.535
+            ]
+          }
+        },
+        "description": "Rotating hub",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a2l",
+        "name": "Wheel A2L",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -1.95,
+          -1.036,
+          -0.585
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "swing_half_axle_a2l",
+        "name": "Swing Half Axle A2L",
+        "category": "structural",
+        "mass": 260,
+        "position": [
+          -1.95,
+          -0.5680000000000001,
+          -0.585
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "hub_a2r",
+        "name": "Hub A2R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -1.95,
+          1.036,
+          -0.585
+        ],
+        "markers": {
+          "wheel_center": {
+            "position": [
+              -1.95,
+              1.036,
+              -0.585
+            ]
+          },
+          "damper_outboard": {
+            "position": [
+              -1.95,
+              0.8,
+              -0.685
+            ]
+          },
+          "swing_pivot": {
+            "position": [
+              -1.95,
+              0.1,
+              -0.585
+            ]
+          },
+          "steering_tie_rod_end": {
+            "position": [
+              -2.2,
+              0.816,
+              -0.535
+            ]
+          }
+        },
+        "description": "Rotating hub",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a2r",
+        "name": "Wheel A2R",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -1.95,
+          1.036,
+          -0.585
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "swing_half_axle_a2r",
+        "name": "Swing Half Axle A2R",
+        "category": "structural",
+        "mass": 260,
+        "position": [
+          -1.95,
+          0.5680000000000001,
+          -0.585
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "hub_a3l",
+        "name": "Hub A3L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -5.2,
+          -1.036,
+          -0.585
+        ],
+        "markers": {
+          "wheel_center": {
+            "position": [
+              -5.2,
+              -1.036,
+              -0.585
+            ]
+          },
+          "damper_outboard": {
+            "position": [
+              -5.2,
+              -0.8,
+              -0.685
+            ]
+          },
+          "swing_pivot": {
+            "position": [
+              -5.2,
+              -0.1,
+              -0.585
+            ]
+          }
+        },
+        "description": "Rotating hub",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a3l",
+        "name": "Wheel A3L",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -5.2,
+          -1.036,
+          -0.585
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "swing_half_axle_a3l",
+        "name": "Swing Half Axle A3L",
+        "category": "structural",
+        "mass": 260,
+        "position": [
+          -5.2,
+          -0.5680000000000001,
+          -0.585
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "hub_a3r",
+        "name": "Hub A3R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -5.2,
+          1.036,
+          -0.585
+        ],
+        "markers": {
+          "wheel_center": {
+            "position": [
+              -5.2,
+              1.036,
+              -0.585
+            ]
+          },
+          "damper_outboard": {
+            "position": [
+              -5.2,
+              0.8,
+              -0.685
+            ]
+          },
+          "swing_pivot": {
+            "position": [
+              -5.2,
+              0.1,
+              -0.585
+            ]
+          }
+        },
+        "description": "Rotating hub",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a3r",
+        "name": "Wheel A3R",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -5.2,
+          1.036,
+          -0.585
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "swing_half_axle_a3r",
+        "name": "Swing Half Axle A3R",
+        "category": "structural",
+        "mass": 260,
+        "position": [
+          -5.2,
+          0.5680000000000001,
+          -0.585
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "hub_a4l",
+        "name": "Hub A4L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -6.65,
+          -1.036,
+          -0.585
+        ],
+        "markers": {
+          "wheel_center": {
+            "position": [
+              -6.65,
+              -1.036,
+              -0.585
+            ]
+          },
+          "damper_outboard": {
+            "position": [
+              -6.65,
+              -0.8,
+              -0.685
+            ]
+          },
+          "swing_pivot": {
+            "position": [
+              -6.65,
+              -0.1,
+              -0.585
+            ]
+          }
+        },
+        "description": "Rotating hub",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a4l",
+        "name": "Wheel A4L",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -6.65,
+          -1.036,
+          -0.585
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "swing_half_axle_a4l",
+        "name": "Swing Half Axle A4L",
+        "category": "structural",
+        "mass": 260,
+        "position": [
+          -6.65,
+          -0.5680000000000001,
+          -0.585
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "hub_a4r",
+        "name": "Hub A4R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -6.65,
+          1.036,
+          -0.585
+        ],
+        "markers": {
+          "wheel_center": {
+            "position": [
+              -6.65,
+              1.036,
+              -0.585
+            ]
+          },
+          "damper_outboard": {
+            "position": [
+              -6.65,
+              0.8,
+              -0.685
+            ]
+          },
+          "swing_pivot": {
+            "position": [
+              -6.65,
+              0.1,
+              -0.585
+            ]
+          }
+        },
+        "description": "Rotating hub",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a4r",
+        "name": "Wheel A4R",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -6.65,
+          1.036,
+          -0.585
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "swing_half_axle_a4r",
+        "name": "Swing Half Axle A4R",
+        "category": "structural",
+        "mass": 260,
+        "position": [
+          -6.65,
+          0.5680000000000001,
+          -0.585
+        ],
+        "x_derived": true
+      }
+    ]
   },
   "steering": {
     "type": "recirculating_ball",
@@ -96,876 +614,6 @@
       }
     ],
     "_source": "Integral power steering; turning circle 26 ± 1 m curb to curb (published). Gear ratio and lock-to-lock estimated."
-  },
-  "suspension": {
-    "A1L": {
-      "topology": {
-        "system_type": "swing_axle",
-        "upright": {
-          "id": "hub_A1L",
-          "hardpoints": {
-            "wheel_center": [
-              0.0,
-              -1.036,
-              -0.585
-            ],
-            "damper_outboard": [
-              0.0,
-              -0.8,
-              -0.685
-            ],
-            "swing_pivot": [
-              0.0,
-              -0.1,
-              -0.585
-            ],
-            "steering_tie_rod_end": [
-              -0.25,
-              -0.816,
-              -0.535
-            ]
-          },
-          "_est": true
-        },
-        "links": [
-          {
-            "name": "swing_half_axle",
-            "type": "arm",
-            "inboard_points": [
-              [
-                0.22,
-                -0.1,
-                -0.585
-              ],
-              [
-                -0.22,
-                -0.1,
-                -0.585
-              ]
-            ],
-            "outboard_ref": "hardpoints.wheel_center",
-            "mass": 260,
-            "_est": true,
-            "_note": "Half-axle pivots on the central backbone tube; wheel hub reduction at the outer end (published)"
-          }
-        ]
-      },
-      "wheel": {
-        "rim_diameter": 0.508,
-        "rim_width": 0.254,
-        "set_ref": "tatra_16_00r20",
-        "_source": "Single tactical tyres on all axles with CTIS; rims 20-10.00V; tyres 16.00 R20"
-      },
-      "spring": {
-        "type": "air",
-        "rate": 280000,
-        "effective_area": 0.08,
-        "_est": true,
-        "_source": "Air springs all round (published); rate estimated. Tatra lists 10 t per axle for air-sprung steered and non-steered axles (FORCE brochure 2024)"
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            9000
-          ],
-          [
-            0.6,
-            30000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            18000
-          ],
-          [
-            0.6,
-            55000
-          ]
-        ],
-        "_est": true,
-        "_source": "Telescopic shock absorbers (published); curves estimated"
-      },
-      "arb": {
-        "bar_id": "swing_bar_A1",
-        "bar_rate": 150000,
-        "_est": true,
-        "_source": "Swing (anti-roll) bars on front and rear axles (published); rate estimated"
-      },
-      "alignment": {
-        "camber": 0.0,
-        "toe": 0.0015,
-        "caster": 0.0524,
-        "_est": true
-      }
-    },
-    "A1R": {
-      "topology": {
-        "system_type": "swing_axle",
-        "upright": {
-          "id": "hub_A1R",
-          "hardpoints": {
-            "wheel_center": [
-              0.0,
-              1.036,
-              -0.585
-            ],
-            "damper_outboard": [
-              0.0,
-              0.8,
-              -0.685
-            ],
-            "swing_pivot": [
-              0.0,
-              0.1,
-              -0.585
-            ],
-            "steering_tie_rod_end": [
-              -0.25,
-              0.816,
-              -0.535
-            ]
-          },
-          "_est": true
-        },
-        "links": [
-          {
-            "name": "swing_half_axle",
-            "type": "arm",
-            "inboard_points": [
-              [
-                0.22,
-                0.1,
-                -0.585
-              ],
-              [
-                -0.22,
-                0.1,
-                -0.585
-              ]
-            ],
-            "outboard_ref": "hardpoints.wheel_center",
-            "mass": 260,
-            "_est": true,
-            "_note": "Half-axle pivots on the central backbone tube; wheel hub reduction at the outer end (published)"
-          }
-        ]
-      },
-      "wheel": {
-        "rim_diameter": 0.508,
-        "rim_width": 0.254,
-        "set_ref": "tatra_16_00r20",
-        "_source": "Single tactical tyres on all axles with CTIS; rims 20-10.00V; tyres 16.00 R20"
-      },
-      "spring": {
-        "type": "air",
-        "rate": 280000,
-        "effective_area": 0.08,
-        "_est": true,
-        "_source": "Air springs all round (published); rate estimated. Tatra lists 10 t per axle for air-sprung steered and non-steered axles (FORCE brochure 2024)"
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            9000
-          ],
-          [
-            0.6,
-            30000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            18000
-          ],
-          [
-            0.6,
-            55000
-          ]
-        ],
-        "_est": true,
-        "_source": "Telescopic shock absorbers (published); curves estimated"
-      },
-      "arb": {
-        "bar_id": "swing_bar_A1",
-        "bar_rate": 150000,
-        "_est": true,
-        "_source": "Swing (anti-roll) bars on front and rear axles (published); rate estimated"
-      },
-      "alignment": {
-        "camber": 0.0,
-        "toe": 0.0015,
-        "caster": 0.0524,
-        "_est": true
-      }
-    },
-    "A2L": {
-      "topology": {
-        "system_type": "swing_axle",
-        "upright": {
-          "id": "hub_A2L",
-          "hardpoints": {
-            "wheel_center": [
-              -1.95,
-              -1.036,
-              -0.585
-            ],
-            "damper_outboard": [
-              -1.95,
-              -0.8,
-              -0.685
-            ],
-            "swing_pivot": [
-              -1.95,
-              -0.1,
-              -0.585
-            ],
-            "steering_tie_rod_end": [
-              -2.2,
-              -0.816,
-              -0.535
-            ]
-          },
-          "_est": true
-        },
-        "links": [
-          {
-            "name": "swing_half_axle",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -1.73,
-                -0.1,
-                -0.585
-              ],
-              [
-                -2.17,
-                -0.1,
-                -0.585
-              ]
-            ],
-            "outboard_ref": "hardpoints.wheel_center",
-            "mass": 260,
-            "_est": true,
-            "_note": "Half-axle pivots on the central backbone tube; wheel hub reduction at the outer end (published)"
-          }
-        ]
-      },
-      "wheel": {
-        "rim_diameter": 0.508,
-        "rim_width": 0.254,
-        "set_ref": "tatra_16_00r20",
-        "_source": "Single tactical tyres on all axles with CTIS; rims 20-10.00V; tyres 16.00 R20"
-      },
-      "spring": {
-        "type": "air",
-        "rate": 280000,
-        "effective_area": 0.08,
-        "_est": true,
-        "_source": "Air springs all round (published); rate estimated. Tatra lists 10 t per axle for air-sprung steered and non-steered axles (FORCE brochure 2024)"
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            9000
-          ],
-          [
-            0.6,
-            30000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            18000
-          ],
-          [
-            0.6,
-            55000
-          ]
-        ],
-        "_est": true,
-        "_source": "Telescopic shock absorbers (published); curves estimated"
-      },
-      "arb": {
-        "bar_id": "swing_bar_A2",
-        "bar_rate": 150000,
-        "_est": true,
-        "_source": "Swing (anti-roll) bars on front and rear axles (published); rate estimated"
-      },
-      "alignment": {
-        "camber": 0.0,
-        "toe": 0.0015,
-        "caster": 0.0524,
-        "_est": true
-      }
-    },
-    "A2R": {
-      "topology": {
-        "system_type": "swing_axle",
-        "upright": {
-          "id": "hub_A2R",
-          "hardpoints": {
-            "wheel_center": [
-              -1.95,
-              1.036,
-              -0.585
-            ],
-            "damper_outboard": [
-              -1.95,
-              0.8,
-              -0.685
-            ],
-            "swing_pivot": [
-              -1.95,
-              0.1,
-              -0.585
-            ],
-            "steering_tie_rod_end": [
-              -2.2,
-              0.816,
-              -0.535
-            ]
-          },
-          "_est": true
-        },
-        "links": [
-          {
-            "name": "swing_half_axle",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -1.73,
-                0.1,
-                -0.585
-              ],
-              [
-                -2.17,
-                0.1,
-                -0.585
-              ]
-            ],
-            "outboard_ref": "hardpoints.wheel_center",
-            "mass": 260,
-            "_est": true,
-            "_note": "Half-axle pivots on the central backbone tube; wheel hub reduction at the outer end (published)"
-          }
-        ]
-      },
-      "wheel": {
-        "rim_diameter": 0.508,
-        "rim_width": 0.254,
-        "set_ref": "tatra_16_00r20",
-        "_source": "Single tactical tyres on all axles with CTIS; rims 20-10.00V; tyres 16.00 R20"
-      },
-      "spring": {
-        "type": "air",
-        "rate": 280000,
-        "effective_area": 0.08,
-        "_est": true,
-        "_source": "Air springs all round (published); rate estimated. Tatra lists 10 t per axle for air-sprung steered and non-steered axles (FORCE brochure 2024)"
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            9000
-          ],
-          [
-            0.6,
-            30000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            18000
-          ],
-          [
-            0.6,
-            55000
-          ]
-        ],
-        "_est": true,
-        "_source": "Telescopic shock absorbers (published); curves estimated"
-      },
-      "arb": {
-        "bar_id": "swing_bar_A2",
-        "bar_rate": 150000,
-        "_est": true,
-        "_source": "Swing (anti-roll) bars on front and rear axles (published); rate estimated"
-      },
-      "alignment": {
-        "camber": 0.0,
-        "toe": 0.0015,
-        "caster": 0.0524,
-        "_est": true
-      }
-    },
-    "A3L": {
-      "topology": {
-        "system_type": "swing_axle",
-        "upright": {
-          "id": "hub_A3L",
-          "hardpoints": {
-            "wheel_center": [
-              -5.2,
-              -1.036,
-              -0.585
-            ],
-            "damper_outboard": [
-              -5.2,
-              -0.8,
-              -0.685
-            ],
-            "swing_pivot": [
-              -5.2,
-              -0.1,
-              -0.585
-            ]
-          },
-          "_est": true
-        },
-        "links": [
-          {
-            "name": "swing_half_axle",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -4.98,
-                -0.1,
-                -0.585
-              ],
-              [
-                -5.42,
-                -0.1,
-                -0.585
-              ]
-            ],
-            "outboard_ref": "hardpoints.wheel_center",
-            "mass": 260,
-            "_est": true,
-            "_note": "Half-axle pivots on the central backbone tube; wheel hub reduction at the outer end (published)"
-          }
-        ]
-      },
-      "wheel": {
-        "rim_diameter": 0.508,
-        "rim_width": 0.254,
-        "set_ref": "tatra_16_00r20",
-        "_source": "Single tactical tyres on all axles with CTIS; rims 20-10.00V; tyres 16.00 R20"
-      },
-      "spring": {
-        "type": "air",
-        "rate": 280000,
-        "effective_area": 0.08,
-        "_est": true,
-        "_source": "Air springs all round (published); rate estimated. Tatra lists 10 t per axle for air-sprung steered and non-steered axles (FORCE brochure 2024)"
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            9000
-          ],
-          [
-            0.6,
-            30000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            18000
-          ],
-          [
-            0.6,
-            55000
-          ]
-        ],
-        "_est": true,
-        "_source": "Telescopic shock absorbers (published); curves estimated"
-      },
-      "arb": {
-        "bar_id": "swing_bar_A3",
-        "bar_rate": 150000,
-        "_est": true,
-        "_source": "Swing (anti-roll) bars on front and rear axles (published); rate estimated"
-      },
-      "alignment": {
-        "camber": 0.0,
-        "toe": 0.0,
-        "caster": 0.0,
-        "_est": true
-      }
-    },
-    "A3R": {
-      "topology": {
-        "system_type": "swing_axle",
-        "upright": {
-          "id": "hub_A3R",
-          "hardpoints": {
-            "wheel_center": [
-              -5.2,
-              1.036,
-              -0.585
-            ],
-            "damper_outboard": [
-              -5.2,
-              0.8,
-              -0.685
-            ],
-            "swing_pivot": [
-              -5.2,
-              0.1,
-              -0.585
-            ]
-          },
-          "_est": true
-        },
-        "links": [
-          {
-            "name": "swing_half_axle",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -4.98,
-                0.1,
-                -0.585
-              ],
-              [
-                -5.42,
-                0.1,
-                -0.585
-              ]
-            ],
-            "outboard_ref": "hardpoints.wheel_center",
-            "mass": 260,
-            "_est": true,
-            "_note": "Half-axle pivots on the central backbone tube; wheel hub reduction at the outer end (published)"
-          }
-        ]
-      },
-      "wheel": {
-        "rim_diameter": 0.508,
-        "rim_width": 0.254,
-        "set_ref": "tatra_16_00r20",
-        "_source": "Single tactical tyres on all axles with CTIS; rims 20-10.00V; tyres 16.00 R20"
-      },
-      "spring": {
-        "type": "air",
-        "rate": 280000,
-        "effective_area": 0.08,
-        "_est": true,
-        "_source": "Air springs all round (published); rate estimated. Tatra lists 10 t per axle for air-sprung steered and non-steered axles (FORCE brochure 2024)"
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            9000
-          ],
-          [
-            0.6,
-            30000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            18000
-          ],
-          [
-            0.6,
-            55000
-          ]
-        ],
-        "_est": true,
-        "_source": "Telescopic shock absorbers (published); curves estimated"
-      },
-      "arb": {
-        "bar_id": "swing_bar_A3",
-        "bar_rate": 150000,
-        "_est": true,
-        "_source": "Swing (anti-roll) bars on front and rear axles (published); rate estimated"
-      },
-      "alignment": {
-        "camber": 0.0,
-        "toe": 0.0,
-        "caster": 0.0,
-        "_est": true
-      }
-    },
-    "A4L": {
-      "topology": {
-        "system_type": "swing_axle",
-        "upright": {
-          "id": "hub_A4L",
-          "hardpoints": {
-            "wheel_center": [
-              -6.65,
-              -1.036,
-              -0.585
-            ],
-            "damper_outboard": [
-              -6.65,
-              -0.8,
-              -0.685
-            ],
-            "swing_pivot": [
-              -6.65,
-              -0.1,
-              -0.585
-            ]
-          },
-          "_est": true
-        },
-        "links": [
-          {
-            "name": "swing_half_axle",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -6.43,
-                -0.1,
-                -0.585
-              ],
-              [
-                -6.87,
-                -0.1,
-                -0.585
-              ]
-            ],
-            "outboard_ref": "hardpoints.wheel_center",
-            "mass": 260,
-            "_est": true,
-            "_note": "Half-axle pivots on the central backbone tube; wheel hub reduction at the outer end (published)"
-          }
-        ]
-      },
-      "wheel": {
-        "rim_diameter": 0.508,
-        "rim_width": 0.254,
-        "set_ref": "tatra_16_00r20",
-        "_source": "Single tactical tyres on all axles with CTIS; rims 20-10.00V; tyres 16.00 R20"
-      },
-      "spring": {
-        "type": "air",
-        "rate": 280000,
-        "effective_area": 0.08,
-        "_est": true,
-        "_source": "Air springs all round (published); rate estimated. Tatra lists 10 t per axle for air-sprung steered and non-steered axles (FORCE brochure 2024)"
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            9000
-          ],
-          [
-            0.6,
-            30000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            18000
-          ],
-          [
-            0.6,
-            55000
-          ]
-        ],
-        "_est": true,
-        "_source": "Telescopic shock absorbers (published); curves estimated"
-      },
-      "arb": {
-        "bar_id": "swing_bar_A4",
-        "bar_rate": 150000,
-        "_est": true,
-        "_source": "Swing (anti-roll) bars on front and rear axles (published); rate estimated"
-      },
-      "alignment": {
-        "camber": 0.0,
-        "toe": 0.0,
-        "caster": 0.0,
-        "_est": true
-      }
-    },
-    "A4R": {
-      "topology": {
-        "system_type": "swing_axle",
-        "upright": {
-          "id": "hub_A4R",
-          "hardpoints": {
-            "wheel_center": [
-              -6.65,
-              1.036,
-              -0.585
-            ],
-            "damper_outboard": [
-              -6.65,
-              0.8,
-              -0.685
-            ],
-            "swing_pivot": [
-              -6.65,
-              0.1,
-              -0.585
-            ]
-          },
-          "_est": true
-        },
-        "links": [
-          {
-            "name": "swing_half_axle",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -6.43,
-                0.1,
-                -0.585
-              ],
-              [
-                -6.87,
-                0.1,
-                -0.585
-              ]
-            ],
-            "outboard_ref": "hardpoints.wheel_center",
-            "mass": 260,
-            "_est": true,
-            "_note": "Half-axle pivots on the central backbone tube; wheel hub reduction at the outer end (published)"
-          }
-        ]
-      },
-      "wheel": {
-        "rim_diameter": 0.508,
-        "rim_width": 0.254,
-        "set_ref": "tatra_16_00r20",
-        "_source": "Single tactical tyres on all axles with CTIS; rims 20-10.00V; tyres 16.00 R20"
-      },
-      "spring": {
-        "type": "air",
-        "rate": 280000,
-        "effective_area": 0.08,
-        "_est": true,
-        "_source": "Air springs all round (published); rate estimated. Tatra lists 10 t per axle for air-sprung steered and non-steered axles (FORCE brochure 2024)"
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            9000
-          ],
-          [
-            0.6,
-            30000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            18000
-          ],
-          [
-            0.6,
-            55000
-          ]
-        ],
-        "_est": true,
-        "_source": "Telescopic shock absorbers (published); curves estimated"
-      },
-      "arb": {
-        "bar_id": "swing_bar_A4",
-        "bar_rate": 150000,
-        "_est": true,
-        "_source": "Swing (anti-roll) bars on front and rear axles (published); rate estimated"
-      },
-      "alignment": {
-        "camber": 0.0,
-        "toe": 0.0,
-        "caster": 0.0,
-        "_est": true
-      }
-    }
   },
   "axles": [
     {
@@ -1284,5 +932,1307 @@
       -32,
       49
     ]
-  }
+  },
+  "constraints": [
+    {
+      "id": "hinge_wheel_a1l",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "hub_a1l",
+      "frame_a": {
+        "position": [
+          0.0,
+          -1.036,
+          -0.585
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a1l",
+      "frame_b": {
+        "position": [
+          0.0,
+          -1.036,
+          -0.585
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a1l",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          -1.036,
+          -0.885
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a1l",
+      "frame_b": {
+        "position": [
+          0.0,
+          -1.036,
+          -0.585
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "air",
+      "effective_area": 0.08,
+      "_est": true,
+      "rate": 280000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a1l",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          -1.036,
+          -0.885
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a1l",
+      "frame_b": {
+        "position": [
+          0.0,
+          -1.036,
+          -0.585
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          9000
+        ],
+        [
+          0.6,
+          30000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          18000
+        ],
+        [
+          0.6,
+          55000
+        ]
+      ],
+      "_est": true,
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a1r",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "hub_a1r",
+      "frame_a": {
+        "position": [
+          0.0,
+          1.036,
+          -0.585
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a1r",
+      "frame_b": {
+        "position": [
+          0.0,
+          1.036,
+          -0.585
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a1r",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          1.036,
+          -0.885
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a1r",
+      "frame_b": {
+        "position": [
+          0.0,
+          1.036,
+          -0.585
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "air",
+      "effective_area": 0.08,
+      "_est": true,
+      "rate": 280000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a1r",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          1.036,
+          -0.885
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a1r",
+      "frame_b": {
+        "position": [
+          0.0,
+          1.036,
+          -0.585
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          9000
+        ],
+        [
+          0.6,
+          30000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          18000
+        ],
+        [
+          0.6,
+          55000
+        ]
+      ],
+      "_est": true,
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a2l",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "hub_a2l",
+      "frame_a": {
+        "position": [
+          -1.95,
+          -1.036,
+          -0.585
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a2l",
+      "frame_b": {
+        "position": [
+          -1.95,
+          -1.036,
+          -0.585
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a2l",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -1.95,
+          -1.036,
+          -0.885
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a2l",
+      "frame_b": {
+        "position": [
+          -1.95,
+          -1.036,
+          -0.585
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "air",
+      "effective_area": 0.08,
+      "_est": true,
+      "rate": 280000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a2l",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -1.95,
+          -1.036,
+          -0.885
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a2l",
+      "frame_b": {
+        "position": [
+          -1.95,
+          -1.036,
+          -0.585
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          9000
+        ],
+        [
+          0.6,
+          30000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          18000
+        ],
+        [
+          0.6,
+          55000
+        ]
+      ],
+      "_est": true,
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a2r",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "hub_a2r",
+      "frame_a": {
+        "position": [
+          -1.95,
+          1.036,
+          -0.585
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a2r",
+      "frame_b": {
+        "position": [
+          -1.95,
+          1.036,
+          -0.585
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a2r",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -1.95,
+          1.036,
+          -0.885
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a2r",
+      "frame_b": {
+        "position": [
+          -1.95,
+          1.036,
+          -0.585
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "air",
+      "effective_area": 0.08,
+      "_est": true,
+      "rate": 280000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a2r",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -1.95,
+          1.036,
+          -0.885
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a2r",
+      "frame_b": {
+        "position": [
+          -1.95,
+          1.036,
+          -0.585
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          9000
+        ],
+        [
+          0.6,
+          30000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          18000
+        ],
+        [
+          0.6,
+          55000
+        ]
+      ],
+      "_est": true,
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a3l",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "hub_a3l",
+      "frame_a": {
+        "position": [
+          -5.2,
+          -1.036,
+          -0.585
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a3l",
+      "frame_b": {
+        "position": [
+          -5.2,
+          -1.036,
+          -0.585
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a3l",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -5.2,
+          -1.036,
+          -0.885
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a3l",
+      "frame_b": {
+        "position": [
+          -5.2,
+          -1.036,
+          -0.585
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "air",
+      "effective_area": 0.08,
+      "_est": true,
+      "rate": 280000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a3l",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -5.2,
+          -1.036,
+          -0.885
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a3l",
+      "frame_b": {
+        "position": [
+          -5.2,
+          -1.036,
+          -0.585
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          9000
+        ],
+        [
+          0.6,
+          30000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          18000
+        ],
+        [
+          0.6,
+          55000
+        ]
+      ],
+      "_est": true,
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a3r",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "hub_a3r",
+      "frame_a": {
+        "position": [
+          -5.2,
+          1.036,
+          -0.585
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a3r",
+      "frame_b": {
+        "position": [
+          -5.2,
+          1.036,
+          -0.585
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a3r",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -5.2,
+          1.036,
+          -0.885
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a3r",
+      "frame_b": {
+        "position": [
+          -5.2,
+          1.036,
+          -0.585
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "air",
+      "effective_area": 0.08,
+      "_est": true,
+      "rate": 280000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a3r",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -5.2,
+          1.036,
+          -0.885
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a3r",
+      "frame_b": {
+        "position": [
+          -5.2,
+          1.036,
+          -0.585
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          9000
+        ],
+        [
+          0.6,
+          30000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          18000
+        ],
+        [
+          0.6,
+          55000
+        ]
+      ],
+      "_est": true,
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a4l",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "hub_a4l",
+      "frame_a": {
+        "position": [
+          -6.65,
+          -1.036,
+          -0.585
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a4l",
+      "frame_b": {
+        "position": [
+          -6.65,
+          -1.036,
+          -0.585
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a4l",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -6.65,
+          -1.036,
+          -0.885
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a4l",
+      "frame_b": {
+        "position": [
+          -6.65,
+          -1.036,
+          -0.585
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "air",
+      "effective_area": 0.08,
+      "_est": true,
+      "rate": 280000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a4l",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -6.65,
+          -1.036,
+          -0.885
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a4l",
+      "frame_b": {
+        "position": [
+          -6.65,
+          -1.036,
+          -0.585
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          9000
+        ],
+        [
+          0.6,
+          30000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          18000
+        ],
+        [
+          0.6,
+          55000
+        ]
+      ],
+      "_est": true,
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a4r",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "hub_a4r",
+      "frame_a": {
+        "position": [
+          -6.65,
+          1.036,
+          -0.585
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a4r",
+      "frame_b": {
+        "position": [
+          -6.65,
+          1.036,
+          -0.585
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a4r",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -6.65,
+          1.036,
+          -0.885
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a4r",
+      "frame_b": {
+        "position": [
+          -6.65,
+          1.036,
+          -0.585
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "air",
+      "effective_area": 0.08,
+      "_est": true,
+      "rate": 280000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a4r",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -6.65,
+          1.036,
+          -0.885
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "hub_a4r",
+      "frame_b": {
+        "position": [
+          -6.65,
+          1.036,
+          -0.585
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          9000
+        ],
+        [
+          0.6,
+          30000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          18000
+        ],
+        [
+          0.6,
+          55000
+        ]
+      ],
+      "_est": true,
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    }
+  ],
+  "wheel_stations": [
+    {
+      "id": "A1L",
+      "name": "A1L",
+      "wheel_body": "wheel_a1l",
+      "upright_body": "hub_a1l",
+      "wheel_center_marker": "wheel_center",
+      "axle": "A1",
+      "side": "L",
+      "topology_hint": "swing_axle",
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.254,
+        "set_ref": "tatra_16_00r20",
+        "_source": "Single tactical tyres on all axles with CTIS; rims 20-10.00V; tyres 16.00 R20"
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0015,
+        "caster": 0.0524,
+        "_est": true
+      }
+    },
+    {
+      "id": "A1R",
+      "name": "A1R",
+      "wheel_body": "wheel_a1r",
+      "upright_body": "hub_a1r",
+      "wheel_center_marker": "wheel_center",
+      "axle": "A1",
+      "side": "R",
+      "topology_hint": "swing_axle",
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.254,
+        "set_ref": "tatra_16_00r20",
+        "_source": "Single tactical tyres on all axles with CTIS; rims 20-10.00V; tyres 16.00 R20"
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0015,
+        "caster": 0.0524,
+        "_est": true
+      }
+    },
+    {
+      "id": "A2L",
+      "name": "A2L",
+      "wheel_body": "wheel_a2l",
+      "upright_body": "hub_a2l",
+      "wheel_center_marker": "wheel_center",
+      "axle": "A2",
+      "side": "L",
+      "topology_hint": "swing_axle",
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.254,
+        "set_ref": "tatra_16_00r20",
+        "_source": "Single tactical tyres on all axles with CTIS; rims 20-10.00V; tyres 16.00 R20"
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0015,
+        "caster": 0.0524,
+        "_est": true
+      }
+    },
+    {
+      "id": "A2R",
+      "name": "A2R",
+      "wheel_body": "wheel_a2r",
+      "upright_body": "hub_a2r",
+      "wheel_center_marker": "wheel_center",
+      "axle": "A2",
+      "side": "R",
+      "topology_hint": "swing_axle",
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.254,
+        "set_ref": "tatra_16_00r20",
+        "_source": "Single tactical tyres on all axles with CTIS; rims 20-10.00V; tyres 16.00 R20"
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0015,
+        "caster": 0.0524,
+        "_est": true
+      }
+    },
+    {
+      "id": "A3L",
+      "name": "A3L",
+      "wheel_body": "wheel_a3l",
+      "upright_body": "hub_a3l",
+      "wheel_center_marker": "wheel_center",
+      "axle": "A3",
+      "side": "L",
+      "topology_hint": "swing_axle",
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.254,
+        "set_ref": "tatra_16_00r20",
+        "_source": "Single tactical tyres on all axles with CTIS; rims 20-10.00V; tyres 16.00 R20"
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0,
+        "caster": 0.0,
+        "_est": true
+      }
+    },
+    {
+      "id": "A3R",
+      "name": "A3R",
+      "wheel_body": "wheel_a3r",
+      "upright_body": "hub_a3r",
+      "wheel_center_marker": "wheel_center",
+      "axle": "A3",
+      "side": "R",
+      "topology_hint": "swing_axle",
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.254,
+        "set_ref": "tatra_16_00r20",
+        "_source": "Single tactical tyres on all axles with CTIS; rims 20-10.00V; tyres 16.00 R20"
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0,
+        "caster": 0.0,
+        "_est": true
+      }
+    },
+    {
+      "id": "A4L",
+      "name": "A4L",
+      "wheel_body": "wheel_a4l",
+      "upright_body": "hub_a4l",
+      "wheel_center_marker": "wheel_center",
+      "axle": "A4",
+      "side": "L",
+      "topology_hint": "swing_axle",
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.254,
+        "set_ref": "tatra_16_00r20",
+        "_source": "Single tactical tyres on all axles with CTIS; rims 20-10.00V; tyres 16.00 R20"
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0,
+        "caster": 0.0,
+        "_est": true
+      }
+    },
+    {
+      "id": "A4R",
+      "name": "A4R",
+      "wheel_body": "wheel_a4r",
+      "upright_body": "hub_a4r",
+      "wheel_center_marker": "wheel_center",
+      "axle": "A4",
+      "side": "R",
+      "topology_hint": "swing_axle",
+      "wheel": {
+        "rim_diameter": 0.508,
+        "rim_width": 0.254,
+        "set_ref": "tatra_16_00r20",
+        "_source": "Single tactical tyres on all axles with CTIS; rims 20-10.00V; tyres 16.00 R20"
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0,
+        "caster": 0.0,
+        "_est": true
+      }
+    }
+  ],
+  "anti_roll_bars": [
+    {
+      "id": "swing_bar_A1",
+      "stations": [
+        "A1L",
+        "A1R"
+      ],
+      "bar_rate": 150000
+    },
+    {
+      "id": "swing_bar_A2",
+      "stations": [
+        "A2L",
+        "A2R"
+      ],
+      "bar_rate": 150000
+    },
+    {
+      "id": "swing_bar_A3",
+      "stations": [
+        "A3L",
+        "A3R"
+      ],
+      "bar_rate": 150000
+    },
+    {
+      "id": "swing_bar_A4",
+      "stations": [
+        "A4L",
+        "A4R"
+      ],
+      "bar_rate": 150000
+    }
+  ]
 }

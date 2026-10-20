@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99.4",
+    "version": "0.100",
     "coordinate_system": "SAE_J670",
     "units": "SI",
     "description": "MAN TGS 32.430 8x4 BB CH twin-steer tipper chassis (UK, 2022, NN cab, wheelbase 3205). First real-vehicle multi-axle example: axle positions, weights, tyres, suspension types, turning circle and driveline are published; geometry details and rates are estimates.",
@@ -66,7 +66,485 @@
       "measurement_method": "estimated",
       "torsional_stiffness": 1500,
       "_note": "Ladder frame S500MC, 270 x 85 x 7 mm, 942-762 mm waisted (published); torsional stiffness is a low estimate typical of truck ladder frames"
-    }
+    },
+    "mass_bodies": [
+      {
+        "id": "a1_drop_beam",
+        "name": "Axle body A1_drop_beam",
+        "description": "Beam axle, housing or de Dion tube",
+        "category": "structural",
+        "mass": 360,
+        "position": [
+          0.0,
+          0,
+          -0.49
+        ],
+        "markers": {
+          "wheel_center_a1l": {
+            "position": [
+              0.0,
+              -1.02,
+              -0.49
+            ]
+          },
+          "spring_pad_a1l": {
+            "position": [
+              0.0,
+              -0.45,
+              -0.62
+            ]
+          },
+          "damper_outboard_a1l": {
+            "position": [
+              0.1,
+              -0.42,
+              -0.51
+            ]
+          },
+          "steering_tie_rod_end_a1l": {
+            "position": [
+              -0.22,
+              -0.86,
+              -0.45
+            ]
+          },
+          "wheel_center_a1r": {
+            "position": [
+              0.0,
+              1.02,
+              -0.49
+            ]
+          },
+          "spring_pad_a1r": {
+            "position": [
+              0.0,
+              0.45,
+              -0.62
+            ]
+          },
+          "damper_outboard_a1r": {
+            "position": [
+              0.1,
+              0.42,
+              -0.51
+            ]
+          },
+          "steering_tie_rod_end_a1r": {
+            "position": [
+              -0.22,
+              0.86,
+              -0.45
+            ]
+          }
+        },
+        "x_legacy_axle_body": {
+          "_est": true
+        },
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a1l",
+        "name": "Wheel A1L",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.0,
+          -1.02,
+          -0.49
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "leaf_spring_a1l",
+        "name": "Leaf Spring A1L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.0,
+          -0.45,
+          -0.71
+        ],
+        "description": "Leaf spring pack",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a1r",
+        "name": "Wheel A1R",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.0,
+          1.02,
+          -0.49
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "leaf_spring_a1r",
+        "name": "Leaf Spring A1R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.0,
+          0.45,
+          -0.71
+        ],
+        "description": "Leaf spring pack",
+        "x_derived": true
+      },
+      {
+        "id": "a2_drop_beam",
+        "name": "Axle body A2_drop_beam",
+        "description": "Beam axle, housing or de Dion tube",
+        "category": "structural",
+        "mass": 360,
+        "position": [
+          -1.795,
+          0,
+          -0.49
+        ],
+        "markers": {
+          "wheel_center_a2l": {
+            "position": [
+              -1.795,
+              -1.02,
+              -0.49
+            ]
+          },
+          "spring_pad_a2l": {
+            "position": [
+              -1.795,
+              -0.45,
+              -0.62
+            ]
+          },
+          "damper_outboard_a2l": {
+            "position": [
+              -1.695,
+              -0.42,
+              -0.51
+            ]
+          },
+          "steering_tie_rod_end_a2l": {
+            "position": [
+              -2.015,
+              -0.86,
+              -0.45
+            ]
+          },
+          "wheel_center_a2r": {
+            "position": [
+              -1.795,
+              1.02,
+              -0.49
+            ]
+          },
+          "spring_pad_a2r": {
+            "position": [
+              -1.795,
+              0.45,
+              -0.62
+            ]
+          },
+          "damper_outboard_a2r": {
+            "position": [
+              -1.695,
+              0.42,
+              -0.51
+            ]
+          },
+          "steering_tie_rod_end_a2r": {
+            "position": [
+              -2.015,
+              0.86,
+              -0.45
+            ]
+          }
+        },
+        "x_legacy_axle_body": {
+          "_est": true
+        },
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a2l",
+        "name": "Wheel A2L",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -1.795,
+          -1.02,
+          -0.49
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "leaf_spring_a2l",
+        "name": "Leaf Spring A2L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -1.795,
+          -0.45,
+          -0.71
+        ],
+        "description": "Leaf spring pack",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a2r",
+        "name": "Wheel A2R",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -1.795,
+          1.02,
+          -0.49
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "leaf_spring_a2r",
+        "name": "Leaf Spring A2R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -1.795,
+          0.45,
+          -0.71
+        ],
+        "description": "Leaf spring pack",
+        "x_derived": true
+      },
+      {
+        "id": "a3_drive_housing",
+        "name": "Axle body A3_drive_housing",
+        "description": "Beam axle, housing or de Dion tube",
+        "category": "structural",
+        "mass": 620,
+        "position": [
+          -5.0,
+          0,
+          -0.49
+        ],
+        "markers": {
+          "wheel_center_a3l": {
+            "position": [
+              -5.0,
+              -0.9185,
+              -0.49
+            ]
+          },
+          "spring_pad_a3l": {
+            "position": [
+              -5.0,
+              -0.48,
+              -0.62
+            ]
+          },
+          "damper_outboard_a3l": {
+            "position": [
+              -4.9,
+              -0.45,
+              -0.51
+            ]
+          },
+          "wheel_center_a3r": {
+            "position": [
+              -5.0,
+              0.9185,
+              -0.49
+            ]
+          },
+          "spring_pad_a3r": {
+            "position": [
+              -5.0,
+              0.48,
+              -0.62
+            ]
+          },
+          "damper_outboard_a3r": {
+            "position": [
+              -4.9,
+              0.45,
+              -0.51
+            ]
+          }
+        },
+        "x_legacy_axle_body": {
+          "_est": true
+        },
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a3l",
+        "name": "Wheel A3L",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -5.0,
+          -0.9185,
+          -0.49
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "leaf_spring_a3l",
+        "name": "Leaf Spring A3L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -5.0,
+          -0.48,
+          -0.71
+        ],
+        "description": "Leaf spring pack",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a3r",
+        "name": "Wheel A3R",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -5.0,
+          0.9185,
+          -0.49
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "leaf_spring_a3r",
+        "name": "Leaf Spring A3R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -5.0,
+          0.48,
+          -0.71
+        ],
+        "description": "Leaf spring pack",
+        "x_derived": true
+      },
+      {
+        "id": "a4_drive_housing",
+        "name": "Axle body A4_drive_housing",
+        "description": "Beam axle, housing or de Dion tube",
+        "category": "structural",
+        "mass": 620,
+        "position": [
+          -6.4,
+          0,
+          -0.49
+        ],
+        "markers": {
+          "wheel_center_a4l": {
+            "position": [
+              -6.4,
+              -0.9185,
+              -0.49
+            ]
+          },
+          "spring_pad_a4l": {
+            "position": [
+              -6.4,
+              -0.48,
+              -0.62
+            ]
+          },
+          "damper_outboard_a4l": {
+            "position": [
+              -6.3,
+              -0.45,
+              -0.51
+            ]
+          },
+          "wheel_center_a4r": {
+            "position": [
+              -6.4,
+              0.9185,
+              -0.49
+            ]
+          },
+          "spring_pad_a4r": {
+            "position": [
+              -6.4,
+              0.48,
+              -0.62
+            ]
+          },
+          "damper_outboard_a4r": {
+            "position": [
+              -6.3,
+              0.45,
+              -0.51
+            ]
+          }
+        },
+        "x_legacy_axle_body": {
+          "_est": true
+        },
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a4l",
+        "name": "Wheel A4L",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -6.4,
+          -0.9185,
+          -0.49
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "leaf_spring_a4l",
+        "name": "Leaf Spring A4L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -6.4,
+          -0.48,
+          -0.71
+        ],
+        "description": "Leaf spring pack",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a4r",
+        "name": "Wheel A4R",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -6.4,
+          0.9185,
+          -0.49
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "leaf_spring_a4r",
+        "name": "Leaf Spring A4R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -6.4,
+          0.48,
+          -0.71
+        ],
+        "description": "Leaf spring pack",
+        "x_derived": true
+      }
+    ]
   },
   "steering": {
     "type": "recirculating_ball",
@@ -94,1040 +572,6 @@
       }
     ],
     "_source": "Hydraulically assisted steering; kerb-to-kerb turning circle 20.1 m (WB 3205). Gear type, ratio and lock-to-lock estimated."
-  },
-  "suspension": {
-    "A1L": {
-      "topology": {
-        "system_type": "solid_axle",
-        "lateral_location": "leaf_located",
-        "upright": {
-          "id": "hub_A1L",
-          "hardpoints": {
-            "wheel_center": [
-              0.0,
-              -1.02,
-              -0.49
-            ],
-            "spring_pad": [
-              0.0,
-              -0.45,
-              -0.62
-            ],
-            "damper_outboard": [
-              0.1,
-              -0.42,
-              -0.51
-            ],
-            "steering_tie_rod_end": [
-              -0.22,
-              -0.86,
-              -0.45
-            ]
-          },
-          "_est": true
-        },
-        "links": [
-          {
-            "name": "leaf_spring",
-            "type": "arm",
-            "inboard_points": [
-              [
-                0.8,
-                -0.45,
-                -0.8
-              ],
-              [
-                -0.8,
-                -0.45,
-                -0.8
-              ]
-            ],
-            "outboard_ref": "hardpoints.spring_pad",
-            "_est": true
-          }
-        ],
-        "axle_body": {
-          "id": "A1_drop_beam",
-          "mass": 360,
-          "position": [
-            0.0,
-            0,
-            -0.49
-          ],
-          "_est": true
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.5715,
-        "rim_width": 0.2286,
-        "set_ref": "man_295_80r22_5",
-        "_source": "Rims: steel 9.00 x 22.5; tyres 295/80R22.5 (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022)"
-      },
-      "spring": {
-        "type": "leaf",
-        "leaf_count": 3,
-        "rate": 380000,
-        "end_type_front": "eye",
-        "end_type_rear": "shackle",
-        "hysteresis_force": 1800,
-        "_est": true,
-        "_source": "Three-leaf parabolic springs (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate, ends and hysteresis estimated"
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            9000
-          ],
-          [
-            0.5,
-            27000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            18000
-          ],
-          [
-            0.5,
-            54000
-          ]
-        ],
-        "_est": true
-      },
-      "arb": {
-        "bar_id": "stabiliser_A1",
-        "bar_rate": 180000,
-        "_est": true,
-        "_source": "Stabiliser fitted on steer axles and rear bogie (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate estimated"
-      },
-      "alignment": {
-        "camber": 0.0,
-        "toe": 0.0017,
-        "caster": 0.0611,
-        "_est": true
-      }
-    },
-    "A1R": {
-      "topology": {
-        "system_type": "solid_axle",
-        "lateral_location": "leaf_located",
-        "upright": {
-          "id": "hub_A1R",
-          "hardpoints": {
-            "wheel_center": [
-              0.0,
-              1.02,
-              -0.49
-            ],
-            "spring_pad": [
-              0.0,
-              0.45,
-              -0.62
-            ],
-            "damper_outboard": [
-              0.1,
-              0.42,
-              -0.51
-            ],
-            "steering_tie_rod_end": [
-              -0.22,
-              0.86,
-              -0.45
-            ]
-          },
-          "_est": true
-        },
-        "links": [
-          {
-            "name": "leaf_spring",
-            "type": "arm",
-            "inboard_points": [
-              [
-                0.8,
-                0.45,
-                -0.8
-              ],
-              [
-                -0.8,
-                0.45,
-                -0.8
-              ]
-            ],
-            "outboard_ref": "hardpoints.spring_pad",
-            "_est": true
-          }
-        ],
-        "axle_body": {
-          "id": "A1_drop_beam",
-          "mass": 360,
-          "position": [
-            0.0,
-            0,
-            -0.49
-          ],
-          "_est": true
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.5715,
-        "rim_width": 0.2286,
-        "set_ref": "man_295_80r22_5",
-        "_source": "Rims: steel 9.00 x 22.5; tyres 295/80R22.5 (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022)"
-      },
-      "spring": {
-        "type": "leaf",
-        "leaf_count": 3,
-        "rate": 380000,
-        "end_type_front": "eye",
-        "end_type_rear": "shackle",
-        "hysteresis_force": 1800,
-        "_est": true,
-        "_source": "Three-leaf parabolic springs (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate, ends and hysteresis estimated"
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            9000
-          ],
-          [
-            0.5,
-            27000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            18000
-          ],
-          [
-            0.5,
-            54000
-          ]
-        ],
-        "_est": true
-      },
-      "arb": {
-        "bar_id": "stabiliser_A1",
-        "bar_rate": 180000,
-        "_est": true,
-        "_source": "Stabiliser fitted on steer axles and rear bogie (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate estimated"
-      },
-      "alignment": {
-        "camber": 0.0,
-        "toe": 0.0017,
-        "caster": 0.0611,
-        "_est": true
-      }
-    },
-    "A2L": {
-      "topology": {
-        "system_type": "solid_axle",
-        "lateral_location": "leaf_located",
-        "upright": {
-          "id": "hub_A2L",
-          "hardpoints": {
-            "wheel_center": [
-              -1.795,
-              -1.02,
-              -0.49
-            ],
-            "spring_pad": [
-              -1.795,
-              -0.45,
-              -0.62
-            ],
-            "damper_outboard": [
-              -1.695,
-              -0.42,
-              -0.51
-            ],
-            "steering_tie_rod_end": [
-              -2.015,
-              -0.86,
-              -0.45
-            ]
-          },
-          "_est": true
-        },
-        "links": [
-          {
-            "name": "leaf_spring",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -0.995,
-                -0.45,
-                -0.8
-              ],
-              [
-                -2.595,
-                -0.45,
-                -0.8
-              ]
-            ],
-            "outboard_ref": "hardpoints.spring_pad",
-            "_est": true
-          }
-        ],
-        "axle_body": {
-          "id": "A2_drop_beam",
-          "mass": 360,
-          "position": [
-            -1.795,
-            0,
-            -0.49
-          ],
-          "_est": true
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.5715,
-        "rim_width": 0.2286,
-        "set_ref": "man_295_80r22_5",
-        "_source": "Rims: steel 9.00 x 22.5; tyres 295/80R22.5 (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022)"
-      },
-      "spring": {
-        "type": "leaf",
-        "leaf_count": 3,
-        "rate": 380000,
-        "end_type_front": "eye",
-        "end_type_rear": "shackle",
-        "hysteresis_force": 1800,
-        "_est": true,
-        "_source": "Three-leaf parabolic springs (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate, ends and hysteresis estimated"
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            9000
-          ],
-          [
-            0.5,
-            27000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            18000
-          ],
-          [
-            0.5,
-            54000
-          ]
-        ],
-        "_est": true
-      },
-      "arb": {
-        "bar_id": "stabiliser_A2",
-        "bar_rate": 180000,
-        "_est": true,
-        "_source": "Stabiliser fitted on steer axles and rear bogie (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate estimated"
-      },
-      "alignment": {
-        "camber": 0.0,
-        "toe": 0.0017,
-        "caster": 0.0611,
-        "_est": true
-      }
-    },
-    "A2R": {
-      "topology": {
-        "system_type": "solid_axle",
-        "lateral_location": "leaf_located",
-        "upright": {
-          "id": "hub_A2R",
-          "hardpoints": {
-            "wheel_center": [
-              -1.795,
-              1.02,
-              -0.49
-            ],
-            "spring_pad": [
-              -1.795,
-              0.45,
-              -0.62
-            ],
-            "damper_outboard": [
-              -1.695,
-              0.42,
-              -0.51
-            ],
-            "steering_tie_rod_end": [
-              -2.015,
-              0.86,
-              -0.45
-            ]
-          },
-          "_est": true
-        },
-        "links": [
-          {
-            "name": "leaf_spring",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -0.995,
-                0.45,
-                -0.8
-              ],
-              [
-                -2.595,
-                0.45,
-                -0.8
-              ]
-            ],
-            "outboard_ref": "hardpoints.spring_pad",
-            "_est": true
-          }
-        ],
-        "axle_body": {
-          "id": "A2_drop_beam",
-          "mass": 360,
-          "position": [
-            -1.795,
-            0,
-            -0.49
-          ],
-          "_est": true
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.5715,
-        "rim_width": 0.2286,
-        "set_ref": "man_295_80r22_5",
-        "_source": "Rims: steel 9.00 x 22.5; tyres 295/80R22.5 (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022)"
-      },
-      "spring": {
-        "type": "leaf",
-        "leaf_count": 3,
-        "rate": 380000,
-        "end_type_front": "eye",
-        "end_type_rear": "shackle",
-        "hysteresis_force": 1800,
-        "_est": true,
-        "_source": "Three-leaf parabolic springs (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate, ends and hysteresis estimated"
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            9000
-          ],
-          [
-            0.5,
-            27000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            18000
-          ],
-          [
-            0.5,
-            54000
-          ]
-        ],
-        "_est": true
-      },
-      "arb": {
-        "bar_id": "stabiliser_A2",
-        "bar_rate": 180000,
-        "_est": true,
-        "_source": "Stabiliser fitted on steer axles and rear bogie (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate estimated"
-      },
-      "alignment": {
-        "camber": 0.0,
-        "toe": 0.0017,
-        "caster": 0.0611,
-        "_est": true
-      }
-    },
-    "A3L": {
-      "topology": {
-        "system_type": "solid_axle",
-        "lateral_location": "leaf_located",
-        "upright": {
-          "id": "hub_A3L",
-          "hardpoints": {
-            "wheel_center": [
-              -5.0,
-              -0.9185,
-              -0.49
-            ],
-            "spring_pad": [
-              -5.0,
-              -0.48,
-              -0.62
-            ],
-            "damper_outboard": [
-              -4.9,
-              -0.45,
-              -0.51
-            ]
-          },
-          "_est": true
-        },
-        "links": [
-          {
-            "name": "leaf_spring",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -4.4,
-                -0.48,
-                -0.8
-              ],
-              [
-                -5.6,
-                -0.48,
-                -0.8
-              ]
-            ],
-            "outboard_ref": "hardpoints.spring_pad",
-            "_est": true
-          }
-        ],
-        "axle_body": {
-          "id": "A3_drive_housing",
-          "mass": 620,
-          "position": [
-            -5.0,
-            0,
-            -0.49
-          ],
-          "_est": true
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.5715,
-        "rim_width": 0.2286,
-        "set_ref": "man_295_80r22_5",
-        "_source": "Rims: steel 9.00 x 22.5; tyres 295/80R22.5 (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022)",
-        "multiplicity": 2,
-        "dual_spacing": 0.33,
-        "positions": [
-          {
-            "label": "inner",
-            "offset_outboard": -0.165
-          },
-          {
-            "label": "outer",
-            "offset_outboard": 0.165
-          }
-        ],
-        "_est_fields": [
-          "dual_spacing"
-        ]
-      },
-      "spring": {
-        "type": "leaf",
-        "leaf_count": 3,
-        "rate": 460000,
-        "end_type_front": "eye",
-        "end_type_rear": "slipper",
-        "hysteresis_force": 1800,
-        "_est": true,
-        "_source": "Three-leaf parabolic springs (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate, ends and hysteresis estimated"
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            9000
-          ],
-          [
-            0.5,
-            27000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            18000
-          ],
-          [
-            0.5,
-            54000
-          ]
-        ],
-        "_est": true
-      },
-      "arb": {
-        "bar_id": "stabiliser_A3",
-        "bar_rate": 260000,
-        "_est": true,
-        "_source": "Stabiliser fitted on steer axles and rear bogie (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate estimated"
-      },
-      "alignment": {
-        "camber": 0.0,
-        "toe": 0.0,
-        "caster": 0.0,
-        "_est": true
-      },
-      "static_setup": {
-        "ride_height": 1.046,
-        "_source": "H3 frame height at centre rear wheels, unladen 1046 mm (laden 966 mm)"
-      }
-    },
-    "A3R": {
-      "topology": {
-        "system_type": "solid_axle",
-        "lateral_location": "leaf_located",
-        "upright": {
-          "id": "hub_A3R",
-          "hardpoints": {
-            "wheel_center": [
-              -5.0,
-              0.9185,
-              -0.49
-            ],
-            "spring_pad": [
-              -5.0,
-              0.48,
-              -0.62
-            ],
-            "damper_outboard": [
-              -4.9,
-              0.45,
-              -0.51
-            ]
-          },
-          "_est": true
-        },
-        "links": [
-          {
-            "name": "leaf_spring",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -4.4,
-                0.48,
-                -0.8
-              ],
-              [
-                -5.6,
-                0.48,
-                -0.8
-              ]
-            ],
-            "outboard_ref": "hardpoints.spring_pad",
-            "_est": true
-          }
-        ],
-        "axle_body": {
-          "id": "A3_drive_housing",
-          "mass": 620,
-          "position": [
-            -5.0,
-            0,
-            -0.49
-          ],
-          "_est": true
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.5715,
-        "rim_width": 0.2286,
-        "set_ref": "man_295_80r22_5",
-        "_source": "Rims: steel 9.00 x 22.5; tyres 295/80R22.5 (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022)",
-        "multiplicity": 2,
-        "dual_spacing": 0.33,
-        "positions": [
-          {
-            "label": "inner",
-            "offset_outboard": -0.165
-          },
-          {
-            "label": "outer",
-            "offset_outboard": 0.165
-          }
-        ],
-        "_est_fields": [
-          "dual_spacing"
-        ]
-      },
-      "spring": {
-        "type": "leaf",
-        "leaf_count": 3,
-        "rate": 460000,
-        "end_type_front": "eye",
-        "end_type_rear": "slipper",
-        "hysteresis_force": 1800,
-        "_est": true,
-        "_source": "Three-leaf parabolic springs (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate, ends and hysteresis estimated"
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            9000
-          ],
-          [
-            0.5,
-            27000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            18000
-          ],
-          [
-            0.5,
-            54000
-          ]
-        ],
-        "_est": true
-      },
-      "arb": {
-        "bar_id": "stabiliser_A3",
-        "bar_rate": 260000,
-        "_est": true,
-        "_source": "Stabiliser fitted on steer axles and rear bogie (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate estimated"
-      },
-      "alignment": {
-        "camber": 0.0,
-        "toe": 0.0,
-        "caster": 0.0,
-        "_est": true
-      },
-      "static_setup": {
-        "ride_height": 1.046,
-        "_source": "H3 frame height at centre rear wheels, unladen 1046 mm (laden 966 mm)"
-      }
-    },
-    "A4L": {
-      "topology": {
-        "system_type": "solid_axle",
-        "lateral_location": "leaf_located",
-        "upright": {
-          "id": "hub_A4L",
-          "hardpoints": {
-            "wheel_center": [
-              -6.4,
-              -0.9185,
-              -0.49
-            ],
-            "spring_pad": [
-              -6.4,
-              -0.48,
-              -0.62
-            ],
-            "damper_outboard": [
-              -6.3,
-              -0.45,
-              -0.51
-            ]
-          },
-          "_est": true
-        },
-        "links": [
-          {
-            "name": "leaf_spring",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -5.8,
-                -0.48,
-                -0.8
-              ],
-              [
-                -7.0,
-                -0.48,
-                -0.8
-              ]
-            ],
-            "outboard_ref": "hardpoints.spring_pad",
-            "_est": true
-          }
-        ],
-        "axle_body": {
-          "id": "A4_drive_housing",
-          "mass": 620,
-          "position": [
-            -6.4,
-            0,
-            -0.49
-          ],
-          "_est": true
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.5715,
-        "rim_width": 0.2286,
-        "set_ref": "man_295_80r22_5",
-        "_source": "Rims: steel 9.00 x 22.5; tyres 295/80R22.5 (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022)",
-        "multiplicity": 2,
-        "dual_spacing": 0.33,
-        "positions": [
-          {
-            "label": "inner",
-            "offset_outboard": -0.165
-          },
-          {
-            "label": "outer",
-            "offset_outboard": 0.165
-          }
-        ],
-        "_est_fields": [
-          "dual_spacing"
-        ]
-      },
-      "spring": {
-        "type": "leaf",
-        "leaf_count": 3,
-        "rate": 460000,
-        "end_type_front": "eye",
-        "end_type_rear": "slipper",
-        "hysteresis_force": 1800,
-        "_est": true,
-        "_source": "Three-leaf parabolic springs (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate, ends and hysteresis estimated"
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            9000
-          ],
-          [
-            0.5,
-            27000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            18000
-          ],
-          [
-            0.5,
-            54000
-          ]
-        ],
-        "_est": true
-      },
-      "arb": {
-        "bar_id": "stabiliser_A4",
-        "bar_rate": 260000,
-        "_est": true,
-        "_source": "Stabiliser fitted on steer axles and rear bogie (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate estimated"
-      },
-      "alignment": {
-        "camber": 0.0,
-        "toe": 0.0,
-        "caster": 0.0,
-        "_est": true
-      },
-      "static_setup": {
-        "ride_height": 1.046,
-        "_source": "H3 frame height at centre rear wheels, unladen 1046 mm (laden 966 mm)"
-      }
-    },
-    "A4R": {
-      "topology": {
-        "system_type": "solid_axle",
-        "lateral_location": "leaf_located",
-        "upright": {
-          "id": "hub_A4R",
-          "hardpoints": {
-            "wheel_center": [
-              -6.4,
-              0.9185,
-              -0.49
-            ],
-            "spring_pad": [
-              -6.4,
-              0.48,
-              -0.62
-            ],
-            "damper_outboard": [
-              -6.3,
-              0.45,
-              -0.51
-            ]
-          },
-          "_est": true
-        },
-        "links": [
-          {
-            "name": "leaf_spring",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -5.8,
-                0.48,
-                -0.8
-              ],
-              [
-                -7.0,
-                0.48,
-                -0.8
-              ]
-            ],
-            "outboard_ref": "hardpoints.spring_pad",
-            "_est": true
-          }
-        ],
-        "axle_body": {
-          "id": "A4_drive_housing",
-          "mass": 620,
-          "position": [
-            -6.4,
-            0,
-            -0.49
-          ],
-          "_est": true
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.5715,
-        "rim_width": 0.2286,
-        "set_ref": "man_295_80r22_5",
-        "_source": "Rims: steel 9.00 x 22.5; tyres 295/80R22.5 (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022)",
-        "multiplicity": 2,
-        "dual_spacing": 0.33,
-        "positions": [
-          {
-            "label": "inner",
-            "offset_outboard": -0.165
-          },
-          {
-            "label": "outer",
-            "offset_outboard": 0.165
-          }
-        ],
-        "_est_fields": [
-          "dual_spacing"
-        ]
-      },
-      "spring": {
-        "type": "leaf",
-        "leaf_count": 3,
-        "rate": 460000,
-        "end_type_front": "eye",
-        "end_type_rear": "slipper",
-        "hysteresis_force": 1800,
-        "_est": true,
-        "_source": "Three-leaf parabolic springs (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate, ends and hysteresis estimated"
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            9000
-          ],
-          [
-            0.5,
-            27000
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.1,
-            18000
-          ],
-          [
-            0.5,
-            54000
-          ]
-        ],
-        "_est": true
-      },
-      "arb": {
-        "bar_id": "stabiliser_A4",
-        "bar_rate": 260000,
-        "_est": true,
-        "_source": "Stabiliser fitted on steer axles and rear bogie (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022); rate estimated"
-      },
-      "alignment": {
-        "camber": 0.0,
-        "toe": 0.0,
-        "caster": 0.0,
-        "_est": true
-      },
-      "static_setup": {
-        "ride_height": 1.046,
-        "_source": "H3 frame height at centre rear wheels, unladen 1046 mm (laden 966 mm)"
-      }
-    }
   },
   "axles": [
     {
@@ -1397,5 +841,2231 @@
     ],
     "fuel_tank_litres": 300,
     "adblue_tank_litres": 35
-  }
+  },
+  "constraints": [
+    {
+      "id": "hinge_wheel_a1l",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a1_drop_beam",
+      "frame_a": {
+        "position": [
+          0.0,
+          -1.02,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a1l",
+      "frame_b": {
+        "position": [
+          0.0,
+          -1.02,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_leaf_spring_a1l_front_eye",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.8,
+          -0.45,
+          -0.8
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "leaf_spring_a1l",
+      "frame_b": {
+        "position": [
+          0.8,
+          -0.45,
+          -0.8
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "slide_leaf_spring_a1l_rear_end",
+      "type": "joint",
+      "joint_type": "translational",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.8,
+          -0.45,
+          -0.8
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "leaf_spring_a1l",
+      "frame_b": {
+        "position": [
+          -0.8,
+          -0.45,
+          -0.8
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_leaf_spring_a1l_seat",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "leaf_spring_a1l",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.45,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a1_drop_beam",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.45,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a1l",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          -1.02,
+          -0.79
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a1_drop_beam",
+      "frame_b": {
+        "position": [
+          0.0,
+          -1.02,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "leaf",
+      "end_type_front": "eye",
+      "end_type_rear": "shackle",
+      "hysteresis_force": 1800,
+      "leaf_count": 3,
+      "_est": true,
+      "rate": 380000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a1l",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          -1.02,
+          -0.79
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a1_drop_beam",
+      "frame_b": {
+        "position": [
+          0.0,
+          -1.02,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          9000
+        ],
+        [
+          0.5,
+          27000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          18000
+        ],
+        [
+          0.5,
+          54000
+        ]
+      ],
+      "_est": true,
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a1r",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a1_drop_beam",
+      "frame_a": {
+        "position": [
+          0.0,
+          1.02,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a1r",
+      "frame_b": {
+        "position": [
+          0.0,
+          1.02,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_leaf_spring_a1r_front_eye",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.8,
+          0.45,
+          -0.8
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "leaf_spring_a1r",
+      "frame_b": {
+        "position": [
+          0.8,
+          0.45,
+          -0.8
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "slide_leaf_spring_a1r_rear_end",
+      "type": "joint",
+      "joint_type": "translational",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.8,
+          0.45,
+          -0.8
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "leaf_spring_a1r",
+      "frame_b": {
+        "position": [
+          -0.8,
+          0.45,
+          -0.8
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_leaf_spring_a1r_seat",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "leaf_spring_a1r",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.45,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a1_drop_beam",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.45,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a1r",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          1.02,
+          -0.79
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a1_drop_beam",
+      "frame_b": {
+        "position": [
+          0.0,
+          1.02,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "leaf",
+      "end_type_front": "eye",
+      "end_type_rear": "shackle",
+      "hysteresis_force": 1800,
+      "leaf_count": 3,
+      "_est": true,
+      "rate": 380000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a1r",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          1.02,
+          -0.79
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a1_drop_beam",
+      "frame_b": {
+        "position": [
+          0.0,
+          1.02,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          9000
+        ],
+        [
+          0.5,
+          27000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          18000
+        ],
+        [
+          0.5,
+          54000
+        ]
+      ],
+      "_est": true,
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a2l",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a2_drop_beam",
+      "frame_a": {
+        "position": [
+          -1.795,
+          -1.02,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a2l",
+      "frame_b": {
+        "position": [
+          -1.795,
+          -1.02,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_leaf_spring_a2l_front_eye",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.995,
+          -0.45,
+          -0.8
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "leaf_spring_a2l",
+      "frame_b": {
+        "position": [
+          -0.995,
+          -0.45,
+          -0.8
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "slide_leaf_spring_a2l_rear_end",
+      "type": "joint",
+      "joint_type": "translational",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.595,
+          -0.45,
+          -0.8
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "leaf_spring_a2l",
+      "frame_b": {
+        "position": [
+          -2.595,
+          -0.45,
+          -0.8
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_leaf_spring_a2l_seat",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "leaf_spring_a2l",
+      "frame_a": {
+        "position": [
+          -1.795,
+          -0.45,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a2_drop_beam",
+      "frame_b": {
+        "position": [
+          -1.795,
+          -0.45,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a2l",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -1.795,
+          -1.02,
+          -0.79
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a2_drop_beam",
+      "frame_b": {
+        "position": [
+          -1.795,
+          -1.02,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "leaf",
+      "end_type_front": "eye",
+      "end_type_rear": "shackle",
+      "hysteresis_force": 1800,
+      "leaf_count": 3,
+      "_est": true,
+      "rate": 380000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a2l",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -1.795,
+          -1.02,
+          -0.79
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a2_drop_beam",
+      "frame_b": {
+        "position": [
+          -1.795,
+          -1.02,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          9000
+        ],
+        [
+          0.5,
+          27000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          18000
+        ],
+        [
+          0.5,
+          54000
+        ]
+      ],
+      "_est": true,
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a2r",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a2_drop_beam",
+      "frame_a": {
+        "position": [
+          -1.795,
+          1.02,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a2r",
+      "frame_b": {
+        "position": [
+          -1.795,
+          1.02,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_leaf_spring_a2r_front_eye",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.995,
+          0.45,
+          -0.8
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "leaf_spring_a2r",
+      "frame_b": {
+        "position": [
+          -0.995,
+          0.45,
+          -0.8
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "slide_leaf_spring_a2r_rear_end",
+      "type": "joint",
+      "joint_type": "translational",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.595,
+          0.45,
+          -0.8
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "leaf_spring_a2r",
+      "frame_b": {
+        "position": [
+          -2.595,
+          0.45,
+          -0.8
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_leaf_spring_a2r_seat",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "leaf_spring_a2r",
+      "frame_a": {
+        "position": [
+          -1.795,
+          0.45,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a2_drop_beam",
+      "frame_b": {
+        "position": [
+          -1.795,
+          0.45,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a2r",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -1.795,
+          1.02,
+          -0.79
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a2_drop_beam",
+      "frame_b": {
+        "position": [
+          -1.795,
+          1.02,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "leaf",
+      "end_type_front": "eye",
+      "end_type_rear": "shackle",
+      "hysteresis_force": 1800,
+      "leaf_count": 3,
+      "_est": true,
+      "rate": 380000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a2r",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -1.795,
+          1.02,
+          -0.79
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a2_drop_beam",
+      "frame_b": {
+        "position": [
+          -1.795,
+          1.02,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          9000
+        ],
+        [
+          0.5,
+          27000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          18000
+        ],
+        [
+          0.5,
+          54000
+        ]
+      ],
+      "_est": true,
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a3l",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a3_drive_housing",
+      "frame_a": {
+        "position": [
+          -5.0,
+          -0.9185,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a3l",
+      "frame_b": {
+        "position": [
+          -5.0,
+          -0.9185,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_leaf_spring_a3l_front_eye",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -4.4,
+          -0.48,
+          -0.8
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "leaf_spring_a3l",
+      "frame_b": {
+        "position": [
+          -4.4,
+          -0.48,
+          -0.8
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "slide_leaf_spring_a3l_rear_end",
+      "type": "joint",
+      "joint_type": "translational",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -5.6,
+          -0.48,
+          -0.8
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "leaf_spring_a3l",
+      "frame_b": {
+        "position": [
+          -5.6,
+          -0.48,
+          -0.8
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_leaf_spring_a3l_seat",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "leaf_spring_a3l",
+      "frame_a": {
+        "position": [
+          -5.0,
+          -0.48,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a3_drive_housing",
+      "frame_b": {
+        "position": [
+          -5.0,
+          -0.48,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a3l",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -5.0,
+          -0.9185,
+          -0.79
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a3_drive_housing",
+      "frame_b": {
+        "position": [
+          -5.0,
+          -0.9185,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "leaf",
+      "end_type_front": "eye",
+      "end_type_rear": "slipper",
+      "hysteresis_force": 1800,
+      "leaf_count": 3,
+      "_est": true,
+      "rate": 460000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a3l",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -5.0,
+          -0.9185,
+          -0.79
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a3_drive_housing",
+      "frame_b": {
+        "position": [
+          -5.0,
+          -0.9185,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          9000
+        ],
+        [
+          0.5,
+          27000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          18000
+        ],
+        [
+          0.5,
+          54000
+        ]
+      ],
+      "_est": true,
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a3r",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a3_drive_housing",
+      "frame_a": {
+        "position": [
+          -5.0,
+          0.9185,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a3r",
+      "frame_b": {
+        "position": [
+          -5.0,
+          0.9185,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_leaf_spring_a3r_front_eye",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -4.4,
+          0.48,
+          -0.8
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "leaf_spring_a3r",
+      "frame_b": {
+        "position": [
+          -4.4,
+          0.48,
+          -0.8
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "slide_leaf_spring_a3r_rear_end",
+      "type": "joint",
+      "joint_type": "translational",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -5.6,
+          0.48,
+          -0.8
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "leaf_spring_a3r",
+      "frame_b": {
+        "position": [
+          -5.6,
+          0.48,
+          -0.8
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_leaf_spring_a3r_seat",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "leaf_spring_a3r",
+      "frame_a": {
+        "position": [
+          -5.0,
+          0.48,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a3_drive_housing",
+      "frame_b": {
+        "position": [
+          -5.0,
+          0.48,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a3r",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -5.0,
+          0.9185,
+          -0.79
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a3_drive_housing",
+      "frame_b": {
+        "position": [
+          -5.0,
+          0.9185,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "leaf",
+      "end_type_front": "eye",
+      "end_type_rear": "slipper",
+      "hysteresis_force": 1800,
+      "leaf_count": 3,
+      "_est": true,
+      "rate": 460000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a3r",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -5.0,
+          0.9185,
+          -0.79
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a3_drive_housing",
+      "frame_b": {
+        "position": [
+          -5.0,
+          0.9185,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          9000
+        ],
+        [
+          0.5,
+          27000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          18000
+        ],
+        [
+          0.5,
+          54000
+        ]
+      ],
+      "_est": true,
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a4l",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a4_drive_housing",
+      "frame_a": {
+        "position": [
+          -6.4,
+          -0.9185,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a4l",
+      "frame_b": {
+        "position": [
+          -6.4,
+          -0.9185,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_leaf_spring_a4l_front_eye",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -5.8,
+          -0.48,
+          -0.8
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "leaf_spring_a4l",
+      "frame_b": {
+        "position": [
+          -5.8,
+          -0.48,
+          -0.8
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "slide_leaf_spring_a4l_rear_end",
+      "type": "joint",
+      "joint_type": "translational",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -7.0,
+          -0.48,
+          -0.8
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "leaf_spring_a4l",
+      "frame_b": {
+        "position": [
+          -7.0,
+          -0.48,
+          -0.8
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_leaf_spring_a4l_seat",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "leaf_spring_a4l",
+      "frame_a": {
+        "position": [
+          -6.4,
+          -0.48,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a4_drive_housing",
+      "frame_b": {
+        "position": [
+          -6.4,
+          -0.48,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a4l",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -6.4,
+          -0.9185,
+          -0.79
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a4_drive_housing",
+      "frame_b": {
+        "position": [
+          -6.4,
+          -0.9185,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "leaf",
+      "end_type_front": "eye",
+      "end_type_rear": "slipper",
+      "hysteresis_force": 1800,
+      "leaf_count": 3,
+      "_est": true,
+      "rate": 460000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a4l",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -6.4,
+          -0.9185,
+          -0.79
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a4_drive_housing",
+      "frame_b": {
+        "position": [
+          -6.4,
+          -0.9185,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          9000
+        ],
+        [
+          0.5,
+          27000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          18000
+        ],
+        [
+          0.5,
+          54000
+        ]
+      ],
+      "_est": true,
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a4r",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a4_drive_housing",
+      "frame_a": {
+        "position": [
+          -6.4,
+          0.9185,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a4r",
+      "frame_b": {
+        "position": [
+          -6.4,
+          0.9185,
+          -0.49
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_leaf_spring_a4r_front_eye",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -5.8,
+          0.48,
+          -0.8
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "leaf_spring_a4r",
+      "frame_b": {
+        "position": [
+          -5.8,
+          0.48,
+          -0.8
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "slide_leaf_spring_a4r_rear_end",
+      "type": "joint",
+      "joint_type": "translational",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -7.0,
+          0.48,
+          -0.8
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "leaf_spring_a4r",
+      "frame_b": {
+        "position": [
+          -7.0,
+          0.48,
+          -0.8
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_leaf_spring_a4r_seat",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "leaf_spring_a4r",
+      "frame_a": {
+        "position": [
+          -6.4,
+          0.48,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a4_drive_housing",
+      "frame_b": {
+        "position": [
+          -6.4,
+          0.48,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a4r",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -6.4,
+          0.9185,
+          -0.79
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a4_drive_housing",
+      "frame_b": {
+        "position": [
+          -6.4,
+          0.9185,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "leaf",
+      "end_type_front": "eye",
+      "end_type_rear": "slipper",
+      "hysteresis_force": 1800,
+      "leaf_count": 3,
+      "_est": true,
+      "rate": 460000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_a4r",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -6.4,
+          0.9185,
+          -0.79
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a4_drive_housing",
+      "frame_b": {
+        "position": [
+          -6.4,
+          0.9185,
+          -0.49
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          9000
+        ],
+        [
+          0.5,
+          27000
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.1,
+          18000
+        ],
+        [
+          0.5,
+          54000
+        ]
+      ],
+      "_est": true,
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    }
+  ],
+  "wheel_stations": [
+    {
+      "id": "A1L",
+      "name": "A1L",
+      "wheel_body": "wheel_a1l",
+      "upright_body": "a1_drop_beam",
+      "wheel_center_marker": "wheel_center_a1l",
+      "axle": "A1",
+      "side": "L",
+      "topology_hint": "solid_axle",
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "set_ref": "man_295_80r22_5",
+        "_source": "Rims: steel 9.00 x 22.5; tyres 295/80R22.5 (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022)"
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0017,
+        "caster": 0.0611,
+        "_est": true
+      },
+      "x_lateral_location": "leaf_located"
+    },
+    {
+      "id": "A1R",
+      "name": "A1R",
+      "wheel_body": "wheel_a1r",
+      "upright_body": "a1_drop_beam",
+      "wheel_center_marker": "wheel_center_a1r",
+      "axle": "A1",
+      "side": "R",
+      "topology_hint": "solid_axle",
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "set_ref": "man_295_80r22_5",
+        "_source": "Rims: steel 9.00 x 22.5; tyres 295/80R22.5 (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022)"
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0017,
+        "caster": 0.0611,
+        "_est": true
+      },
+      "x_lateral_location": "leaf_located"
+    },
+    {
+      "id": "A2L",
+      "name": "A2L",
+      "wheel_body": "wheel_a2l",
+      "upright_body": "a2_drop_beam",
+      "wheel_center_marker": "wheel_center_a2l",
+      "axle": "A2",
+      "side": "L",
+      "topology_hint": "solid_axle",
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "set_ref": "man_295_80r22_5",
+        "_source": "Rims: steel 9.00 x 22.5; tyres 295/80R22.5 (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022)"
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0017,
+        "caster": 0.0611,
+        "_est": true
+      },
+      "x_lateral_location": "leaf_located"
+    },
+    {
+      "id": "A2R",
+      "name": "A2R",
+      "wheel_body": "wheel_a2r",
+      "upright_body": "a2_drop_beam",
+      "wheel_center_marker": "wheel_center_a2r",
+      "axle": "A2",
+      "side": "R",
+      "topology_hint": "solid_axle",
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "set_ref": "man_295_80r22_5",
+        "_source": "Rims: steel 9.00 x 22.5; tyres 295/80R22.5 (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022)"
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0017,
+        "caster": 0.0611,
+        "_est": true
+      },
+      "x_lateral_location": "leaf_located"
+    },
+    {
+      "id": "A3L",
+      "name": "A3L",
+      "wheel_body": "wheel_a3l",
+      "upright_body": "a3_drive_housing",
+      "wheel_center_marker": "wheel_center_a3l",
+      "axle": "A3",
+      "side": "L",
+      "topology_hint": "solid_axle",
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "set_ref": "man_295_80r22_5",
+        "_source": "Rims: steel 9.00 x 22.5; tyres 295/80R22.5 (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022)",
+        "multiplicity": 2,
+        "dual_spacing": 0.33,
+        "positions": [
+          {
+            "label": "inner",
+            "offset_outboard": -0.165
+          },
+          {
+            "label": "outer",
+            "offset_outboard": 0.165
+          }
+        ],
+        "_est_fields": [
+          "dual_spacing"
+        ]
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0,
+        "caster": 0.0,
+        "_est": true
+      },
+      "static_setup": {
+        "ride_height": 1.046,
+        "_source": "H3 frame height at centre rear wheels, unladen 1046 mm (laden 966 mm)"
+      },
+      "x_lateral_location": "leaf_located"
+    },
+    {
+      "id": "A3R",
+      "name": "A3R",
+      "wheel_body": "wheel_a3r",
+      "upright_body": "a3_drive_housing",
+      "wheel_center_marker": "wheel_center_a3r",
+      "axle": "A3",
+      "side": "R",
+      "topology_hint": "solid_axle",
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "set_ref": "man_295_80r22_5",
+        "_source": "Rims: steel 9.00 x 22.5; tyres 295/80R22.5 (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022)",
+        "multiplicity": 2,
+        "dual_spacing": 0.33,
+        "positions": [
+          {
+            "label": "inner",
+            "offset_outboard": -0.165
+          },
+          {
+            "label": "outer",
+            "offset_outboard": 0.165
+          }
+        ],
+        "_est_fields": [
+          "dual_spacing"
+        ]
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0,
+        "caster": 0.0,
+        "_est": true
+      },
+      "static_setup": {
+        "ride_height": 1.046,
+        "_source": "H3 frame height at centre rear wheels, unladen 1046 mm (laden 966 mm)"
+      },
+      "x_lateral_location": "leaf_located"
+    },
+    {
+      "id": "A4L",
+      "name": "A4L",
+      "wheel_body": "wheel_a4l",
+      "upright_body": "a4_drive_housing",
+      "wheel_center_marker": "wheel_center_a4l",
+      "axle": "A4",
+      "side": "L",
+      "topology_hint": "solid_axle",
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "set_ref": "man_295_80r22_5",
+        "_source": "Rims: steel 9.00 x 22.5; tyres 295/80R22.5 (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022)",
+        "multiplicity": 2,
+        "dual_spacing": 0.33,
+        "positions": [
+          {
+            "label": "inner",
+            "offset_outboard": -0.165
+          },
+          {
+            "label": "outer",
+            "offset_outboard": 0.165
+          }
+        ],
+        "_est_fields": [
+          "dual_spacing"
+        ]
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0,
+        "caster": 0.0,
+        "_est": true
+      },
+      "static_setup": {
+        "ride_height": 1.046,
+        "_source": "H3 frame height at centre rear wheels, unladen 1046 mm (laden 966 mm)"
+      },
+      "x_lateral_location": "leaf_located"
+    },
+    {
+      "id": "A4R",
+      "name": "A4R",
+      "wheel_body": "wheel_a4r",
+      "upright_body": "a4_drive_housing",
+      "wheel_center_marker": "wheel_center_a4r",
+      "axle": "A4",
+      "side": "R",
+      "topology_hint": "solid_axle",
+      "wheel": {
+        "rim_diameter": 0.5715,
+        "rim_width": 0.2286,
+        "set_ref": "man_295_80r22_5",
+        "_source": "Rims: steel 9.00 x 22.5; tyres 295/80R22.5 (MAN Truck & Bus UK, TGS 8X4 Normal Height Tipper chassis specification, MAN TGS 8X4RIGTIP / 10, May 2022)",
+        "multiplicity": 2,
+        "dual_spacing": 0.33,
+        "positions": [
+          {
+            "label": "inner",
+            "offset_outboard": -0.165
+          },
+          {
+            "label": "outer",
+            "offset_outboard": 0.165
+          }
+        ],
+        "_est_fields": [
+          "dual_spacing"
+        ]
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0,
+        "caster": 0.0,
+        "_est": true
+      },
+      "static_setup": {
+        "ride_height": 1.046,
+        "_source": "H3 frame height at centre rear wheels, unladen 1046 mm (laden 966 mm)"
+      },
+      "x_lateral_location": "leaf_located"
+    }
+  ],
+  "anti_roll_bars": [
+    {
+      "id": "stabiliser_A1",
+      "stations": [
+        "A1L",
+        "A1R"
+      ],
+      "bar_rate": 180000
+    },
+    {
+      "id": "stabiliser_A2",
+      "stations": [
+        "A2L",
+        "A2R"
+      ],
+      "bar_rate": 180000
+    },
+    {
+      "id": "stabiliser_A3",
+      "stations": [
+        "A3L",
+        "A3R"
+      ],
+      "bar_rate": 260000
+    },
+    {
+      "id": "stabiliser_A4",
+      "stations": [
+        "A4L",
+        "A4R"
+      ],
+      "bar_rate": 260000
+    }
+  ]
 }

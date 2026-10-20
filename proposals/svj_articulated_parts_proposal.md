@@ -268,4 +268,4 @@ ignore the blocks still see a valid vehicle in its reference pose.
 | 2 | Viewer poses panel and animation | Poses animate the bound meshes about the hinges |
 | 3 | `latch`, `coupling`, rotary `joint.drive` — **implemented in v0.99.6** | A tilt-cab / tipper example (`skeleton_dump_truck_tipper_cab`) |
 | 4 | Attachments: interfaces, qualified ids, joint object in the combination file | A loader file fitted to a tractor file |
-| 5 | `contact` (needs the geometry decision, question 1) | A hood-on-rubber example |
+| 5 | `contact` — **implemented in v0.99.8** (primitives at markers) | A hood-on-rubber example (`skeleton_ff_articulated_panels`) |

@@ -27,6 +27,7 @@ Options:
 """
 
 import json
+import os
 import re
 import sys
 
@@ -36,6 +37,12 @@ CATEGORIES = (
 )
 NODE_PATTERN = re.compile(r"^SVJ::(" + "|".join(CATEGORIES) + r")::([a-z0-9_]+)$")
 STATION_RE = re.compile(r"^(FL|FR|RL|RR|A([1-9][0-9]?)(L|R|C))$")
+try:                                    # the joint-frame resolver of spec §24
+    import constraints_check as cc
+except ImportError:                     # run from another directory
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import constraints_check as cc
+
 PLACEMENT_ONLY = ("mesh_axis", "from_point", "scale_to_length")
 
 
@@ -82,9 +89,28 @@ def collect_bindings(data: dict) -> list:
 
     chassis = data.get("chassis") or {}
     add("chassis", chassis.get("visual"), {"chassis"}, "body")
+
+    # unified model: a body held by joints at two ends is link-like (placement 'link_between_points'): the frames of the
+    # joints where it is body_b are its inboard points, a joint where it is body_a is its outboard end
+    joints = [c for c in (data.get("constraints") or []) if isinstance(c, dict) and c.get("type") == "joint"]
+
+    def body_link(bid):
+        inboard, outboard = [], False
+        for c in joints:
+            side = "b" if c.get("body_b") == bid else ("a" if c.get("body_a") == bid else None)
+            if side is None:
+                continue
+            fr = cc._frame(data, c, side)
+            if side == "b" and fr is not None:
+                inboard.append(list(fr[0]))
+            elif side == "a":
+                outboard = True
+        return {"inboard_points": inboard, "outboard_ref": "joint"} if inboard and outboard else None
+
     for i, body in enumerate(chassis.get("mass_bodies") or []):
         bid = body.get("id", f"<mass_bodies[{i}]>")
-        add(f"chassis.mass_bodies[{bid}]", body.get("visual"), {slug(bid)}, "body")
+        link = body_link(bid)
+        add(f"chassis.mass_bodies[{bid}]", body.get("visual"), {slug(bid)}, "any", ends=link is not None, link=link)
     # v0.97 name, kept so older files still get checked
     for i, body in enumerate(chassis.get("mass_decomposition") or []):
         bid = body.get("id", f"<mass_decomposition[{i}]>")
@@ -269,12 +295,12 @@ def check(path: str, strict: bool = False) -> bool:
 
         # Rule 6 — category fit (advisory)
         fit = CATEGORY_FIT.get(category)
-        if fit and b["kind"] not in fit:
+        if fit and b["kind"] != "any" and b["kind"] not in fit:     # a mass body can be any part: upright, wishbone, wheel, ...
             warnings.append(
                 f"[{loc}] category '{category}' on a {b['kind']} part — expected "
                 f"'{b['kind']}' (or 'body')"
             )
-        if category == "body" and b["kind"] not in ("body",):
+        if category == "body" and b["kind"] not in ("body", "any"):
             # Valid by the spec (v0.97 files used 'body' everywhere) — informational
             # only, so --strict stays usable on existing files.
             notes.append(

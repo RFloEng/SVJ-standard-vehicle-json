@@ -149,12 +149,53 @@ class Vehicle:
         return self.data.get("suspension", {})
 
     @property
+    def is_unified(self) -> bool:
+        """True for the unified suspension model (wheel_stations + constraints), False for the deprecated corner section."""
+        return not self.suspension and bool(self.data.get("wheel_stations"))
+
+    @property
+    def wheel_stations(self) -> list[dict[str, Any]]:
+        """The `wheel_stations` array of the unified model (may be empty)."""
+        return self.data.get("wheel_stations", [])
+
+    @property
     def stations(self) -> list[str]:
         """Wheel-station names present in the file, front to back, left to right.
 
         Legacy files return FL/FR/RL/RR; multi-axle files return A1L, A1R, A2L, ...
         """
+        if self.is_unified:
+            return sorted((s["id"] for s in self.wheel_stations if isinstance(s.get("id"), str) and is_station(s["id"])), key=_station_sort_key)
         return sorted((k for k in self.suspension if is_station(k)), key=_station_sort_key)
+
+    def _station_view(self, sid: str) -> dict[str, Any]:
+        """A corner-shaped view of a unified wheel station: topology hint, wheel, spring, damper, arb, alignment, ...
+
+        Springs and dampers come from the station's elements (`spring_<station>`, `damper_<station>`); their `rate` and
+        curves are element values unless `reference` is "wheel".
+        """
+        st = next((s for s in self.wheel_stations if s.get("id") == sid), None)
+        if st is None:
+            return {}
+        view = {k: v for k, v in st.items() if k not in ("id", "name", "wheel_body", "upright_body", "topology_hint", "axle", "side")}
+        view["topology"] = {"system_type": st.get("topology_hint", "")}
+        sfx = "".join(ch if ch.isalnum() or ch == "_" else "_" for ch in sid.lower()).strip("_")
+        for c in self.data.get("constraints", []) or []:
+            if not isinstance(c, dict):
+                continue
+            if c.get("type") == "spring" and c.get("id") == f"spring_{sfx}":
+                view["spring"] = {k: v for k, v in c.items() if k not in ("id", "type", "body_a", "body_b", "frame_a", "frame_b", "x_derived")}
+                view["spring"]["type"] = c.get("spring_type", "")
+            if c.get("type") == "damper" and c.get("id") == f"damper_{sfx}":
+                view["damper"] = {k: v for k, v in c.items() if k not in ("id", "type", "body_a", "body_b", "frame_a", "frame_b", "x_derived")}
+        for bar in self.data.get("anti_roll_bars", []) or []:
+            if sid in (bar.get("stations") or []):
+                view["arb"] = {"bar_id": bar.get("id"), **{k: v for k, v in bar.items() if k not in ("id", "stations", "drop_link_mounts")}}
+                if sid in (bar.get("drop_link_mounts") or {}):
+                    view["arb"]["drop_link_mount"] = bar["drop_link_mounts"][sid]
+        view.setdefault("spring", {})
+        view.setdefault("damper", {})
+        return view
 
     def corner(self, corner_id: str) -> dict[str, Any]:
         """Get full suspension data for a wheel station.
@@ -165,6 +206,12 @@ class Vehicle:
         """
         if not is_station(corner_id):
             raise ValueError(f"Invalid wheel station: {corner_id}. Use FL/FR/RL/RR or A{{n}}{{L|R|C}}")
+        if self.is_unified:
+            target = canonical_station(corner_id)
+            for s in self.wheel_stations:
+                if isinstance(s.get("id"), str) and canonical_station(s["id"]) == target:
+                    return self._station_view(s["id"])
+            return {}
         if corner_id in self.suspension:
             return self.suspension[corner_id]
         target = canonical_station(corner_id)
@@ -176,7 +223,7 @@ class Vehicle:
     def corners(self) -> Iterator[tuple[str, dict[str, Any]]]:
         """Iterate over all wheel stations as (id, data) pairs, front to back."""
         for c in self.stations:
-            yield c, self.suspension[c]
+            yield c, (self._station_view(c) if self.is_unified else self.suspension[c])
 
     def topology(self, corner_id: str) -> str:
         """Get the suspension system_type for a wheel station."""
@@ -190,6 +237,10 @@ class Vehicle:
         Each item carries `outboard_source` / `inboard_source` = 'explicit',
         'inferred' or None (not inferable).
         """
+        if self.is_unified:
+            return [{"id": c.get("id"), "joint_type": c.get("joint_type"), "body_a": c.get("body_a"), "body_b": c.get("body_b"),
+                     "derived": bool(c.get("x_derived"))}
+                    for c in self.data.get("constraints", []) or [] if isinstance(c, dict) and c.get("type") == "joint"]
         from svj.multibody import effective_joints
         return effective_joints(self.data)
 
@@ -294,6 +345,10 @@ class Vehicle:
         Returns dict of {point_name: [x, y, z]} from topology.upright
         and topology.links.
         """
+        if self.is_unified:
+            st = next((s for s in self.wheel_stations if canonical_station(s.get("id", "")) == canonical_station(corner_id)), {})
+            body = next((b for b in self.chassis.get("mass_bodies", []) if b.get("id") == st.get("upright_body")), {})
+            return {f"upright.{k}": list(m["position"]) for k, m in (body.get("markers") or {}).items() if isinstance(m, dict) and "position" in m}
         topo = self.corner(corner_id).get("topology", {})
         points = {}
 

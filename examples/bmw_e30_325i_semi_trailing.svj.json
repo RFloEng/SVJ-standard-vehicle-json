@@ -1,8 +1,8 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99.4",
-    "description": "BMW E30 325i (1987) \u2014 MacPherson front, semi-trailing arm rear. Factory specs from BMW.",
+    "version": "0.100",
+    "description": "BMW E30 325i (1987) — MacPherson front, semi-trailing arm rear. Factory specs from BMW.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
     "data_origin": {
@@ -41,7 +41,44 @@
           -0.6085,
           -0.335
         ],
-        "parent": "chassis"
+        "parent": "chassis",
+        "markers": {
+          "strut_top": {
+            "position": [
+              0.0,
+              -0.55,
+              -0.68
+            ]
+          },
+          "strut_lower": {
+            "position": [
+              0.0,
+              -0.582,
+              -0.33
+            ]
+          },
+          "lower_ball_joint": {
+            "position": [
+              0.0,
+              -0.6,
+              -0.14
+            ]
+          },
+          "steering_tie_rod_end": {
+            "position": [
+              0.08,
+              -0.58,
+              -0.19
+            ]
+          },
+          "wheel_center": {
+            "position": [
+              0.0,
+              -0.704,
+              -0.33
+            ]
+          }
+        }
       },
       {
         "id": "strut_fl",
@@ -89,7 +126,44 @@
           0.6085,
           -0.335
         ],
-        "parent": "chassis"
+        "parent": "chassis",
+        "markers": {
+          "strut_top": {
+            "position": [
+              0.0,
+              0.55,
+              -0.68
+            ]
+          },
+          "strut_lower": {
+            "position": [
+              0.0,
+              0.582,
+              -0.33
+            ]
+          },
+          "lower_ball_joint": {
+            "position": [
+              0.0,
+              0.6,
+              -0.14
+            ]
+          },
+          "steering_tie_rod_end": {
+            "position": [
+              0.08,
+              0.58,
+              -0.19
+            ]
+          },
+          "wheel_center": {
+            "position": [
+              0.0,
+              0.704,
+              -0.33
+            ]
+          }
+        }
       },
       {
         "id": "strut_fr",
@@ -137,7 +211,23 @@
           -0.604,
           -0.24
         ],
-        "parent": "chassis"
+        "parent": "chassis",
+        "markers": {
+          "wheel_center": {
+            "position": [
+              -2.57,
+              -0.708,
+              -0.33
+            ]
+          },
+          "damper_outboard": {
+            "position": [
+              -2.57,
+              -0.5,
+              -0.15
+            ]
+          }
+        }
       },
       {
         "id": "semi_trailing_arm_rl",
@@ -161,7 +251,23 @@
           0.604,
           -0.24
         ],
-        "parent": "chassis"
+        "parent": "chassis",
+        "markers": {
+          "wheel_center": {
+            "position": [
+              -2.57,
+              0.708,
+              -0.33
+            ]
+          },
+          "damper_outboard": {
+            "position": [
+              -2.57,
+              0.5,
+              -0.15
+            ]
+          }
+        }
       },
       {
         "id": "semi_trailing_arm_rr",
@@ -174,6 +280,103 @@
           -0.2767
         ],
         "parent": "chassis"
+      },
+      {
+        "id": "wheel_fl",
+        "name": "Wheel FL",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 18.0,
+        "position": [
+          0.0,
+          -0.704,
+          -0.33
+        ],
+        "inertia": {
+          "Ixx": 0.41,
+          "Iyy": 0.82,
+          "Izz": 0.41,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        },
+        "x_derived": true
+      },
+      {
+        "id": "rack",
+        "name": "Steering rack",
+        "description": "Steering rack / gear housing",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.08,
+          0.0,
+          -0.19
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "wheel_fr",
+        "name": "Wheel FR",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 18.0,
+        "position": [
+          0.0,
+          0.704,
+          -0.33
+        ],
+        "inertia": {
+          "Ixx": 0.41,
+          "Iyy": 0.82,
+          "Izz": 0.41,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        },
+        "x_derived": true
+      },
+      {
+        "id": "wheel_rl",
+        "name": "Wheel RL",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 18.0,
+        "position": [
+          -2.57,
+          -0.708,
+          -0.33
+        ],
+        "inertia": {
+          "Ixx": 0.41,
+          "Iyy": 0.82,
+          "Izz": 0.41,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        },
+        "x_derived": true
+      },
+      {
+        "id": "wheel_rr",
+        "name": "Wheel RR",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 18.0,
+        "position": [
+          -2.57,
+          0.708,
+          -0.33
+        ],
+        "inertia": {
+          "Ixx": 0.41,
+          "Iyy": 0.82,
+          "Izz": 0.41,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        },
+        "x_derived": true
       }
     ],
     "visual": {
@@ -194,570 +397,6 @@
     "lock_to_lock": 21.991,
     "lock_to_lock_turns": 3.5,
     "_est": true
-  },
-  "suspension": {
-    "FL": {
-      "topology": {
-        "system_type": "macpherson",
-        "upright": {
-          "id": "upright_FL",
-          "mass": 10.0,
-          "hardpoints": {
-            "strut_top": [
-              0.0,
-              -0.55,
-              -0.68
-            ],
-            "strut_lower": [
-              0.0,
-              -0.582,
-              -0.33
-            ],
-            "lower_ball_joint": [
-              0.0,
-              -0.6,
-              -0.14
-            ],
-            "steering_tie_rod_end": [
-              0.08,
-              -0.58,
-              -0.19
-            ],
-            "wheel_center": [
-              0.0,
-              -0.704,
-              -0.33
-            ]
-          },
-          "body_ref": "upright_fl",
-          "cg_position": [
-            0.02,
-            -0.6085,
-            -0.335
-          ]
-        },
-        "links": [
-          {
-            "name": "strut",
-            "type": "strut",
-            "inboard_points": [
-              [
-                0.0,
-                -0.55,
-                -0.68
-              ]
-            ],
-            "outboard_ref": "hardpoints.strut_lower",
-            "joint_type": "translational",
-            "inboard_joint_type": "fixed",
-            "body_ref": "strut_fl",
-            "mass": 4.5,
-            "cg_position": [
-              0.0,
-              -0.55,
-              -0.68
-            ]
-          },
-          {
-            "name": "lower_control_arm",
-            "type": "arm",
-            "inboard_points": [
-              [
-                0.18,
-                -0.22,
-                -0.14
-              ],
-              [
-                -0.16,
-                -0.22,
-                -0.14
-              ]
-            ],
-            "outboard_ref": "hardpoints.lower_ball_joint",
-            "joint_type": "spherical",
-            "inboard_joint_type": "revolute",
-            "body_ref": "lower_control_arm_fl",
-            "mass": 3.5,
-            "cg_position": [
-              0.0067,
-              -0.3467,
-              -0.14
-            ]
-          },
-          {
-            "name": "steering_tie_rod",
-            "type": "rod",
-            "inboard_points": [
-              [
-                0.08,
-                -0.16,
-                -0.19
-              ]
-            ],
-            "outboard_ref": "hardpoints.steering_tie_rod_end",
-            "joint_type": "spherical",
-            "inboard_joint_type": "spherical",
-            "body_ref": "steering_tie_rod_fl",
-            "mass": 0.8,
-            "cg_position": [
-              0.08,
-              -0.37,
-              -0.19
-            ]
-          }
-        ]
-      },
-      "wheel": {
-        "rim_diameter": 0.3556,
-        "rim_width": 0.1524,
-        "loaded_radius": 0.295,
-        "mass": 18.0,
-        "rotational_inertia": 0.82
-      },
-      "spring": {
-        "type": "coil",
-        "rate": 22000
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.05,
-            550
-          ],
-          [
-            0.2,
-            1400
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.05,
-            820
-          ],
-          [
-            0.2,
-            2100
-          ]
-        ]
-      },
-      "brake": {
-        "disc": {
-          "type": "vented",
-          "outer_diameter": 0.26,
-          "outer_diameter_source": "BMW: 260mm vented front",
-          "mass": 5.5,
-          "material": "cast_iron"
-        }
-      },
-      "_est": true,
-      "visual": {
-        "mesh_ref": "bmw_e30",
-        "node": "SVJ::body::upright_fl"
-      }
-    },
-    "FR": {
-      "topology": {
-        "system_type": "macpherson",
-        "upright": {
-          "id": "upright_FR",
-          "mass": 10.0,
-          "hardpoints": {
-            "strut_top": [
-              0.0,
-              0.55,
-              -0.68
-            ],
-            "strut_lower": [
-              0.0,
-              0.582,
-              -0.33
-            ],
-            "lower_ball_joint": [
-              0.0,
-              0.6,
-              -0.14
-            ],
-            "steering_tie_rod_end": [
-              0.08,
-              0.58,
-              -0.19
-            ],
-            "wheel_center": [
-              0.0,
-              0.704,
-              -0.33
-            ]
-          },
-          "body_ref": "upright_fr",
-          "cg_position": [
-            0.02,
-            0.6085,
-            -0.335
-          ]
-        },
-        "links": [
-          {
-            "name": "strut",
-            "type": "strut",
-            "inboard_points": [
-              [
-                0.0,
-                0.55,
-                -0.68
-              ]
-            ],
-            "outboard_ref": "hardpoints.strut_lower",
-            "joint_type": "translational",
-            "inboard_joint_type": "fixed",
-            "body_ref": "strut_fr",
-            "mass": 4.5,
-            "cg_position": [
-              0.0,
-              0.55,
-              -0.68
-            ]
-          },
-          {
-            "name": "lower_control_arm",
-            "type": "arm",
-            "inboard_points": [
-              [
-                0.18,
-                0.22,
-                -0.14
-              ],
-              [
-                -0.16,
-                0.22,
-                -0.14
-              ]
-            ],
-            "outboard_ref": "hardpoints.lower_ball_joint",
-            "joint_type": "spherical",
-            "inboard_joint_type": "revolute",
-            "body_ref": "lower_control_arm_fr",
-            "mass": 3.5,
-            "cg_position": [
-              0.0067,
-              0.3467,
-              -0.14
-            ]
-          },
-          {
-            "name": "steering_tie_rod",
-            "type": "rod",
-            "inboard_points": [
-              [
-                0.08,
-                0.16,
-                -0.19
-              ]
-            ],
-            "outboard_ref": "hardpoints.steering_tie_rod_end",
-            "joint_type": "spherical",
-            "inboard_joint_type": "spherical",
-            "body_ref": "steering_tie_rod_fr",
-            "mass": 0.8,
-            "cg_position": [
-              0.08,
-              0.37,
-              -0.19
-            ]
-          }
-        ]
-      },
-      "wheel": {
-        "rim_diameter": 0.3556,
-        "rim_width": 0.1524,
-        "loaded_radius": 0.295,
-        "mass": 18.0,
-        "rotational_inertia": 0.82
-      },
-      "spring": {
-        "type": "coil",
-        "rate": 22000
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.05,
-            550
-          ],
-          [
-            0.2,
-            1400
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.05,
-            820
-          ],
-          [
-            0.2,
-            2100
-          ]
-        ]
-      },
-      "brake": {
-        "disc": {
-          "type": "vented",
-          "outer_diameter": 0.26,
-          "outer_diameter_source": "BMW: 260mm vented front",
-          "mass": 5.5,
-          "material": "cast_iron"
-        }
-      },
-      "_est": true,
-      "visual": {
-        "mesh_ref": "bmw_e30",
-        "node": "SVJ::body::upright_fr"
-      }
-    },
-    "RL": {
-      "topology": {
-        "system_type": "semi_trailing_arm",
-        "upright": {
-          "id": "upright_RL",
-          "mass": 8.0,
-          "hardpoints": {
-            "wheel_center": [
-              -2.57,
-              -0.708,
-              -0.33
-            ],
-            "damper_outboard": [
-              -2.57,
-              -0.5,
-              -0.15
-            ]
-          },
-          "body_ref": "upright_rl",
-          "cg_position": [
-            -2.57,
-            -0.604,
-            -0.24
-          ]
-        },
-        "links": [
-          {
-            "name": "semi_trailing_arm",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -2.25,
-                -0.25,
-                -0.25
-              ],
-              [
-                -2.45,
-                -0.18,
-                -0.25
-              ]
-            ],
-            "outboard_ref": "hardpoints.wheel_center",
-            "_note": "Pivot axis angled ~15\u00b0 from lateral \u2014 two inboard points at different X and Y define the axis angle",
-            "joint_type": "revolute",
-            "inboard_joint_type": "revolute",
-            "body_ref": "semi_trailing_arm_rl",
-            "mass": 5.5,
-            "cg_position": [
-              -2.4233,
-              -0.3793,
-              -0.2767
-            ]
-          }
-        ]
-      },
-      "wheel": {
-        "rim_diameter": 0.3556,
-        "rim_width": 0.1524,
-        "loaded_radius": 0.295,
-        "mass": 18.0,
-        "rotational_inertia": 0.82
-      },
-      "spring": {
-        "type": "coil",
-        "rate": 24000,
-        "_note": "Progressive rate coil springs per BMW spec"
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.05,
-            500
-          ],
-          [
-            0.2,
-            1300
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.05,
-            750
-          ],
-          [
-            0.2,
-            1950
-          ]
-        ]
-      },
-      "brake": {
-        "disc": {
-          "type": "solid",
-          "outer_diameter": 0.258,
-          "outer_diameter_source": "BMW: 258mm solid rear",
-          "mass": 4.0,
-          "material": "cast_iron"
-        }
-      },
-      "_est": true,
-      "visual": {
-        "mesh_ref": "bmw_e30",
-        "node": "SVJ::body::upright_rl"
-      }
-    },
-    "RR": {
-      "topology": {
-        "system_type": "semi_trailing_arm",
-        "upright": {
-          "id": "upright_RR",
-          "mass": 8.0,
-          "hardpoints": {
-            "wheel_center": [
-              -2.57,
-              0.708,
-              -0.33
-            ],
-            "damper_outboard": [
-              -2.57,
-              0.5,
-              -0.15
-            ]
-          },
-          "body_ref": "upright_rr",
-          "cg_position": [
-            -2.57,
-            0.604,
-            -0.24
-          ]
-        },
-        "links": [
-          {
-            "name": "semi_trailing_arm",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -2.25,
-                0.25,
-                -0.25
-              ],
-              [
-                -2.45,
-                0.18,
-                -0.25
-              ]
-            ],
-            "outboard_ref": "hardpoints.wheel_center",
-            "_note": "Pivot axis angled ~15\u00b0 from lateral \u2014 two inboard points at different X and Y define the axis angle",
-            "joint_type": "revolute",
-            "inboard_joint_type": "revolute",
-            "body_ref": "semi_trailing_arm_rr",
-            "mass": 5.5,
-            "cg_position": [
-              -2.4233,
-              0.3793,
-              -0.2767
-            ]
-          }
-        ]
-      },
-      "wheel": {
-        "rim_diameter": 0.3556,
-        "rim_width": 0.1524,
-        "loaded_radius": 0.295,
-        "mass": 18.0,
-        "rotational_inertia": 0.82
-      },
-      "spring": {
-        "type": "coil",
-        "rate": 24000,
-        "_note": "Progressive rate coil springs per BMW spec"
-      },
-      "damper": {
-        "type": "twin_tube",
-        "bump_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.05,
-            500
-          ],
-          [
-            0.2,
-            1300
-          ]
-        ],
-        "rebound_curve": [
-          [
-            0,
-            0
-          ],
-          [
-            0.05,
-            750
-          ],
-          [
-            0.2,
-            1950
-          ]
-        ]
-      },
-      "brake": {
-        "disc": {
-          "type": "solid",
-          "outer_diameter": 0.258,
-          "outer_diameter_source": "BMW: 258mm solid rear",
-          "mass": 4.0,
-          "material": "cast_iron"
-        }
-      },
-      "_est": true,
-      "visual": {
-        "mesh_ref": "bmw_e30",
-        "node": "SVJ::body::upright_rr"
-      }
-    }
   },
   "powertrain": {
     "layout": "FR",
@@ -824,7 +463,7 @@
       {
         "id": "bmw_e30",
         "uri": "meshes/bmw_e30.glb",
-        "description": "BMW E30 325i \u2014 chassis and suspension geometry"
+        "description": "BMW E30 325i — chassis and suspension geometry"
       }
     ]
   },
@@ -853,6 +492,1246 @@
       "unit": "s",
       "type": "measured",
       "source": "factory spec sheet"
+    }
+  ],
+  "constraints": [
+    {
+      "id": "hinge_wheel_fl",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "upright_fl",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.704,
+          -0.33
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_fl",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.704,
+          -0.33
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_strut_fl_inboard",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.55,
+          -0.68
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "strut_fl",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.55,
+          -0.68
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "slide_strut_fl_outboard",
+      "type": "joint",
+      "joint_type": "translational",
+      "body_a": "strut_fl",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.582,
+          -0.33
+        ],
+        "orientation": [
+          0.0455718,
+          0.0,
+          0.0,
+          0.9989611
+        ]
+      },
+      "body_b": "upright_fl",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.582,
+          -0.33
+        ],
+        "orientation": [
+          0.0455718,
+          0.0,
+          0.0,
+          0.9989611
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_lower_control_arm_fl_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.18,
+          -0.22,
+          -0.14
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "lower_control_arm_fl",
+      "frame_b": {
+        "position": [
+          0.18,
+          -0.22,
+          -0.14
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_control_arm_fl_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "lower_control_arm_fl",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.6,
+          -0.14
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fl",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.6,
+          -0.14
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "slide_rack",
+      "type": "joint",
+      "joint_type": "translational",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.08,
+          0.0,
+          -0.19
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "rack",
+      "frame_b": {
+        "position": [
+          0.08,
+          0.0,
+          -0.19
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_steering_tie_rod_fl_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "rack",
+      "frame_a": {
+        "position": [
+          0.08,
+          -0.16,
+          -0.19
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "steering_tie_rod_fl",
+      "frame_b": {
+        "position": [
+          0.08,
+          -0.16,
+          -0.19
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_steering_tie_rod_fl_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "steering_tie_rod_fl",
+      "frame_a": {
+        "position": [
+          0.08,
+          -0.58,
+          -0.19
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fl",
+      "frame_b": {
+        "position": [
+          0.08,
+          -0.58,
+          -0.19
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_fl",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.704,
+          -0.63
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fl",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.704,
+          -0.33
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "coil",
+      "rate": 22000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_fl",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.704,
+          -0.63
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fl",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.704,
+          -0.33
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.05,
+          550
+        ],
+        [
+          0.2,
+          1400
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.05,
+          820
+        ],
+        [
+          0.2,
+          2100
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_fr",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "upright_fr",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.704,
+          -0.33
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_fr",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.704,
+          -0.33
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_strut_fr_inboard",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.55,
+          -0.68
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "strut_fr",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.55,
+          -0.68
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "slide_strut_fr_outboard",
+      "type": "joint",
+      "joint_type": "translational",
+      "body_a": "strut_fr",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.582,
+          -0.33
+        ],
+        "orientation": [
+          -0.0455718,
+          0.0,
+          0.0,
+          0.9989611
+        ]
+      },
+      "body_b": "upright_fr",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.582,
+          -0.33
+        ],
+        "orientation": [
+          -0.0455718,
+          0.0,
+          0.0,
+          0.9989611
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_lower_control_arm_fr_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.18,
+          0.22,
+          -0.14
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "lower_control_arm_fr",
+      "frame_b": {
+        "position": [
+          0.18,
+          0.22,
+          -0.14
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_control_arm_fr_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "lower_control_arm_fr",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.6,
+          -0.14
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fr",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.6,
+          -0.14
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_steering_tie_rod_fr_inboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "rack",
+      "frame_a": {
+        "position": [
+          0.08,
+          0.16,
+          -0.19
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "steering_tie_rod_fr",
+      "frame_b": {
+        "position": [
+          0.08,
+          0.16,
+          -0.19
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_steering_tie_rod_fr_outboard",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "steering_tie_rod_fr",
+      "frame_a": {
+        "position": [
+          0.08,
+          0.58,
+          -0.19
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fr",
+      "frame_b": {
+        "position": [
+          0.08,
+          0.58,
+          -0.19
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_fr",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.704,
+          -0.63
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fr",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.704,
+          -0.33
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "coil",
+      "rate": 22000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_fr",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.704,
+          -0.63
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fr",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.704,
+          -0.33
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.05,
+          550
+        ],
+        [
+          0.2,
+          1400
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.05,
+          820
+        ],
+        [
+          0.2,
+          2100
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_rl",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "upright_rl",
+      "frame_a": {
+        "position": [
+          -2.57,
+          -0.708,
+          -0.33
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_rl",
+      "frame_b": {
+        "position": [
+          -2.57,
+          -0.708,
+          -0.33
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_semi_trailing_arm_rl_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.25,
+          -0.25,
+          -0.25
+        ],
+        "orientation": [
+          -0.233593,
+          -0.6674086,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "semi_trailing_arm_rl",
+      "frame_b": {
+        "position": [
+          -2.25,
+          -0.25,
+          -0.25
+        ],
+        "orientation": [
+          -0.233593,
+          -0.6674086,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_semi_trailing_arm_rl_outboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "semi_trailing_arm_rl",
+      "frame_a": {
+        "position": [
+          -2.57,
+          -0.708,
+          -0.33
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "upright_rl",
+      "frame_b": {
+        "position": [
+          -2.57,
+          -0.708,
+          -0.33
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_rl",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.57,
+          -0.708,
+          -0.63
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_rl",
+      "frame_b": {
+        "position": [
+          -2.57,
+          -0.708,
+          -0.33
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "coil",
+      "rate": 24000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_rl",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.57,
+          -0.708,
+          -0.63
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_rl",
+      "frame_b": {
+        "position": [
+          -2.57,
+          -0.708,
+          -0.33
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.05,
+          500
+        ],
+        [
+          0.2,
+          1300
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.05,
+          750
+        ],
+        [
+          0.2,
+          1950
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_rr",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "upright_rr",
+      "frame_a": {
+        "position": [
+          -2.57,
+          0.708,
+          -0.33
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_rr",
+      "frame_b": {
+        "position": [
+          -2.57,
+          0.708,
+          -0.33
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_semi_trailing_arm_rr_inboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.25,
+          0.25,
+          -0.25
+        ],
+        "orientation": [
+          0.233593,
+          -0.6674086,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "semi_trailing_arm_rr",
+      "frame_b": {
+        "position": [
+          -2.25,
+          0.25,
+          -0.25
+        ],
+        "orientation": [
+          0.233593,
+          -0.6674086,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_semi_trailing_arm_rr_outboard",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "semi_trailing_arm_rr",
+      "frame_a": {
+        "position": [
+          -2.57,
+          0.708,
+          -0.33
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "upright_rr",
+      "frame_b": {
+        "position": [
+          -2.57,
+          0.708,
+          -0.33
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_rr",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.57,
+          0.708,
+          -0.63
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_rr",
+      "frame_b": {
+        "position": [
+          -2.57,
+          0.708,
+          -0.33
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "coil",
+      "rate": 24000.0,
+      "x_derived": true
+    },
+    {
+      "id": "damper_rr",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.57,
+          0.708,
+          -0.63
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_rr",
+      "frame_b": {
+        "position": [
+          -2.57,
+          0.708,
+          -0.33
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "bump_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.05,
+          500
+        ],
+        [
+          0.2,
+          1300
+        ]
+      ],
+      "rebound_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.05,
+          750
+        ],
+        [
+          0.2,
+          1950
+        ]
+      ],
+      "x_damper_type": "twin_tube",
+      "x_derived": true
+    }
+  ],
+  "wheel_stations": [
+    {
+      "id": "FL",
+      "name": "FL",
+      "wheel_body": "wheel_fl",
+      "upright_body": "upright_fl",
+      "wheel_center_marker": "wheel_center",
+      "steering_joint": "slide_rack",
+      "axle": "A1",
+      "side": "L",
+      "topology_hint": "macpherson",
+      "wheel": {
+        "rim_diameter": 0.3556,
+        "rim_width": 0.1524,
+        "loaded_radius": 0.295,
+        "mass": 18.0,
+        "rotational_inertia": 0.82
+      },
+      "brake": {
+        "disc": {
+          "type": "vented",
+          "outer_diameter": 0.26,
+          "outer_diameter_source": "BMW: 260mm vented front",
+          "mass": 5.5,
+          "material": "cast_iron"
+        }
+      },
+      "_est": true,
+      "visual": {
+        "mesh_ref": "bmw_e30",
+        "node": "SVJ::body::upright_fl"
+      }
+    },
+    {
+      "id": "FR",
+      "name": "FR",
+      "wheel_body": "wheel_fr",
+      "upright_body": "upright_fr",
+      "wheel_center_marker": "wheel_center",
+      "steering_joint": "slide_rack",
+      "axle": "A1",
+      "side": "R",
+      "topology_hint": "macpherson",
+      "wheel": {
+        "rim_diameter": 0.3556,
+        "rim_width": 0.1524,
+        "loaded_radius": 0.295,
+        "mass": 18.0,
+        "rotational_inertia": 0.82
+      },
+      "brake": {
+        "disc": {
+          "type": "vented",
+          "outer_diameter": 0.26,
+          "outer_diameter_source": "BMW: 260mm vented front",
+          "mass": 5.5,
+          "material": "cast_iron"
+        }
+      },
+      "_est": true,
+      "visual": {
+        "mesh_ref": "bmw_e30",
+        "node": "SVJ::body::upright_fr"
+      }
+    },
+    {
+      "id": "RL",
+      "name": "RL",
+      "wheel_body": "wheel_rl",
+      "upright_body": "upright_rl",
+      "wheel_center_marker": "wheel_center",
+      "axle": "A2",
+      "side": "L",
+      "topology_hint": "semi_trailing_arm",
+      "wheel": {
+        "rim_diameter": 0.3556,
+        "rim_width": 0.1524,
+        "loaded_radius": 0.295,
+        "mass": 18.0,
+        "rotational_inertia": 0.82
+      },
+      "brake": {
+        "disc": {
+          "type": "solid",
+          "outer_diameter": 0.258,
+          "outer_diameter_source": "BMW: 258mm solid rear",
+          "mass": 4.0,
+          "material": "cast_iron"
+        }
+      },
+      "_est": true,
+      "visual": {
+        "mesh_ref": "bmw_e30",
+        "node": "SVJ::body::upright_rl"
+      }
+    },
+    {
+      "id": "RR",
+      "name": "RR",
+      "wheel_body": "wheel_rr",
+      "upright_body": "upright_rr",
+      "wheel_center_marker": "wheel_center",
+      "axle": "A2",
+      "side": "R",
+      "topology_hint": "semi_trailing_arm",
+      "wheel": {
+        "rim_diameter": 0.3556,
+        "rim_width": 0.1524,
+        "loaded_radius": 0.295,
+        "mass": 18.0,
+        "rotational_inertia": 0.82
+      },
+      "brake": {
+        "disc": {
+          "type": "solid",
+          "outer_diameter": 0.258,
+          "outer_diameter_source": "BMW: 258mm solid rear",
+          "mass": 4.0,
+          "material": "cast_iron"
+        }
+      },
+      "_est": true,
+      "visual": {
+        "mesh_ref": "bmw_e30",
+        "node": "SVJ::body::upright_rr"
+      }
     }
   ]
 }

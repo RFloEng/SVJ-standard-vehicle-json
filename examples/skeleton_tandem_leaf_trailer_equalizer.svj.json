@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99.4",
+    "version": "0.100",
     "description": "Tandem-axle leaf-spring trailer skeleton — double-eye/slipper leaf springs joined by an equalizer rocker on each side, no dampers.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
@@ -28,293 +28,227 @@
       1.2,
       0,
       -0.85
+    ],
+    "mass_bodies": [
+      {
+        "id": "a1_beam",
+        "name": "Axle body A1_beam",
+        "description": "Beam axle, housing or de Dion tube",
+        "category": "structural",
+        "mass": 75,
+        "position": [
+          0.0,
+          0,
+          -0.36
+        ],
+        "markers": {
+          "wheel_center_a1l": {
+            "position": [
+              0.0,
+              -0.875,
+              -0.36
+            ]
+          },
+          "spring_pad_a1l": {
+            "position": [
+              0.0,
+              -0.45,
+              -0.48
+            ]
+          },
+          "damper_outboard_a1l": {
+            "position": [
+              0.0,
+              -0.4,
+              -0.36
+            ]
+          },
+          "wheel_center_a1r": {
+            "position": [
+              0.0,
+              0.875,
+              -0.36
+            ]
+          },
+          "spring_pad_a1r": {
+            "position": [
+              0.0,
+              0.45,
+              -0.48
+            ]
+          },
+          "damper_outboard_a1r": {
+            "position": [
+              0.0,
+              0.4,
+              -0.36
+            ]
+          }
+        },
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a1l",
+        "name": "Wheel A1L",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.0,
+          -0.875,
+          -0.36
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "leaf_spring_a1l",
+        "name": "Leaf Spring A1L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.0,
+          -0.45,
+          -0.52
+        ],
+        "description": "Leaf spring pack",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a1r",
+        "name": "Wheel A1R",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.0,
+          0.875,
+          -0.36
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "leaf_spring_a1r",
+        "name": "Leaf Spring A1R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          0.0,
+          0.45,
+          -0.52
+        ],
+        "description": "Leaf spring pack",
+        "x_derived": true
+      },
+      {
+        "id": "a2_beam",
+        "name": "Axle body A2_beam",
+        "description": "Beam axle, housing or de Dion tube",
+        "category": "structural",
+        "mass": 75,
+        "position": [
+          -0.89,
+          0,
+          -0.36
+        ],
+        "markers": {
+          "wheel_center_a2l": {
+            "position": [
+              -0.89,
+              -0.875,
+              -0.36
+            ]
+          },
+          "spring_pad_a2l": {
+            "position": [
+              -0.89,
+              -0.45,
+              -0.48
+            ]
+          },
+          "damper_outboard_a2l": {
+            "position": [
+              -0.89,
+              -0.4,
+              -0.36
+            ]
+          },
+          "wheel_center_a2r": {
+            "position": [
+              -0.89,
+              0.875,
+              -0.36
+            ]
+          },
+          "spring_pad_a2r": {
+            "position": [
+              -0.89,
+              0.45,
+              -0.48
+            ]
+          },
+          "damper_outboard_a2r": {
+            "position": [
+              -0.89,
+              0.4,
+              -0.36
+            ]
+          }
+        },
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a2l",
+        "name": "Wheel A2L",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -0.89,
+          -0.875,
+          -0.36
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "leaf_spring_a2l",
+        "name": "Leaf Spring A2L",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -0.89,
+          -0.45,
+          -0.52
+        ],
+        "description": "Leaf spring pack",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_a2r",
+        "name": "Wheel A2R",
+        "description": "Rim + tyre",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -0.89,
+          0.875,
+          -0.36
+        ],
+        "x_derived": true
+      },
+      {
+        "id": "leaf_spring_a2r",
+        "name": "Leaf Spring A2R",
+        "category": "structural",
+        "mass": 0.0,
+        "position": [
+          -0.89,
+          0.45,
+          -0.52
+        ],
+        "description": "Leaf spring pack",
+        "x_derived": true
+      }
     ]
-  },
-  "suspension": {
-    "A1L": {
-      "topology": {
-        "system_type": "solid_axle",
-        "lateral_location": "leaf_located",
-        "upright": {
-          "id": "hub_A1L",
-          "hardpoints": {
-            "wheel_center": [
-              0.0,
-              -0.875,
-              -0.36
-            ],
-            "spring_pad": [
-              0.0,
-              -0.45,
-              -0.48
-            ],
-            "damper_outboard": [
-              0.0,
-              -0.4,
-              -0.36
-            ]
-          }
-        },
-        "links": [
-          {
-            "name": "leaf_spring",
-            "type": "arm",
-            "inboard_points": [
-              [
-                0.37,
-                -0.45,
-                -0.56
-              ],
-              [
-                -0.37,
-                -0.45,
-                -0.56
-              ]
-            ],
-            "outboard_ref": "hardpoints.spring_pad"
-          }
-        ],
-        "axle_body": {
-          "id": "A1_beam",
-          "mass": 75,
-          "position": [
-            0.0,
-            0,
-            -0.36
-          ]
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.4064,
-        "rim_width": 0.1524,
-        "set_ref": "trailer_st235_80r16"
-      },
-      "spring": {
-        "type": "leaf",
-        "rate": 95000,
-        "leaf_count": 4,
-        "end_type_front": "eye",
-        "end_type_rear": "slipper",
-        "end_friction": 0.3,
-        "hysteresis_force": 400
-      },
-      "damper": {
-        "type": "none"
-      }
-    },
-    "A1R": {
-      "topology": {
-        "system_type": "solid_axle",
-        "lateral_location": "leaf_located",
-        "upright": {
-          "id": "hub_A1R",
-          "hardpoints": {
-            "wheel_center": [
-              0.0,
-              0.875,
-              -0.36
-            ],
-            "spring_pad": [
-              0.0,
-              0.45,
-              -0.48
-            ],
-            "damper_outboard": [
-              0.0,
-              0.4,
-              -0.36
-            ]
-          }
-        },
-        "links": [
-          {
-            "name": "leaf_spring",
-            "type": "arm",
-            "inboard_points": [
-              [
-                0.37,
-                0.45,
-                -0.56
-              ],
-              [
-                -0.37,
-                0.45,
-                -0.56
-              ]
-            ],
-            "outboard_ref": "hardpoints.spring_pad"
-          }
-        ],
-        "axle_body": {
-          "id": "A1_beam",
-          "mass": 75,
-          "position": [
-            0.0,
-            0,
-            -0.36
-          ]
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.4064,
-        "rim_width": 0.1524,
-        "set_ref": "trailer_st235_80r16"
-      },
-      "spring": {
-        "type": "leaf",
-        "rate": 95000,
-        "leaf_count": 4,
-        "end_type_front": "eye",
-        "end_type_rear": "slipper",
-        "end_friction": 0.3,
-        "hysteresis_force": 400
-      },
-      "damper": {
-        "type": "none"
-      }
-    },
-    "A2L": {
-      "topology": {
-        "system_type": "solid_axle",
-        "lateral_location": "leaf_located",
-        "upright": {
-          "id": "hub_A2L",
-          "hardpoints": {
-            "wheel_center": [
-              -0.89,
-              -0.875,
-              -0.36
-            ],
-            "spring_pad": [
-              -0.89,
-              -0.45,
-              -0.48
-            ],
-            "damper_outboard": [
-              -0.89,
-              -0.4,
-              -0.36
-            ]
-          }
-        },
-        "links": [
-          {
-            "name": "leaf_spring",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -0.52,
-                -0.45,
-                -0.56
-              ],
-              [
-                -1.26,
-                -0.45,
-                -0.56
-              ]
-            ],
-            "outboard_ref": "hardpoints.spring_pad"
-          }
-        ],
-        "axle_body": {
-          "id": "A2_beam",
-          "mass": 75,
-          "position": [
-            -0.89,
-            0,
-            -0.36
-          ]
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.4064,
-        "rim_width": 0.1524,
-        "set_ref": "trailer_st235_80r16"
-      },
-      "spring": {
-        "type": "leaf",
-        "rate": 95000,
-        "leaf_count": 4,
-        "end_type_front": "slipper",
-        "end_type_rear": "slipper",
-        "end_friction": 0.3,
-        "hysteresis_force": 400
-      },
-      "damper": {
-        "type": "none"
-      }
-    },
-    "A2R": {
-      "topology": {
-        "system_type": "solid_axle",
-        "lateral_location": "leaf_located",
-        "upright": {
-          "id": "hub_A2R",
-          "hardpoints": {
-            "wheel_center": [
-              -0.89,
-              0.875,
-              -0.36
-            ],
-            "spring_pad": [
-              -0.89,
-              0.45,
-              -0.48
-            ],
-            "damper_outboard": [
-              -0.89,
-              0.4,
-              -0.36
-            ]
-          }
-        },
-        "links": [
-          {
-            "name": "leaf_spring",
-            "type": "arm",
-            "inboard_points": [
-              [
-                -0.52,
-                0.45,
-                -0.56
-              ],
-              [
-                -1.26,
-                0.45,
-                -0.56
-              ]
-            ],
-            "outboard_ref": "hardpoints.spring_pad"
-          }
-        ],
-        "axle_body": {
-          "id": "A2_beam",
-          "mass": 75,
-          "position": [
-            -0.89,
-            0,
-            -0.36
-          ]
-        }
-      },
-      "wheel": {
-        "rim_diameter": 0.4064,
-        "rim_width": 0.1524,
-        "set_ref": "trailer_st235_80r16"
-      },
-      "spring": {
-        "type": "leaf",
-        "rate": 95000,
-        "leaf_count": 4,
-        "end_type_front": "slipper",
-        "end_type_rear": "slipper",
-        "end_friction": 0.3,
-        "hysteresis_force": 400
-      },
-      "damper": {
-        "type": "none"
-      }
-    }
   },
   "axles": [
     {
@@ -422,5 +356,781 @@
         }
       }
     }
-  }
+  },
+  "constraints": [
+    {
+      "id": "hinge_wheel_a1l",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a1_beam",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.875,
+          -0.36
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a1l",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.875,
+          -0.36
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_leaf_spring_a1l_front_eye",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.37,
+          -0.45,
+          -0.56
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "leaf_spring_a1l",
+      "frame_b": {
+        "position": [
+          0.37,
+          -0.45,
+          -0.56
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "slide_leaf_spring_a1l_rear_end",
+      "type": "joint",
+      "joint_type": "translational",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.37,
+          -0.45,
+          -0.56
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "leaf_spring_a1l",
+      "frame_b": {
+        "position": [
+          -0.37,
+          -0.45,
+          -0.56
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_leaf_spring_a1l_seat",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "leaf_spring_a1l",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.45,
+          -0.48
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a1_beam",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.45,
+          -0.48
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a1l",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.875,
+          -0.66
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a1_beam",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.875,
+          -0.36
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "leaf",
+      "end_type_front": "eye",
+      "end_type_rear": "slipper",
+      "end_friction": 0.3,
+      "hysteresis_force": 400,
+      "leaf_count": 4,
+      "rate": 95000.0,
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a1r",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a1_beam",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.875,
+          -0.36
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a1r",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.875,
+          -0.36
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_leaf_spring_a1r_front_eye",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.37,
+          0.45,
+          -0.56
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "leaf_spring_a1r",
+      "frame_b": {
+        "position": [
+          0.37,
+          0.45,
+          -0.56
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "slide_leaf_spring_a1r_rear_end",
+      "type": "joint",
+      "joint_type": "translational",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.37,
+          0.45,
+          -0.56
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "leaf_spring_a1r",
+      "frame_b": {
+        "position": [
+          -0.37,
+          0.45,
+          -0.56
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_leaf_spring_a1r_seat",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "leaf_spring_a1r",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.45,
+          -0.48
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a1_beam",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.45,
+          -0.48
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a1r",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.875,
+          -0.66
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a1_beam",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.875,
+          -0.36
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "leaf",
+      "end_type_front": "eye",
+      "end_type_rear": "slipper",
+      "end_friction": 0.3,
+      "hysteresis_force": 400,
+      "leaf_count": 4,
+      "rate": 95000.0,
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a2l",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a2_beam",
+      "frame_a": {
+        "position": [
+          -0.89,
+          -0.875,
+          -0.36
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a2l",
+      "frame_b": {
+        "position": [
+          -0.89,
+          -0.875,
+          -0.36
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_leaf_spring_a2l_front_eye",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.52,
+          -0.45,
+          -0.56
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "leaf_spring_a2l",
+      "frame_b": {
+        "position": [
+          -0.52,
+          -0.45,
+          -0.56
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "slide_leaf_spring_a2l_rear_end",
+      "type": "joint",
+      "joint_type": "translational",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -1.26,
+          -0.45,
+          -0.56
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "leaf_spring_a2l",
+      "frame_b": {
+        "position": [
+          -1.26,
+          -0.45,
+          -0.56
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_leaf_spring_a2l_seat",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "leaf_spring_a2l",
+      "frame_a": {
+        "position": [
+          -0.89,
+          -0.45,
+          -0.48
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a2_beam",
+      "frame_b": {
+        "position": [
+          -0.89,
+          -0.45,
+          -0.48
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a2l",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.89,
+          -0.875,
+          -0.66
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a2_beam",
+      "frame_b": {
+        "position": [
+          -0.89,
+          -0.875,
+          -0.36
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "leaf",
+      "end_type_front": "slipper",
+      "end_type_rear": "slipper",
+      "end_friction": 0.3,
+      "hysteresis_force": 400,
+      "leaf_count": 4,
+      "rate": 95000.0,
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_a2r",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "a2_beam",
+      "frame_a": {
+        "position": [
+          -0.89,
+          0.875,
+          -0.36
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "wheel_a2r",
+      "frame_b": {
+        "position": [
+          -0.89,
+          0.875,
+          -0.36
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_leaf_spring_a2r_front_eye",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.52,
+          0.45,
+          -0.56
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "leaf_spring_a2r",
+      "frame_b": {
+        "position": [
+          -0.52,
+          0.45,
+          -0.56
+        ],
+        "orientation": [
+          -0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "slide_leaf_spring_a2r_rear_end",
+      "type": "joint",
+      "joint_type": "translational",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -1.26,
+          0.45,
+          -0.56
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "leaf_spring_a2r",
+      "frame_b": {
+        "position": [
+          -1.26,
+          0.45,
+          -0.56
+        ],
+        "orientation": [
+          -0.0,
+          -0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_leaf_spring_a2r_seat",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "leaf_spring_a2r",
+      "frame_a": {
+        "position": [
+          -0.89,
+          0.45,
+          -0.48
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a2_beam",
+      "frame_b": {
+        "position": [
+          -0.89,
+          0.45,
+          -0.48
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "spring_a2r",
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.89,
+          0.875,
+          -0.66
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "a2_beam",
+      "frame_b": {
+        "position": [
+          -0.89,
+          0.875,
+          -0.36
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "reference": "wheel",
+      "spring_type": "leaf",
+      "end_type_front": "slipper",
+      "end_type_rear": "slipper",
+      "end_friction": 0.3,
+      "hysteresis_force": 400,
+      "leaf_count": 4,
+      "rate": 95000.0,
+      "x_derived": true
+    }
+  ],
+  "wheel_stations": [
+    {
+      "id": "A1L",
+      "name": "A1L",
+      "wheel_body": "wheel_a1l",
+      "upright_body": "a1_beam",
+      "wheel_center_marker": "wheel_center_a1l",
+      "axle": "A1",
+      "side": "L",
+      "topology_hint": "solid_axle",
+      "wheel": {
+        "rim_diameter": 0.4064,
+        "rim_width": 0.1524,
+        "set_ref": "trailer_st235_80r16"
+      },
+      "x_lateral_location": "leaf_located"
+    },
+    {
+      "id": "A1R",
+      "name": "A1R",
+      "wheel_body": "wheel_a1r",
+      "upright_body": "a1_beam",
+      "wheel_center_marker": "wheel_center_a1r",
+      "axle": "A1",
+      "side": "R",
+      "topology_hint": "solid_axle",
+      "wheel": {
+        "rim_diameter": 0.4064,
+        "rim_width": 0.1524,
+        "set_ref": "trailer_st235_80r16"
+      },
+      "x_lateral_location": "leaf_located"
+    },
+    {
+      "id": "A2L",
+      "name": "A2L",
+      "wheel_body": "wheel_a2l",
+      "upright_body": "a2_beam",
+      "wheel_center_marker": "wheel_center_a2l",
+      "axle": "A2",
+      "side": "L",
+      "topology_hint": "solid_axle",
+      "wheel": {
+        "rim_diameter": 0.4064,
+        "rim_width": 0.1524,
+        "set_ref": "trailer_st235_80r16"
+      },
+      "x_lateral_location": "leaf_located"
+    },
+    {
+      "id": "A2R",
+      "name": "A2R",
+      "wheel_body": "wheel_a2r",
+      "upright_body": "a2_beam",
+      "wheel_center_marker": "wheel_center_a2r",
+      "axle": "A2",
+      "side": "R",
+      "topology_hint": "solid_axle",
+      "wheel": {
+        "rim_diameter": 0.4064,
+        "rim_width": 0.1524,
+        "set_ref": "trailer_st235_80r16"
+      },
+      "x_lateral_location": "leaf_located"
+    }
+  ]
 }

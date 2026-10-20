@@ -50,7 +50,17 @@ Everything is optional. A file with just metadata and suspension is valid — us
 
 ---
 
-## v0.99.7 — Part Names *(new)*
+## v0.100 — Unified suspension *(new, breaking, one release of transition)*
+
+A suspension is no longer a typed corner: it is **bodies, joints and elements** (the §24 model) plus a thin `wheel_stations[]` list. The component defines the mechanism, never a type name: an upright, arms and a tie rod joined by the joints they have; a `spring` (linear or `kind: torsional`) and a `damper`; a rack on a slide; a leaf pack with eye, slipper and seat joints. `wheel_stations[]` names the roles an analysis needs (`wheel_body`, `upright_body`, `wheel_center_marker`, `steering_joint`) and keeps tyre, brake and reference alignment; `anti_roll_bars[]` holds bar data until its geometry exists. Data quoted at the wheel is written as `reference: "wheel"` elements; a wheel rate converts to an element rate through the motion ratio (given, or estimated from the geometry and flagged). Generated items carry `x_derived: true` and are checked leniently until refined. The `suspension` section is deprecated: still accepted, validators warn. **`python tools/migrate_suspension.py old.svj.json -o new.svj.json`** converts a file; all shipped examples and the template are migrated. Not yet: the loop-closure solver (wheel travel, camber / toe / bump-steer curves), steering-wheel coupling, physical anti-roll bar. The viewer (v4.4) still reads only the deprecated section. Details: [`spec/SVJ_Spec.md` §25](spec/SVJ_Spec.md), [`proposals/svj_unified_suspension_proposal.md`](proposals/svj_unified_suspension_proposal.md).
+
+## v0.99.8 — Contact
+
+A **`contact`** constraint stops a part against a pad, seal or seat: primitive shapes (point, plane, sphere, box, cylinder) on markers and a penalty law (`gap`, `stiffness`, `damping`, `friction`, `restitution`), between any two bodies, including a hinged part and its parent. The checker computes the signed distance between the shapes at the reference pose and in every pose, so a hood that does not actually touch its rubber stops, or a pose that pushes a part through a stop, is reported. The panels example gains rubber stops under the hood and tailgate. The part-name vocabulary now also covers the suspension, steering and brake parts, so an upright keeps the name *upright*. `tools/suspension_view.py` expands an authored suspension into the same body / joint model (the first step of [`proposals/svj_unified_suspension_proposal.md`](proposals/svj_unified_suspension_proposal.md), which makes the components define the mechanism).
+
+---
+
+## v0.99.7 — Part Names
 
 Parts need names other people (and other tools) understand. Bodies, constraints and poses may now carry a short display **`name`** next to their stable `id`, and [`docs/naming_convention.md`](docs/naming_convention.md) gains a recommended **vocabulary for movable parts and attachments**: doors, hood, trunk, tailgate, flaps, mirrors, cab, tipper body, front loader, excavator parts, three-point hitch parts and implements, each with the aliases other tools use, side suffixes (`door_fl`, `mirror_r`), patterns for joint, cylinder, strut, latch and pose ids (`hinge_door_fl`, `loader_boom_cylinder`, `door_fl_latch`) and marker names (`hinge`, `<part>_hinge`, `<element>_base` / `_rod`). The checker flags an *alias* of a listed part (`hatch` for `tailgate`) and leaves unlisted names alone. The three movable-part examples follow it.
 
@@ -333,6 +343,8 @@ python tools/multibody_check.py --joints examples/bmw_e30_325i_semi_trailing.svj
 | `tools/multiaxle_check.py` | Multi-axle cross-reference rules (spec §23.7). Run automatically by `validate.py`; also usable standalone. |
 | `tools/multibody_check.py` | Multibody cross-references (spec §9.2.3.2–9.2.3.3): `body_ref`, `parent`, `outboard_ref`, unit quaternions, mass/CG consistency; `--joints` prints every link's effective (explicit or inferred) joint types. Run automatically by `validate.py`. |
 | `tools/constraints_check.py` | Movable parts (spec §24): constraint and pose references, joint ranges, frame coincidence, graph connectivity, inertia plausibility, actuator reach in every pose; also computes body transforms, CG, composite inertia and element lengths (`--poses`). Run automatically by `validate.py`. |
+| `tools/migrate_suspension.py` | Converts the deprecated corner-based `suspension` to the unified model (spec §25.8): bodies, joints, elements, `wheel_stations[]`, `anti_roll_bars[]`; `estimate_motion_ratio()`. |
+| `tools/suspension_view.py` | Expands an authored suspension (corners, uprights, links, hardpoints) into bodies and `joint` constraints with coincident frames, reusing existing `body_ref` bodies and noting what the data does not say (unknown joint types, massless parts). `--json` prints the expansion. A transition tool toward the unified suspension model. |
 | `tools/drivetrain_check.py` | Differential-control rules (spec §10.6.1, §10.8.1): `lock_control` curves/targets/limits and `transfer_case.coupling`. Run automatically by `validate.py`; also usable standalone. |
 | `tools/validate_override.py` | Resolves an `*.svj-override.json` file's `base` + `patch` (new in v0.98) and validates the resulting document against the standard schema. |
 
@@ -354,7 +366,7 @@ All example files validate against the current schema (`tools/validate.py`). The
 | `skeleton_4wd_solid_axle.svj.json` | 4WD | `macpherson` | `solid_axle` |
 | `skeleton_awd_ondemand_diff_control.svj.json` | AWD | `macpherson` | `solid_axle` — on-demand coupling, modulated centre lock, separate power/coast chains on the rear LSD *(v0.99.3)* |
 | `skeleton_visual_binding_dw_corner.svj.json` | — | `double_wishbone` corner with 45 glTF bindings *(v0.99.2)* | — |
-| `skeleton_ff_articulated_panels.svj.json` | FWD | `macpherson` | `torsion_beam` — two doors with latches and door-check detents, hood, and a power-operated hatch, as hinged bodies with gas struts and poses *(v0.99.6)* |
+| `skeleton_ff_articulated_panels.svj.json` | FWD | `macpherson` | `torsion_beam` — two doors with latches and door-check detents, hood, and a power-operated tailgate, as hinged bodies with gas struts, rubber-stop contacts and poses *(v0.99.8)* |
 | `skeleton_dump_truck_tipper_cab.svj.json` | 6x4 | leaf | walking-beam tandem — tilting cab, tipper body on rams, tailgate linked to the body, locks *(v0.99.6)* |
 | `skeleton_tractor_loader_hitch.svj.json` | 4WD | `macpherson` | `solid_axle` — tractor with front loader (boom, bucket, three cylinders), rear hitch and implement; composite mass, CG and inertia include the attachments *(v0.99.5)* |
 | `tire_mf62_245_40r18.svj.json` | — | Standalone Pacejka MF 6.2 tire file | — |
@@ -389,7 +401,7 @@ All example files validate against the current schema (`tools/validate.py`). The
 
 ```
 schema/
-  ├── svj.schema.json             JSON Schema Draft-07 (v0.99.6)
+  ├── svj.schema.json             JSON Schema Draft-07 (v0.100)
   └── svj-override.schema.json    Override file structure (v0.98)
 spec/
   └── SVJ_Spec.md                 Human-readable specification (§1–§23)
@@ -405,7 +417,9 @@ tools/
   ├── validate.py                 Schema + cross-reference validation (multi-axle, drivetrain, multibody, constraints)
   ├── multiaxle_check.py          Multi-axle cross-reference rules (v0.99)
   ├── drivetrain_check.py         Differential-control rules (v0.99.3)
-  ├── constraints_check.py        Movable parts: checks, kinematics, per-pose CG / inertia (v0.99.5–0.99.6)
+  ├── constraints_check.py        Movable parts: checks, kinematics, per-pose CG / inertia, contacts (v0.99.5–0.99.8)
+  ├── suspension_view.py          Deprecated suspension expanded to bodies and joints (v0.99.8)
+  ├── migrate_suspension.py       Deprecated suspension -> unified model (v0.100)
   ├── multibody_check.py          Multibody cross-references + joint-type inference (v0.96 fields)
   ├── validate_override.py        Override file resolution + validation (v0.98)
   └── integrity_check.py          glTF visual binding checks (v0.99.2)
