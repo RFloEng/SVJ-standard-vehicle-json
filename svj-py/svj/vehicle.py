@@ -193,6 +193,47 @@ class Vehicle:
         from svj.multibody import effective_joints
         return effective_joints(self.data)
 
+    # ── Movable parts (spec §24) ──────────────────────────────────────
+
+    @property
+    def constraints(self) -> list[dict[str, Any]]:
+        """The `constraints` array: joints, springs and actuators between mass bodies."""
+        return self.data.get("constraints", [])
+
+    @property
+    def poses(self) -> list[dict[str, Any]]:
+        """The `poses` array: named joint-coordinate configurations."""
+        return self.data.get("poses", [])
+
+    def body_transforms(self, pose: Any = None) -> dict[str, tuple]:
+        """Rigid transform `(R, t)` of every body from the reference pose to `pose` (a pose id or {joint_id: value})."""
+        from svj.constraints import body_transforms
+        return body_transforms(self.data, pose)
+
+    def element_lengths(self, pose: Any = None) -> dict[str, float]:
+        """Length (m) of every spring and actuator in `pose`."""
+        from svj.constraints import element_lengths
+        return element_lengths(self.data, pose)
+
+    def pose_cg(self, pose: Any = None) -> dict[str, Any]:
+        """Composite CG in `pose`: {'cg', 'delta', 'mass'} (spec §24.5)."""
+        from svj.constraints import pose_cg
+        return pose_cg(self.data, pose)
+
+    def pose_inertia(self, pose: Any = None, form: str = "object") -> Any:
+        """Composite inertia about the composite CG in `pose`: the spec §7.1 object, or a 3x3 matrix with
+        `form="matrix"`; None without `chassis.inertia`."""
+        from svj.constraints import pose_inertia
+        return pose_inertia(self.data, pose, form)
+
+    def body_inertia(self, body_id: str) -> list[list[float]] | None:
+        """A mass body's inertia as a 3x3 matrix in the vehicle axes (accepts the object or matrix form and
+        `inertia_orientation`), or None."""
+        from svj.constraints import body_inertia
+        body = next((b for b in self.chassis.get("mass_bodies", []) if b.get("id") == body_id), None)
+        m = body_inertia(body) if body else None
+        return [list(r) for r in m] if m else None
+
     def topologies(self) -> dict[str, str]:
         """Get all suspension types as {station: system_type}."""
         return {c: self.topology(c) for c in self.stations}

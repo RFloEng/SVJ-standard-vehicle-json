@@ -27,6 +27,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from multiaxle_check import check as multiaxle_check  # noqa: E402
 from drivetrain_check import check as drivetrain_check  # noqa: E402
 from multibody_check import check as multibody_check  # noqa: E402
+from constraints_check import check as constraints_check  # noqa: E402
 
 try:
     import jsonschema
@@ -97,12 +98,17 @@ def validate_file(svj_path: str, schema: dict, strict: bool) -> bool:
     errors.extend(mb_errors)
     warnings.extend(mb_warnings)
 
+    # Movable parts: constraints, poses (spec §24)
+    ct_errors, ct_warnings = constraints_check(doc)
+    errors.extend(ct_errors)
+    warnings.extend(ct_warnings)
+
     # Version advisory
     version = doc.get("_metadata", {}).get("version", "unknown")
-    if version not in ("0.99", "0.99.1", "0.99.2", "0.99.3", "0.99.4"):
+    if version not in ("0.99", "0.99.1", "0.99.2", "0.99.3", "0.99.4", "0.99.5"):
         warnings.append(
-            f"_metadata.version is '{version}' — current spec is '0.99.4' "
-            "(strut and damper conventions)"
+            f"_metadata.version is '{version}' — current spec is '0.99.5' "
+            "(movable parts)"
         )
 
     for w in warnings:

@@ -42,13 +42,40 @@ An SVJ file describes the complete physical vehicle:
 
 **Cooling** — thermal circuits with radiator, pump, thermostat
 
+**Movable parts and attachments** — joints, springs and hydraulic actuators between rigid bodies with full mass properties, named poses with derived CG and inertia (doors, hoods, tilt cabs, tractor loaders and hitches)
+
 **Driver controls** — throttle mapping, brake feel, traction control, launch control
 
 Everything is optional. A file with just metadata and suspension is valid — useful for sharing a setup. A file with everything filled in is a complete vehicle ready for multi-body dynamics.
 
 ---
 
-## v0.99.4 — Strut and Damper Conventions *(new)*
+## v0.99.5 — Movable Parts and Attachments *(new)*
+
+A vehicle can now carry **physical, articulated parts**: doors, hood, tilt cab, tipper body, and equipment such as a tractor's front loader or three-point hitch. A part is a `mass_body` (mass, CG, full inertia tensor, markers); `constraints[]` connect parts, and `poses[]` name configurations.
+
+- **`joint`** — revolute, translational, cylindrical, spherical, universal, planar or fixed, with vector coordinates, ranges, end stops, friction, damping and optional bushing compliance. The joint axis is the +Z axis of its marker frame.
+- **`spring`** — a passive force element (gas strut, return spring) between two markers.
+- **`actuator`** — a linear drive with stroke and force limits (`bore_diameter` × `max_pressure`): the loader, tipper and lift cylinders.
+- **Inertia** — `mass_body.inertia` may be the full symmetric 3×3 matrix as well as the Ixx/Iyy/Izz/products object, with an optional `inertia_orientation` for principal axes.
+- **Poses** — for any pose a tool derives the body transforms, the composite **CG and inertia**, and the **length of every spring and actuator**, and checks each actuator can reach it.
+
+```json
+"constraints": [
+  { "id": "boom_pivot", "type": "joint", "joint_type": "revolute", "body_a": "chassis", "marker_a": "boom_pivot",
+    "body_b": "loader_boom", "marker_b": "pivot", "range": { "min": -0.15, "max": 0.95 } },
+  { "id": "boom_cylinder", "type": "actuator", "body_a": "chassis", "marker_a": "cyl_base",
+    "body_b": "loader_boom", "marker_b": "cyl_rod", "retracted_length": 0.82, "stroke": { "min": 0, "max": 0.55 },
+    "bore_diameter": 0.08, "rod_diameter": 0.045, "max_pressure": 18000000 }
+],
+"poses": [ { "id": "transport" }, { "id": "loader_dump", "values": { "boom_pivot": 0.9, "bucket_pivot": -0.8 } } ]
+```
+
+`python tools/constraints_check.py --poses examples/skeleton_tractor_loader_hitch.svj.json` prints the CG, inertia and element lengths of every pose. `tools/constraints_check.py` runs from `tools/validate.py` (mirrored in `svj-py`, with `Vehicle.pose_cg()`, `pose_inertia()`, `element_lengths()`, `body_transforms()`). Contacts, latches, linked joints and attachments in their own files are planned; viewer animation of poses is the next step. Details: [`spec/SVJ_Spec.md` §24](spec/SVJ_Spec.md), [`proposals/svj_articulated_parts_proposal.md`](proposals/svj_articulated_parts_proposal.md).
+
+---
+
+## v0.99.4 — Strut and Damper Conventions
 
 Three points raised by converter authors when they checked converted vehicles against the spec:
 
@@ -287,6 +314,7 @@ python tools/multibody_check.py --joints examples/bmw_e30_325i_semi_trailing.svj
 | `tools/integrity_check.py` | Validates glTF visual bindings: node naming pattern and category, id match for every carrier (uprights, links, wheels, brakes, steering, powertrain, aero), mesh_ref validity, uniqueness, `placement` rules, and advisories on category fit and part naming. Use `--strict` to also fail on warnings. |
 | `tools/multiaxle_check.py` | Multi-axle cross-reference rules (spec §23.7). Run automatically by `validate.py`; also usable standalone. |
 | `tools/multibody_check.py` | Multibody cross-references (spec §9.2.3.2–9.2.3.3): `body_ref`, `parent`, `outboard_ref`, unit quaternions, mass/CG consistency; `--joints` prints every link's effective (explicit or inferred) joint types. Run automatically by `validate.py`. |
+| `tools/constraints_check.py` | Movable parts (spec §24): constraint and pose references, joint ranges, frame coincidence, graph connectivity, inertia plausibility, actuator reach in every pose; also computes body transforms, CG, composite inertia and element lengths (`--poses`). Run automatically by `validate.py`. |
 | `tools/drivetrain_check.py` | Differential-control rules (spec §10.6.1, §10.8.1): `lock_control` curves/targets/limits and `transfer_case.coupling`. Run automatically by `validate.py`; also usable standalone. |
 | `tools/validate_override.py` | Resolves an `*.svj-override.json` file's `base` + `patch` (new in v0.98) and validates the resulting document against the standard schema. |
 
@@ -308,6 +336,8 @@ All example files validate against the current schema (`tools/validate.py`). The
 | `skeleton_4wd_solid_axle.svj.json` | 4WD | `macpherson` | `solid_axle` |
 | `skeleton_awd_ondemand_diff_control.svj.json` | AWD | `macpherson` | `solid_axle` — on-demand coupling, modulated centre lock, separate power/coast chains on the rear LSD *(v0.99.3)* |
 | `skeleton_visual_binding_dw_corner.svj.json` | — | `double_wishbone` corner with 45 glTF bindings *(v0.99.2)* | — |
+| `skeleton_ff_articulated_panels.svj.json` | FWD | `macpherson` | `torsion_beam` — two doors, hood and hatch as hinged bodies with gas struts and poses *(v0.99.5)* |
+| `skeleton_tractor_loader_hitch.svj.json` | 4WD | `macpherson` | `solid_axle` — tractor with front loader (boom, bucket, three cylinders), rear hitch and implement; composite mass, CG and inertia include the attachments *(v0.99.5)* |
 | `tire_mf62_245_40r18.svj.json` | — | Standalone Pacejka MF 6.2 tire file | — |
 
 **Real multi-axle vehicle (v0.99.1)** — published manufacturer data plus marked estimates:
@@ -340,7 +370,7 @@ All example files validate against the current schema (`tools/validate.py`). The
 
 ```
 schema/
-  ├── svj.schema.json             JSON Schema Draft-07 (v0.99.4)
+  ├── svj.schema.json             JSON Schema Draft-07 (v0.99.5)
   └── svj-override.schema.json    Override file structure (v0.98)
 spec/
   └── SVJ_Spec.md                 Human-readable specification (§1–§23)
@@ -353,9 +383,10 @@ examples/
 templates/
   └── mazda_mx5_nd2_2024.svj.json Full vehicle template
 tools/
-  ├── validate.py                 Schema + cross-reference validation (multi-axle, drivetrain, multibody)
+  ├── validate.py                 Schema + cross-reference validation (multi-axle, drivetrain, multibody, constraints)
   ├── multiaxle_check.py          Multi-axle cross-reference rules (v0.99)
   ├── drivetrain_check.py         Differential-control rules (v0.99.3)
+  ├── constraints_check.py        Movable parts: checks, kinematics, per-pose CG / inertia (v0.99.5)
   ├── multibody_check.py          Multibody cross-references + joint-type inference (v0.96 fields)
   ├── validate_override.py        Override file resolution + validation (v0.98)
   └── integrity_check.py          glTF visual binding checks (v0.99.2)

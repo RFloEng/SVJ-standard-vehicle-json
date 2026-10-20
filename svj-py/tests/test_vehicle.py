@@ -528,3 +528,234 @@ class TestStrutAndDamperConventions:
         assert any("reference 'wheel' with motion_ratio" in w for w in warnings)
         dm["reference"] = "elsewhere"
         assert validate(d, schema_path=SCHEMA)  # schema rejects unknown reference
+
+
+PANELS = EXAMPLES_DIR / "skeleton_ff_articulated_panels.svj.json"
+TRACTOR = EXAMPLES_DIR / "skeleton_tractor_loader_hitch.svj.json"
+
+
+def _doc(path):
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+class TestConstraints:
+    """v0.99.5: constraints[], poses[], forward kinematics, per-pose CG / inertia, actuator reach."""
+
+    def test_checker_in_sync(self):
+        a = (REPO_ROOT / "tools" / "constraints_check.py").read_text()
+        b = (REPO_ROOT / "svj-py" / "svj" / "constraints.py").read_text()
+        assert a == b, "tools/constraints_check.py and svj/constraints.py differ"
+
+    def test_examples_validate_and_are_clean(self):
+        from svj.constraints import check
+        for path in (PANELS, TRACTOR):
+            d = _doc(path)
+            assert check(d) == ([], []), path.name
+            assert validate(d, schema_path=SCHEMA) == [], path.name
+
+    def test_panel_directions(self):
+        from svj.constraints import apply, body_transforms
+        d = _doc(PANELS)
+        pos = {b["id"]: b["position"] for b in d["chassis"]["mass_bodies"]}
+        moved = lambda body, pose: apply(body_transforms(d, pose)[body], pos[body])
+        assert moved("door_fl", "door_fl_open")[1] < pos["door_fl"][1] - 0.3       # left door swings out (-Y)
+        assert moved("door_fr", "doors_open")[1] > pos["door_fr"][1] + 0.3         # right door swings out (+Y)
+        assert moved("hood", "hood_up")[2] < pos["hood"][2] - 0.3                  # hood rises (Z is down)
+        assert moved("hatch", "hatch_up")[2] < pos["hatch"][2] - 0.2               # hatch rises
+
+    def test_rotation_keeps_distances(self):
+        import math
+        from svj.constraints import apply, body_transforms
+        d = _doc(TRACTOR)
+        X = body_transforms(d, "loader_dump")
+        pivot = d["chassis"]["markers"]["boom_pivot"]["position"]
+        tip = [2.20, 0.0, -0.90]
+        assert math.dist(pivot, tip) == pytest.approx(math.dist(pivot, apply(X["loader_boom"], tip)), abs=1e-9)
+        assert apply(X["loader_boom"], pivot) == pytest.approx(pivot, abs=1e-9)    # the pivot itself does not move
+
+    def test_welded_bodies_follow_parent_and_chain(self):
+        from svj.constraints import apply, body_transforms
+        d = _doc(TRACTOR)
+        X = body_transforms(d, {"hitch_pivot": 0.5})
+        a, b = X["hitch_lower_link"], X["implement"]
+        assert a[0] == b[0]
+        p = d["chassis"]["markers"]["hitch_pivot"]["position"]
+        assert apply(a, p) == pytest.approx(p, abs=1e-9)
+        end = [-4.35, 0.0, -0.60]
+        assert apply(b, end) == pytest.approx(apply(a, end), abs=1e-9)
+
+    def test_cg_and_inertia_per_pose(self):
+        from svj.constraints import pose_cg, pose_inertia
+        d = _doc(TRACTOR)
+        ref = pose_cg(d)
+        assert ref["delta"] == [0.0, 0.0, 0.0]
+        assert ref["cg"] == pytest.approx(d["chassis"]["center_of_gravity"])
+        up = pose_cg(d, "loader_dump")
+        assert up["cg"][2] < ref["cg"][2]                                           # CG rises
+        i0, i1 = pose_inertia(d), pose_inertia(d, "loader_dump")
+        assert i0["Ixx"] == pytest.approx(d["chassis"]["inertia"]["Ixx"], rel=1e-6)
+        assert i1 != i0 and all(i1[k] > 0 for k in ("Ixx", "Iyy", "Izz"))
+
+    def test_inertia_matches_direct_rebuild(self):
+        # swap the moved bodies' contributions by hand and compare with pose_inertia
+        from svj.constraints import (_inertia_mat, _madd, _mm, _steiner, _sub, _tr, apply, body_transforms,
+                                      pose_cg, pose_inertia)
+        d = _doc(TRACTOR)
+        pose = {"boom_pivot": 0.6, "bucket_pivot": 0.2}
+        X = body_transforms(d, pose)
+        cg0 = tuple(d["chassis"]["center_of_gravity"])
+        acc = _inertia_mat(d["chassis"]["inertia"])
+        for b in d["chassis"]["mass_bodies"]:
+            if b["id"] in ("loader_boom", "loader_bucket"):
+                ib = _inertia_mat(b["inertia"])
+                acc = _madd(acc, _madd(ib, _steiner(b["mass"], _sub(tuple(b["position"]), cg0))), -1.0)
+                R = X[b["id"]][0]
+                acc = _madd(acc, _madd(_mm(_mm(R, ib), _tr(R)),
+                                       _steiner(b["mass"], _sub(apply(X[b["id"]], tuple(b["position"])), cg0))))
+        acc = _madd(acc, _steiner(d["chassis"]["mass_total"], tuple(pose_cg(d, pose)["delta"])), -1.0)
+        got = pose_inertia(d, pose)
+        assert got["Ixx"] == pytest.approx(acc[0][0]) and got["Izz"] == pytest.approx(acc[2][2])
+        assert got["Ixz"] == pytest.approx(-acc[0][2])
+
+    def test_actuator_reach_and_pose_stroke(self):
+        from svj.constraints import check, element_lengths
+        d = _doc(TRACTOR)
+        length = element_lengths(d, "loader_dump")["boom_cylinder"]
+        c = next(x for x in d["constraints"] if x["id"] == "boom_cylinder")
+        assert c["retracted_length"] <= length <= c["retracted_length"] + c["stroke"]["max"]
+        c["stroke"]["max"] = 0.2                                                    # too short for the dump pose
+        errors, _ = check(d)
+        assert any("loader_dump" in e and "boom_cylinder" in e and "reach" in e for e in errors)
+
+    def test_reference_and_range_rules(self):
+        from svj.constraints import check
+        d = _doc(PANELS)
+        j = next(x for x in d["constraints"] if x["id"] == "hinge_hood")
+        j["range"] = {"min": 0.2, "max": 1.0}
+        errors, _ = check(d)
+        assert any("reference pose (0) lies outside" in e for e in errors)
+        j["range"] = {"min": 0.0, "max": 0.5}
+        errors, _ = check(d)
+        assert any("hood_up" in e and "outside its range" in e for e in errors)
+
+    def test_frames_must_coincide_and_axes_align(self):
+        from svj.constraints import check
+        d = _doc(PANELS)
+        next(b for b in d["chassis"]["mass_bodies"] if b["id"] == "hatch")["markers"]["hinge"]["position"][0] += 0.05
+        errors, _ = check(d)
+        assert any("must coincide" in e for e in errors)
+        d = _doc(PANELS)
+        next(b for b in d["chassis"]["mass_bodies"] if b["id"] == "door_fl")["markers"]["hinge"]["orientation"] = [0.7071068, 0, 0, 0.7071068]
+        errors, _ = check(d)
+        assert any("Z axes" in e for e in errors)
+
+    def test_graph_rules(self):
+        from svj.constraints import check
+        d = _doc(TRACTOR)
+        d["constraints"].append({"id": "extra", "type": "joint", "joint_type": "revolute", "body_a": "loader_bucket",
+                                 "frame_a": {"position": [2.65, 0, -0.78]}, "body_b": "implement",
+                                 "frame_b": {"position": [2.65, 0, -0.78]}})
+        _, warnings = check(d)
+        assert any("child of 2 joints" in w for w in warnings)
+        d = _doc(TRACTOR)
+        d["constraints"][0]["body_a"] = "loader_bucket"                             # boom hangs from the bucket, bucket from the boom
+        errors, _ = check(d)
+        assert any("not connected to the chassis" in e for e in errors)
+        d = _doc(TRACTOR)
+        d["constraints"][0]["body_b"] = "nope"
+        errors, _ = check(d)
+        assert any("body_b 'nope'" in e for e in errors)
+
+    def test_physical_completeness_warnings(self):
+        from svj.constraints import check
+        d = _doc(TRACTOR)
+        del next(b for b in d["chassis"]["mass_bodies"] if b["id"] == "loader_boom")["inertia"]
+        next(b for b in d["chassis"]["mass_bodies"] if b["id"] == "loader_bucket")["inertia"] = {"Ixx": 1.0, "Iyy": 1.0, "Izz": 5.0}
+        act = next(c for c in d["constraints"] if c["id"] == "boom_cylinder")
+        del act["bore_diameter"], act["rod_diameter"], act["max_pressure"]
+        _, warnings = check(d)
+        assert any("loader_boom" in w and "no inertia" in w for w in warnings)
+        assert any("loader_bucket" in w and "not physically possible" in w for w in warnings)
+        assert any("boom_cylinder" in w and "force capability" in w for w in warnings)
+
+    def test_actuator_force_limits(self):
+        import math
+        from svj.constraints import actuator_force_limits
+        push, pull = actuator_force_limits({"bore_diameter": 0.08, "rod_diameter": 0.045, "max_pressure": 18e6})
+        assert push == pytest.approx(18e6 * math.pi / 4 * 0.08 ** 2)
+        assert pull < push
+
+    def test_schema_rejects_bad_constraints(self):
+        d = _doc(PANELS)
+        d["constraints"][0]["joint_type"] = "hinge"
+        assert validate(d, schema_path=SCHEMA)
+        d = _doc(PANELS)
+        del d["constraints"][0]["marker_b"]
+        assert validate(d, schema_path=SCHEMA)
+        d = _doc(PANELS)
+        del next(c for c in d["constraints"] if c["type"] == "spring")["rate"]
+        assert validate(d, schema_path=SCHEMA)
+
+    def test_vehicle_api(self):
+        v = load(TRACTOR, validate_on_load=False)
+        assert len(v.constraints) == 7 and {p["id"] for p in v.poses} >= {"transport", "loader_dump"}
+        assert v.pose_cg("loader_dump")["cg"][2] < v.pose_cg()["cg"][2]
+        assert set(v.element_lengths("loader_dump")) == {"boom_cylinder", "bucket_cylinder", "hitch_cylinder"}
+        assert v.pose_inertia("hitch_up")["Iyy"] > 0
+        assert v.body_transforms()["implement"][1] == (0.0, 0.0, 0.0)
+
+    def test_inertia_matrix_form_equals_object_form(self):
+        from svj.constraints import check, pose_inertia
+        d = _doc(TRACTOR)
+        ref = pose_inertia(d, "loader_dump")
+        for b in d["chassis"]["mass_bodies"]:
+            if b["id"] in ("loader_boom", "loader_bucket"):
+                i = b["inertia"]
+                b["inertia"] = [[i["Ixx"], -i["Ixy"], -i["Ixz"]], [-i["Ixy"], i["Iyy"], -i["Iyz"]], [-i["Ixz"], -i["Iyz"], i["Izz"]]]
+        assert check(d) == ([], [])
+        assert validate(d, schema_path=SCHEMA) == []
+        assert pose_inertia(d, "loader_dump") == pytest.approx(ref)
+        m = pose_inertia(d, "loader_dump", form="matrix")
+        assert m[0][0] == pytest.approx(ref["Ixx"]) and m[0][2] == pytest.approx(-ref["Ixz"]) and m[0][1] == m[1][0]
+
+    def test_inertia_orientation_rotates_tensor(self):
+        from svj.constraints import body_inertia, check, pose_inertia
+        d = _doc(TRACTOR)
+        boom = next(b for b in d["chassis"]["mass_bodies"] if b["id"] == "loader_boom")
+        boom["inertia"] = {"Ixx": 100.0, "Iyy": 200.0, "Izz": 250.0, "Ixy": 0.0, "Ixz": 0.0, "Iyz": 0.0}
+        boom["inertia_orientation"] = [0, 0, 0.7071068, 0.7071068]                 # 90 degrees about Z swaps X and Y
+        m = body_inertia(boom)
+        assert m[0][0] == pytest.approx(200.0, rel=1e-6) and m[1][1] == pytest.approx(100.0, rel=1e-6) and m[2][2] == pytest.approx(250.0)
+        assert check(d) == ([], [])
+        assert validate(d, schema_path=SCHEMA) == []
+        # the composite in the reference pose is untouched by a rotated frame; the pose result follows the vehicle-axes tensor
+        boom2 = dict(boom)
+        boom2["inertia"] = {"Ixx": 200.0, "Iyy": 100.0, "Izz": 250.0}
+        del boom2["inertia_orientation"]
+        d2 = _doc(TRACTOR)
+        next(b for b in d2["chassis"]["mass_bodies"] if b["id"] == "loader_boom").update(boom2)
+        d2["chassis"]["mass_bodies"] = [b if b["id"] != "loader_boom" else boom2 for b in d2["chassis"]["mass_bodies"]]
+        a = pose_inertia(d, "loader_dump")
+        b = pose_inertia(d2, "loader_dump")
+        assert a["Ixx"] == pytest.approx(b["Ixx"], rel=1e-6) and a["Iyy"] == pytest.approx(b["Iyy"], rel=1e-6)
+
+    def test_inertia_matrix_validation(self):
+        from svj.constraints import check
+        d = _doc(TRACTOR)
+        boom = next(b for b in d["chassis"]["mass_bodies"] if b["id"] == "loader_boom")
+        boom["inertia"] = [[100.0, -3.0, 0.0], [-9.0, 200.0, 0.0], [0.0, 0.0, 250.0]]     # not symmetric
+        errors, _ = check(d)
+        assert any("loader_boom" in e and "not symmetric" in e for e in errors)
+        boom["inertia"] = [[100.0, 0.0, 0.0], [0.0, 200.0, 0.0], [0.0, 0.0, 900.0]]       # violates the triangle inequality
+        _, warnings = check(d)
+        assert any("loader_boom" in w and "not physically possible" in w for w in warnings)
+        boom["inertia"] = [[1.0, 2.0], [2.0, 1.0]]                                          # wrong shape: schema rejects
+        assert validate(d, schema_path=SCHEMA)
+
+    def test_body_inertia_api(self):
+        v = load(TRACTOR, validate_on_load=False)
+        m = v.body_inertia("loader_boom")
+        assert len(m) == 3 and all(len(r) == 3 for r in m) and m[0][1] == m[1][0]
+        assert v.body_inertia("nope") is None
+        mm = v.pose_inertia("loader_dump", form="matrix")
+        assert mm[1][1] == pytest.approx(v.pose_inertia("loader_dump")["Iyy"])
