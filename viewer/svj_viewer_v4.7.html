@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SVJ 3D Vehicle Inspector v4.6</title>
+<title>SVJ 3D Vehicle Inspector v4.7</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
 :root{--bg:#08090c;--s1:#0f1117;--s2:#161a24;--s3:#1c2130;--brd:#252b3a;--brdL:#333b50;--tx:#dfe3ed;--txD:#6e7a96;--txM:#404c66;--ac:#ff5131;--acD:#ff513130;--bl:#4d9fff;--gn:#34d27b;--yl:#f0b429;--pr:#b06aff;--cy:#2dd4bf;--rd:#f0524f;--og:#ff8c42}
@@ -89,7 +89,7 @@ body{background:var(--bg);color:var(--tx);font-family:'DM Sans',system-ui,sans-s
 <div id="topbar">
   <div style="display:flex;align-items:center">
     <span class="logo mono">SVJ</span>
-    <span class="subtitle mono">3D Inspector v4.6 — Editor · SVJ v0.101</span>
+    <span class="subtitle mono">3D Inspector v4.7 — Editor · SVJ v0.102</span>
     <span class="filename mono" id="file-name">MX-5 ND2 Club 6MT (v0.96 demo)</span>
   </div>
   <div style="display:flex;gap:4px;align-items:center">
@@ -160,7 +160,7 @@ let sideOpen = true;
 let highlightCorner = null;
 let suspCorner = 'FL';
 let liftRaised = false;   // v4.1: draw liftable axles in raised position
-const layers = {grid:true,axes:true,frame:true,labels:true,chassis:true,suspension:true,springs:true,steering:true,drivetrain:true,massBodies:true,wheels:true,brakeDiscs:true,meshes:true,articulation:true};
+const layers = {grid:true,axes:true,frame:true,labels:true,chassis:true,suspension:true,springs:true,steering:true,drivetrain:true,massBodies:true,wheels:true,brakeDiscs:true,meshes:true,articulation:true,collision:true};
 let loadedMeshes  = {};   // id → { group: THREE.Group, file: string }
 let meshAssets    = [];   // DATA.assets.meshes snapshot
 let selectedMeshId = null; // id of the currently selected loaded mesh
@@ -175,7 +175,8 @@ const layerDefs = [
   {key:'drivetrain',label:'Drivetrain',color:'#ff8c42'},{key:'massBodies',label:'Mass Bodies',color:'#b06aff'},
   {key:'wheels',label:'Tires & Rims',color:'#333d4f'},{key:'brakeDiscs',label:'Brake Discs',color:'#666677'},
   {key:'meshes',label:'3D Meshes (glTF)',color:'#c8b4ff'},
-  {key:'articulation',label:'Joints & actuators',color:'#ffb347'}
+  {key:'articulation',label:'Joints & actuators',color:'#ffb347'},
+  {key:'collision',label:'Collision proxies',color:'#ff6ad5'}
 ];
 let cornerDefs = [{key:null,label:'All',color:null},{key:'FL',label:'FL',color:'#4d9fff'},{key:'FR',label:'FR',color:'#34d27b'},{key:'RL',label:'RL',color:'#f0b429'},{key:'RR',label:'RR',color:'#b06aff'}];
 const panelDefs = [{id:'overview',label:'Overview'},{id:'suspension',label:'Suspension'},{id:'powertrain',label:'Powertrain'},{id:'brakes',label:'Brakes'},{id:'tires',label:'Tires'},{id:'performance',label:'Performance'},{id:'aero',label:'Aero'},{id:'thermal',label:'Thermal'},{id:'meshes',label:'Meshes'},{id:'poses',label:'Poses'}];
@@ -384,13 +385,13 @@ function buildScene() {
   const d2 = new THREE.DirectionalLight(0x6688cc, 0.3); d2.position.set(-2,3,-3); scene.add(d2);
 
   groups = {};
-  ['grid','axes','frame','labels','chassis','suspension','springs','steering','drivetrain','massBodies','wheels','brakeDiscs','meshes','articulation'].forEach(k => {
+  ['grid','axes','frame','labels','chassis','suspension','springs','steering','drivetrain','massBodies','wheels','brakeDiscs','meshes','articulation','collision'].forEach(k => {
     groups[k] = new THREE.Group(); scene.add(groups[k]);
   });
   // Re-attach already-loaded mesh groups when scene is rebuilt
   Object.values(loadedMeshes).forEach(entry => groups.meshes.add(entry.group));
   if (selectedObj && selectedMeshId && loadedMeshes[selectedMeshId]) { transformCtrl.attach(selectedObj); transformCtrl.visible = layers.meshes; }
-  pickables = []; posedObjects = []; artic = null;
+  pickables = []; posedObjects = []; artic = null; collState = null;
 
   const addP = (m, label, corner=null) => { m.userData = {label, corner}; pickables.push(m); };
   const mkS = (pos, r, color) => {
@@ -527,11 +528,13 @@ function buildScene() {
     const p = sae2three(mb.position);
     const r = Math.max(0.015, Math.min(0.06, Math.cbrt(mb.mass/400)*0.04));
     const s = mkS(p, r, catC[mb.category]||0x6e7a96);
-    addP(s, `${mb.id||mb.name||'body'}: ${mb.mass} kg\n[${mb.position.map(v=>v.toFixed(3)).join(', ')}]`);
+    if(mb.x_derived){ s.material.transparent = true; s.material.opacity = 0.4; }          // generated item (x_derived): drawn faint
+    addP(s, `${mb.id||mb.name||'body'}: ${mb.mass} kg${mb.x_derived?' (generated)':''}\n[${mb.position.map(v=>v.toFixed(3)).join(', ')}]`);
     groups.massBodies.add(s);
     if(mb.id != null){ s.updateMatrix(); posedObjects.push({obj:s, bodyId:mb.id, base:s.matrix.clone()}); }
   });
   buildArticulation(data, {mkS, mkT, addP});
+  buildCollision(data, {addP});
 
   // Suspension
   stationKeys(data.suspension).forEach(cn => {
@@ -1923,6 +1926,7 @@ function applyPose(){
     });
     if(artic.cg){ const r = poseCG(d, X); artic.cg.position.copy(sae2three(r.cg)); artic.cg.visible = !poseIsReference(); }
   }
+  updateCollision(X);
   updatePoseReadouts(X);
 }
 
@@ -2038,6 +2042,7 @@ function updatePoseReadouts(X){
       return `<div style="display:flex;align-items:center;gap:6px;font-size:10px;margin:2px 0"><span style="width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:${bad?'var(--rd)':'var(--tx)'}" title="${escH(c.id)}">${escH(c.id)}</span><span style="width:56px">${f(L[c.id])} m</span>${bar}${bad?'<span style="color:var(--rd)">out of reach</span>':''}</div>`;
     }).join('') + '</div>';
   }
+  h += collReadout(X);
   box.innerHTML = h;
 }
 
@@ -2775,7 +2780,8 @@ function unifiedToCorners(d){
       const key=base+'_outer'; if(!Object.values(hp).some(p=>p.every((v,i)=>Math.abs(v-outP[i])<1e-9))) hp[key]=outP;
       const refName=Object.keys(hp).find(k=>hp[k].every((v,i)=>Math.abs(v-outP[i])<1e-9))||key;
       const ins=joints.filter(k=>k!==j&&(k.body_a===other||k.body_b===other)).map(k=>framePos(k,'a')).filter(Boolean);
-      links.push({name:base,type:'arm',inboard_points:ins,outboard_ref:'hardpoints.'+refName});
+      const inb=joints.find(k=>k!==j&&(k.body_a===other||k.body_b===other));          // the joint at the other end of the link (chassis, rack, axle ...)
+      links.push({name:base,type:'arm',inboard_points:ins,outboard_ref:'hardpoints.'+refName,joint_type:j.joint_type,inboard_joint_type:inb?inb.joint_type:undefined,body_ref:other});
     });
     const view=strip(st,['id','name','wheel_body','upright_body','topology_hint','axle','side','wheel_center_marker','steering_joint','coupling_ref']);
     view.topology={system_type:st.topology_hint||'',upright:{id:ub,hardpoints:hp},links};
@@ -2797,6 +2803,267 @@ function adoptUnified(json){
   }
 }
 const UNIFIED_BANNER='<div style="background:rgba(77,159,255,.12);border:1px solid #4d9fff;border-radius:6px;padding:6px 10px;margin-bottom:8px;font-size:11px;color:var(--tx)">Unified suspension (SVJ v0.100): this view is derived from the bodies, joints and elements and is read-only; edit those in the file.</div>';
+
+
+/* ═══════════════════════════════════════════════════
+   COLLISION PROXIES (SVJ v0.102, spec §28): sphere / box / cylinder per body; pairs of relatively movable bodies are
+   compared in the shown pose and drawn red where they overlap. Mirrors tools/collision_check.py.
+   ═══════════════════════════════════════════════════ */
+let collState = null;                        // {items:[{obj, id, body}], proxies}
+function collProxies(d){
+  const ch = d?.chassis || {}, out = [];
+  [['chassis', ch]].concat((ch.mass_bodies || []).filter(b => b && b.id != null).map(b => [b.id, b])).forEach(([bid, owner]) => {
+    (owner.collision || []).forEach((p, i) => {
+      if(!p || !Array.isArray(p.position) || p.position.length !== 3) return;
+      const t = p.type, num = v => typeof v === 'number' && v > 0;
+      if(!(t === 'sphere' && num(p.radius)) && !(t === 'cylinder' && num(p.radius) && num(p.length)) && !(t === 'box' && Array.isArray(p.size) && p.size.length === 3 && p.size.every(num))) return;
+      out.push({id: p.id || (bid + '#' + i), body: bid, shape: p, p: p.position, R: quatMat(p.orientation || [0,0,0,1]), margin: +p.margin || 0});
+    });
+  });
+  return out;
+}
+function collGroups(d){
+  const bodies = poseBodies(d), jointed = new Set(poseJoints().map(c => c.body_b)), root = {};
+  const find = (bid, seen=[]) => {
+    if(bid === 'chassis' || jointed.has(bid) || seen.includes(bid)) return bid;
+    if(!(bid in root)){ const par = bodies[bid]?.parent ?? 'chassis'; root[bid] = (par in bodies || par === 'chassis') ? find(par, seen.concat(bid)) : bid; }
+    return root[bid];
+  };
+  const out = {}; Object.keys(bodies).concat(['chassis']).forEach(b => { out[b] = find(b); }); return out;
+}
+function collSkipSet(d){
+  const set = new Set();
+  poseJoints().forEach(c => set.add([c.body_a, c.body_b].sort().join('|')));
+  (d.collision_ignore || []).forEach(p => { if(Array.isArray(p) && p.length === 2) set.add(p.slice().sort().join('|')); });
+  return set;
+}
+const collHalf = s => s.type === 'box' ? s.size.map(v => v/2) : [s.radius, s.radius, s.length/2];      // a cylinder as its bounding box
+function collWorld(p, X){ const t = X[p.body] || xId(); return {c: xApply(t, p.p), R: mm3(t.R, p.R)}; }
+function collSep(a, b, X){
+  const A = collWorld(a, X), B = collWorld(b, X), sa = a.shape, sb = b.shape;
+  let gap;
+  if(sa.type === 'sphere' && sb.type === 'sphere') gap = Math.hypot(...sub3(A.c, B.c)) - sa.radius - sb.radius;
+  else if(sa.type === 'sphere' || sb.type === 'sphere'){
+    const [S, r, Bx, hb] = sa.type === 'sphere' ? [A, sa.radius, B, collHalf(sb)] : [B, sb.radius, A, collHalf(sa)];
+    const l = mv3(tr3(Bx.R), sub3(S.c, Bx.c)), q = l.map((v,i) => Math.abs(v) - hb[i]);
+    gap = Math.hypot(...q.map(v => Math.max(v, 0))) + Math.min(Math.max(...q), 0) - r;
+  } else {
+    const ha = collHalf(sa), hb = collHalf(sb), ax = [0,1,2].map(k => [A.R[0][k], A.R[1][k], A.R[2][k]]).concat([0,1,2].map(k => [B.R[0][k], B.R[1][k], B.R[2][k]]));
+    for(let i = 0; i < 3; i++) for(let j = 3; j < 6; j++){
+      const u = ax[i], v = ax[j], c = [u[1]*v[2]-u[2]*v[1], u[2]*v[0]-u[0]*v[2], u[0]*v[1]-u[1]*v[0]], n = Math.hypot(...c);
+      if(n > 1e-9) ax.push(c.map(x => x/n));
+    }
+    const d = sub3(B.c, A.c); gap = -Infinity;
+    ax.forEach(n => {
+      const ra = [0,1,2].reduce((t,k) => t + ha[k] * Math.abs(A.R[0][k]*n[0] + A.R[1][k]*n[1] + A.R[2][k]*n[2]), 0);
+      const rb = [0,1,2].reduce((t,k) => t + hb[k] * Math.abs(B.R[0][k]*n[0] + B.R[1][k]*n[1] + B.R[2][k]*n[2]), 0);
+      gap = Math.max(gap, Math.abs(d[0]*n[0] + d[1]*n[1] + d[2]*n[2]) - ra - rb);
+    });
+  }
+  return gap - a.margin - b.margin;
+}
+function collClashes(d, X, tol=0){
+  const props = collState?.proxies || collProxies(d), groups = collGroups(d), skip = collSkipSet(d), out = [];
+  for(let i = 0; i < props.length; i++) for(let j = i + 1; j < props.length; j++){
+    const a = props[i], b = props[j];
+    if(a.body === b.body || groups[a.body] === groups[b.body] || skip.has([a.body, b.body].sort().join('|'))) continue;
+    const g = collSep(a, b, X);
+    if(g < tol) out.push({a: a.id, b: b.id, body_a: a.body, body_b: b.body, separation: g});
+  }
+  return out;
+}
+function buildCollision(data, h){
+  collState = null;
+  const props = collProxies(data); if(!props.length || !groups.collision) return;
+  collState = {items: [], proxies: props};
+  props.forEach(p => {
+    const s = p.shape; let geo;
+    if(s.type === 'sphere') geo = new THREE.SphereGeometry(s.radius, 14, 10);
+    else if(s.type === 'cylinder') geo = new THREE.CylinderGeometry(s.radius, s.radius, s.length, 16);           // SAE z -> three y
+    else geo = new THREE.BoxGeometry(s.size[1], s.size[2], s.size[0]);                                           // three = (y, -z, -x)
+    const mat = new THREE.MeshBasicMaterial({color: 0xff6ad5, wireframe: true, transparent: true, opacity: 0.55, depthTest: false});
+    const m = new THREE.Mesh(geo, mat); m.renderOrder = 5;
+    m.matrixAutoUpdate = false;
+    const base = threeMatrix({R: p.R, t: p.p}); m.matrix.copy(base); m.matrixWorldNeedsUpdate = true;
+    h.addP(m, `collision proxy ${p.id} (${s.type}) on ${p.body}`);
+    groups.collision.add(m);
+    posedObjects.push({obj: m, bodyId: p.body, base});
+    collState.items.push({obj: m, id: p.id, body: p.body});
+  });
+  updateCollision(poseFK(data, {}));
+}
+function updateCollision(X){
+  if(!collState) return;
+  const hit = new Set(); collClashes(DATA, X, 0).forEach(k => { hit.add(k.a); hit.add(k.b); });
+  collState.items.forEach(it => it.obj.material.color.set(hit.has(it.id) ? 0xff3b3b : 0xff6ad5));
+}
+function collReadout(X){
+  if(!collState) return '';
+  const k = collClashes(DATA, X, 0);
+  return `<div style="margin-top:6px;font-size:10px;color:${k.length ? 'var(--rd)' : 'var(--txD)'}">` +
+    (k.length ? 'Collision: ' + k.map(c => `${escH(c.a)} × ${escH(c.b)} (${(-c.separation * 1000).toFixed(1)} mm)`).join(' · ') : `Collision proxies: ${collState.proxies.length}, no overlap in this pose`) + '</div>';
+}
+
+/* ═══════════════════════════════════════════════════
+   ATTACHMENTS AND COMBINATIONS (SVJ v0.101, spec §27): the unit files are placed so that their interface frames coincide
+   and joined into one composite document. Mirrors tools/assemble.py (without the inertia accumulation).
+   ═══════════════════════════════════════════════════ */
+const ASM_ROLE_MATES = {
+  fifth_wheel:'kingpin', kingpin:'fifth_wheel', drawbar_eye:'pintle_hook', pintle_hook:'drawbar_eye', ball_coupling:'ball_hitch', ball_hitch:'ball_coupling',
+  gooseneck_ball:'gooseneck_coupler', gooseneck_coupler:'gooseneck_ball', turntable:'turntable',
+  three_point_lower_link:'three_point_lower_pin', three_point_lower_pin:'three_point_lower_link', three_point_top_link:'three_point_top_pin', three_point_top_pin:'three_point_top_link',
+  drawbar_clevis:'drawbar_pin', drawbar_pin:'drawbar_clevis', pto_shaft:'pto_stub', pto_stub:'pto_shaft', loader_mount:'loader_mount',
+  quick_coupler:'quick_coupler_pin', quick_coupler_pin:'quick_coupler', fork_carriage:'fork_carriage', boom_tip:'boom_tip', crane_mount:'crane_mount', body_mount:'body_mount',
+  bed_mount:'bed_mount', pallet_fork_mount:'pallet_fork_mount', winch_mount:'winch_mount', weapon_mount:'weapon_mount', ring_mount:'ring_mount', bridge_interface:'bridge_interface',
+  container_corner_casting:'container_twist_lock', container_twist_lock:'container_corner_casting', plough_blade_mount:'plough_blade_mount', dozer_blade_mount:'dozer_blade_mount',
+  hydraulic_coupler:'hydraulic_coupler', air_line_coupler:'air_line_coupler', electrical_connector:'electrical_connector', generic_mount:'generic_mount'
+};
+const asmQmul = (a, b) => { const [x1,y1,z1,w1] = a, [x2,y2,z2,w2] = b;
+  return [w1*x2 + x1*w2 + y1*z2 - z1*y2, w1*y2 - x1*z2 + y1*w2 + z1*x2, w1*z2 + x1*y2 - y1*x2 + z1*w2, w1*w2 - x1*x2 - y1*y2 - z1*z2]; };
+function asmMatToQuat(R){
+  const tr = R[0][0] + R[1][1] + R[2][2]; let q;
+  if(tr > 0){ const s = Math.sqrt(tr + 1) * 2; q = [(R[2][1]-R[1][2])/s, (R[0][2]-R[2][0])/s, (R[1][0]-R[0][1])/s, 0.25*s]; }
+  else if(R[0][0] > R[1][1] && R[0][0] > R[2][2]){ const s = Math.sqrt(1 + R[0][0] - R[1][1] - R[2][2]) * 2; q = [0.25*s, (R[0][1]+R[1][0])/s, (R[0][2]+R[2][0])/s, (R[2][1]-R[1][2])/s]; }
+  else if(R[1][1] > R[2][2]){ const s = Math.sqrt(1 + R[1][1] - R[0][0] - R[2][2]) * 2; q = [(R[0][1]+R[1][0])/s, 0.25*s, (R[1][2]+R[2][1])/s, (R[0][2]-R[2][0])/s]; }
+  else { const s = Math.sqrt(1 + R[2][2] - R[0][0] - R[1][1]) * 2; q = [(R[0][2]+R[2][0])/s, (R[1][2]+R[2][1])/s, 0.25*s, (R[1][0]-R[0][1])/s]; }
+  const n = Math.hypot(...q) || 1; return q.map(v => v / n);
+}
+const asmPlaceFrame = (T, pos, ori) => ({p: xApply(T, pos), q: asmQmul(asmMatToQuat(T.R), ori || [0,0,0,1])});
+const asmPos = m => Array.isArray(m) ? m : (m && m.position);
+const asmIfaces = doc => Object.fromEntries((doc.interfaces || []).filter(i => i && i.id).map(i => [i.id, i]));
+function asmIfaceFrame(doc, ifc){
+  if(ifc.frame && Array.isArray(ifc.frame.position)) return {p: ifc.frame.position, q: ifc.frame.orientation || [0,0,0,1]};
+  if(ifc.marker != null){
+    const body = ifc.body || 'chassis', src = body === 'chassis' ? doc.chassis?.markers : (doc.chassis?.mass_bodies || []).find(b => b.id === body)?.markers, m = src && src[ifc.marker];
+    if(asmPos(m)) return {p: asmPos(m), q: (m && m.orientation) || [0,0,0,1]};
+  }
+  return null;
+}
+function asmMates(a, b){
+  const why = [], ra = a.role, rb = b.role;
+  if(ASM_ROLE_MATES[ra] !== rb) why.push(`role '${ra}' does not mate with '${rb}'`);
+  const ga = a.gender || 'symmetric', gb = b.gender || 'symmetric';
+  if(ga === gb && ga !== 'symmetric') why.push(`both interfaces are '${ga}'`);
+  const sa = a.size || {}, sb = b.size || {};
+  Object.keys(sa).filter(k => k in sb).forEach(k => {
+    if(typeof sa[k] === 'number' && typeof sb[k] === 'number'){ if(!/_(max|min)$/.test(k) && Math.abs(sa[k] - sb[k]) > 0.0005) why.push(`size '${k}' differs (${sa[k]} vs ${sb[k]})`); }
+    else if(['category','class','type','standard'].includes(k) && sa[k] !== sb[k]) why.push(`size '${k}' differs (${sa[k]} vs ${sb[k]})`);
+  });
+  return why;
+}
+const asmBase = n => String(n || '').split(/[\\/]/).pop().toLowerCase();
+// the combination model from a combination file or a vehicle file with attachments[]; `files` maps base names to parsed documents
+function asmModel(doc, files){
+  const missing = [], find = f => { const d = files[asmBase(f)]; if(!d) missing.push(f); return d; };
+  if(Array.isArray(doc.units)){
+    const units = doc.units.map(u => ({id: u.id, doc: find(u.file), root: !!u.root}));
+    if(units.length && !units.some(u => u.root)) units[0].root = true;
+    return {missing, comb: {units, connections: doc.connections || [], poses: doc.poses || [], name: doc.name}};
+  }
+  const units = [{id: 'host', doc, root: true}], conns = [];
+  (doc.attachments || []).forEach(a => {
+    units.push({id: a.id, doc: find(a.file)});
+    (a.connections || []).forEach((c, k) => conns.push({id: c.id || (a.id + '_mount' + (k ? '_' + (k + 1) : '')), a: `${c.to_unit || 'host'}.${c.interface}`, b: `${a.id}.${c.attachment_interface}`, joint: c.joint || {joint_type: 'fixed'}}));
+  });
+  return {missing, comb: {units, connections: conns, poses: []}};
+}
+function asmSplit(ref){ const i = String(ref).indexOf('.'); return [ref.slice(0, i), ref.slice(i + 1)]; }
+function asmCheck(comb){
+  const errors = [], units = Object.fromEntries(comb.units.map(u => [u.id, u]));
+  if(comb.units.filter(u => u.root).length !== 1) errors.push('exactly one root unit is required');
+  const adj = Object.fromEntries(comb.units.map(u => [u.id, []]));
+  comb.connections.forEach(c => {
+    const e = [];
+    ['a','b'].forEach(side => {
+      const [uid, iname] = asmSplit(c[side] || '.'), ifc = units[uid] && asmIfaces(units[uid].doc)[iname];
+      if(!units[uid]) errors.push(`connection '${c.id}': unit '${uid}' is not listed`); else if(!ifc) errors.push(`connection '${c.id}': unit '${uid}' has no interface '${iname}'`); else e.push([uid, ifc]);
+    });
+    if(e.length === 2){ asmMates(e[0][1], e[1][1]).forEach(r => errors.push(`connection '${c.id}': ${r}`)); adj[e[0][0]].push(e[1][0]); adj[e[1][0]].push(e[0][0]); }
+  });
+  const root = comb.units.find(u => u.root);
+  if(root && !errors.length){ const seen = new Set([root.id]), st = [root.id]; while(st.length) adj[st.pop()].forEach(v => { if(!seen.has(v)){ seen.add(v); st.push(v); } });
+    comb.units.forEach(u => { if(!seen.has(u.id)) errors.push(`unit '${u.id}' is not connected to the root unit`); }); }
+  return errors;
+}
+function asmPlacements(comb){
+  const units = Object.fromEntries(comb.units.map(u => [u.id, u])), root = comb.units.find(u => u.root).id, T = {[root]: xId()};
+  let pending = comb.connections.slice(), progress = true;
+  while(pending.length && progress){
+    progress = false;
+    for(const c of pending.slice()){
+      const [ua, ia] = asmSplit(c.a), [ub, ib] = asmSplit(c.b);
+      let known, other, ik, io;
+      if(ua in T && !(ub in T)) [known, other, ik, io] = [ua, ub, ia, ib]; else if(ub in T && !(ua in T)) [known, other, ik, io] = [ub, ua, ib, ia];
+      else { if(ua in T && ub in T){ pending.splice(pending.indexOf(c), 1); progress = true; } continue; }
+      const fk = asmIfaceFrame(units[known].doc, asmIfaces(units[known].doc)[ik]), fo = asmIfaceFrame(units[other].doc, asmIfaces(units[other].doc)[io]);
+      const w = asmPlaceFrame(T[known], fk.p, fk.q), Ro = mm3(quatMat(w.q), tr3(quatMat(fo.q)));
+      T[other] = {R: Ro, t: sub3(w.p, mv3(Ro, fo.p))};
+      pending.splice(pending.indexOf(c), 1); progress = true;
+    }
+  }
+  return T;
+}
+function asmAssemble(comb){
+  const errors = asmCheck(comb); if(errors.length) throw new Error(errors.slice(0, 6).join('\n'));
+  const clone = o => JSON.parse(JSON.stringify(o)), units = Object.fromEntries(comb.units.map(u => [u.id, u]));
+  const root = comb.units.find(u => u.root), T = asmPlacements(comb), out = clone(root.doc);
+  delete out.interfaces; delete out.attachments;
+  out.chassis = out.chassis || {}; out.chassis.mass_bodies = out.chassis.mass_bodies || []; out.constraints = out.constraints || []; out.poses = out.poses || [];
+  const q = (uid, n) => uid + '.' + n, mapBody = (uid, n) => (n == null || n === 'ground') ? n : q(uid, n);
+  const place = (t, p) => xApply(t, p);
+  const ch0 = out.chassis; let msum = +ch0.mass_total || 0; const mom = (ch0.center_of_gravity || [0,0,0]).map(v => v * msum);
+  const placeProxies = (uid, list, t) => (list || []).map(c => { const f = asmPlaceFrame(t, c.position, c.orientation), n = clone(c); n.id = q(uid, c.id); n.position = f.p; n.orientation = f.q; return n; });
+  comb.units.filter(u => u !== root).forEach(u => {
+    const doc = u.doc, t = T[u.id], ch = doc.chassis || {}, cid = q(u.id, 'chassis'), bodies = ch.mass_bodies || [];
+    const total = +ch.mass_total || 0, cg = ch.center_of_gravity || [0,0,0];
+    const sm = bodies.reduce((a, b) => a + ((!b.x_derived || b.mass) ? (+b.mass || 0) : 0), 0), rem = total - sm;
+    let rcg = cg;
+    if(rem > 1e-6) rcg = [0,1,2].map(i => (total * cg[i] - bodies.reduce((a, b) => a + (b.position ? (+b.mass || 0) * b.position[i] : 0), 0)) / rem);
+    const body = {id: cid, name: u.id + ' chassis', category: 'attachment', mass: rem > 1e-6 ? rem : 0, position: place(t, rcg), x_derived: true};
+    const mk = {}; Object.entries(ch.markers || {}).forEach(([k, m]) => { const f = asmPlaceFrame(t, asmPos(m), m.orientation); mk[k] = {position: f.p, orientation: f.q}; });
+    if(Object.keys(mk).length) body.markers = mk;
+    if(ch.collision) body.collision = placeProxies(u.id, ch.collision, t);
+    out.chassis.mass_bodies.push(body);
+    bodies.forEach(b => {
+      const nb = clone(b); nb.id = q(u.id, b.id); nb.parent = (b.parent == null || b.parent === 'chassis') ? cid : q(u.id, b.parent);
+      if(b.position) nb.position = place(t, b.position);
+      nb.markers = {}; Object.entries(b.markers || {}).forEach(([k, m]) => { const f = asmPlaceFrame(t, asmPos(m), m.orientation); nb.markers[k] = {position: f.p, orientation: f.q}; });
+      if(!Object.keys(nb.markers).length) delete nb.markers;
+      if(b.inertia_orientation) nb.inertia_orientation = asmQmul(asmMatToQuat(t.R), b.inertia_orientation);
+      delete nb.visual; if(b.collision) nb.collision = placeProxies(u.id, b.collision, t);
+      out.chassis.mass_bodies.push(nb);
+    });
+    (doc.collision_ignore || []).forEach(p => { (out.collision_ignore = out.collision_ignore || []).push(p.map(x => q(u.id, x))); });
+    (doc.constraints || []).forEach(c => {
+      const nc = clone(c); nc.id = q(u.id, c.id);
+      ['body_a','body_b'].forEach(k => { if(k in nc) nc[k] = mapBody(u.id, nc[k]); });
+      ['frame_a','frame_b'].forEach(k => { if(nc[k] && nc[k].position){ const f = asmPlaceFrame(t, nc[k].position, nc[k].orientation); nc[k] = {position: f.p, orientation: f.q}; } });
+      ['joint_ref','joint_a','joint_b'].forEach(k => { if(typeof nc[k] === 'string') nc[k] = q(u.id, nc[k]); });
+      out.constraints.push(nc);
+    });
+    (doc.wheel_stations || []).forEach(st => {
+      const ns = clone(st); ns.id = q(u.id, st.id);
+      ['wheel_body','upright_body','steering_joint'].forEach(k => { if(typeof ns[k] === 'string') ns[k] = q(u.id, ns[k]); });
+      delete ns.coupling_ref; (out.wheel_stations = out.wheel_stations || []).push(ns);
+    });
+    (doc.poses || []).forEach(p => { const np = clone(p); np.id = q(u.id, p.id); np.values = Object.fromEntries(Object.entries(p.values || {}).map(([k, v]) => [q(u.id, k), v])); out.poses.push(np); });
+    const wcg = place(t, cg); msum += total; for(let i = 0; i < 3; i++) mom[i] += total * wcg[i];
+  });
+  ch0.mass_total = +msum.toFixed(6); if(msum) ch0.center_of_gravity = mom.map(v => +(v / msum).toFixed(9)); delete ch0.inertia;
+  comb.connections.forEach(c => {
+    const [ua, ia] = asmSplit(c.a), [ub, ib] = asmSplit(c.b), ifa = asmIfaces(units[ua].doc)[ia], ifb = asmIfaces(units[ub].doc)[ib];
+    const fa = asmIfaceFrame(units[ua].doc, ifa), w = asmPlaceFrame(T[ua], fa.p, fa.q);
+    const bodyOf = (uid, ifc) => uid === root.id ? (ifc.body || 'chassis') : mapBody(uid, ifc.body || 'chassis');
+    out.constraints.push(Object.assign({id: c.id, type: 'joint', body_a: bodyOf(ua, ifa), body_b: bodyOf(ub, ifb), frame_a: {position: w.p, orientation: w.q}, frame_b: {position: w.p, orientation: w.q}},
+      clone(c.joint || {joint_type: 'fixed'}), c.joint && c.joint.joint_type ? {} : {joint_type: 'fixed'}));
+  });
+  (comb.poses || []).forEach(p => out.poses.push(clone(p)));
+  if(!out.poses.length) delete out.poses;
+  out.x_assembled = true;
+  out._metadata = Object.assign({}, out._metadata, {version: '0.101'});
+  if(comb.name) out.vehicle_info = Object.assign({}, out.vehicle_info, {model: comb.name});
+  return out;
+}
 
 function loadData(json) {
   resetPoseState();
@@ -2891,16 +3158,33 @@ async function processDroppedFiles(files) {
   const jsonFiles = files.filter(f => /\.json$/i.test(f.name));
   const glbFiles  = files.filter(f => /\.(glb|gltf)$/i.test(f.name));
 
+  const parsed = [];
   for (const file of jsonFiles) {
     await new Promise(res => {
       const reader = new FileReader();
       reader.onload = ev => {
-        try { loadData(JSON.parse(ev.target.result)); document.getElementById('file-name').textContent = file.name; }
+        try { parsed.push({name: file.name, doc: JSON.parse(ev.target.result)}); }
         catch(err) { alert('Invalid JSON: ' + err.message); }
         res();
       };
       reader.readAsText(file);
     });
+  }
+  // a combination file (units + connections) or a vehicle with attachments[] is assembled from the other dropped files
+  const byName = Object.fromEntries(parsed.map(p => [asmBase(p.name), p.doc]));
+  const primary = parsed.find(p => Array.isArray(p.doc?.units)) || parsed.find(p => (p.doc?.attachments || []).length);
+  if (primary) {
+    const {missing, comb} = asmModel(primary.doc, byName);
+    if (missing.length) {
+      alert(primary.name + ' joins other files that were not dropped with it:\n  ' + missing.join('\n  ') + '\nDrop them together (or drop the whole folder).');
+    } else {
+      try {
+        loadData(asmAssemble(comb));
+        document.getElementById('file-name').textContent = primary.name + ' (assembled, ' + comb.units.length + ' units)';
+      } catch(err) { alert('Cannot assemble ' + primary.name + ':\n' + err.message); }
+    }
+  } else {
+    parsed.forEach(p => { loadData(p.doc); document.getElementById('file-name').textContent = p.name; });
   }
 
   // 2. Load GLBs (now meshAssets is up-to-date if an SVJ was just loaded)
