@@ -45,7 +45,7 @@ def infer_joint_types(system_type, link_type):
     if lt in ("rod", "torque_rod"):
         return "spherical", "spherical"
     if lt == "strut" and system_type in _STRUT_FAMILY:
-        return "translational", "fixed"
+        return "translational", "spherical"          # the strut top mount pivots; a fixed top would lock the upright
     if lt == "arm":
         if system_type in _ARM_FAMILY:
             return "spherical", "revolute"

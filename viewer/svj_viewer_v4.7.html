@@ -1227,7 +1227,7 @@ function renderSuspension(el, data) {
 function inferJointTypes(systemType, linkType){
   const lt = linkType || 'arm';
   if(lt === 'rod' || lt === 'torque_rod') return ['spherical','spherical'];
-  if(lt === 'strut' && (systemType === 'macpherson' || systemType === 'chapman_strut')) return ['translational','fixed'];
+  if(lt === 'strut' && (systemType === 'macpherson' || systemType === 'chapman_strut')) return ['translational','spherical'];
   if(lt === 'arm'){
     if(['double_wishbone','macpherson','chapman_strut','multi_link','custom'].includes(systemType)) return ['spherical','revolute'];
     if(['trailing_arm','semi_trailing_arm','torsion_beam','parallelogram'].includes(systemType)) return ['revolute','revolute'];

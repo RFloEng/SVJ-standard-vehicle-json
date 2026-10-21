@@ -477,7 +477,7 @@ When an SVJ file omits the extended fields, an ADAMS converter should apply thes
 | double_wishbone | upper arm | spherical | revolute |
 | double_wishbone | lower arm | spherical | revolute |
 | double_wishbone | tie rod | spherical | spherical |
-| macpherson | strut | translational | fixed |
+| macpherson | strut | translational | spherical |
 | macpherson | lower arm | spherical | revolute |
 | trailing_arm | arm | revolute | revolute |
 | multi_link | any link | spherical | revolute |

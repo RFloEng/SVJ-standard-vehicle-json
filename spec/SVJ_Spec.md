@@ -823,10 +823,12 @@ This resolves to: `suspension.<corner>.topology.upright.hardpoints.upper_ball_jo
 | `arm` | `double_wishbone`, `macpherson`, `chapman_strut`, `multi_link`, `custom` | `spherical` | `revolute` |
 | `arm` | `trailing_arm`, `semi_trailing_arm`, `torsion_beam`, `parallelogram` | `revolute` | `revolute` |
 | `rod`, `torque_rod` | any | `spherical` | `spherical` |
-| `strut` | `macpherson`, `chapman_strut` | `translational` | `fixed` |
+| `strut` | `macpherson`, `chapman_strut` | `translational` | `spherical` |
 | `pivot` | `pendulum_axle` | `revolute` | — |
 | anything else (`arm` on `solid_axle`, `de_dion`, `swing_axle`, leaf springs, …) | | — | — |
 
+> The strut's top mount is `spherical` (it pivots as the lower arm swings): a `fixed` top would leave the upright no motion under wheel travel (before v0.102 the table said `fixed`).
+>
 > Several shipped files state `fixed` for the outboard joint of a trailing or torsion arm whose upright is rigid with the arm; the explicit value overrides the inferred `revolute`.
 
 ##### 9.2.3.3 Body references and orientation frames *(v0.96)*

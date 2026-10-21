@@ -461,7 +461,7 @@ class TestMultibody:
 
     def test_effective_joints_explicit_and_inferred(self):
         from svj.multibody import infer_joint_types
-        assert infer_joint_types("macpherson", "strut") == ("translational", "fixed")
+        assert infer_joint_types("macpherson", "strut") == ("translational", "spherical")
         assert infer_joint_types("double_wishbone", "arm") == ("spherical", "revolute")
         assert infer_joint_types("double_wishbone", "rod") == ("spherical", "spherical")
         assert infer_joint_types("trailing_arm", "arm") == ("revolute", "revolute")
@@ -494,7 +494,7 @@ class TestStrutAndDamperConventions:
             assert struts, name
             for cid in struts:
                 low = cons[cid]["frame_a"]["position"]                          # strut meets the upright at the lower clamp
-                top = cons[cid.replace("slide_", "fixed_").replace("_outboard", "_inboard")]["frame_a"]["position"]
+                top = cons[cid.replace("slide_", "ball_").replace("_outboard", "_inboard")]["frame_a"]["position"]
                 assert math.dist(top, low) > 0.1, (name, cid)
 
     def test_zero_length_strut_is_flagged(self):
@@ -1033,7 +1033,7 @@ class TestSuspensionView:
         assert {b["id"] for b in view["mass_bodies"]} == {"wheel_fl", "wheel_fr", "wheel_rl", "wheel_rr"}
         strut = ids["slide_strut_fl_outboard"]
         assert (strut["joint_type"], strut["body_a"], strut["body_b"]) == ("translational", "strut_fl", "upright_fl")
-        assert ids["fixed_strut_fl_inboard"]["joint_type"] == "fixed"
+        assert ids["fixed_strut_fl_inboard"]["joint_type"] == "fixed"          # the legacy fixture states it explicitly: an explicit value wins
         assert ids["hinge_lower_control_arm_fl_inboard"]["joint_type"] == "revolute"
         assert ids["ball_lower_control_arm_fl_outboard"]["joint_type"] == "spherical"
         assert ids["ball_steering_tie_rod_fl_inboard"]["joint_type"] == "spherical"

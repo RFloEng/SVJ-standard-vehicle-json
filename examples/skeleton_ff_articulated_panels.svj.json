@@ -1079,9 +1079,9 @@
       "x_derived": true
     },
     {
-      "id": "fixed_strut_fl_inboard",
+      "id": "ball_strut_fl_inboard",
       "type": "joint",
-      "joint_type": "fixed",
+      "joint_type": "spherical",
       "body_a": "chassis",
       "frame_a": {
         "position": [
@@ -1450,9 +1450,9 @@
       "x_derived": true
     },
     {
-      "id": "fixed_strut_fr_inboard",
+      "id": "ball_strut_fr_inboard",
       "type": "joint",
-      "joint_type": "fixed",
+      "joint_type": "spherical",
       "body_a": "chassis",
       "frame_a": {
         "position": [
