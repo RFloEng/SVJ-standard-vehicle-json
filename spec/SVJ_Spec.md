@@ -3196,7 +3196,9 @@ The rack is a body on a lateral `translational` joint to the chassis; each tie r
 
 ### 25.5 Anti-roll bars
 
-`anti_roll_bars[]`: `id`, `stations` (the stations it connects), `bar_rate` (N·m/rad), and optionally `wheel_rate_equiv`, `motion_ratio`, `mass`, `drop_link_mounts` (station → point). The old files carry no bar axis or lever geometry, so the bar stays data. With geometry it is two bar-half bodies on revolute joints to the chassis, a torsional `spring` between them and a drop-link rod from each half to the arm. The bar twist (the rotation of one half relative to the other about the bar axis) is what `element_angles()` returns for every torsional spring and damper; the torque is `rate` times that twist.
+`anti_roll_bars[]`: `id`, `stations` (the stations it connects), `bar_rate` (N·m/rad), and optionally `wheel_rate_equiv`, `motion_ratio`, `mass`, `drop_link_mounts` (station → point). The old files carry no bar axis or lever geometry, so the bar stays data. With geometry it is two bar-half bodies on revolute joints to the chassis (bearings on the lateral axis), a torsional `spring` between them and a drop-link body with a spherical joint at each end from each half's lever to the suspension arm. The bar twist (the rotation of one half relative to the other about the bar axis) is what `element_angles()` returns for every torsional spring and damper; the torque is `rate` times that twist.
+
+`tools/anti_roll_bar.py` (and `svj.antirollbar`) generates those items from the bar axis (`x`, `z`), the bearing and lever positions (`y_mount`, `y_lever`, `lever_x`, `lever_z`), the section (`diameter`, optional `inner_diameter`, `G`) and the two arm bodies with the drop link's lower point on each (`arm_l`, `arm_r`, `link_l`, `link_r`). The torsion rate between the halves is `k = G · J / L` (J = π (d⁴ − dᵢ⁴) / 32, L the span between the levers); for wheels moving in opposite directions the rate at one drop link is `2 k / a²` (a the lever length, before the motion ratio). The tool also returns the matching `anti_roll_bars[]` entry (`bar_rate`, `wheel_rate_equiv`). Lever bending, bushing compliance and bar mass distribution are not generated.
 
 ### 25.6 How an analysis finds the parts
 
@@ -3249,13 +3251,14 @@ A leaf pack loaded at the axle seat is two cantilevers clamped at the seat, each
 |---|---|
 | each half | `M` rigid segment bodies in a chain, each hinged to the previous one (the first to the axle) by a `revolute` joint about the lateral axis |
 | bending | a torsional `spring` (§25.3) on every hinge, with rate `k = EI / l · (M + 1)(2M + 1) / (2M²)`, `l` being the segment length |
-| front / rear end | an `eye` (`revolute` about the lateral axis) or a `slipper` (`translational` along x) between the last segment and the chassis; the default is an eye in front and a slipper behind, since two eyes would over-constrain the axle in x |
+| front / rear end | an `eye` (`revolute` about the lateral axis), a `slipper` (`translational` along x) or a `shackle` (a short link, `revolute` at the chassis hanger and at the pack end, of length `shackle_length`) between the last segment and the chassis; the default is an eye in front and a slipper behind, since two eyes would over-constrain the axle in x |
+| inter-leaf friction | Coulomb `friction` on every hinge, `F_h / 2 · (distance from the hinge to the end of the half)`: the moment distribution of the cantilever, so the pack's hysteresis force at the seat is `hysteresis_force` (`F_h`) |
 | seat | the chain starts at the axle body, so the axle is clamped by the first hinges |
 | arch | the segments lie on a parabolic arch; every torsional spring is at rest in that shape (`free_angle` 0) |
 
 The factor in `k` makes the tip deflection of the chain equal the exact cantilever value `F · (L/2)³ / (3EI)` for any `M`, so the vertical rate at the seat is `48 · EI / L³` however coarse the chain; more segments only give a better shape. The pack's mass is spread evenly over the segments, which are marked `x_derived` like every generated item. A flat rate at the seat (the `spring` of the old format) remains valid when bending shape does not matter.
 
-`tools/leaf_pack.py` (and `svj.leafpack`) generates the bodies, joints and springs from `id`, `axle`, `x_front`, `x_rear`, `seat_x`, `y`, `z`, `leaves`, `width`, `thickness`, `mass` and optional `E`, `segments` (per half, default 4), `arch`, `end_front` / `end_rear`, `chassis`; `leaf_pack(p)["rate"]` is the seat rate. Shackles, inter-leaf friction and progressive (helper) leaves are not generated.
+`tools/leaf_pack.py` (and `svj.leafpack`) generates the bodies, joints and springs from `id`, `axle`, `x_front`, `x_rear`, `seat_x`, `y`, `z`, `leaves`, `width`, `thickness`, `mass` and optional `E`, `segments` (per half, default 4), `arch`, `end_front` / `end_rear`, `chassis`; `leaf_pack(p)["rate"]` is the seat rate. Helper leaves are not generated: a progressive pack is a rigid pack with a `rate_curve` (§24.5) at the seat.
 
 ### 25.11 Torsion (twist) beam
 
@@ -3274,7 +3277,7 @@ A bushing direction whose rate is below 10 000 (N/m or N·m/rad) is left free by
 
 ### 25.12 Not covered yet
 
-The loop-closure solver exists (§26); still open: the physical anti-roll bar from its geometry; the bending of an offset or inclined twist beam; leaf-pack shackle swing, inter-leaf friction and helper leaves.
+The loop-closure solver exists (§26); still open: the bending of the bar's levers; the bending of an offset or inclined twist beam; helper leaves of a bending pack.
 
 ---
 
@@ -3314,6 +3317,7 @@ An interface is a named frame with a role.
 | `body` | string | no | `chassis` (default) or a `mass_bodies` id the interface is fixed to |
 | `marker` / `frame` | string / object | one of them | The frame: a marker of `body`, or an inline `{position, orientation}` in the file's own coordinates. Its z axis is the joint axis if the connection is a revolute / translational joint |
 | `size` | object | no | Dimensions and classes that must agree: a number with the same key on both sides must match within 0.5 mm (`pin_diameter`, `kingpin_diameter`, `pin_spacing`); `category`, `class`, `type`, `standard` must be equal text |
+| `supply`, `demand` | object | no | Numeric quantities offered / needed through the interface (`flow_lpm`, `pressure_Pa`, `power_W`, `torque_Nm`, `voltage_V`, `current_A`, …). `check_combination` warns when a `demand` exceeds the `supply` of the same name on the mated interface (a hydraulic loader on a pump that is too small, a PTO implement needing more torque than the stub gives) |
 | `max_load` | object | no | Loads through the interface (`vertical_N`, `drawbar_N`, `torque_Nm`, ...). `check_combination` compares `vertical_N` (the smaller of the two mated interfaces) with the static weight of every unit beyond the connection (units on their own wheels, such as a semi-trailer, are skipped: their axles carry most of the weight) and warns when it is exceeded; the other keys are informational |
 | `name`, `description` | string | no | |
 
@@ -3339,6 +3343,7 @@ Each role mates with one other role (a symmetric role with itself). The table is
 | | `fork_carriage`, `boom_tip`, `crane_mount`, `body_mount`, `bed_mount`, `pallet_fork_mount` | themselves |
 | | `container_corner_casting` / `container_twist_lock` | each other (ISO 1161 / 668) |
 | Military, construction | `winch_mount`, `weapon_mount`, `ring_mount`, `bridge_interface`, `plough_blade_mount`, `dozer_blade_mount` | themselves |
+| Supply lines | `hydraulic_coupler`, `air_line_coupler`, `electrical_connector` | themselves (plug on the implement, socket on the host) |
 | Generic | `generic_mount` | itself |
 
 ### 27.3 The combination file
@@ -3385,7 +3390,7 @@ The assembly (`tools/assemble.py`, `svj.assemble`; `Vehicle.assemble()`) builds 
 
 ### 27.7 Not covered yet
 
-`axles`, `suspension_couplings`, tyre sets, brakes and the powertrain of attached units are not merged into the composite (the unit files keep them; a trailer's air circuit is the unit's `suspension_couplings`); dynamic load checks (only the static `vertical_N` weight is compared); an attachment file that overrides host values; hydraulic and PTO power supply between units; the viewer.
+Decided, not open: `axles`, `suspension_couplings`, tyre sets, brakes and the powertrain of attached units stay in the unit's file (the composite is the mechanical model; a simulator reads the unit file with the station ids qualified as in the composite), and a unit differs from another only by being another file (no overriding file: copy the unit and change it). Open: dynamic load checks (only the static `vertical_N` weight and the `supply` / `demand` figures are compared) and the viewer.
 
 ---
 

@@ -1752,7 +1752,7 @@ class TestLeafPack:
         known = {"chassis", "axle"} | {b["id"] for b in r["bodies"]}
         assert all(c["body_a"] in known and c["body_b"] in known for c in r["constraints"])
         with pytest.raises(ValueError):
-            leaf_pack(dict(self.P, end_rear="shackle"))
+            leaf_pack(dict(self.P, end_rear="pin"))
 
     def test_pack_in_a_document_has_no_constraint_errors(self):
         from svj.constraints import check, element_angles
@@ -1901,4 +1901,89 @@ class TestCollisionProxies:
         doc, _ = assemble(comb)
         ids = [p["id"] for b in [doc["chassis"]] + doc["chassis"]["mass_bodies"] for p in b.get("collision", [])]
         assert "hull" in ids and any(i.endswith(".hull") for i in ids)
+        assert check(doc)[0] == []
+
+
+class TestAntiRollBarGenerator:
+    P = dict(id="arb", x=-1.6, z=-0.25, y_mount=0.45, y_lever=0.35, lever_x=-0.2, diameter=0.02, arm_l="trailing_arm_rl", arm_r="trailing_arm_rr",
+             link_l=[-2.0, -0.35, -0.10], link_r=[-2.0, 0.35, -0.10], stations=["RL", "RR"])
+
+    def _doc(self):
+        doc, _ = TestTorsionBeam()._doc()
+        from svj.antirollbar import anti_roll_bar
+        r = anti_roll_bar(self.P)
+        doc["chassis"]["mass_bodies"] += r["bodies"]
+        doc["constraints"] += r["constraints"]
+        doc["anti_roll_bars"] = [r["anti_roll_bar"]]
+        return doc, r
+
+    def test_generator_in_sync(self):
+        a = (REPO_ROOT / "tools" / "anti_roll_bar.py").read_text(encoding="utf-8").splitlines()
+        b = (REPO_ROOT / "svj-py" / "svj" / "antirollbar.py").read_text(encoding="utf-8").splitlines()
+        assert a == b
+
+    def test_rates_follow_the_section_and_levers(self):
+        from svj.antirollbar import bar_rate, drop_link_rate, polar_moment
+        assert polar_moment(self.P) == pytest.approx(math.pi * 0.02 ** 4 / 32)
+        assert bar_rate(self.P) == pytest.approx(79.3e9 * polar_moment(self.P) / 0.7)
+        assert drop_link_rate(self.P) == pytest.approx(2 * bar_rate(self.P) / 0.2 ** 2)
+        assert polar_moment(dict(self.P, inner_diameter=0.016)) < polar_moment(self.P)
+
+    def test_document_has_no_constraint_errors(self):
+        from svj.constraints import check
+        doc, _ = self._doc()
+        assert check(doc)[0] == []
+
+    def test_opposite_bump_twists_the_bar_and_equal_bump_does_not(self):
+        from svj.loopsolver import _rotvec, solve
+        doc, _ = self._doc()
+
+        def twist(res):
+            t = res["transforms"]
+            return _rotvec(t["arb_r"][0])[1] - _rotvec(t["arb_l"][0])[1]
+        one = solve(doc, travel={"RL": 0.03})
+        both = solve(doc, travel={"RL": 0.03, "RR": 0.03})
+        assert one["converged"] and both["converged"]
+        assert abs(twist(one)) > 0.01
+        assert abs(twist(both)) < 1e-6
+
+    def test_entry_is_an_anti_roll_bars_item(self):
+        _, r = self._doc()
+        assert r["anti_roll_bar"]["stations"] == ["RL", "RR"] and r["anti_roll_bar"]["bar_rate"] == pytest.approx(r["bar_rate"], rel=1e-6)
+
+
+class TestInterfaceSupply:
+    def test_demand_above_supply_warns(self):
+        from svj.assemble import ROLE_MATES, check_combination, combination_from_file
+        assert ROLE_MATES["hydraulic_coupler"] == "hydraulic_coupler"
+        comb = combination_from_file(str((EXAMPLES_DIR / "attachments") / "tractor_loader.svj-combination.json"))
+        host, loader = comb["units"][0]["doc"]["interfaces"], comb["units"][1]["doc"]["interfaces"]
+        a, b = next(i for i in host if i["id"] == comb["connections"][0]["a"].split(".")[1]),             next(i for i in loader if i["id"] == comb["connections"][0]["b"].split(".")[1])
+        a["supply"], b["demand"] = {"flow_lpm": 40.0}, {"flow_lpm": 60.0, "pressure_Pa": 1e7}
+        _, w = check_combination(comb)
+        assert [x for x in w if "flow_lpm 60" in x and "supplies 40" in x] and not [x for x in w if "pressure_Pa" in x]
+        b["demand"]["flow_lpm"] = 30.0
+        assert not [x for x in check_combination(comb)[1] if "flow_lpm" in x]
+
+
+class TestLeafPackFrictionAndShackle:
+    P = TestLeafPack.P
+
+    def test_friction_follows_the_moment_and_gives_the_hysteresis_force(self):
+        from svj.leafpack import leaf_pack
+        r = leaf_pack(dict(self.P, segments=4, hysteresis_force=200.0))
+        hinges = {c["id"]: c["friction"] for c in r["constraints"] if c["id"].startswith("hinge_") and "_rear_" in c["id"]}
+        assert hinges["hinge_lp_rear_1"] == pytest.approx(100.0 * 0.6)              # F_h / 2 times the full half length
+        assert hinges["hinge_lp_rear_4"] == pytest.approx(100.0 * 0.15)
+        assert not [c for c in leaf_pack(self.P)["constraints"] if "friction" in c]
+
+    def test_shackle_is_a_link_with_two_revolute_pins(self):
+        from svj.constraints import check
+        from svj.leafpack import leaf_pack
+        r = leaf_pack(dict(self.P, end_rear="shackle", shackle_length=0.1))
+        ids = {c["id"] for c in r["constraints"]}
+        assert {"hanger_lp_rear", "shackle_pin_lp_rear"} <= ids and "shackle_lp_rear" in {b["id"] for b in r["bodies"]}
+        z = {"inertia": {"Ixx": 1, "Iyy": 1, "Izz": 1}, "category": "suspension", "parent": "chassis"}
+        doc = {"chassis": {"mass_bodies": [dict(z, id="axle", name="Axle", mass=60.0, position=[0, 0.5, -0.2])] + r["bodies"]},
+               "constraints": r["constraints"]}
         assert check(doc)[0] == []
