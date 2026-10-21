@@ -3390,7 +3390,7 @@ The assembly (`tools/assemble.py`, `svj.assemble`; `Vehicle.assemble()`) builds 
 
 ### 27.7 Not covered yet
 
-Decided, not open: `axles`, `suspension_couplings`, tyre sets, brakes and the powertrain of attached units stay in the unit's file (the composite is the mechanical model; a simulator reads the unit file with the station ids qualified as in the composite), and a unit differs from another only by being another file (no overriding file: copy the unit and change it). Open: dynamic load checks (only the static `vertical_N` weight and the `supply` / `demand` figures are compared) and the viewer.
+Decided, not open: `axles`, `suspension_couplings`, tyre sets, brakes and the powertrain of attached units stay in the unit's file (the composite is the mechanical model; a simulator reads the unit file with the station ids qualified as in the composite), and a unit differs from another only by being another file (no overriding file: copy the unit and change it). Open: dynamic load checks (only the static `vertical_N` weight and the `supply` / `demand` figures are compared) and editing a combination in the viewer (it opens and poses one, read-only).
 
 ---
 
