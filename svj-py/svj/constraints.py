@@ -394,6 +394,24 @@ def element_lengths(doc, pose=None):
     return out
 
 
+def element_angles(doc, pose=None):
+    """{constraint_id: angle_rad} of every torsional spring and damper in `pose`: the rotation of frame B relative to
+    frame A about their shared z axis (a torsion bar, an anti-roll bar half pair, a twist beam)."""
+    X = body_transforms(doc, pose)
+    out = {}
+    for c in _constraints(doc):
+        if c.get("type") not in ("spring", "damper") or c.get("kind") != "torsional":
+            continue
+        fa, fb = _frame(doc, c, "a"), _frame(doc, c, "b")
+        if fa is None or fb is None:
+            continue
+        Ra = _mm(X.get(c.get("body_a"), IDENT)[0], quat_to_mat(fa[1]))
+        Rb = _mm(X.get(c.get("body_b"), IDENT)[0], quat_to_mat(fb[1]))
+        rel = _mm(_tr(Ra), Rb)                                   # B in A's frame; the free rotation is about z
+        out[c.get("id")] = math.atan2(rel[1][0], rel[0][0])
+    return out
+
+
 def pose_cg(doc, pose=None):
     """Composite CG for `pose`: {'cg': [x,y,z], 'delta': [dx,dy,dz], 'mass': M}.
 
@@ -704,7 +722,8 @@ def check(doc):
         wcm = st.get("wheel_center_marker", "wheel_center")
         if ub in bodies and st.get("wheel_center_marker") is not None and wcm not in (bodies[ub].get("markers") or {}):
             errors.append(f"{where}: wheel_center_marker '{wcm}' is not a marker of upright_body '{ub}'")
-        m = re.fullmatch(r"(?:(FL|FR|RL|RR)|A(\d{1,2})([LRC]))", sid) if isinstance(sid, str) else None
+        sid_base = sid.rsplit(".", 1)[-1] if isinstance(sid, str) and doc.get("x_assembled") else sid       # `unit.A1L` in a composite
+        m = re.fullmatch(r"(?:(FL|FR|RL|RR)|A(\d{1,2})([LRC]))", sid_base) if isinstance(sid_base, str) else None
         if m:
             axle, side = ("A1" if m.group(1) in ("FL", "FR") else "A2", m.group(1)[1]) if m.group(1) else ("A" + m.group(2), m.group(3))
             if st.get("axle") is not None and st["axle"] != axle:
@@ -726,7 +745,7 @@ def check(doc):
 
     valid_bodies = set(bodies) | set(ROOTS)
     for bid in bodies:
-        if isinstance(bid, str) and "." in bid:
+        if isinstance(bid, str) and "." in bid and not doc.get("x_assembled"):
             warnings.append(f"chassis.mass_bodies '{bid}': '.' is reserved for qualified ids of attached units")
 
     # ── per constraint ─────────────────────────────────────────────────────

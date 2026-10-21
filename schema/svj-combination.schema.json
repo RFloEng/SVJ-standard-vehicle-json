@@ -1,0 +1,169 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/RFloEng/SVJ-standard-vehicle-json/schema/svj-combination.schema.json",
+  "title": "SVJ combination",
+  "description": "A set of SVJ units joined through their interfaces (spec \u00a727.3): a tractor and its loader, a tractor unit and semi-trailer, a carrier with a crane.",
+  "type": "object",
+  "required": [
+    "_metadata",
+    "units",
+    "connections"
+  ],
+  "properties": {
+    "_metadata": {
+      "type": "object",
+      "required": [
+        "format",
+        "version"
+      ],
+      "properties": {
+        "format": {
+          "const": "svj-combination"
+        },
+        "version": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "units": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "file"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[^.]+$"
+          },
+          "file": {
+            "type": "string",
+            "description": "Path of the unit's SVJ file, relative to the combination file."
+          },
+          "root": {
+            "type": "boolean",
+            "description": "The unit whose coordinates and ids the composite keeps. Exactly one; the first unit when none is marked."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "connections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "a",
+          "b"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string"
+          },
+          "a": {
+            "type": "string",
+            "pattern": "^[^.]+\\.[^.]+$",
+            "description": "unit.interface"
+          },
+          "b": {
+            "type": "string",
+            "pattern": "^[^.]+\\.[^.]+$",
+            "description": "unit.interface"
+          },
+          "joint": {
+            "type": "object",
+            "description": "The joint of a connection: any joint fields of a `joint` constraint without body and frame references. Default: fixed.",
+            "properties": {
+              "joint_type": {
+                "type": "string",
+                "enum": [
+                  "revolute",
+                  "translational",
+                  "cylindrical",
+                  "spherical",
+                  "universal",
+                  "planar",
+                  "fixed"
+                ]
+              },
+              "range": {},
+              "stop": {},
+              "friction": {},
+              "damping": {},
+              "bushing": {},
+              "drive": {}
+            },
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "poses": {
+      "type": "array",
+      "description": "Named configurations over the composite; joint ids are qualified (`loader.hinge_boom`) except the root unit's.",
+      "items": {
+        "description": "A named configuration: joint coordinates for any subset of joints; unnamed joints stay at 0 (the reference pose).",
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "description": "Short human-readable label for display (e.g. 'Front-left door'). `id` stays the stable key that everything references."
+          },
+          "description": {
+            "type": "string"
+          },
+          "values": {
+            "type": "object",
+            "additionalProperties": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "maxItems": 3
+                }
+              ]
+            },
+            "description": "joint id -> coordinate (number for one-coordinate joints, array otherwise), rad / m."
+          },
+          "aero_setting_ref": {
+            "type": "string",
+            "description": "Name of an aerodynamics.components[].settings entry that applies in this pose."
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -94,6 +94,8 @@ def _consistency_checks(data: dict) -> list[str]:
     if bodies and unsprung:
         body_sum = sum(b["mass"] for b in bodies if isinstance(b, dict) and "mass" in b)
         unsprung_sum = sum(v for k, v in unsprung.items() if isinstance(v, (int, float)))
+        if data.get("wheel_stations"):
+            unsprung_sum = 0.0            # unified suspension (spec 25): uprights, arms and wheels are bodies; the per-corner figures are a summary
         total_computed = body_sum + unsprung_sum
         total_stated = chassis.get("mass_total", 0)
         if total_stated and chassis.get("mass_bodies_complete") is True and abs(total_computed - total_stated) > 1.0:
@@ -186,5 +188,11 @@ def _consistency_checks(data: dict) -> list[str]:
     # ── Movable parts (spec §24) ──
     ct_errors, ct_warnings = constraints_check(data)
     warnings.extend(f"constraints: {e}" for e in ct_errors + ct_warnings)
+
+    # ── Attachments: interfaces (spec §27) ──
+    if data.get("interfaces"):
+        from svj.assemble import check_interfaces
+        i_errors, i_warnings = check_interfaces(data)
+        warnings.extend(f"interfaces: {e}" for e in i_errors + i_warnings)
 
     return warnings

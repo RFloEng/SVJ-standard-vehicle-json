@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.100",
+    "version": "0.101",
     "description": "Tri-axle semi-trailer skeleton — trailing-arm air suspension on beam axles, dual wheels, liftable first axle, shared levelling circuit. Origin at A1 centre (no king-pin data, §23.8).",
     "coordinate_system": "SAE_J670",
     "units": "SI",
@@ -365,7 +365,16 @@
         "description": "Trailing arm",
         "x_derived": true
       }
-    ]
+    ],
+    "markers": {
+      "kingpin": {
+        "position": [
+          6.9,
+          0.0,
+          -1.25
+        ]
+      }
+    }
   },
   "axles": [
     {
@@ -1898,6 +1907,19 @@
             }
           }
         ]
+      }
+    }
+  ],
+  "interfaces": [
+    {
+      "id": "kingpin",
+      "name": "Kingpin",
+      "role": "kingpin",
+      "gender": "plug",
+      "marker": "kingpin",
+      "size": {
+        "kingpin_diameter": 0.0508,
+        "standard": "ISO 337 50"
       }
     }
   ]

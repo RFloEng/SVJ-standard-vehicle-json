@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.100",
+    "version": "0.101",
     "description": "6x4 tractor unit skeleton — trunnion ('camelback') tandem: one inverted leaf pack per side pivoting between the drive axles, slipper ends on axle seats, torque rods in a parallelogram.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
@@ -417,7 +417,16 @@
         ],
         "x_derived": true
       }
-    ]
+    ],
+    "markers": {
+      "fifth_wheel": {
+        "position": [
+          -4.1,
+          0.0,
+          -1.25
+        ]
+      }
+    }
   },
   "steering": {
     "type": "recirculating_ball",
@@ -2160,6 +2169,23 @@
         ]
       },
       "x_lateral_location": "torque_rods"
+    }
+  ],
+  "interfaces": [
+    {
+      "id": "fifth_wheel",
+      "name": "Fifth wheel",
+      "role": "fifth_wheel",
+      "gender": "socket",
+      "marker": "fifth_wheel",
+      "size": {
+        "kingpin_diameter": 0.0508,
+        "standard": "ISO 337 50"
+      },
+      "max_load": {
+        "vertical_N": 196000
+      },
+      "description": "Fifth-wheel coupling plate; pitch and roll of the trailer about the pin are free within the coupling's stops."
     }
   ]
 }

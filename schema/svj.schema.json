@@ -43,9 +43,10 @@
             "0.99.6",
             "0.99.7",
             "0.99.8",
-            "0.100"
+            "0.100",
+            "0.101"
           ],
-          "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations). '0.99.1' adds axle_groups, plated masses and explicit wheelbase definitions. '0.99.2' extends the glTF visual binding layer: full category set, visual on links/steering/wheels/brakes/springs/dampers/aero, and the 'placement' field for parts defined by hardpoints. '0.99.3' adds differential control: lock_control (dynamic differential lock) and transfer_case.coupling (torque-limited centre coupling). '0.99.4' adds the strut_lower hardpoint convention for MacPherson/Chapman struts and damper.reference ('damper' or 'wheel'). '0.99.5' adds movable parts: constraints[] (joint, spring, actuator between mass bodies), poses[] and chassis.markers. '0.99.6' completes the constraint set: latch, coupling and joint.drive. '0.99.7' adds the optional display name on bodies, constraints and poses, and the naming vocabulary for movable parts. '0.99.8' adds the contact constraint (primitives at markers with a penalty law). '0.100' unifies the suspension: wheel stations are bodies, joints and elements (spring, damper; linear or torsional) with a thin wheel_stations[] list and anti_roll_bars[]; the corner-based suspension section is deprecated."
+          "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations). '0.99.1' adds axle_groups, plated masses and explicit wheelbase definitions. '0.99.2' extends the glTF visual binding layer: full category set, visual on links/steering/wheels/brakes/springs/dampers/aero, and the 'placement' field for parts defined by hardpoints. '0.99.3' adds differential control: lock_control (dynamic differential lock) and transfer_case.coupling (torque-limited centre coupling). '0.99.4' adds the strut_lower hardpoint convention for MacPherson/Chapman struts and damper.reference ('damper' or 'wheel'). '0.99.5' adds movable parts: constraints[] (joint, spring, actuator between mass bodies), poses[] and chassis.markers. '0.99.6' completes the constraint set: latch, coupling and joint.drive. '0.99.7' adds the optional display name on bodies, constraints and poses, and the naming vocabulary for movable parts. '0.99.8' adds the contact constraint (primitives at markers with a penalty law). '0.100' unifies the suspension: wheel stations are bodies, joints and elements (spring, damper; linear or torsional) with a thin wheel_stations[] list and anti_roll_bars[]; the corner-based suspension section is deprecated. '0.101' adds attachments: interfaces[] (named frames with a role and size), attachments[] (units fitted to this vehicle) and the svj-combination file."
         },
         "description": {
           "type": "string"
@@ -218,20 +219,14 @@
             "bus",
             "off_highway",
             "military",
-            "special"
+            "special",
+            "attachment"
           ]
         }
       }
     },
     "chassis": {
       "type": "object",
-      "required": [
-        "mass_total",
-        "wheelbase",
-        "track_front",
-        "track_rear",
-        "center_of_gravity"
-      ],
       "additionalProperties": true,
       "properties": {
         "mass_total": {
@@ -2523,6 +2518,20 @@
             "type": "string"
           }
         }
+      }
+    },
+    "interfaces": {
+      "type": "array",
+      "description": "Interfaces (v0.101, spec \u00a727): named frames where this file can be joined to another unit (a loader mount, a fifth wheel, a three-point hitch). Roles mate in pairs (\u00a727.2).",
+      "items": {
+        "$ref": "#/definitions/interface"
+      }
+    },
+    "attachments": {
+      "type": "array",
+      "description": "Units fitted to this vehicle (v0.101, spec \u00a727.4): shorthand for a combination file. Each entry names a unit file and the connections to this vehicle's interfaces.",
+      "items": {
+        "$ref": "#/definitions/attachment_ref"
       }
     }
   },
@@ -6147,8 +6156,8 @@
       "properties": {
         "id": {
           "type": "string",
-          "pattern": "^(FL|FR|RL|RR|A([1-9][0-9]?)(L|R|C))$",
-          "description": "Station name as in spec 23.1; also the key of mass_unsprung_per_corner."
+          "pattern": "^([A-Za-z0-9_]+\\.)?(FL|FR|RL|RR|A([1-9][0-9]?)(L|R|C))$",
+          "description": "Station name as in spec 23.1; also the key of mass_unsprung_per_corner. In an assembled composite (spec 27.5) a unit's station is qualified `unit.A1L`."
         },
         "name": {
           "type": "string"
@@ -6274,6 +6283,201 @@
       "patternProperties": {
         "^(x_|_)": {}
       }
+    },
+    "interface": {
+      "type": "object",
+      "required": [
+        "id",
+        "role"
+      ],
+      "description": "Where a unit can be joined to another: a frame (own `frame`, or a `marker` of `body`) with a role from the vocabulary of \u00a727.2 and optional sizes.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[^.]+$",
+          "description": "Unique in the file; '.' is reserved for qualified ids."
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string",
+          "description": "Interface role (spec \u00a727.2): fifth_wheel, kingpin, loader_mount, three_point_lower_link, ..."
+        },
+        "gender": {
+          "type": "string",
+          "enum": [
+            "socket",
+            "plug",
+            "symmetric"
+          ],
+          "default": "symmetric",
+          "description": "Two interfaces mate when their roles mate and the genders are not both the same (symmetric mates with anything)."
+        },
+        "body": {
+          "type": "string",
+          "default": "chassis",
+          "description": "Body the interface is fixed to ('chassis' or a mass_bodies id)."
+        },
+        "marker": {
+          "type": "string",
+          "description": "Name of a marker of `body` giving the frame."
+        },
+        "frame": {
+          "$ref": "#/definitions/frame"
+        },
+        "size": {
+          "type": "object",
+          "description": "Dimensions that must agree between the two interfaces (m): pin_diameter, kingpin_diameter, spacing, category ... Numbers with the same name on both sides must match within 0.5 mm; text values (category, class, type, standard) must be equal.",
+          "additionalProperties": true
+        },
+        "max_load": {
+          "type": "object",
+          "description": "Allowed loads through the interface (vertical_N, drawbar_N, ...).",
+          "additionalProperties": true
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "marker"
+          ]
+        },
+        {
+          "required": [
+            "frame"
+          ]
+        }
+      ],
+      "patternProperties": {
+        "^(x_|_)": {}
+      },
+      "additionalProperties": false
+    },
+    "attachment_ref": {
+      "type": "object",
+      "required": [
+        "id",
+        "file",
+        "connections"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[^.]+$",
+          "description": "Unit id; the unit's bodies and joints become `<id>.<name>` in the composite."
+        },
+        "file": {
+          "type": "string",
+          "description": "Path of the unit's SVJ file, relative to this file."
+        },
+        "name": {
+          "type": "string"
+        },
+        "connections": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "interface",
+              "attachment_interface"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "interface": {
+                "type": "string",
+                "description": "id of an interface of this vehicle."
+              },
+              "attachment_interface": {
+                "type": "string",
+                "description": "id of an interface of the attached unit."
+              },
+              "to_unit": {
+                "type": "string",
+                "description": "Another attached unit to join to instead of this vehicle (chains)."
+              },
+              "joint": {
+                "type": "object",
+                "description": "The joint of a connection: any joint fields of a `joint` constraint without body and frame references. Default: fixed.",
+                "properties": {
+                  "joint_type": {
+                    "type": "string",
+                    "enum": [
+                      "revolute",
+                      "translational",
+                      "cylindrical",
+                      "spherical",
+                      "universal",
+                      "planar",
+                      "fixed"
+                    ]
+                  },
+                  "range": {},
+                  "stop": {},
+                  "friction": {},
+                  "damping": {},
+                  "bushing": {},
+                  "drive": {}
+                },
+                "additionalProperties": true
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "vehicle_info": {
+            "properties": {
+              "vehicle_class": {
+                "const": "attachment"
+              }
+            },
+            "required": [
+              "vehicle_class"
+            ]
+          }
+        },
+        "required": [
+          "vehicle_info"
+        ]
+      },
+      "then": {
+        "properties": {
+          "chassis": {
+            "required": [
+              "mass_total",
+              "center_of_gravity"
+            ]
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "chassis": {
+            "required": [
+              "mass_total",
+              "wheelbase",
+              "track_front",
+              "track_rear",
+              "center_of_gravity"
+            ]
+          }
+        }
+      }
+    }
+  ]
 }
