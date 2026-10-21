@@ -1,4 +1,4 @@
-# Standard Vehicle JSON (SVJ) Specification v0.101
+# Standard Vehicle JSON (SVJ) Specification v0.102
 
 ## 1. Overview & Philosophy
 
@@ -2397,6 +2397,7 @@ This section is **optional**. It provides a standard place to record performance
 
 | Version | Changes                                                                                    |
 |---------|--------------------------------------------------------------------------------------------|
+| 0.102   | **Collision proxies** (§28). Additive. `collision[]` on `chassis` and on any `mass_bodies` entry (sphere, box, cylinder in vehicle coordinates, optional `margin`, `source_node`) and a top-level `collision_ignore`; pairs of relatively movable bodies are compared in the reference pose and every pose (`tools/collision_check.py`, `svj.collision`); the validator warns about overlaps and errors on malformed proxies. `_metadata.version` gains `0.102` |
 | 0.101   | **Attachments and combinations** (§27; `proposals/svj_articulated_parts_proposal.md`, phase 4). Additive. Top-level **`interfaces[]`** (named frames with a role from a mating table, a gender and sizes), **`attachments[]`** (units fitted to a vehicle) and the **`*.svj-combination.json`** file (`schema/svj-combination.schema.json`): units joined by connections that carry a joint object. Units are ordinary SVJ files; `vehicle_info.vehicle_class: "attachment"` for units only ever fitted (chassis needs only `mass_total` and `center_of_gravity`). Assembly (`tools/assemble.py`) places units so interface frames coincide, qualifies ids `unit.id`, and builds one composite (mass, CG, inertia, poses) that all §24 / §26 machinery works on. `_metadata.version` gains `0.101` |
 | 0.100   | **Unified suspension** (§25; `proposals/svj_unified_suspension_proposal.md`) — *breaking*, with one release of transition. A wheel station is bodies, joints and elements, not a typed corner: `wheel_stations[]` (wheel and carrier bodies, wheel-centre marker, steering joint, coupling reference, tyre / brake / reference alignment, optional `topology_hint`), `anti_roll_bars[]`, new `damper` constraint, `spring` / `damper` gain `kind` (`linear` / `torsional`) and `reference` (`element` / `wheel`), spring and bump / rebound stops as elements, rack as a body on a slide, leaf pack as a body with eye / slipper / seat joints. The corner-based `suspension` section is **deprecated** (accepted, validators warn) and `tools/migrate_suspension.py` converts it, marking generated items `x_derived` (zero mass allowed only there). `mass_bodies` keeps holding every body. Body ids of known suspension parts keep their canonical names. `placement: link_between_points` works on link bodies. All 28 shipped examples and the template are migrated |
 | 0.99.8  | **Contact** (§24.6.3): `contact` constraints between any two bodies with primitive shapes (point, plane, sphere, box, cylinder) on markers and a penalty law (`gap`, `stiffness`, `damping`, `friction`, `restitution`); the checker computes the signed distance between the shapes at the reference pose and in every pose. The part-name vocabulary now also covers the suspension, steering and brake parts (upright, wishbones, tie rod, rack, …) with the same alias advisory and the multi-axle station suffix (`_a2l`). New tool `tools/suspension_view.py` expands an authored suspension into the body / joint model (transition tool toward `proposals/svj_unified_suspension_proposal.md`). Panels example gains rubber stops |
@@ -3388,6 +3389,47 @@ The assembly (`tools/assemble.py`, `svj.assemble`; `Vehicle.assemble()`) builds 
 
 ---
 
+## 28. Collision Proxies *(v0.102)*
+
+Visual meshes are far too detailed to ask "does the lid hit the cab in this pose?". A body (or the chassis) can carry a few simple **proxy shapes** for that question. They are a different thing from `contact` (§24.6.3), which is a force element on two frames: a proxy has no force, it only answers where parts clash.
+
+### 28.1 `collision[]`
+
+An array on `chassis` or on any `mass_bodies` entry:
+
+| Key | Type | Required | Description |
+|---|---|---|---|
+| `id` | string | YES | Unique in the file |
+| `type` | string | YES | `sphere` (`radius`), `box` (`size`: the three full lengths along the shape axes) or `cylinder` (`radius`, `length`, axis along the shape Z) |
+| `position` | `[x,y,z]` | YES | Centre of the shape in vehicle coordinates at the reference pose (like marker positions) |
+| `orientation` | quaternion `[x,y,z,w]` | no | Shape axes in vehicle axes at the reference pose; identity by default |
+| `margin` | number | no | Clearance that must stay free around the shape (m); added to the clearance of every pair it is in |
+| `source_node` | string | no | Name of the glTF node the proxy approximates (informational) |
+
+A proxy moves with its body: its place in any pose of the file is the body's transform (§24) applied to its reference position and orientation.
+
+### 28.2 Which pairs are compared
+
+All pairs of proxies of two different bodies, except:
+
+- bodies in the same rigid group (welded together through `parent`, with no joint between them), which never move relative to each other;
+- bodies joined directly by a `joint` (a hinge always touches its neighbour); use a `contact` when a stop between neighbours matters;
+- pairs listed in the top-level **`collision_ignore`**: an array of `[body_id, body_id]` (`"chassis"` allowed).
+
+### 28.3 Separation
+
+The **separation** of a pair is positive when the shapes are apart and negative when they overlap (the penetration depth), minus the margins of both. `sphere` against `sphere` and against `box` is exact. Two boxes use the separating-axis test: the largest gap (or smallest penetration) over the face normals and edge cross products, exact for face contact and a lower bound of the distance otherwise. A `cylinder` is treated as its bounding box (conservative: it can report an overlap a true cylinder does not have).
+
+### 28.4 Validation and tool
+
+`tools/validate.py` (through `tools/collision_check.py`) reports as **errors** a proxy with a type other than the three above, with bad dimensions or a position that is not three numbers, a duplicate proxy id, and a `collision_ignore` entry that is not a pair of existing bodies; as **warnings**, a pair that overlaps by more than 1 mm in the reference pose or in any pose of `poses[]`. `python tools/collision_check.py file.svj.json [--pose ID] [--margin M]` lists the closest or overlapping pairs per pose; `svj.collision.clashes(doc, pose, tolerance)` returns them. A composite assembled from a combination (§27) is checked the same way, which finds a loader bucket in the cab or a trailer corner on the tractor.
+
+### 28.5 Not covered yet
+
+Proxies from glTF meshes (hulls), a capsule and a true cylinder pair test, and contact with the ground. A force between proxies is a `contact`.
+
+---
+
 ## 21. Roadmap
 
 | Section           | Version  | Status                                             |
@@ -3409,6 +3451,7 @@ The assembly (`tools/assemble.py`, `svj.assemble`; `Vehicle.assemble()`) builds 
 | Validation, benchmarks, overrides | v0.98 | ✅ Done                                 |
 | Multi-axle vehicles | v0.99  | ✅ Done — §23, 13 system_types, suspension couplings |
 | Axle groups, plated masses, wheelbase definitions | v0.99.1 | ✅ Done — first real multi-axle example (MAN TGS 8x4) |
+| Collision proxies (sphere / box / cylinder per body, pose clashes) | v0.102 | ✅ Done — §28 |
 | Attachments and combinations (interfaces, combination file, assembly) | v0.101 | ✅ Done — §27 |
 | Unified suspension (bodies, joints, elements, wheel stations); corner section deprecated | v0.100 | ✅ Done — §25, migration tool; loop solver planned |
 | Movable parts, attachments (joints, springs, actuators, poses) | v0.99.5 | ✅ Done — §24; contacts, latches, attachment files planned |

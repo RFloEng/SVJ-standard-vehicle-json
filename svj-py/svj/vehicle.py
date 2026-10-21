@@ -276,6 +276,11 @@ class Vehicle:
         """The `attachments` array: units fitted to this vehicle (spec §27.4)."""
         return self.data.get("attachments", [])
 
+    def clashes(self, pose=None, tolerance: float = 0.0) -> list[dict]:
+        """Collision proxies of relatively movable bodies closer than `tolerance` (m) in `pose` (spec §28)."""
+        from svj.collision import clashes
+        return clashes(self.data, pose, tolerance)
+
     def assemble(self, base_dir: str | Path | None = None) -> "Vehicle":
         """The composite vehicle with every `attachments[]` unit fitted (qualified ids `unit.body`, spec §27).
         Unit files are resolved against `base_dir`, default the folder this file was loaded from."""

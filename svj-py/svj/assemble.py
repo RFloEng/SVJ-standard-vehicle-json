@@ -411,6 +411,18 @@ def _chassis_remainder(doc):
     return rem, [mom[i] / rem for i in range(3)]
 
 
+def _place_collision(uid, proxies, T):
+    """Collision proxies of a unit's body moved by T, ids qualified (spec 28)."""
+    res = []
+    for s in proxies or []:
+        n = copy.deepcopy(s)
+        n["id"] = _qid(uid, s["id"])
+        p, q = _place_frame(T, s["position"], s.get("orientation"))
+        n["position"], n["orientation"] = p, q
+        res.append(n)
+    return res
+
+
 def _place_unit(uid, doc, T, out):
     """Append a non-root unit's bodies, constraints and poses to `out` (the composite), transformed by T."""
     ch = doc.get("chassis") or {}
@@ -425,6 +437,8 @@ def _place_unit(uid, doc, T, out):
     body["x_derived"] = True                 # generated from the unit's chassis: no tensor of its own
     if markers:
         body["markers"] = markers
+    if ch.get("collision"):
+        body["collision"] = _place_collision(uid, ch["collision"], T)
     out["chassis"]["mass_bodies"].append(body)
     for b in ch.get("mass_bodies") or []:
         nb = copy.deepcopy(b)
@@ -442,7 +456,11 @@ def _place_unit(uid, doc, T, out):
         if b.get("inertia_orientation"):
             nb["inertia_orientation"] = _round(qmul(mat_to_quat(T[0]), b["inertia_orientation"]))
         nb.pop("visual", None)
+        if b.get("collision"):
+            nb["collision"] = _place_collision(uid, b["collision"], T)
         out["chassis"]["mass_bodies"].append(nb)
+    for pair in doc.get("collision_ignore") or []:
+        out.setdefault("collision_ignore", []).append([_qid(uid, x) for x in pair])
     for c in doc.get("constraints") or []:
         nc = copy.deepcopy(c)
         nc["id"] = _qid(uid, c["id"])

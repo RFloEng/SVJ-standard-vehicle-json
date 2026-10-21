@@ -29,6 +29,7 @@ from drivetrain_check import check as drivetrain_check  # noqa: E402
 from multibody_check import check as multibody_check  # noqa: E402
 from constraints_check import check as constraints_check  # noqa: E402
 import assemble as _asm  # noqa: E402
+import collision_check as _col  # noqa: E402
 
 try:
     import jsonschema
@@ -107,6 +108,11 @@ def validate_file(svj_path: str, schema: dict, strict: bool) -> bool:
     errors.extend(ct_errors)
     warnings.extend(ct_warnings)
 
+    # Collision proxies (spec §28)
+    col_errors, col_warnings = _col.check(doc)
+    errors.extend(col_errors)
+    warnings.extend(col_warnings)
+
     # Attachments: interfaces and fitted units (spec §27)
     if doc.get("interfaces"):
         i_errors, i_warnings = _asm.check_interfaces(doc)
@@ -121,6 +127,8 @@ def validate_file(svj_path: str, schema: dict, strict: bool) -> bool:
             if not c_errors:
                 composite, _notes = _asm.assemble(comb)
                 a_errors, a_warnings = constraints_check(composite)
+                c_e, c_w = _col.check(composite)
+                a_errors, a_warnings = a_errors + c_e, a_warnings + c_w
                 errors.extend(f"assembled: {e}" for e in a_errors)
                 warnings.extend(f"assembled: {w}" for w in a_warnings)
         except (OSError, json.JSONDecodeError) as e:
@@ -133,10 +141,10 @@ def validate_file(svj_path: str, schema: dict, strict: bool) -> bool:
 
     # Version advisory
     version = doc.get("_metadata", {}).get("version", "unknown")
-    if version not in ("0.99", "0.99.1", "0.99.2", "0.99.3", "0.99.4", "0.99.5", "0.99.6", "0.99.7", "0.99.8", "0.100", "0.101"):
+    if version not in ("0.99", "0.99.1", "0.99.2", "0.99.3", "0.99.4", "0.99.5", "0.99.6", "0.99.7", "0.99.8", "0.100", "0.101", "0.102"):
         warnings.append(
-            f"_metadata.version is '{version}' — current spec is '0.101' "
-            "(attachments)"
+            f"_metadata.version is '{version}' — current spec is '0.102' "
+            "(collision proxies)"
         )
 
     for w in warnings:
@@ -179,6 +187,8 @@ def _validate_combination(svj_path, doc, schema, schema_local, strict):
             if not c_errors:
                 composite, _notes = _asm.assemble(comb)
                 a_errors, a_warnings = constraints_check(composite)
+                c_e, c_w = _col.check(composite)
+                a_errors, a_warnings = a_errors + c_e, a_warnings + c_w
                 errors.extend(f"assembled: {e}" for e in a_errors)
                 warnings.extend(f"assembled: {w}" for w in a_warnings)
                 with _warnings.catch_warnings():

@@ -50,7 +50,11 @@ Everything is optional. A file with just metadata and suspension is valid — us
 
 ---
 
-## v0.101 — Attachments and combinations *(new)*
+## v0.102 — Collision proxies *(new)*
+
+A body or the chassis can carry **`collision[]`**: a few `sphere` / `box` / `cylinder` proxies in vehicle coordinates, with an optional `margin`. They answer "does the lid hit the cab in this pose?" without the visual mesh: pairs of bodies that can move relative to each other (not welded together, not joined directly by a hinge, not listed in `collision_ignore`) are compared in the reference pose and in every pose, and the validator warns about overlaps. `python tools/collision_check.py file.svj.json` lists the closest pairs per pose; `Vehicle.clashes(pose)` does the same from Python; an assembled combination carries its units' proxies with qualified ids. Details: [`spec/SVJ_Spec.md` §28](spec/SVJ_Spec.md).
+
+## v0.101 — Attachments and combinations
 
 A loader, a mower, a tipper body, a crane or a semi-trailer is a **unit: an ordinary SVJ file** that declares **`interfaces[]`** (a frame, a role such as `loader_mount`, `three_point_lower_link`, `fifth_wheel` or `container_corner_casting`, a gender and sizes). Roles mate in pairs from a table in the standard, sizes must agree, and a connection is a joint, so a fitted unit moves, has mass and inertia and takes poses like any part. List the units in a vehicle's **`attachments[]`** or in a `*.svj-combination.json` file; **`python tools/assemble.py file -o composite.svj.json`** places the units so the interface frames coincide, qualifies their ids (`loader.loader_boom`) and builds one composite document (mass, CG, inertia) that validation, poses and the loop solver then work on. `examples/attachments/` splits the loader tractor into host + loader; the composite reproduces the single-file CG and inertia in every pose. The tractor and semi-trailer examples join at a fifth wheel (`tractor_semi_trailer.svj-combination.json`). Not yet: axles, tyres, brakes and power flow of attached units, capacity checks. Details: [`spec/SVJ_Spec.md` §27](spec/SVJ_Spec.md).
 
@@ -350,6 +354,7 @@ python tools/multibody_check.py --joints examples/bmw_e30_325i_semi_trailing.svj
 | `tools/assemble.py` | Attachments and combinations (spec §27): checks interfaces and connections (roles mate, sizes agree, one root) and assembles units into one composite document. |
 | `tools/loop_solver.py` | Loop-closure solver (spec §26): wheel-travel sweeps with camber, toe, bump steer and camber gain from the bodies and joints. |
 | `tools/leaf_pack.py` | Flexible leaf pack generator (spec §25.10): segment bodies, hinges and torsional springs from the pack's leaves and span. |
+| `tools/collision_check.py` | Collision proxies (spec §28): clearance between the proxy shapes of bodies that move relative to each other, per pose. |
 | `tools/torsion_beam.py` | Twist-beam axle generator (spec §25.11): trailing arms and a beam joint whose bushing is soft in torsion. |
 | `tools/migrate_suspension.py` | Converts the deprecated corner-based `suspension` to the unified model (spec §25.8): bodies, joints, elements, `wheel_stations[]`, `anti_roll_bars[]`; `estimate_motion_ratio()`. |
 | `tools/suspension_view.py` | Expands an authored suspension (corners, uprights, links, hardpoints) into bodies and `joint` constraints with coincident frames, reusing existing `body_ref` bodies and noting what the data does not say (unknown joint types, massless parts). `--json` prints the expansion. A transition tool toward the unified suspension model. |
@@ -409,7 +414,7 @@ All example files validate against the current schema (`tools/validate.py`). The
 
 ```
 schema/
-  ├── svj.schema.json             JSON Schema Draft-07 (v0.101)
+  ├── svj.schema.json             JSON Schema Draft-07 (v0.102)
   └── svj-override.schema.json    Override file structure (v0.98)
 spec/
   └── SVJ_Spec.md                 Human-readable specification (§1–§23)
@@ -432,6 +437,7 @@ tools/
   ├── loop_solver.py              Loop-closure solver: wheel travel, camber, toe (spec §26)
   ├── leaf_pack.py                Flexible leaf pack generator (spec §25.10)
   ├── torsion_beam.py             Twist-beam axle generator (spec §25.11)
+  ├── collision_check.py          Collision proxy clearances per pose (spec §28)
   ├── multibody_check.py          Multibody cross-references + joint-type inference (v0.96 fields)
   ├── validate_override.py        Override file resolution + validation (v0.98)
   └── integrity_check.py          glTF visual binding checks (v0.99.2)
