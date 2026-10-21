@@ -1,6 +1,7 @@
 """Tests for the Vehicle class and loader."""
 
 import json
+import math
 import pytest
 from pathlib import Path
 
@@ -1702,3 +1703,126 @@ class TestAntiRollBarElements:
 
     def test_unified_template_loads_without_a_mass_warning(self):
         load(TEMPLATE)                                           # validate_on_load raises on a mass-sum mismatch
+
+    def test_vertical_load_rating_warns_when_exceeded(self):
+        from svj.assemble import check_combination, combination_from_file
+        comb = combination_from_file(str((EXAMPLES_DIR / "attachments") / "tractor_loader.svj-combination.json"))
+        _, w = check_combination(comb)
+        assert not [x for x in w if "max_load" in x]
+        for u in comb["units"]:
+            for i in u["doc"]["interfaces"]:
+                i["max_load"] = {"vertical_N": 1000.0}
+        _, w = check_combination(comb)
+        assert [x for x in w if "max_load.vertical_N" in x]
+
+
+class TestLeafPack:
+    P = dict(id="lp", axle="axle", x_front=-0.6, x_rear=0.6, seat_x=0.0, y=0.5, z=-0.2, leaves=6, width=0.07,
+             thickness=0.008, mass=24.0, arch=0.08)
+
+    def test_generator_in_sync(self):
+        a = (REPO_ROOT / "tools" / "leaf_pack.py").read_text(encoding="utf-8").splitlines()
+        b = (REPO_ROOT / "svj-py" / "svj" / "leafpack.py").read_text(encoding="utf-8").splitlines()
+        assert a == b
+
+    def test_chain_reproduces_the_cantilever_deflection_for_any_segment_count(self):
+        from svj.leafpack import bending_stiffness, leaf_pack
+        for m in (1, 2, 4, 9):
+            p = dict(self.P, segments=m)
+            r = leaf_pack(p)
+            hinges = {c["id"][6:]: c for c in r["constraints"] if c["id"].startswith("hinge_")}
+            ks = {c["id"][5:]: c["rate"] for c in r["constraints"] if c["id"].startswith("bend_")}
+            tip, f = p["x_rear"], 1.0                         # unit tip force on the rear half
+            defl = sum(((tip - hinges[i]["frame_a"]["position"][0]) ** 2) * f / ks[i] for i in ks if "_rear_" in i)
+            exact = f * (tip - p["seat_x"]) ** 3 / (3 * bending_stiffness(p))
+            assert defl == pytest.approx(exact, rel=1e-6), m
+
+    def test_seat_rate_and_masses(self):
+        from svj.leafpack import bending_stiffness, leaf_pack, seat_rate
+        r = leaf_pack(self.P)
+        assert r["rate"] == pytest.approx(48 * bending_stiffness(self.P) / 1.2 ** 3) == seat_rate(self.P)
+        assert sum(b["mass"] for b in r["bodies"]) == pytest.approx(24.0)
+        assert all(b.get("x_derived") for b in r["bodies"] + r["constraints"])
+
+    def test_structure_ends_and_references(self):
+        from svj.leafpack import leaf_pack
+        r = leaf_pack(self.P)
+        ids = {c["id"] for c in r["constraints"]}
+        assert {"eye_lp_front", "slipper_lp_rear"} <= ids
+        known = {"chassis", "axle"} | {b["id"] for b in r["bodies"]}
+        assert all(c["body_a"] in known and c["body_b"] in known for c in r["constraints"])
+        with pytest.raises(ValueError):
+            leaf_pack(dict(self.P, end_rear="shackle"))
+
+    def test_pack_in_a_document_has_no_constraint_errors(self):
+        from svj.constraints import check, element_angles
+        from svj.leafpack import leaf_pack
+        r = leaf_pack(self.P)
+        z = {"inertia": {"Ixx": 1, "Iyy": 1, "Izz": 1}, "category": "suspension", "parent": "chassis"}
+        doc = {"chassis": {"mass_bodies": [dict(z, id="axle", name="Axle", mass=60.0, position=[0, 0.5, -0.2])] + r["bodies"]},
+               "constraints": r["constraints"]}
+        errors, _ = check(doc)
+        assert errors == []
+        assert all(abs(a) < 1e-9 for a in element_angles(doc).values())
+
+
+class TestTorsionBeam:
+    P = dict(chassis="chassis", pivot_x=-1.9, pivot_z=-0.25, half_track_arms=0.40, half_track=0.75, wheel_x=-2.4, wheel_z=-0.25,
+             plates=[(0.30, 0.003), (0.10, 0.003)])
+
+    def _doc(self, **kw):
+        from svj.torsionbeam import twist_beam
+        r = twist_beam(dict(self.P, **kw))
+        q = [-0.7071067811865476, 0.0, 0.0, 0.7071067811865476]
+        bodies = list(r["bodies"])
+        cons = list(r["constraints"])
+        stations = []
+        for tag, side in (("l", "L"), ("r", "R")):
+            arm = next(b for b in bodies if b["id"] == f"trailing_arm_r{tag}")
+            wc = arm["markers"]["wheel_center"]["position"]
+            bodies.append({"id": f"wheel_r{tag}", "name": "Wheel", "category": "wheel", "mass": 20.0, "position": wc, "parent": "chassis",
+                           "inertia": {"Ixx": 0.5, "Iyy": 0.8, "Izz": 0.5}})
+            fr = {"position": wc, "orientation": q}
+            cons.append({"id": f"hinge_wheel_r{tag}", "type": "joint", "joint_type": "revolute", "body_a": f"trailing_arm_r{tag}",
+                         "body_b": f"wheel_r{tag}", "frame_a": fr, "frame_b": fr})
+            stations.append({"id": "R" + side, "wheel_body": f"wheel_r{tag}", "upright_body": f"trailing_arm_r{tag}"})
+        return {"_metadata": {"version": "0.101"}, "chassis": {"mass_bodies": bodies}, "constraints": cons,
+                "wheel_stations": stations}, r
+
+    def test_generator_in_sync(self):
+        a = (REPO_ROOT / "tools" / "torsion_beam.py").read_text(encoding="utf-8").splitlines()
+        b = (REPO_ROOT / "svj-py" / "svj" / "torsionbeam.py").read_text(encoding="utf-8").splitlines()
+        assert a == b
+
+    def test_twist_rate_follows_the_section(self):
+        from svj.torsionbeam import torsion_constant, twist_rate, roll_rate
+        j = (0.30 + 0.10) * 0.003 ** 3 / 3
+        assert torsion_constant(self.P) == pytest.approx(j)
+        assert twist_rate(self.P) == pytest.approx(79.3e9 * j / 0.8)
+        assert roll_rate(self.P) == pytest.approx(twist_rate(self.P) * (1.5 / 0.5) ** 2)
+
+    def test_one_wheel_bump_twists_the_beam_and_leaves_the_other_side(self):
+        from svj.loopsolver import _rotvec, solve
+        doc, r = self._doc()
+        res = solve(doc, travel={"RL": 0.05})
+        assert res["converged"]
+        assert res["wheel_centres"]["RL"][2] == pytest.approx(-0.25 - 0.05, abs=1e-3)
+        assert res["wheel_centres"]["RR"][2] == pytest.approx(-0.25, abs=1e-6)
+        ang = _rotvec(res["transforms"]["trailing_arm_rl"][0])[1]
+        assert abs(abs(ang) - math.asin(0.05 / 0.5)) < 1e-5            # the arm swings about the lateral pivot
+        assert _rotvec(res["transforms"]["trailing_arm_rr"][0]) == pytest.approx([0, 0, 0], abs=1e-7)
+
+    def test_soft_threshold_only_frees_the_soft_directions(self):
+        from svj.loopsolver import SOFT_RATE, _joint_residuals
+        doc, r = self._doc()
+        beam = next(c for c in doc["constraints"] if c["id"] == "twist_beam")
+        from svj import constraints as cc
+        X = {b["id"]: cc.IDENT for b in doc["chassis"]["mass_bodies"]}
+        assert len(_joint_residuals(doc, beam, X)) == 5               # six minus the soft torsion
+        assert beam["bushing"]["rate_ry"] < SOFT_RATE <= min(v for k, v in beam["bushing"].items() if k != "rate_ry")
+
+    def test_document_has_no_constraint_errors(self):
+        from svj.constraints import check
+        doc, _ = self._doc()
+        errors, _ = check(doc)
+        assert errors == []
