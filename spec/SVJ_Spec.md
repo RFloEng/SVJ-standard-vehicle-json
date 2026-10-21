@@ -3156,7 +3156,8 @@ The mechanism is defined by its components, never by a name or a type. A double 
 | Coil, air, torsion-bar spring | `spring` (§24.5) |
 | Damper | `damper` (§24.5.1) |
 | Bump and rebound stop | a `spring` whose force curve is zero until the stop engages |
-| Leaf spring | a body for the pack (front eye `revolute`, rear slipper `translational`, axle clamped by a `fixed` joint at the seat) and a `spring` at the seat |
+| Leaf spring | a rigid body for the pack (front eye `revolute`, rear slipper `translational`, axle clamped by a `fixed` joint at the seat) and a `spring` at the seat; when the bending matters, a chain of segments with torsional springs (§25.10) |
+| Torsion (twist) beam | two trailing-arm bodies and a `fixed` joint between them with a bushing soft in torsion (§25.11) |
 | Anti-roll bar | `anti_roll_bars[]` as data (§25.5); as bodies and a torsional `spring` once its geometry is known |
 | Tyre set, rim, brake, reference alignment | `wheel_stations[]` |
 
@@ -3239,9 +3240,40 @@ What the old data does not state is reported as a note: unknown joint types (lea
 
 `tools/constraints_check.py` adds to §24.10: `wheel_stations` ids unique and consistent with `axle` / `side`; `wheel_body` and `upright_body` are `mass_bodies` ids and a joint connects them; `steering_joint` is a joint; `wheel_center_marker` exists on the carrier; `anti_roll_bars` name existing stations; a `damper` has both curves (strictly increasing velocities) or a `damping`; torsional elements have parallel Z axes; generated (`x_derived`) items are exempt from the mass, parent, loop, connectivity and inertia rules (warnings only). `tools/multiaxle_check.py` and svj-py read the unified model through the same station ids.
 
-### 25.10 Not covered yet
+### 25.10 Flexible leaf pack
 
-The loop-closure solver exists (§26); still open: the physical anti-roll bar from its geometry; a flexible leaf pack; torsion-beam twist as an element between the two trailing arms.
+A leaf pack loaded at the axle seat is two cantilevers clamped at the seat, each half the span `L` between the end attachments, with the bending stiffness `EI = E · n · b · t³ / 12` of `n` leaves of width `b` and thickness `t` (no inter-leaf friction; steel `E` = 206 GPa). It is written with the primitives that already exist, no new keys:
+
+| Part | Written as |
+|---|---|
+| each half | `M` rigid segment bodies in a chain, each hinged to the previous one (the first to the axle) by a `revolute` joint about the lateral axis |
+| bending | a torsional `spring` (§25.3) on every hinge, with rate `k = EI / l · (M + 1)(2M + 1) / (2M²)`, `l` being the segment length |
+| front / rear end | an `eye` (`revolute` about the lateral axis) or a `slipper` (`translational` along x) between the last segment and the chassis; the default is an eye in front and a slipper behind, since two eyes would over-constrain the axle in x |
+| seat | the chain starts at the axle body, so the axle is clamped by the first hinges |
+| arch | the segments lie on a parabolic arch; every torsional spring is at rest in that shape (`free_angle` 0) |
+
+The factor in `k` makes the tip deflection of the chain equal the exact cantilever value `F · (L/2)³ / (3EI)` for any `M`, so the vertical rate at the seat is `48 · EI / L³` however coarse the chain; more segments only give a better shape. The pack's mass is spread evenly over the segments, which are marked `x_derived` like every generated item. A flat rate at the seat (the `spring` of the old format) remains valid when bending shape does not matter.
+
+`tools/leaf_pack.py` (and `svj.leafpack`) generates the bodies, joints and springs from `id`, `axle`, `x_front`, `x_rear`, `seat_x`, `y`, `z`, `leaves`, `width`, `thickness`, `mass` and optional `E`, `segments` (per half, default 4), `arch`, `end_front` / `end_rear`, `chassis`; `leaf_pack(p)["rate"]` is the seat rate. Shackles, inter-leaf friction and progressive (helper) leaves are not generated.
+
+### 25.11 Torsion (twist) beam
+
+A twist-beam axle is two trailing arms, each carrying its half of the cross beam, that meet at the middle of the beam. It needs no new keys:
+
+| Part | Written as |
+|---|---|
+| each arm with its half beam | a body (`trailing_arm_rl`, `trailing_arm_rr`) on a `revolute` joint to the chassis about the lateral axis through the pivot; the wheel hangs on it as on any carrier (`upright_body`) |
+| the beam | a `fixed` joint between the two arms at the middle of the beam, with a `bushing` (§24.4) that is **soft in torsion** about the lateral axis, `rate_ry = G · J / L`, and stiff in the rest (shear and bending of the beam) |
+
+`J` is the torsion constant of the beam's open section (`Σ b·t³/3` over its plates, or given) and `L` the beam length between the arms. The beam lies on the line of the two pivots. A wheel moving alone then twists the beam by the difference of the two arm angles and the other side stays put; the roll stiffness the beam adds, springs excluded, is `k_twist · (track / arm length)²`. An offset beam, or pivot axes inclined in plan (roll steer), add a bending of the beam to its twist and are not represented by this model.
+
+A bushing direction whose rate is below 10 000 (N/m or N·m/rad) is left free by the loop-closure solver (§26); the stiffer directions stay rigid. The static balance with the bushing force is not solved.
+
+`tools/torsion_beam.py` (and `svj.torsionbeam`) generates the arms and the beam joint from `pivot_x`, `pivot_z`, `half_track_arms`, `half_track`, `wheel_x`, `wheel_z`, `plates` or `torsion_constant`, and optional `G`, `E`, `bending_I`, `arm_mass`, `beam_mass`; it returns `twist_rate` and `roll_rate` as well. The items are `x_derived`.
+
+### 25.12 Not covered yet
+
+The loop-closure solver exists (§26); still open: the physical anti-roll bar from its geometry; the bending of an offset or inclined twist beam; leaf-pack shackle swing, inter-leaf friction and helper leaves.
 
 ---
 
@@ -3253,7 +3285,7 @@ The loop-closure solver exists (§26); still open: the physical anti-roll bar fr
 
 **Results.** Per station and travel: wheel-centre position, camber (negative = top inwards), toe (positive = toe-in), element lengths, the maximum residual and `converged` (residual below 1e-6 m or rad). `gains()` gives the camber gain and bump steer (deg per m) around the reference. The spin axis comes from the `revolute` joint between `upright_body` and `wheel_body` (§25.6).
 
-**Limits.** Joints are rigid (bushings and compliance are not applied); wheel spin and tyre deflection are not modelled; `roll_center()` gives the front-view roll centre from the instant centre of the upright (height above the ground; near zero for parallel horizontal arms). `steering_axis()` gives caster, kingpin inclination, scrub radius and caster trail from the upright's screw axis for a small rack movement. A mechanism with generated (`x_derived`) joints of assumed type may be under- or over-constrained, and the numbers then say little: check `converged`, and treat an unexpected result as a sign of missing data in the source, not of the solver.
+**Limits.** Joints are rigid (bushings and compliance are not applied), except that a bushing direction with a rate below 10 000 is left free (§25.11); wheel spin and tyre deflection are not modelled; `roll_center()` gives the front-view roll centre from the instant centre of the upright (height above the ground; near zero for parallel horizontal arms). `steering_axis()` gives caster, kingpin inclination, scrub radius and caster trail from the upright's screw axis for a small rack movement. A mechanism with generated (`x_derived`) joints of assumed type may be under- or over-constrained, and the numbers then say little: check `converged`, and treat an unexpected result as a sign of missing data in the source, not of the solver.
 
 ```
 python tools/loop_solver.py file.svj.json --station FL --range 0.05 --steps 5 [--steer 0.02]
@@ -3281,7 +3313,7 @@ An interface is a named frame with a role.
 | `body` | string | no | `chassis` (default) or a `mass_bodies` id the interface is fixed to |
 | `marker` / `frame` | string / object | one of them | The frame: a marker of `body`, or an inline `{position, orientation}` in the file's own coordinates. Its z axis is the joint axis if the connection is a revolute / translational joint |
 | `size` | object | no | Dimensions and classes that must agree: a number with the same key on both sides must match within 0.5 mm (`pin_diameter`, `kingpin_diameter`, `pin_spacing`); `category`, `class`, `type`, `standard` must be equal text |
-| `max_load` | object | no | Loads through the interface (`vertical_N`, `drawbar_N`, `torque_Nm`, ...); informational |
+| `max_load` | object | no | Loads through the interface (`vertical_N`, `drawbar_N`, `torque_Nm`, ...). `check_combination` compares `vertical_N` (the smaller of the two mated interfaces) with the static weight of every unit beyond the connection (units on their own wheels, such as a semi-trailer, are skipped: their axles carry most of the weight) and warns when it is exceeded; the other keys are informational |
 | `name`, `description` | string | no | |
 
 A unit of the kind that is only ever fitted (a loader, a tipper body) is marked `vehicle_info.vehicle_class: "attachment"`; its `chassis` then needs only `mass_total` and `center_of_gravity` (the mounting frame or sub-frame: it is the unit's body for the interfaces) and its coordinates are its own (typically with the origin at the main interface).
@@ -3352,7 +3384,7 @@ The assembly (`tools/assemble.py`, `svj.assemble`; `Vehicle.assemble()`) builds 
 
 ### 27.7 Not covered yet
 
-`axles`, `suspension_couplings`, tyre sets, brakes and the powertrain of attached units are not merged into the composite (the unit files keep them; a trailer's air circuit is the unit's `suspension_couplings`); interface compatibility by capacity (`max_load` against the host's rating); an attachment file that overrides host values; hydraulic and PTO power supply between units; the viewer.
+`axles`, `suspension_couplings`, tyre sets, brakes and the powertrain of attached units are not merged into the composite (the unit files keep them; a trailer's air circuit is the unit's `suspension_couplings`); dynamic load checks (only the static `vertical_N` weight is compared); an attachment file that overrides host values; hydraulic and PTO power supply between units; the viewer.
 
 ---
 

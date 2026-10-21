@@ -25,7 +25,8 @@ Usage:
     python tools/loop_solver.py file.svj.json --station FL --steer 0.02     # rack at +20 mm
     python tools/loop_solver.py file.svj.json --check-alignment             # declared alignment vs geometry
 
-Approximations: bushings and compliance are not applied (joints are rigid); wheel spin is not
+Approximations: bushing compliance is not applied (joints are rigid), except that a bushing direction with a rate below
+    SOFT_RATE is left free (a twist beam's torsion); wheel spin is not
 modelled (the wheel body is not a loop member); tyre deflection is not part of travel.
 """
 
@@ -40,6 +41,7 @@ except ImportError:                            # running from tools/
 
 ROOTS = cc.ROOTS
 _TOL = 1e-10
+SOFT_RATE = 1e4         # a bushing rate below this (N/m, N m/rad) leaves its direction free: compliance, not a constraint
 _FREE_POS = {            # joint type -> (position components left free in frame A, rotation components left free)
     "revolute": ((), (2,)),
     "translational": ((2,), ()),
@@ -142,8 +144,11 @@ def _joint_residuals(doc, c, X):
     w = _rotvec(cc._mm(cc._tr(Ra), Rb))                          # B's orientation in A's frame
     # reference orientation offset between the two frames (zero when the frames coincide, as the checker demands)
     w0 = _rotvec(cc._mm(cc._tr(cc.quat_to_mat(fa[1])), cc.quat_to_mat(fb[1])))
-    out = [d[i] for i in range(3) if i not in free_p]
-    out += [w[i] - w0[i] for i in range(3) if i not in free_r]
+    bush = c.get("bushing") if isinstance(c.get("bushing"), dict) else {}
+    soft_p = {i for i, n in enumerate("xyz") if isinstance(bush.get("rate_" + n), (int, float)) and bush["rate_" + n] < SOFT_RATE}
+    soft_r = {i for i, n in enumerate("xyz") if isinstance(bush.get("rate_r" + n), (int, float)) and bush["rate_r" + n] < SOFT_RATE}
+    out = [d[i] for i in range(3) if i not in free_p and i not in soft_p]
+    out += [w[i] - w0[i] for i in range(3) if i not in free_r and i not in soft_r]
     return out
 
 

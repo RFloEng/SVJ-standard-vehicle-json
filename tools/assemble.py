@@ -306,7 +306,52 @@ def check_combination(comb):
         if len(edges) > len(units) - 1:
             warnings.append("combination: more connections than units - 1 (a closed loop between units); "
                             "the loop is assembled but not solved (§26 solves one mechanism at a time)")
+        else:
+            warnings += _capacity_warnings(comb, units, roots[0]["id"])
     return errors, warnings
+
+
+G = 9.80665
+
+
+def _capacity_warnings(comb, units, root):
+    """Static check of `max_load.vertical_N`: the weight of everything hanging off a connection (the units on its far side
+    from the root, for units that have no wheels of their own) against the smaller vertical rating of its two interfaces. A warning, not an error: it is a static
+    estimate, and a rating may be a design figure the operator knowingly exceeds."""
+    adj = {u: [] for u in units}
+    for c in comb["connections"]:
+        a, b = _split(c["a"])[0], _split(c["b"])[0]
+        adj[a].append((b, c))
+        adj[b].append((a, c))
+    order, parent, stack = [], {root: None}, [root]
+    while stack:
+        u = stack.pop()
+        order.append(u)
+        for v, c in adj[u]:
+            if v not in parent:
+                parent[v] = (u, c)
+                stack.append(v)
+    mass = {u: float((units[u]["doc"].get("chassis") or {}).get("mass_total") or 0.0) for u in units}
+    for u in reversed(order):
+        if parent[u] is not None:
+            mass[parent[u][0]] += mass[u]
+    out = []
+    for u in order:
+        if parent[u] is None:
+            continue
+        c = parent[u][1]
+        if units[u]["doc"].get("wheel_stations") or units[u]["doc"].get("axles"):
+            continue                                    # a unit on its own wheels (a semi-trailer) carries most of its weight itself
+        rated = []
+        for side in ("a", "b"):
+            uid, iname = _split(c[side])
+            lim = ((interfaces(units[uid]["doc"]).get(iname) or {}).get("max_load") or {}).get("vertical_N")
+            if isinstance(lim, (int, float)):
+                rated.append(lim)
+        if rated and mass[u] * G > min(rated):
+            out.append(f"connection '{c.get('id')}': the {mass[u]:.0f} kg beyond it weighs {mass[u] * G:.0f} N, above the "
+                       f"interface rating max_load.vertical_N {min(rated):.0f} N")
+    return out
 
 
 # ── assembly ──────────────────────────────────────────────────────────────────

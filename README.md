@@ -349,6 +349,8 @@ python tools/multibody_check.py --joints examples/bmw_e30_325i_semi_trailing.svj
 | `tools/constraints_check.py` | Movable parts (spec §24): constraint and pose references, joint ranges, frame coincidence, graph connectivity, inertia plausibility, actuator reach in every pose; also computes body transforms, CG, composite inertia and element lengths (`--poses`). Run automatically by `validate.py`. |
 | `tools/assemble.py` | Attachments and combinations (spec §27): checks interfaces and connections (roles mate, sizes agree, one root) and assembles units into one composite document. |
 | `tools/loop_solver.py` | Loop-closure solver (spec §26): wheel-travel sweeps with camber, toe, bump steer and camber gain from the bodies and joints. |
+| `tools/leaf_pack.py` | Flexible leaf pack generator (spec §25.10): segment bodies, hinges and torsional springs from the pack's leaves and span. |
+| `tools/torsion_beam.py` | Twist-beam axle generator (spec §25.11): trailing arms and a beam joint whose bushing is soft in torsion. |
 | `tools/migrate_suspension.py` | Converts the deprecated corner-based `suspension` to the unified model (spec §25.8): bodies, joints, elements, `wheel_stations[]`, `anti_roll_bars[]`; `estimate_motion_ratio()`. |
 | `tools/suspension_view.py` | Expands an authored suspension (corners, uprights, links, hardpoints) into bodies and `joint` constraints with coincident frames, reusing existing `body_ref` bodies and noting what the data does not say (unknown joint types, massless parts). `--json` prints the expansion. A transition tool toward the unified suspension model. |
 | `tools/drivetrain_check.py` | Differential-control rules (spec §10.6.1, §10.8.1): `lock_control` curves/targets/limits and `transfer_case.coupling`. Run automatically by `validate.py`; also usable standalone. |
@@ -428,6 +430,8 @@ tools/
   ├── migrate_suspension.py       Deprecated suspension -> unified model (v0.100)
   ├── assemble.py                 Attachments: interfaces, combination file, composite (spec §27)
   ├── loop_solver.py              Loop-closure solver: wheel travel, camber, toe (spec §26)
+  ├── leaf_pack.py                Flexible leaf pack generator (spec §25.10)
+  ├── torsion_beam.py             Twist-beam axle generator (spec §25.11)
   ├── multibody_check.py          Multibody cross-references + joint-type inference (v0.96 fields)
   ├── validate_override.py        Override file resolution + validation (v0.98)
   └── integrity_check.py          glTF visual binding checks (v0.99.2)
