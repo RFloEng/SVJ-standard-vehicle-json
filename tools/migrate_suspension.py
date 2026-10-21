@@ -497,8 +497,9 @@ def main(argv):
     with open(argv[0], "r", encoding="utf-8") as f:
         doc = json.load(f)
     new, notes = migrate(doc)
-    if len(argv) > 1:
-        with open(argv[1], "w", encoding="utf-8", newline="\n") as f:
+    out_path = argv[2] if len(argv) > 2 and argv[1] == "-o" else (argv[1] if len(argv) > 1 else None)      # `-o file` or just `file`
+    if out_path:
+        with open(out_path, "w", encoding="utf-8", newline="\n") as f:
             f.write(json.dumps(new, indent=2, ensure_ascii=False) + "\n")
     print(f"{argv[0]}: {len(new.get('wheel_stations', []))} stations, {len(new.get('constraints', []))} constraints, "
           f"{len(new.get('chassis', {}).get('mass_bodies', []))} bodies")
