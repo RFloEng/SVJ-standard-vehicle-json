@@ -801,6 +801,62 @@
   },
   "constraints": [
     {
+      "id": "hinge_swing_a1l",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.12,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "swing_arm_a1l",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.12,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_hub_a1l",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "swing_arm_a1l",
+      "frame_a": {
+        "position": [
+          0.0,
+          -1.015,
+          -0.62
+        ]
+      },
+      "body_b": "hub_a1l",
+      "frame_b": {
+        "position": [
+          0.0,
+          -1.015,
+          -0.62
+        ]
+      },
+      "x_derived": true
+    },
+    {
       "id": "hinge_wheel_a1l",
       "type": "joint",
       "joint_type": "revolute",
@@ -933,6 +989,62 @@
         ]
       ],
       "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_swing_a1r",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.12,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "swing_arm_a1r",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.12,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_hub_a1r",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "swing_arm_a1r",
+      "frame_a": {
+        "position": [
+          0.0,
+          1.015,
+          -0.62
+        ]
+      },
+      "body_b": "hub_a1r",
+      "frame_b": {
+        "position": [
+          0.0,
+          1.015,
+          -0.62
+        ]
+      },
       "x_derived": true
     },
     {
@@ -1071,6 +1183,62 @@
       "x_derived": true
     },
     {
+      "id": "hinge_swing_a2l",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -1.65,
+          -0.12,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "swing_arm_a2l",
+      "frame_b": {
+        "position": [
+          -1.65,
+          -0.12,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_hub_a2l",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "swing_arm_a2l",
+      "frame_a": {
+        "position": [
+          -1.65,
+          -1.015,
+          -0.62
+        ]
+      },
+      "body_b": "hub_a2l",
+      "frame_b": {
+        "position": [
+          -1.65,
+          -1.015,
+          -0.62
+        ]
+      },
+      "x_derived": true
+    },
+    {
       "id": "hinge_wheel_a2l",
       "type": "joint",
       "joint_type": "revolute",
@@ -1203,6 +1371,62 @@
         ]
       ],
       "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_swing_a2r",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -1.65,
+          0.12,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "swing_arm_a2r",
+      "frame_b": {
+        "position": [
+          -1.65,
+          0.12,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_hub_a2r",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "swing_arm_a2r",
+      "frame_a": {
+        "position": [
+          -1.65,
+          1.015,
+          -0.62
+        ]
+      },
+      "body_b": "hub_a2r",
+      "frame_b": {
+        "position": [
+          -1.65,
+          1.015,
+          -0.62
+        ]
+      },
       "x_derived": true
     },
     {
@@ -1341,6 +1565,62 @@
       "x_derived": true
     },
     {
+      "id": "hinge_swing_a3l",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -4.1,
+          -0.12,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "swing_arm_a3l",
+      "frame_b": {
+        "position": [
+          -4.1,
+          -0.12,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_hub_a3l",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "swing_arm_a3l",
+      "frame_a": {
+        "position": [
+          -4.1,
+          -1.015,
+          -0.62
+        ]
+      },
+      "body_b": "hub_a3l",
+      "frame_b": {
+        "position": [
+          -4.1,
+          -1.015,
+          -0.62
+        ]
+      },
+      "x_derived": true
+    },
+    {
       "id": "hinge_wheel_a3l",
       "type": "joint",
       "joint_type": "revolute",
@@ -1435,6 +1715,62 @@
         ]
       ],
       "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_swing_a3r",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -4.1,
+          0.12,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "swing_arm_a3r",
+      "frame_b": {
+        "position": [
+          -4.1,
+          0.12,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_hub_a3r",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "swing_arm_a3r",
+      "frame_a": {
+        "position": [
+          -4.1,
+          1.015,
+          -0.62
+        ]
+      },
+      "body_b": "hub_a3r",
+      "frame_b": {
+        "position": [
+          -4.1,
+          1.015,
+          -0.62
+        ]
+      },
       "x_derived": true
     },
     {
@@ -1535,6 +1871,62 @@
       "x_derived": true
     },
     {
+      "id": "hinge_swing_a4l",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -5.42,
+          -0.12,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "swing_arm_a4l",
+      "frame_b": {
+        "position": [
+          -5.42,
+          -0.12,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_hub_a4l",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "swing_arm_a4l",
+      "frame_a": {
+        "position": [
+          -5.42,
+          -1.015,
+          -0.62
+        ]
+      },
+      "body_b": "hub_a4l",
+      "frame_b": {
+        "position": [
+          -5.42,
+          -1.015,
+          -0.62
+        ]
+      },
+      "x_derived": true
+    },
+    {
       "id": "hinge_wheel_a4l",
       "type": "joint",
       "joint_type": "revolute",
@@ -1629,6 +2021,62 @@
         ]
       ],
       "x_damper_type": "twin_tube",
+      "x_derived": true
+    },
+    {
+      "id": "hinge_swing_a4r",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -5.42,
+          0.12,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "swing_arm_a4r",
+      "frame_b": {
+        "position": [
+          -5.42,
+          0.12,
+          -0.62
+        ],
+        "orientation": [
+          0.0,
+          0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "fixed_hub_a4r",
+      "type": "joint",
+      "joint_type": "fixed",
+      "body_a": "swing_arm_a4r",
+      "frame_a": {
+        "position": [
+          -5.42,
+          1.015,
+          -0.62
+        ]
+      },
+      "body_b": "hub_a4r",
+      "frame_b": {
+        "position": [
+          -5.42,
+          1.015,
+          -0.62
+        ]
+      },
       "x_derived": true
     },
     {
