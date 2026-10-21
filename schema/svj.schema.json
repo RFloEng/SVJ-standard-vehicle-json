@@ -6372,6 +6372,16 @@
           "type": "object",
           "description": "Allowed loads through the interface (vertical_N, drawbar_N, ...).",
           "additionalProperties": true
+        },
+        "supply": {
+          "type": "object",
+          "description": "What this interface offers a mated unit (flow_lpm, pressure_Pa, power_W, torque_Nm, voltage_V, current_A ...); any numeric keys.",
+          "additionalProperties": {"type": "number"}
+        },
+        "demand": {
+          "type": "object",
+          "description": "What a unit needs through this interface; checked against the mated interface's supply with the same key.",
+          "additionalProperties": {"type": "number"}
         }
       },
       "anyOf": [

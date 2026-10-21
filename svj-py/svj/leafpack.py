@@ -7,7 +7,9 @@ segments joined by revolute joints about the lateral axis, every joint carrying 
     k = EI / l * (M + 1)(2M + 1) / (2 M^2)          (l = segment length, M = segments per half)
 whose correction factor makes the tip deflection of the chain equal the exact cantilever value F (L/2)^3 / (3 EI), so the
 rate at the seat is 48 EI / L^3 for any M. The seat joint carries the axle, the ends are an eye (revolute) or a slipper
-(translational along x) on the chassis. Everything generated is marked `x_derived`.
+(translational along x) on the chassis, or a shackle: a short swinging link, revolute at both ends. Inter-leaf friction is
+Coulomb friction in the hinges, distributed like the bending moment so that the pack's hysteresis force at the seat is
+`hysteresis_force`. Everything generated is marked `x_derived`.
 
   leaf_pack(params) -> {"bodies": [...], "constraints": [...], "rate": N/m at the seat}
   python leaf_pack.py params.json            writes the generated items as JSON on stdout
@@ -41,7 +43,8 @@ def joint_rate(p):
 def leaf_pack(p):
     """p: id, axle (body id of the axle), x_front, x_rear (end attachments), seat_x, y (lateral position), z (height of
     the pack at the seat), leaves, width, thickness, mass, optional E, segments (per half, default 4), arch (rise of the
-    pack at the seat over its ends, m), end_front / end_rear ('eye' or 'slipper'; default eye in front, slipper at the rear), chassis (body id, default 'chassis'),
+    pack at the seat over its ends, m), end_front / end_rear ('eye', 'slipper' or 'shackle'; default eye in front, slipper at the rear), hysteresis_force
+    (N at the seat, inter-leaf friction), shackle_length (m, default 0.08), chassis (body id, default 'chassis'),
     front_attachment / rear_attachment (z of the hanger, default the end of the pack)."""
     pid, axle, chassis = p["id"], p["axle"], p.get("chassis", "chassis")
     m = int(p.get("segments", 4))
@@ -51,6 +54,7 @@ def leaf_pack(p):
     half = {"front": (xs, xf), "rear": (xs, xr)}
     k = joint_rate(p)
     seg_mass = float(p["mass"]) / (2 * m)
+    hyst = float(p.get("hysteresis_force", 0.0))
     bodies, cons = [], []
 
     def z_at(x):                                         # parabolic arch, z is down: the ends hang lower than the seat
@@ -70,8 +74,11 @@ def leaf_pack(p):
                            "parent": chassis, "x_derived": True})
             prev = axle if i == 1 else f"{pid}_{side}_{i - 1}"
             frame = {"position": [round(xa, 6), y, round(z_at(xa), 6)], "orientation": Q_Z_TO_Y}
-            cons.append({"id": f"hinge_{sid}", "type": "joint", "joint_type": "revolute", "body_a": prev, "body_b": sid,
-                         "frame_a": frame, "frame_b": frame, "x_derived": True})
+            hinge = {"id": f"hinge_{sid}", "type": "joint", "joint_type": "revolute", "body_a": prev, "body_b": sid,
+                     "frame_a": frame, "frame_b": frame, "x_derived": True}
+            if hyst:
+                hinge["friction"] = round(hyst / 2.0 * abs(x1 - xa), 6)         # F_h/2 at the tip of the half, times the lever to this hinge
+            cons.append(hinge)
             cons.append({"id": f"bend_{sid}", "type": "spring", "kind": "torsional", "spring_type": "leaf", "rate": round(k, 6),
                          "body_a": prev, "body_b": sid, "frame_a": frame, "frame_b": frame, "x_derived": True})
         end = p.get("end_" + side, "eye" if side == "front" else "slipper")
@@ -85,8 +92,21 @@ def leaf_pack(p):
             frame = {"position": pos, "orientation": Q_Z_TO_X}
             cons.append({"id": f"slipper_{pid}_{side}", "type": "joint", "joint_type": "translational", "body_a": chassis,
                          "body_b": last, "frame_a": frame, "frame_b": frame, "x_derived": True})
+        elif end == "shackle":
+            # a link of length `shackle_length` hangs from the chassis hanger and carries the pack's end on a second pin
+            sl = float(p.get("shackle_length", 0.08))
+            hanger = [pos[0], pos[1], round(pos[2] - sl, 6)]
+            link = f"shackle_{pid}_{side}"
+            bodies.append({"id": link, "name": f"Shackle {pid}, {side}", "category": "suspension", "mass": float(p.get("shackle_mass", 0.6)),
+                           "position": [pos[0], pos[1], round(pos[2] - sl / 2, 6)],
+                           "inertia": {"Ixx": 0.001, "Iyy": 0.001, "Izz": 0.0005}, "parent": chassis, "x_derived": True})
+            hf, pf = {"position": hanger, "orientation": Q_Z_TO_Y}, {"position": pos, "orientation": Q_Z_TO_Y}
+            cons.append({"id": f"hanger_{pid}_{side}", "type": "joint", "joint_type": "revolute", "body_a": chassis, "body_b": link,
+                         "frame_a": hf, "frame_b": hf, "x_derived": True})
+            cons.append({"id": f"shackle_pin_{pid}_{side}", "type": "joint", "joint_type": "revolute", "body_a": link, "body_b": last,
+                         "frame_a": pf, "frame_b": pf, "x_derived": True})
         else:
-            raise ValueError(f"end_{side}: '{end}' is neither 'eye' nor 'slipper'")
+            raise ValueError(f"end_{side}: '{end}' is neither 'eye', 'slipper' nor 'shackle'")
     return {"bodies": bodies, "constraints": cons, "rate": seat_rate(p)}
 
 

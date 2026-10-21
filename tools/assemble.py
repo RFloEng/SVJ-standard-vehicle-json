@@ -61,6 +61,8 @@ ROLE_MATES = {
     "bridge_interface": "bridge_interface", "container_corner_casting": "container_twist_lock",
     "container_twist_lock": "container_corner_casting", "plough_blade_mount": "plough_blade_mount",
     "dozer_blade_mount": "dozer_blade_mount",
+    # supply lines (hydraulics, air, electrics, data)
+    "hydraulic_coupler": "hydraulic_coupler", "air_line_coupler": "air_line_coupler", "electrical_connector": "electrical_connector",
     # generic
     "generic_mount": "generic_mount",
 }
@@ -239,6 +241,17 @@ def load_combination(path):
     return combination_from_vehicle(doc, os.path.dirname(os.path.abspath(path)))
 
 
+def supply_shortfalls(a, b):
+    """Messages for every quantity one interface demands (`demand`) that the other offers (`supply`) in a smaller amount."""
+    out = []
+    for x, y in ((a, b), (b, a)):
+        for key, need in (x.get("demand") or {}).items():
+            have = (y.get("supply") or {}).get(key)
+            if isinstance(need, (int, float)) and isinstance(have, (int, float)) and need > have:
+                out.append(f"'{x.get('id')}' demands {key} {need:g}, '{y.get('id')}' supplies {have:g}")
+    return out
+
+
 def check_combination(comb):
     """(errors, warnings) for a combination model: units, interfaces, roles, sizes, tree shape."""
     errors, warnings = [], []
@@ -284,6 +297,7 @@ def check_combination(comb):
             ok, why = mates(ends[0][1], ends[1][1])
             for r in why:
                 errors.append(f"{w}: {r}")
+            warnings += [f"{w}: {m}" for m in supply_shortfalls(ends[0][1], ends[1][1])]
             edges.append((ends[0][0], ends[1][0]))
         j = c.get("joint") or {"joint_type": "fixed"}
         if j.get("joint_type", "fixed") not in cc.DOF:
