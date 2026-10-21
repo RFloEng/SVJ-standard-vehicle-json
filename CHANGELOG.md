@@ -11,6 +11,7 @@
 | Tooling | `check_combination` compares interface `max_load.vertical_N` with the static weight beyond the connection (units without own wheels) |
 | Spec / schema **v0.102** | **Collision proxies** (new §28). Additive. `collision[]` (sphere, box, cylinder; `position`, `orientation`, `margin`, `source_node`) on `chassis` and on `mass_bodies`; top-level `collision_ignore`; `_metadata.version` gains `0.102` |
 | Spec / schema | v0.102 additions to §27: interface `supply` / `demand` (flow, pressure, power, torque, …) checked across a connection; supply-line roles `hydraulic_coupler`, `air_line_coupler`, `electrical_connector` |
+| Tooling | `tools/migrate_suspension.py` accepts `-o file` (it wrote a file named `-o`) |
 | Tooling | `tools/anti_roll_bar.py` / `svj.antirollbar`: the physical anti-roll bar (two bar halves, drop links, torsional spring) from the bar's geometry and section; bar rate G J / L (spec 25.5) |
 | Tooling | `tools/collision_check.py` / `svj.collision`: separation of proxy pairs of relatively movable bodies per pose, validator warnings and errors, `Vehicle.clashes()`; the assembler carries the units' proxies with qualified ids |
 | Tooling | `tools/torsion_beam.py` / `svj.torsionbeam`: twist-beam axle as trailing arms plus a beam joint with a bushing soft in torsion (spec 25.11); the loop solver leaves bushing directions with a rate below `SOFT_RATE` (1e4) free |
