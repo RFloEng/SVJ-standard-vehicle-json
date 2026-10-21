@@ -1503,7 +1503,7 @@ class TestLoopSolver:
         v = Vehicle(json.loads(TEMPLATE.read_text(encoding="utf-8")))
         rows = v.wheel_sweep("FL", [-0.04, 0.0, 0.04])
         assert all(r["converged"] for r in rows)
-        assert abs(rows[1]["camber_deg"]) < 1e-6 and abs(rows[1]["toe_deg"]) < 1e-6
+        assert abs(rows[1]["camber_deg"] + 0.7) < 1e-3 and abs(rows[1]["toe_deg"]) < 1e-6          # the declared static camber
         assert abs(rows[2]["wheel_centre"][2] - rows[1]["wheel_centre"][2] + 0.04) < 1e-6      # z points down
         g = v.suspension_gains("FL")
         assert g is not None and abs(g["bump_steer_deg_per_m"]) < 5.0
@@ -1518,25 +1518,34 @@ class TestLoopSolver:
         v = Vehicle(json.loads(TEMPLATE.read_text(encoding="utf-8")))
         from svj.loopsolver import steering_axis
         ax = steering_axis(v.data, "FL")
-        # the template's ball joints give an axis through (0,-0.56,-0.4) and (0,-0.6,-0.12): a pure frontal-plane lean
-        assert abs(ax["caster_deg"]) < 0.01
-        assert abs(ax["kpi_deg"] - math.degrees(math.atan2(0.04, 0.28))) < 0.05          # upper ball joint 40 mm inboard of the lower one: positive
+        # the hardpoints are fitted to a front axle with about 7.9 deg caster, 14.4 deg kingpin inclination and 49 mm scrub
+        assert abs(ax["caster_deg"] - 7.9) < 0.1
+        assert abs(ax["kpi_deg"] - 14.4) < 0.1
+        assert abs(ax["scrub_radius"] - 0.049) < 0.002
 
     def test_declared_alignment_is_compared_with_the_geometry(self):
         from svj.loopsolver import check_alignment
         doc = json.loads(TEMPLATE.read_text(encoding="utf-8"))
+        assert check_alignment(doc) == []                          # the template declares what its geometry gives
+        doc["wheel_stations"][0]["alignment"]["kpi"] = 0.1
+        doc["wheel_stations"][0]["alignment"]["scrub_radius"] = 0.15
         warnings = check_alignment(doc)
         assert any("FL: declared kpi" in w for w in warnings) and any("scrub_radius" in w for w in warnings)
-        st = doc["wheel_stations"][0]
-        st["alignment"] = {"camber": 0.0, "toe": 0.0, "kpi": 0.1419, "scrub_radius": 0.1306}      # what the geometry gives
-        doc["wheel_stations"] = [st]
-        assert check_alignment(doc) == []
 
-    def test_roll_center_of_parallel_equal_arms_is_at_the_ground(self):
+    def test_roll_center_of_the_front_wishbones(self):
         from svj.loopsolver import roll_center
         doc = json.loads(TEMPLATE.read_text(encoding="utf-8"))
         rc = roll_center(doc, "FL")
-        assert rc is not None and abs(rc["height"]) < 0.01          # horizontal parallel arms: the instant centre is at infinity
+        assert rc is not None and 0.06 < rc["height"] < 0.11          # unequal, converging wishbones: a roll centre about 84 mm above the ground
+
+    def test_rear_is_a_five_link_that_closes(self):
+        from svj.loopsolver import sweep
+        doc = json.loads(TEMPLATE.read_text(encoding="utf-8"))
+        rods = [c for c in doc["constraints"] if c["type"] == "joint" and c["body_b"] in ("upper_control_arm_rl", "lower_control_arm_rl", "toe_link_rl", "upper_lateral_link_rl", "lower_lateral_link_rl")]
+        assert len(rods) == 5 and all(c["joint_type"] == "spherical" for c in rods)          # five rods, one degree of freedom
+        rows = sweep(doc, "RL", [-0.05, 0.0, 0.05])
+        assert all(r["converged"] for r in rows)
+        assert rows[2]["camber_deg"] < rows[0]["camber_deg"]                                   # bump gives more negative camber
 
     def test_steering_wheel_coupled_to_the_rack(self):
         from svj.loopsolver import alignment, solve
