@@ -1,0 +1,268 @@
+{
+  "_metadata": {
+    "specification": "SVJ",
+    "version": "0.101",
+    "coordinate_system": "SAE_J670",
+    "units": "SI",
+    "description": "Skeleton front loader as an attachment: boom, bucket and two cylinders, with its mounting frame as the chassis. Origin at the boom hinge on the mounting frame. Fits any host with a loader_mount interface. Illustrative geometry and masses."
+  },
+  "vehicle_info": {
+    "make": "Example",
+    "model": "Front loader",
+    "vehicle_class": "attachment",
+    "year": 2024
+  },
+  "chassis": {
+    "mass_total": 310.0,
+    "center_of_gravity": [
+      1.71129,
+      0.0,
+      0.107419
+    ],
+    "inertia": {
+      "Ixx": 58.67093548387096,
+      "Iyy": 403.80741935483866,
+      "Izz": 448.33548387096766,
+      "Ixy": -0.0,
+      "Ixz": 29.729032258064514,
+      "Iyz": -0.0
+    },
+    "markers": {
+      "boom_hinge": {
+        "position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "orientation": [
+          -0.7071068,
+          0,
+          0,
+          0.7071068
+        ]
+      },
+      "boom_cylinder_base": {
+        "position": [
+          0.5,
+          0.0,
+          0.35
+        ]
+      }
+    },
+    "mass_bodies": [
+      {
+        "id": "loader_boom",
+        "description": "Loader boom (both arms and cross-tube)",
+        "category": "attachment",
+        "mass": 180.0,
+        "position": [
+          1.4,
+          0.0,
+          0.05
+        ],
+        "parent": "chassis",
+        "inertia": {
+          "Ixx": 22.537,
+          "Iyy": 110.288,
+          "Izz": 130.95,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        },
+        "markers": {
+          "hinge": {
+            "position": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "orientation": [
+              -0.7071068,
+              0,
+              0,
+              0.7071068
+            ]
+          },
+          "loader_bucket_hinge": {
+            "position": [
+              2.6,
+              0.0,
+              0.15
+            ],
+            "orientation": [
+              -0.7071068,
+              0,
+              0,
+              0.7071068
+            ]
+          },
+          "loader_boom_cylinder_rod": {
+            "position": [
+              1.15,
+              0.0,
+              -0.17
+            ]
+          },
+          "loader_bucket_cylinder_base": {
+            "position": [
+              1.95,
+              0.0,
+              -0.07
+            ]
+          }
+        },
+        "name": "Loader boom"
+      },
+      {
+        "id": "loader_bucket",
+        "description": "Loader bucket",
+        "category": "attachment",
+        "mass": 90.0,
+        "position": [
+          3.05,
+          0.0,
+          0.27
+        ],
+        "parent": "loader_boom",
+        "inertia": {
+          "Ixx": 32.7,
+          "Iyy": 7.5,
+          "Izz": 34.8,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        },
+        "markers": {
+          "hinge": {
+            "position": [
+              2.6,
+              0.0,
+              0.15
+            ],
+            "orientation": [
+              -0.7071068,
+              0,
+              0,
+              0.7071068
+            ]
+          },
+          "loader_bucket_cylinder_rod": {
+            "position": [
+              2.82,
+              0.0,
+              -0.05
+            ]
+          }
+        },
+        "name": "Loader bucket"
+      }
+    ]
+  },
+  "interfaces": [
+    {
+      "id": "mount",
+      "name": "Loader mounting frame",
+      "role": "loader_mount",
+      "gender": "plug",
+      "marker": "boom_hinge",
+      "size": {
+        "category": "light_tractor_loader",
+        "pin_spacing": 0.35
+      },
+      "description": "Bolted to the tractor's loader mounts; the frame origin is the boom hinge."
+    }
+  ],
+  "constraints": [
+    {
+      "id": "hinge_loader_boom",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "marker_a": "boom_hinge",
+      "body_b": "loader_boom",
+      "marker_b": "hinge",
+      "range": {
+        "min": -0.15,
+        "max": 0.95
+      },
+      "stop": {
+        "stiffness": 500000.0,
+        "damping": 4000
+      },
+      "friction": 40.0
+    },
+    {
+      "id": "hinge_loader_bucket",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "loader_boom",
+      "marker_a": "loader_bucket_hinge",
+      "body_b": "loader_bucket",
+      "marker_b": "hinge",
+      "range": {
+        "min": -0.9,
+        "max": 0.7
+      },
+      "stop": {
+        "stiffness": 300000.0,
+        "damping": 3000
+      },
+      "friction": 25.0
+    },
+    {
+      "id": "loader_boom_cylinder",
+      "type": "actuator",
+      "body_a": "chassis",
+      "marker_a": "boom_cylinder_base",
+      "body_b": "loader_boom",
+      "marker_b": "loader_boom_cylinder_rod",
+      "retracted_length": 0.738,
+      "stroke": {
+        "min": 0.0,
+        "max": 0.657
+      },
+      "bore_diameter": 0.08,
+      "rod_diameter": 0.045,
+      "max_pressure": 18000000
+    },
+    {
+      "id": "loader_bucket_cylinder",
+      "type": "actuator",
+      "body_a": "loader_boom",
+      "marker_a": "loader_bucket_cylinder_base",
+      "body_b": "loader_bucket",
+      "marker_b": "loader_bucket_cylinder_rod",
+      "retracted_length": 0.683,
+      "stroke": {
+        "min": 0.0,
+        "max": 0.307
+      },
+      "bore_diameter": 0.08,
+      "rod_diameter": 0.045,
+      "max_pressure": 18000000
+    }
+  ],
+  "poses": [
+    {
+      "id": "loader_dig",
+      "values": {
+        "hinge_loader_boom": -0.12,
+        "hinge_loader_bucket": -0.6
+      }
+    },
+    {
+      "id": "loader_carry",
+      "values": {
+        "hinge_loader_boom": 0.2,
+        "hinge_loader_bucket": 0.45
+      }
+    },
+    {
+      "id": "loader_dump",
+      "values": {
+        "hinge_loader_boom": 0.9,
+        "hinge_loader_bucket": -0.8
+      }
+    }
+  ]
+}

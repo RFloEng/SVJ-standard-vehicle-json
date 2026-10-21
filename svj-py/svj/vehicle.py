@@ -266,6 +266,44 @@ class Vehicle:
         from svj.constraints import element_lengths
         return element_lengths(self.data, pose)
 
+    @property
+    def interfaces(self) -> list[dict[str, Any]]:
+        """The `interfaces` array: named frames where this unit can be joined to another (spec §27)."""
+        return self.data.get("interfaces", [])
+
+    @property
+    def attachments(self) -> list[dict[str, Any]]:
+        """The `attachments` array: units fitted to this vehicle (spec §27.4)."""
+        return self.data.get("attachments", [])
+
+    def assemble(self, base_dir: str | Path | None = None) -> "Vehicle":
+        """The composite vehicle with every `attachments[]` unit fitted (qualified ids `unit.body`, spec §27).
+        Unit files are resolved against `base_dir`, default the folder this file was loaded from."""
+        from svj.assemble import assemble, check_combination, combination_from_vehicle
+        base = Path(base_dir) if base_dir is not None else (self.source_path.parent if self.source_path else Path("."))
+        comb = combination_from_vehicle(self.data, str(base))
+        errors, _ = check_combination(comb)
+        if errors:
+            raise ValueError("invalid attachments: " + "; ".join(errors[:5]))
+        doc, _notes = assemble(comb)
+        return Vehicle(doc)
+
+    def solve_pose(self, travel: dict | None = None, joint_values: dict | None = None) -> dict[str, Any]:
+        """Solve the closed kinematic loops (spec §26): wheel centres raised by `travel` {station: m} with the
+        joints in `joint_values` held. Returns transforms, residual, converged and wheel_centres."""
+        from svj.loopsolver import solve
+        return solve(self.data, travel, joint_values)
+
+    def wheel_sweep(self, station: str, travels: list[float], steer: float | None = None) -> list[dict[str, Any]]:
+        """Camber, toe, wheel-centre path and element lengths of a station at each wheel travel (m, bump positive)."""
+        from svj.loopsolver import sweep
+        return sweep(self.data, station, travels, steer=steer)
+
+    def suspension_gains(self, station: str, delta: float = 0.01) -> dict[str, float] | None:
+        """Camber gain and bump steer (deg per m of wheel travel) of a station around the reference pose."""
+        from svj.loopsolver import gains
+        return gains(self.data, station, delta)
+
     def pose_cg(self, pose: Any = None) -> dict[str, Any]:
         """Composite CG in `pose`: {'cg', 'delta', 'mass'} (spec §24.5)."""
         from svj.constraints import pose_cg

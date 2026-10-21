@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SVJ 3D Vehicle Inspector v4.4</title>
+<title>SVJ 3D Vehicle Inspector v4.6</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
 :root{--bg:#08090c;--s1:#0f1117;--s2:#161a24;--s3:#1c2130;--brd:#252b3a;--brdL:#333b50;--tx:#dfe3ed;--txD:#6e7a96;--txM:#404c66;--ac:#ff5131;--acD:#ff513130;--bl:#4d9fff;--gn:#34d27b;--yl:#f0b429;--pr:#b06aff;--cy:#2dd4bf;--rd:#f0524f;--og:#ff8c42}
@@ -89,7 +89,7 @@ body{background:var(--bg);color:var(--tx);font-family:'DM Sans',system-ui,sans-s
 <div id="topbar">
   <div style="display:flex;align-items:center">
     <span class="logo mono">SVJ</span>
-    <span class="subtitle mono">3D Inspector v4.4 — Editor · SVJ v0.99.4</span>
+    <span class="subtitle mono">3D Inspector v4.6 — Editor · SVJ v0.101</span>
     <span class="filename mono" id="file-name">MX-5 ND2 Club 6MT (v0.96 demo)</span>
   </div>
   <div style="display:flex;gap:4px;align-items:center">
@@ -160,7 +160,7 @@ let sideOpen = true;
 let highlightCorner = null;
 let suspCorner = 'FL';
 let liftRaised = false;   // v4.1: draw liftable axles in raised position
-const layers = {grid:true,axes:true,frame:true,labels:true,chassis:true,suspension:true,springs:true,steering:true,drivetrain:true,massBodies:true,wheels:true,brakeDiscs:true,meshes:true};
+const layers = {grid:true,axes:true,frame:true,labels:true,chassis:true,suspension:true,springs:true,steering:true,drivetrain:true,massBodies:true,wheels:true,brakeDiscs:true,meshes:true,articulation:true};
 let loadedMeshes  = {};   // id → { group: THREE.Group, file: string }
 let meshAssets    = [];   // DATA.assets.meshes snapshot
 let selectedMeshId = null; // id of the currently selected loaded mesh
@@ -174,10 +174,11 @@ const layerDefs = [
   {key:'springs',label:'Springs',color:'#34d27b'},{key:'steering',label:'Steering',color:'#2dd4bf'},
   {key:'drivetrain',label:'Drivetrain',color:'#ff8c42'},{key:'massBodies',label:'Mass Bodies',color:'#b06aff'},
   {key:'wheels',label:'Tires & Rims',color:'#333d4f'},{key:'brakeDiscs',label:'Brake Discs',color:'#666677'},
-  {key:'meshes',label:'3D Meshes (glTF)',color:'#c8b4ff'}
+  {key:'meshes',label:'3D Meshes (glTF)',color:'#c8b4ff'},
+  {key:'articulation',label:'Joints & actuators',color:'#ffb347'}
 ];
 let cornerDefs = [{key:null,label:'All',color:null},{key:'FL',label:'FL',color:'#4d9fff'},{key:'FR',label:'FR',color:'#34d27b'},{key:'RL',label:'RL',color:'#f0b429'},{key:'RR',label:'RR',color:'#b06aff'}];
-const panelDefs = [{id:'overview',label:'Overview'},{id:'suspension',label:'Suspension'},{id:'powertrain',label:'Powertrain'},{id:'brakes',label:'Brakes'},{id:'tires',label:'Tires'},{id:'performance',label:'Performance'},{id:'aero',label:'Aero'},{id:'thermal',label:'Thermal'},{id:'meshes',label:'Meshes'}];
+const panelDefs = [{id:'overview',label:'Overview'},{id:'suspension',label:'Suspension'},{id:'powertrain',label:'Powertrain'},{id:'brakes',label:'Brakes'},{id:'tires',label:'Tires'},{id:'performance',label:'Performance'},{id:'aero',label:'Aero'},{id:'thermal',label:'Thermal'},{id:'meshes',label:'Meshes'},{id:'poses',label:'Poses'}];
 
 /* ═══════════════════════════════════════════════════
    HELPERS
@@ -383,13 +384,13 @@ function buildScene() {
   const d2 = new THREE.DirectionalLight(0x6688cc, 0.3); d2.position.set(-2,3,-3); scene.add(d2);
 
   groups = {};
-  ['grid','axes','frame','labels','chassis','suspension','springs','steering','drivetrain','massBodies','wheels','brakeDiscs','meshes'].forEach(k => {
+  ['grid','axes','frame','labels','chassis','suspension','springs','steering','drivetrain','massBodies','wheels','brakeDiscs','meshes','articulation'].forEach(k => {
     groups[k] = new THREE.Group(); scene.add(groups[k]);
   });
   // Re-attach already-loaded mesh groups when scene is rebuilt
   Object.values(loadedMeshes).forEach(entry => groups.meshes.add(entry.group));
   if (selectedObj && selectedMeshId && loadedMeshes[selectedMeshId]) { transformCtrl.attach(selectedObj); transformCtrl.visible = layers.meshes; }
-  pickables = [];
+  pickables = []; posedObjects = []; artic = null;
 
   const addP = (m, label, corner=null) => { m.userData = {label, corner}; pickables.push(m); };
   const mkS = (pos, r, color) => {
@@ -528,7 +529,9 @@ function buildScene() {
     const s = mkS(p, r, catC[mb.category]||0x6e7a96);
     addP(s, `${mb.id||mb.name||'body'}: ${mb.mass} kg\n[${mb.position.map(v=>v.toFixed(3)).join(', ')}]`);
     groups.massBodies.add(s);
+    if(mb.id != null){ s.updateMatrix(); posedObjects.push({obj:s, bodyId:mb.id, base:s.matrix.clone()}); }
   });
+  buildArticulation(data, {mkS, mkT, addP});
 
   // Suspension
   stationKeys(data.suspension).forEach(cn => {
@@ -803,6 +806,7 @@ function buildScene() {
     target = new THREE.Vector3(0, 0.25, 1.15);
     spherical = new THREE.Spherical().setFromVector3(new THREE.Vector3().subVectors(camera.position, target));
   }
+  applyPose();
   applyLayers();
   applyCornerHighlight();
 }
@@ -1012,7 +1016,9 @@ function runValidation(data) {
   // Check mass_bodies X range
   (ch.mass_bodies||[]).forEach(mb => {
     if(mb.position && mb.position[0] != null) {
-      if(mb.position[0] > 1.0 || mb.position[0] < -(wb+1.0)) {
+      const _axX=(data.axles||[]).map(a=>a.position_x).filter(v=>typeof v==='number');
+      const _hi=(_axX.length?Math.max(..._axX):0)+1.0, _lo=(_axX.length?Math.min(..._axX):-wb)-1.0;
+      if(!mb.x_derived && mb.category!=='attachment' && (mb.position[0] > _hi || mb.position[0] < _lo)) {
         warnings.push((mb.id||mb.name||'body')+' position X='+mb.position[0].toFixed(3)+' seems outside vehicle envelope.');
       }
     }
@@ -1025,7 +1031,7 @@ function renderPanel() {
   const data = DATA;
   switch(activePanel) {
     case 'overview': renderOverview(el, data); break;
-    case 'suspension': renderSuspension(el, data); break;
+    case 'suspension': renderSuspension(el, data); if(data.__unifiedView) el.insertAdjacentHTML('afterbegin', UNIFIED_BANNER); break;
     case 'powertrain': renderPowertrain(el, data); break;
     case 'brakes': renderBrakes(el, data); break;
     case 'tires': renderTires(el, data); break;
@@ -1033,6 +1039,7 @@ function renderPanel() {
     case 'performance': renderPerformance(el, data); break;
     case 'thermal': renderThermal(el, data); break;
     case 'meshes': renderMeshes(el); break;
+    case 'poses': renderPoses(el); break;
   }
   setTimeout(()=>attachEditors(el), 30);
 }
@@ -1701,6 +1708,367 @@ function applyStoredTransform(obj, meshId) {
 }
 
 /* ═══════════════════════════════════════════════════
+   POSES  (spec §24): forward kinematics of constraints[], animation of bound
+   parts, per-pose CG / inertia / element lengths. Mirrors tools/constraints_check.py.
+   ═══════════════════════════════════════════════════ */
+const POSE_DOF = {revolute:1, translational:1, cylindrical:2, spherical:3, universal:2, planar:3, fixed:0};
+const POSE_ROOTS = ['chassis', 'ground'];
+const SAE_TO_THREE = [[0,1,0],[0,0,-1],[-1,0,0]];     // three = (y, -z, -x)
+
+let poseState = {id: null, values: {}};     // values: jointId -> [coordinates]
+let posedObjects = [];                      // {obj, bodyId, base:Matrix4}: procedural objects that follow a body
+let artic = null;                           // articulation helpers {elems:[{c,line,ends:[mesh,mesh]}], cg}
+let poseTween = null;
+
+// 3x3 helpers (row-major arrays)
+const mm3 = (a,b) => a.map(r => [0,1,2].map(j => r[0]*b[0][j] + r[1]*b[1][j] + r[2]*b[2][j]));
+const mv3 = (a,v) => a.map(r => r[0]*v[0] + r[1]*v[1] + r[2]*v[2]);
+const tr3 = a => [0,1,2].map(i => [a[0][i], a[1][i], a[2][i]]);
+const add3 = (a,b) => a.map((x,i) => x + b[i]);
+const sub3 = (a,b) => a.map((x,i) => x - b[i]);
+const I3 = () => [[1,0,0],[0,1,0],[0,0,1]];
+const xId = () => ({R:I3(), t:[0,0,0]});
+const xCompose = (a,b) => ({R:mm3(a.R,b.R), t:add3(mv3(a.R,b.t), a.t)});
+const xApply = (x,p) => add3(mv3(x.R,p), x.t);
+const xIsId = (x, e=1e-12) => x.R.every((r,i) => r.every((v,j) => Math.abs(v - (i===j?1:0)) < e)) && x.t.every(v => Math.abs(v) < e);
+
+function quatMat(q){
+  let [x,y,z,w] = q; const n = Math.hypot(x,y,z,w) || 1; x/=n; y/=n; z/=n; w/=n;
+  return [[1-2*(y*y+z*z), 2*(x*y-z*w), 2*(x*z+y*w)],
+          [2*(x*y+z*w), 1-2*(x*x+z*z), 2*(y*z-x*w)],
+          [2*(x*z-y*w), 2*(y*z+x*w), 1-2*(x*x+y*y)]];
+}
+function rotAxis(u, ang){
+  const n = Math.hypot(...u); if(!n || !ang) return I3();
+  const [ux,uy,uz] = u.map(c => c/n), c = Math.cos(ang), s = Math.sin(ang), k = 1-c;
+  return [[c+ux*ux*k, ux*uy*k-uz*s, ux*uz*k+uy*s],
+          [uy*ux*k+uz*s, c+uy*uy*k, uy*uz*k-ux*s],
+          [uz*ux*k-uy*s, uz*uy*k+ux*s, c+uz*uz*k]];
+}
+
+const poseBodies = d => Object.fromEntries(((d?.chassis?.mass_bodies)||[]).filter(b => b && b.id != null).map(b => [b.id, b]));
+function poseMarker(d, bodyId, name){
+  const src = bodyId === 'chassis' ? d?.chassis?.markers : bodyId === 'ground' ? null : poseBodies(d)[bodyId]?.markers;
+  const m = src && src[name];
+  return m && Array.isArray(m.position) ? m : null;
+}
+function poseFrame(d, c, side){
+  const fr = c['frame_'+side];
+  if(fr && Array.isArray(fr.position)) return {p:fr.position, q:fr.orientation || [0,0,0,1]};
+  const name = c['marker_'+side];
+  if(name != null){ const m = poseMarker(d, c['body_'+side], name); if(m) return {p:m.position, q:m.orientation || [0,0,0,1]}; }
+  return null;
+}
+function localMotion(jt, q0){
+  const q = q0.slice(); while(q.length < (POSE_DOF[jt]||0)) q.push(0);
+  switch(jt){
+    case 'revolute': return {R:rotAxis([0,0,1], q[0]), t:[0,0,0]};
+    case 'translational': return {R:I3(), t:[0,0,q[0]]};
+    case 'cylindrical': return {R:rotAxis([0,0,1], q[0]), t:[0,0,q[1]]};
+    case 'spherical': { const a = Math.hypot(q[0],q[1],q[2]); return {R:a ? rotAxis(q.slice(0,3), a) : I3(), t:[0,0,0]}; }
+    case 'universal': return {R:mm3(rotAxis([0,1,0], q[1]), rotAxis([1,0,0], q[0])), t:[0,0,0]};
+    case 'planar': return {R:rotAxis([0,0,1], q[2]), t:[q[0], q[1], 0]};
+    default: return xId();
+  }
+}
+function worldMotion(fr, jt, q){
+  if(!q.some(v => Math.abs(v) > 0)) return xId();            // zero coordinates: exactly the reference pose
+  const rm = quatMat(fr.q), l = localMotion(jt, q);
+  const rw = mm3(mm3(rm, l.R), tr3(rm));
+  return {R:rw, t:sub3(add3(fr.p, mv3(rm, l.t)), mv3(rw, fr.p))};
+}
+// {bodyId: {R,t}} for a pose ({jointId: [coords]})
+function poseFK(d, values){
+  const bodies = poseBodies(d), X = {chassis:xId(), ground:xId()};
+  let pending = (d?.constraints||[]).filter(c => c && c.type === 'joint'), progress = true;
+  while(pending.length && progress){
+    progress = false;
+    for(const c of pending.slice()){
+      if(c.body_a in X){
+        pending.splice(pending.indexOf(c), 1); progress = true;
+        if(c.body_b in X || !(c.body_b in bodies)) continue;
+        const fr = poseFrame(d, c, 'a'); if(!fr) continue;
+        X[c.body_b] = xCompose(X[c.body_a], worldMotion(fr, c.joint_type, values[c.id] || []));
+      }
+    }
+  }
+  const memo = Object.assign({}, X);
+  const resolve = (id, seen=[]) => {
+    if(id in memo) return memo[id];
+    const par = bodies[id]?.parent;
+    memo[id] = (par in memo || (par in bodies && !seen.includes(par) && par !== id)) ? resolve(par, seen.concat(id)) : xId();
+    return memo[id];
+  };
+  Object.keys(bodies).forEach(id => resolve(id));
+  return memo;
+}
+function poseElementLengths(d, X){
+  const out = {};
+  (d?.constraints||[]).forEach(c => {
+    if(!c || (c.type !== 'spring' && c.type !== 'actuator')) return;
+    const fa = poseFrame(d, c, 'a'), fb = poseFrame(d, c, 'b'); if(!fa || !fb) return;
+    const pa = xApply(X[c.body_a] || xId(), fa.p), pb = xApply(X[c.body_b] || xId(), fb.p);
+    out[c.id] = Math.hypot(pa[0]-pb[0], pa[1]-pb[1], pa[2]-pb[2]);
+  });
+  return out;
+}
+function poseCG(d, X){
+  const ch = d?.chassis || {}, bodies = poseBodies(d);
+  const total = (typeof ch.mass_total === 'number' && ch.mass_total > 0) ? ch.mass_total : (Object.values(bodies).reduce((s,b) => s + (b.mass||0), 0) || 1);
+  const dl = [0,0,0];
+  Object.entries(bodies).forEach(([id,b]) => {
+    if(!Array.isArray(b.position) || typeof b.mass !== 'number') return;
+    const mv = xApply(X[id] || xId(), b.position);
+    for(let i=0;i<3;i++) dl[i] += b.mass * (mv[i] - b.position[i]) / total;
+  });
+  const cg0 = ch.center_of_gravity || [0,0,0];
+  return {cg: cg0.map((v,i) => v + dl[i]), delta: dl, mass: total};
+}
+function inertiaMat(v){
+  if(Array.isArray(v) && v.length === 3 && v.every(r => Array.isArray(r) && r.length === 3)) return v.map(r => r.map(Number));
+  if(!v || typeof v !== 'object' || ['Ixx','Iyy','Izz'].some(k => typeof v[k] !== 'number')) return null;
+  const g = k => Number(v[k] || 0);
+  return [[g('Ixx'),-g('Ixy'),-g('Ixz')],[-g('Ixy'),g('Iyy'),-g('Iyz')],[-g('Ixz'),-g('Iyz'),g('Izz')]];
+}
+function poseBodyInertia(b){
+  let m = inertiaMat(b.inertia); if(!m) return null;
+  if(Array.isArray(b.inertia_orientation) && b.inertia_orientation.length === 4){ const r = quatMat(b.inertia_orientation); m = mm3(mm3(r, m), tr3(r)); }
+  return m;
+}
+const steiner = (mass, d) => { const dd = d[0]*d[0]+d[1]*d[1]+d[2]*d[2]; return [0,1,2].map(i => [0,1,2].map(j => mass * ((i===j?dd:0) - d[i]*d[j]))); };
+const madd = (a,b,s=1) => a.map((r,i) => r.map((v,j) => v + s*b[i][j]));
+function poseInertia(d, X){
+  const ch = d?.chassis || {}, iRef = inertiaMat(ch.inertia); if(!iRef) return null;
+  const r = poseCG(d, X), cg0 = ch.center_of_gravity || [0,0,0];
+  let acc = iRef;
+  Object.entries(poseBodies(d)).forEach(([id,b]) => {
+    const t = X[id] || xId();
+    if(xIsId(t) || !Array.isArray(b.position) || typeof b.mass !== 'number') return;
+    const ib = poseBodyInertia(b) || [[0,0,0],[0,0,0],[0,0,0]];
+    acc = madd(acc, madd(ib, steiner(b.mass, sub3(b.position, cg0))), -1);
+    acc = madd(acc, madd(mm3(mm3(t.R, ib), tr3(t.R)), steiner(b.mass, sub3(xApply(t, b.position), cg0))));
+  });
+  return madd(acc, steiner(r.mass, r.delta), -1);
+}
+
+// SAE rigid transform -> THREE.Matrix4 (acting on Three-space world coordinates)
+function threeMatrix(x){
+  const P = SAE_TO_THREE, R = mm3(mm3(P, x.R), tr3(P)), t = mv3(P, x.t), m = new THREE.Matrix4();
+  m.set(R[0][0],R[0][1],R[0][2],t[0], R[1][0],R[1][1],R[1][2],t[1], R[2][0],R[2][1],R[2][2],t[2], 0,0,0,1);
+  return m;
+}
+
+// ── state ─────────────────────────────────────────────────────────────────────
+const poseJoints = () => (DATA?.constraints||[]).filter(c => c && c.type === 'joint');
+function poseVals(j){ const n = POSE_DOF[j.joint_type] || 0, v = poseState.values[j.id] || []; return Array.from({length:n}, (_,i) => v[i] || 0); }
+function poseIsReference(){ return !Object.values(poseState.values).some(v => v.some(x => Math.abs(x) > 1e-12)); }
+function poseFromDoc(id){
+  const p = (DATA?.poses||[]).find(x => x.id === id), out = {};
+  poseJoints().forEach(j => { const v = p?.values?.[j.id]; out[j.id] = v === undefined ? Array(POSE_DOF[j.joint_type] || 0).fill(0) : (Array.isArray(v) ? v.slice() : [v]); });
+  return out;
+}
+function resetPoseState(){
+  if(poseTween){ cancelAnimationFrame(poseTween); poseTween = null; }
+  poseState = {id: null, values: {}};
+  Object.values(loadedMeshes).forEach(e => e.nodeObj?.forEach(o => { if(o.parent?.userData?._poseWrap){ o.parent.matrix.identity(); o.parent.matrixWorldNeedsUpdate = true; } }));
+}
+// move a bound glTF node by the world motion M (Three space) without touching its own transform:
+// it is parented to a wrapper whose local matrix is P^-1 · M · P (P = the old parent's world matrix)
+function posedNodeFor(bodyVisual){
+  if(!bodyVisual?.node) return null;
+  const pools = bodyVisual.mesh_ref && loadedMeshes[bodyVisual.mesh_ref] ? [loadedMeshes[bodyVisual.mesh_ref]] : Object.values(loadedMeshes);
+  for(const e of pools){ if(!e.objNode) continue; for(const o of e.objNode.keys()) if((o.userData?.name || o.name) === bodyVisual.node) return o; }
+  return null;
+}
+function setNodePose(node, M){
+  let w = node.parent?.userData?._poseWrap ? node.parent : null;
+  if(!w){
+    if(M.equals(new THREE.Matrix4())) return;               // nothing to do and no wrapper yet
+    const parent = node.parent; if(!parent) return;
+    w = new THREE.Group(); w.userData._poseWrap = true; w.matrixAutoUpdate = false;
+    parent.add(w); w.add(node);
+  }
+  const parent = w.parent; parent.updateWorldMatrix(true, false);
+  const P = parent.matrixWorld, Pi = new THREE.Matrix4().copy(P).invert();
+  w.matrix.copy(Pi).multiply(M).multiply(P); w.matrixWorldNeedsUpdate = true;
+}
+
+function applyPose(){
+  const d = DATA; if(!d) return;
+  const hasC = (d.constraints||[]).length > 0;
+  const X = hasC ? poseFK(d, poseState.values) : {};
+  posedObjects.forEach(({obj, bodyId, base}) => {
+    const x = X[bodyId]; obj.matrixAutoUpdate = false;
+    if(x && !xIsId(x)) obj.matrix.copy(threeMatrix(x)).multiply(base); else obj.matrix.copy(base);
+    obj.matrixWorldNeedsUpdate = true;
+  });
+  // glTF nodes bound with visual.node
+  Object.entries(poseBodies(d)).forEach(([id, b]) => {
+    if(!b.visual?.node) return;
+    const node = posedNodeFor(b.visual); if(!node) return;
+    setNodePose(node, X[id] ? threeMatrix(X[id]) : new THREE.Matrix4());
+  });
+  if(artic){
+    const L = poseElementLengths(d, X);
+    artic.elems.forEach(el => {
+      const c = el.c, fa = poseFrame(d, c, 'a'), fb = poseFrame(d, c, 'b'); if(!fa || !fb) return;
+      const pa = sae2three(xApply(X[c.body_a] || xId(), fa.p)), pb = sae2three(xApply(X[c.body_b] || xId(), fb.p));
+      const pos = el.line.geometry.attributes.position; pos.setXYZ(0, pa.x, pa.y, pa.z); pos.setXYZ(1, pb.x, pb.y, pb.z); pos.needsUpdate = true;
+      el.line.geometry.computeBoundingSphere();
+      el.ends[0].position.copy(pa); el.ends[1].position.copy(pb);
+      if(c.type === 'actuator' && typeof c.retracted_length === 'number'){
+        const lo = c.retracted_length + (c.stroke?.min ?? 0), hi = c.retracted_length + (c.stroke?.max ?? 0), ok = L[c.id] >= lo - 1e-4 && L[c.id] <= hi + 1e-4;
+        el.line.material.color.set(ok ? 0xffb347 : 0xff3b3b);
+      }
+    });
+    if(artic.cg){ const r = poseCG(d, X); artic.cg.position.copy(sae2three(r.cg)); artic.cg.visible = !poseIsReference(); }
+  }
+  updatePoseReadouts(X);
+}
+
+// helpers drawn in buildScene: joint axes, spring / actuator lines, the pose CG marker
+function buildArticulation(data, h){
+  artic = null;
+  const cons = (data?.constraints||[]).filter(c => c && typeof c === 'object');
+  if(!cons.length || !groups.articulation) return;
+  artic = {elems: [], cg: null};
+  const jColor = {revolute:0x4d9fff, translational:0x34d27b, cylindrical:0x2dd4bf, spherical:0xb06aff, universal:0xf0b429, planar:0xff8c42, fixed:0x6e7a96};
+  cons.forEach(c => {
+    if(c.type === 'joint'){
+      const fr = poseFrame(data, c, 'a'); if(!fr || c.joint_type === 'fixed' || c.joint_type === 'spherical') return;
+      const ax = mv3(quatMat(fr.q), [0,0,1]), len = c.joint_type === 'planar' ? 0.12 : 0.22;
+      const p1 = sae2three(add3(fr.p, ax.map(v => -v*len))), p2 = sae2three(add3(fr.p, ax.map(v => v*len)));
+      const t = h.mkT(p1, p2, c.joint_type === 'translational' ? 0.006 : 0.004, jColor[c.joint_type] || 0xffffff);
+      if(t){ h.addP(t, `${c.id}: ${c.joint_type}\n${c.body_a} → ${c.body_b}` + (c.range ? `\nrange ${JSON.stringify(c.range)}` : '')); t.updateMatrix(); posedObjects.push({obj:t, bodyId:c.body_a, base:t.matrix.clone()}); groups.articulation.add(t); }
+      const s = h.mkS(sae2three(fr.p), 0.014, jColor[c.joint_type] || 0xffffff);
+      if(s){ s.updateMatrix(); posedObjects.push({obj:s, bodyId:c.body_a, base:s.matrix.clone()}); groups.articulation.add(s); }
+    } else if(c.type === 'spring' || c.type === 'actuator'){
+      const fa = poseFrame(data, c, 'a'), fb = poseFrame(data, c, 'b'); if(!fa || !fb) return;
+      const col = c.type === 'actuator' ? 0xffb347 : 0x3dd68c;
+      const g = new THREE.BufferGeometry().setFromPoints([sae2three(fa.p), sae2three(fb.p)]);
+      const line = new THREE.Line(g, new THREE.LineBasicMaterial({color: col})); line.frustumCulled = false;
+      line.userData = {label: `${c.id}: ${c.type}`, corner: null}; groups.articulation.add(line);
+      const ends = [h.mkS(sae2three(fa.p), 0.012, col), h.mkS(sae2three(fb.p), 0.012, col)];
+      ends.forEach(e => groups.articulation.add(e));
+      artic.elems.push({c, line, ends});
+    }
+  });
+  artic.cg = h.mkS(sae2three(data?.chassis?.center_of_gravity || [0,0,0]), 0.03, 0xffe14d);
+  if(artic.cg){ h.addP(artic.cg, 'CG (this pose)'); artic.cg.visible = false; groups.articulation.add(artic.cg); }
+}
+
+// ── tween + UI ───────────────────────────────────────────────────────────────
+function poseAnimateTo(target, ms=800){
+  if(poseTween){ cancelAnimationFrame(poseTween); poseTween = null; }
+  const from = {}; poseJoints().forEach(j => { from[j.id] = poseVals(j); });
+  const to = {}; poseJoints().forEach(j => { to[j.id] = (target[j.id] || []).concat([0,0,0]).slice(0, POSE_DOF[j.joint_type] || 0); });
+  const t0 = performance.now();
+  const step = now => {
+    const k = Math.min(1, (now - t0) / ms), e = k < 0.5 ? 2*k*k : 1 - Math.pow(-2*k + 2, 2) / 2;
+    poseJoints().forEach(j => { poseState.values[j.id] = from[j.id].map((v,i) => v + (to[j.id][i] - v) * e); });
+    applyPose(); syncPoseSliders();
+    poseTween = k < 1 ? requestAnimationFrame(step) : null;
+  };
+  poseTween = requestAnimationFrame(step);
+}
+window.poseSelect = function(id){
+  poseState.id = id || null;
+  poseAnimateTo(id ? poseFromDoc(id) : {});
+};
+window.poseReset = function(){ poseState.id = null; const s = document.getElementById('pose-sel'); if(s) s.value = ''; poseAnimateTo({}, 500); };
+window.poseSlide = function(el){
+  if(poseTween){ cancelAnimationFrame(poseTween); poseTween = null; }
+  const j = poseJoints().find(x => x.id === el.dataset.j); if(!j) return;
+  const k = +el.dataset.k, v = poseVals(j), rot = poseCoordKind(j.joint_type, k) === 'rot';
+  v[k] = parseFloat(el.value) * (rot ? Math.PI / 180 : 1);
+  poseState.values[j.id] = v; poseState.id = null;
+  const s = document.getElementById('pose-sel'); if(s) s.value = '';
+  applyPose(); syncPoseSliders(el);
+};
+window.poseSaveCurrent = function(){
+  const name = (prompt('Name for the new pose:', 'pose_' + ((DATA.poses||[]).length + 1)) || '').trim();
+  if(!name) return;
+  if((DATA.poses||[]).some(p => p.id === name)){ alert('A pose called "' + name + '" already exists.'); return; }
+  const values = {}; poseJoints().forEach(j => { const v = poseVals(j); if(v.some(x => Math.abs(x) > 1e-9)) values[j.id] = v.length === 1 ? +v[0].toFixed(5) : v.map(x => +x.toFixed(5)); });
+  applyEdit('poses', (DATA.poses || []).concat([{id: name, values}]));
+  poseState.id = name; renderPanel();
+};
+function poseCoordKind(jt, k){
+  if(jt === 'translational') return 'lin';
+  if(jt === 'cylindrical') return k === 0 ? 'rot' : 'lin';
+  if(jt === 'planar') return k < 2 ? 'lin' : 'rot';
+  return 'rot';
+}
+function poseSliderSpec(j, k){
+  const kind = poseCoordKind(j.joint_type, k), deg = 180 / Math.PI;
+  const lo = Array.isArray(j.range?.min) ? j.range.min[k] : (k === 0 ? j.range?.min : null);
+  const hi = Array.isArray(j.range?.max) ? j.range.max[k] : (k === 0 ? j.range?.max : null);
+  if(kind === 'rot') return {kind, min: (typeof lo === 'number' ? lo : -Math.PI) * deg, max: (typeof hi === 'number' ? hi : Math.PI) * deg, step: 0.5, unit: '°'};
+  return {kind, min: typeof lo === 'number' ? lo : -1, max: typeof hi === 'number' ? hi : 1, step: 0.001, unit: ' m'};
+}
+function syncPoseSliders(skip){
+  poseJoints().forEach(j => poseVals(j).forEach((v, k) => {
+    const sp = poseSliderSpec(j, k), disp = sp.kind === 'rot' ? v * 180 / Math.PI : v;
+    const sl = document.getElementById(`ps-${j.id}-${k}`), lb = document.getElementById(`pv-${j.id}-${k}`);
+    if(sl && sl !== skip) sl.value = disp;
+    if(lb) lb.textContent = disp.toFixed(sp.kind === 'rot' ? 1 : 3) + sp.unit;
+  }));
+}
+function updatePoseReadouts(X){
+  const box = document.getElementById('pose-readout'); if(!box || !DATA) return;
+  const r = poseCG(DATA, X), I = poseInertia(DATA, X), L = poseElementLengths(DATA, X);
+  const f = (v, n=3) => v.toFixed(n), sgn = v => (v >= 0 ? '+' : '') + v.toFixed(4);
+  let h = `<div class="kv-grid"><div class="kv-row"><span class="kv-key">CG</span><span class="kv-val">${r.cg.map(v => f(v)).join(' / ')}</span></div>` +
+          `<div class="kv-row"><span class="kv-key">Δ CG vs reference</span><span class="kv-val">${r.delta.map(sgn).join(' / ')}</span></div>` +
+          `<div class="kv-row"><span class="kv-key">mass</span><span class="kv-val">${f(r.mass, 1)} kg</span></div>`;
+  if(I) h += `<div class="kv-row"><span class="kv-key">inertia Ixx / Iyy / Izz</span><span class="kv-val">${f(I[0][0],1)} / ${f(I[1][1],1)} / ${f(I[2][2],1)}</span></div>` +
+             `<div class="kv-row"><span class="kv-key">products Ixy / Ixz / Iyz</span><span class="kv-val">${f(-I[0][1],1)} / ${f(-I[0][2],1)} / ${f(-I[1][2],1)}</span></div>`;
+  h += '</div>';
+  const els = (DATA.constraints||[]).filter(c => c && (c.type === 'spring' || c.type === 'actuator') && L[c.id] !== undefined);
+  if(els.length){
+    h += '<div style="margin-top:6px">' + els.map(c => {
+      let bar = '', bad = false;
+      if(c.type === 'actuator' && typeof c.retracted_length === 'number'){
+        const lo = c.retracted_length + (c.stroke?.min ?? 0), hi = c.retracted_length + (c.stroke?.max ?? 0);
+        bad = L[c.id] < lo - 1e-4 || L[c.id] > hi + 1e-4;
+        const k = hi > lo ? Math.max(0, Math.min(1, (L[c.id] - lo) / (hi - lo))) : 0;
+        bar = `<div style="flex:1;height:5px;background:var(--brd);border-radius:3px;position:relative"><div style="position:absolute;left:0;top:0;bottom:0;width:${(k*100).toFixed(0)}%;background:${bad?'var(--rd)':'var(--ac)'};border-radius:3px"></div></div>` +
+              `<span style="color:var(--txD);width:104px;text-align:right">${f(lo)}–${f(hi)} m</span>`;
+      }
+      return `<div style="display:flex;align-items:center;gap:6px;font-size:10px;margin:2px 0"><span style="width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:${bad?'var(--rd)':'var(--tx)'}" title="${escH(c.id)}">${escH(c.id)}</span><span style="width:56px">${f(L[c.id])} m</span>${bar}${bad?'<span style="color:var(--rd)">out of reach</span>':''}</div>`;
+    }).join('') + '</div>';
+  }
+  box.innerHTML = h;
+}
+
+function renderPoses(el){
+  const d = DATA, cons = (d?.constraints||[]).filter(c => c && typeof c === 'object');
+  if(!cons.length){
+    el.innerHTML = '<div style="color:var(--txD);font-size:11px;line-height:1.5">This file has no <b>constraints</b>, so nothing can move.<br>Movable parts (doors, hood, tilt cab, loaders, hitches) are described by <code>constraints[]</code> and <code>poses[]</code> (spec §24). Try <b>skeleton_tractor_loader_hitch</b> or <b>skeleton_ff_articulated_panels</b>.</div>';
+    return;
+  }
+  const joints = poseJoints(), poses = d.poses || [];
+  let h = `<div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;font-size:10px">Pose
+    <select id="pose-sel" onchange="poseSelect(this.value)" style="background:var(--bg);color:var(--tx);border:1px solid var(--brd);font-size:10px;max-width:150px">
+      <option value="">reference</option>${poses.map(p => `<option value="${escH(p.id)}" ${p.id===poseState.id?'selected':''}>${escH(p.id)}</option>`).join('')}</select>
+    <button class="btn" style="padding:0 8px" onclick="poseReset()">⟲ Reset</button>
+    <button class="btn" style="padding:0 8px" onclick="poseSaveCurrent()" title="Store the slider values as a new pose in the SVJ">＋ Save as pose</button></div>`;
+  const jointRow = j => {
+    const n = POSE_DOF[j.joint_type] || 0;
+    if(!n) return `<div style="font-size:10px;margin:3px 0;color:var(--txD)">${escH(j.id)} · fixed · ${escH(j.body_a)} → ${escH(j.body_b)}</div>`;
+    return `<div style="margin:5px 0"><div style="font-size:10px"><b>${escH(j.id)}</b> <span style="color:var(--txD)">${escH(j.joint_type)} · ${escH(j.body_a)} → ${escH(j.body_b)}</span></div>` +
+      Array.from({length:n}, (_, k) => { const sp = poseSliderSpec(j, k); return `<div style="display:flex;align-items:center;gap:6px;font-size:10px"><input id="ps-${escH(j.id)}-${k}" type="range" data-j="${escH(j.id)}" data-k="${k}" min="${sp.min}" max="${sp.max}" step="${sp.step}" value="0" oninput="poseSlide(this)" style="flex:1"><span id="pv-${escH(j.id)}-${k}" style="width:62px;text-align:right;color:var(--ac)">0</span></div>`; }).join('') + '</div>';
+  };
+  h += section('Joints', joints.filter(j => !j.x_derived).map(jointRow).join('') || '<div style="font-size:10px;color:var(--txD)">no authored joints</div>');
+  const derivedJ = joints.filter(j => j.x_derived);
+  if(derivedJ.length) h += `<details style="margin-top:8px"><summary style="font-size:10px;color:var(--txD);cursor:pointer">Generated joints (x_derived) · ${derivedJ.length}</summary>${derivedJ.map(jointRow).join('')}</details>`;
+  h += section('This pose', '<div id="pose-readout"></div>');
+  el.innerHTML = h;
+  syncPoseSliders();
+  updatePoseReadouts(poseFK(d, poseState.values));
+}
+
+/* ═══════════════════════════════════════════════════
    MESH PARTS  (per-node selection → gizmo / numeric / nudge → save GLB + SVJ)
    A selectable "part" is one glTF node (or the whole asset group). Edits are
    local node transforms; on save only the glTF JSON chunk is rewritten, so
@@ -1784,6 +2152,11 @@ function selectMesh(meshId, obj) {
   if (!transformCtrl) return;
   const entry = loadedMeshes[meshId];
   if (!entry) return;
+  if (!poseIsReference()) {          // meshes are fitted in the reference pose
+    poseState.values = {}; poseState.id = null; applyPose();
+    if (activePanel === 'poses') renderPanel();
+    showMeshToast('Back to the reference pose: parts are fitted there');
+  }
   selectedMeshId = meshId;
   selectedObj = obj || entry.group;
   transformCtrl.attach(selectedObj);
@@ -2235,6 +2608,7 @@ function loadGLTFBuffer(meshId, data, fileName, isGlb) {
     // Apply stored transform if present in DATA.assets.meshes
     applyStoredTransform(model, meshId);
     groups.meshes.add(model);
+    applyPose();
 
     // ── Register in DATA.assets.meshes if not already there ──
     if (DATA) {
@@ -2368,13 +2742,65 @@ function normalizeMarkers(json){
 }
 function withMarkers(json){
   const c = JSON.parse(JSON.stringify(json));
+  if(json && json.__unifiedView) delete c.suspension;            // derived view, never written back
   if(Object.keys(markerExtras).length) eachMarkerSlot(c, (h,k,id)=>{
     if(markerExtras[id] && Array.isArray(h[k])) h[k] = {position: h[k], ...markerExtras[id]};
   });
   return c;
 }
 
+
+/* ═══════════════════════════════════════════════════
+   UNIFIED SUSPENSION (SVJ v0.100): wheel_stations + bodies + joints + elements
+   The panels below were written for the corner-shaped `suspension` section. For a unified file the viewer derives
+   that shape (read-only: it is never written back) from the bodies, joints and elements.
+   ═══════════════════════════════════════════════════ */
+function unifiedToCorners(d){
+  const ch=d.chassis||{}, bodies={}; (ch.mass_bodies||[]).forEach(b=>{bodies[b.id]=b;});
+  const cons=d.constraints||[], joints=cons.filter(c=>c.type==='joint');
+  const markerPos=(bid,name)=>{ const src=bid==='chassis'?ch.markers:bodies[bid]?.markers; const m=src?.[name]; return Array.isArray(m)?m:(m&&m.position)||null; };
+  const framePos=(c,side)=>{ const f=c['frame_'+side]; if(f&&Array.isArray(f.position)) return f.position; const nm=c['marker_'+side]; return nm?markerPos(c['body_'+side],nm):null; };
+  const sfx=(id)=>String(id).toLowerCase().replace(/[^a-z0-9_]/g,'_').replace(/^_+|_+$/g,'');
+  const strip=(o,omit)=>{ const r={}; Object.keys(o||{}).forEach(k=>{ if(!omit.includes(k)) r[k]=o[k]; }); return r; };
+  const out={};
+  (d.wheel_stations||[]).forEach(st=>{
+    const ub=st.upright_body, up=bodies[ub]||{}, hp={};
+    Object.entries(up.markers||{}).forEach(([k,m])=>{ const p=Array.isArray(m)?m:m?.position; if(Array.isArray(p)) hp[k.replace(/_(fl|fr|rl|rr|a\d+[lrc])$/i,'')]=p; });
+    const wcm=st.wheel_center_marker||'wheel_center', wcp=markerPos(ub,wcm); if(wcp) hp.wheel_center=wcp;
+    const links=[];
+    joints.filter(j=>(j.body_a===ub||j.body_b===ub)&&j.body_a!==st.wheel_body&&j.body_b!==st.wheel_body).forEach(j=>{
+      const other=j.body_a===ub?j.body_b:j.body_a; if(other==='chassis'||other==='ground'||!bodies[other]) return;
+      const outP=framePos(j,'a'); if(!outP) return;
+      const base=other.replace(/_(fl|fr|rl|rr|a\d+[lrc])$/i,'');
+      const key=base+'_outer'; if(!Object.values(hp).some(p=>p.every((v,i)=>Math.abs(v-outP[i])<1e-9))) hp[key]=outP;
+      const refName=Object.keys(hp).find(k=>hp[k].every((v,i)=>Math.abs(v-outP[i])<1e-9))||key;
+      const ins=joints.filter(k=>k!==j&&(k.body_a===other||k.body_b===other)).map(k=>framePos(k,'a')).filter(Boolean);
+      links.push({name:base,type:'arm',inboard_points:ins,outboard_ref:'hardpoints.'+refName});
+    });
+    const view=strip(st,['id','name','wheel_body','upright_body','topology_hint','axle','side','wheel_center_marker','steering_joint','coupling_ref']);
+    view.topology={system_type:st.topology_hint||'',upright:{id:ub,hardpoints:hp},links};
+    const k=sfx(st.id);
+    cons.forEach(c=>{
+      if(c.type==='spring'&&c.id==='spring_'+k){ view.spring=Object.assign(strip(c,['id','type','body_a','body_b','frame_a','frame_b','x_derived']),{type:c.spring_type||''}); }
+      if(c.type==='damper'&&c.id==='damper_'+k){ view.damper=strip(c,['id','type','body_a','body_b','frame_a','frame_b','x_derived']); }
+    });
+    (d.anti_roll_bars||[]).forEach(bar=>{ if((bar.stations||[]).includes(st.id)) view.arb=Object.assign({bar_id:bar.id},strip(bar,['id','stations','drop_link_mounts'])); });
+    view.spring=view.spring||{}; view.damper=view.damper||{}; view.wheel=view.wheel||{};
+    out[st.id]=view;
+  });
+  return out;
+}
+function adoptUnified(json){
+  if(json && Array.isArray(json.wheel_stations) && json.wheel_stations.length && !json.suspension){
+    json.suspension=unifiedToCorners(json);
+    Object.defineProperty(json,'__unifiedView',{value:true,enumerable:false,configurable:true,writable:true});
+  }
+}
+const UNIFIED_BANNER='<div style="background:rgba(77,159,255,.12);border:1px solid #4d9fff;border-radius:6px;padding:6px 10px;margin-bottom:8px;font-size:11px;color:var(--tx)">Unified suspension (SVJ v0.100): this view is derived from the bodies, joints and elements and is read-only; edit those in the file.</div>';
+
 function loadData(json) {
+  resetPoseState();
+  adoptUnified(json);
   normalizeMarkers(json);
   DATA = json;
   const _st = stationKeys(json?.suspension);

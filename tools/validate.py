@@ -28,6 +28,7 @@ from multiaxle_check import check as multiaxle_check  # noqa: E402
 from drivetrain_check import check as drivetrain_check  # noqa: E402
 from multibody_check import check as multibody_check  # noqa: E402
 from constraints_check import check as constraints_check  # noqa: E402
+import assemble as _asm  # noqa: E402
 
 try:
     import jsonschema
@@ -74,6 +75,9 @@ def validate_file(svj_path: str, schema: dict, strict: bool) -> bool:
     errors   = []
     warnings = []
 
+    if (doc.get("_metadata") or {}).get("format") == "svj-combination":
+        return _validate_combination(svj_path, doc, schema, schema_local, strict)
+
     with _warnings.catch_warnings():
         _warnings.simplefilter("ignore")
         validator = Draft7Validator(schema_local)
@@ -103,6 +107,25 @@ def validate_file(svj_path: str, schema: dict, strict: bool) -> bool:
     errors.extend(ct_errors)
     warnings.extend(ct_warnings)
 
+    # Attachments: interfaces and fitted units (spec §27)
+    if doc.get("interfaces"):
+        i_errors, i_warnings = _asm.check_interfaces(doc)
+        errors.extend(i_errors)
+        warnings.extend(i_warnings)
+    if doc.get("attachments") and not errors:
+        try:
+            comb = _asm.combination_from_vehicle(doc, str(Path(svj_path).resolve().parent))
+            c_errors, c_warnings = _asm.check_combination(comb)
+            errors.extend(c_errors)
+            warnings.extend(c_warnings)
+            if not c_errors:
+                composite, _notes = _asm.assemble(comb)
+                a_errors, a_warnings = constraints_check(composite)
+                errors.extend(f"assembled: {e}" for e in a_errors)
+                warnings.extend(f"assembled: {w}" for w in a_warnings)
+        except (OSError, json.JSONDecodeError) as e:
+            errors.append(f"attachments: cannot load a unit file: {e}")
+
     # Deprecation: the corner-based suspension section (spec §25)
     if isinstance(doc.get("suspension"), dict):
         warnings.append("suspension: the corner-based suspension section is deprecated since 0.100; "
@@ -110,10 +133,10 @@ def validate_file(svj_path: str, schema: dict, strict: bool) -> bool:
 
     # Version advisory
     version = doc.get("_metadata", {}).get("version", "unknown")
-    if version not in ("0.99", "0.99.1", "0.99.2", "0.99.3", "0.99.4", "0.99.5", "0.99.6", "0.99.7", "0.99.8", "0.100"):
+    if version not in ("0.99", "0.99.1", "0.99.2", "0.99.3", "0.99.4", "0.99.5", "0.99.6", "0.99.7", "0.99.8", "0.100", "0.101"):
         warnings.append(
-            f"_metadata.version is '{version}' — current spec is '0.100' "
-            "(movable parts)"
+            f"_metadata.version is '{version}' — current spec is '0.101' "
+            "(attachments)"
         )
 
     for w in warnings:
@@ -128,6 +151,55 @@ def validate_file(svj_path: str, schema: dict, strict: bool) -> bool:
     else:
         print(f"  FAILED {len(errors)} error(s)")
 
+    return len(errors) == 0 and (not strict or len(warnings) == 0)
+
+
+def _validate_combination(svj_path, doc, schema, schema_local, strict):
+    """A *.svj-combination.json file (spec §27.3): schema, units and connections, then the assembled composite."""
+    errors, warnings = [], []
+    comb_schema_path = Path(__file__).resolve().parent.parent / "schema" / "svj-combination.schema.json"
+    with _warnings.catch_warnings():
+        _warnings.simplefilter("ignore")
+        if comb_schema_path.exists():
+            cs = load_json(str(comb_schema_path))
+            cs.pop("$id", None)
+            for err in Draft7Validator(cs).iter_errors(doc):
+                if _is_ref_error(err):
+                    continue
+                path_str = " > ".join(str(p) for p in err.absolute_path) if err.absolute_path else "<root>"
+                errors.append(f"[{path_str}] {err.message}")
+    n_units = 0
+    if not errors:
+        try:
+            comb = _asm.combination_from_file(svj_path)
+            n_units = len(comb["units"])
+            c_errors, c_warnings = _asm.check_combination(comb)
+            errors.extend(c_errors)
+            warnings.extend(c_warnings)
+            if not c_errors:
+                composite, _notes = _asm.assemble(comb)
+                a_errors, a_warnings = constraints_check(composite)
+                errors.extend(f"assembled: {e}" for e in a_errors)
+                warnings.extend(f"assembled: {w}" for w in a_warnings)
+                with _warnings.catch_warnings():
+                    _warnings.simplefilter("ignore")
+                    for err in Draft7Validator(schema_local).iter_errors(composite):
+                        if not _is_ref_error(err):
+                            path_str = " > ".join(str(p) for p in err.absolute_path) if err.absolute_path else "<root>"
+                            errors.append(f"assembled: [{path_str}] {err.message}")
+        except (OSError, json.JSONDecodeError) as e:
+            errors.append(f"cannot load a unit file: {e}")
+    for w in warnings:
+        print(f"  WARN   {w}")
+    for e in errors:
+        print(f"  ERROR  {e}")
+    version = (doc.get("_metadata") or {}).get("version", "unknown")
+    if not errors and not warnings:
+        print(f"  OK     Valid SVJ combination {version} ({n_units} units)")
+    elif not errors:
+        print(f"  OK     Valid SVJ combination {version} - {len(warnings)} warning(s)")
+    else:
+        print(f"  FAILED {len(errors)} error(s)")
     return len(errors) == 0 and (not strict or len(warnings) == 0)
 
 

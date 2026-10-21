@@ -267,5 +267,5 @@ ignore the blocks still see a valid vehicle in its reference pose.
 | 1 | `constraints[]` with `joint` (all types, vector coordinates), `spring`, `actuator`; `poses[]`; `chassis.markers`; checker rules 1–12 (except `latch`/`contact`); forward kinematics, CG and element lengths per pose in `svj-py`; two examples (car panels; tractor with front loader and hitch) | Both examples validate, FK reproduces the expected poses and the stroke checks pass |
 | 2 | Viewer poses panel and animation | Poses animate the bound meshes about the hinges |
 | 3 | `latch`, `coupling`, rotary `joint.drive` — **implemented in v0.99.6** | A tilt-cab / tipper example (`skeleton_dump_truck_tipper_cab`) |
-| 4 | Attachments: interfaces, qualified ids, joint object in the combination file | A loader file fitted to a tractor file |
+| 4 | Attachments: interfaces, qualified ids, joint object in the combination file — **implemented in v0.101** (spec §27) | A loader file fitted to a tractor file (`examples/attachments/`) |
 | 5 | `contact` — **implemented in v0.99.8** (primitives at markers) | A hood-on-rubber example (`skeleton_ff_articulated_panels`) |

@@ -1460,3 +1460,245 @@ class TestUnifiedSuspension:
         del dm["rebound_curve"]
         assert any("both bump_curve and rebound_curve" in e for e in check(new)[0])
         assert validate(new, schema_path=SCHEMA)                                                # the schema wants both curves or a damping
+
+
+class TestLoopSolver:
+    def test_solver_in_sync(self):
+        a = (REPO_ROOT / "tools" / "loop_solver.py").read_text()
+        b = (REPO_ROOT / "svj-py" / "svj" / "loopsolver.py").read_text()
+        assert a == b, "tools/loop_solver.py and svj/loopsolver.py differ"
+
+    @staticmethod
+    def _arm():
+        """A control arm hinged to the chassis about a longitudinal axis (y rotation axis at x = 0), wheel centre 0.5 m out."""
+        q_y = [0.7071067811865476, 0.0, 0.0, 0.7071067811865476]      # z axis -> +y ... rotation about x maps z to -y; the hinge turns about the car's x axis
+        q_x = [0.0, 0.7071067811865476, 0.0, 0.7071067811865476]      # z axis -> +x
+        return {
+            "_metadata": {"version": "0.100"},
+            "chassis": {"mass_bodies": [
+                {"id": "upright_fl", "name": "Upright FL", "mass": 5.0, "position": [0, 0.5, 0.3],
+                 "markers": {"wheel_center": {"position": [0, 0.5, 0.3]}}},
+                {"id": "wheel_fl", "mass": 20.0, "position": [0, 0.5, 0.3]}]},
+            "constraints": [
+                {"id": "hinge_arm", "type": "joint", "joint_type": "revolute", "body_a": "chassis", "body_b": "upright_fl",
+                 "frame_a": {"position": [0, 0, 0.3], "orientation": q_x}, "frame_b": {"position": [0, 0, 0.3], "orientation": q_x}},
+                {"id": "hinge_wheel", "type": "joint", "joint_type": "revolute", "body_a": "upright_fl", "body_b": "wheel_fl",
+                 "frame_a": {"position": [0, 0.5, 0.3], "orientation": q_y}, "frame_b": {"position": [0, 0.5, 0.3], "orientation": q_y}}],
+            "wheel_stations": [{"id": "FL", "wheel_body": "wheel_fl", "upright_body": "upright_fl"}]}
+
+    def test_single_arm_follows_the_circle(self):
+        import math
+        from svj.loopsolver import sweep
+        rows = sweep(self._arm(), "FL", [0.0, 0.05, -0.05])
+        assert all(r["converged"] for r in rows)
+        # the wheel centre swings about the hinge at x = 0, z = 0.3 on a 0.5 m radius
+        for r in rows:
+            c = r["wheel_centre"]
+            assert abs(math.hypot(c[1], c[2] - 0.3) - 0.5) < 1e-6
+        assert abs(rows[1]["wheel_centre"][2] - 0.25) < 1e-6              # z points down: bump lowers z
+        assert rows[1]["camber_deg"] != rows[0]["camber_deg"]            # the arm tilts the wheel as it swings
+
+    def test_mx5_template_closes_and_bump_steer_is_small(self):
+        v = Vehicle(json.loads(TEMPLATE.read_text(encoding="utf-8")))
+        rows = v.wheel_sweep("FL", [-0.04, 0.0, 0.04])
+        assert all(r["converged"] for r in rows)
+        assert abs(rows[1]["camber_deg"]) < 1e-6 and abs(rows[1]["toe_deg"]) < 1e-6
+        assert abs(rows[2]["wheel_centre"][2] - rows[1]["wheel_centre"][2] + 0.04) < 1e-6      # z points down
+        g = v.suspension_gains("FL")
+        assert g is not None and abs(g["bump_steer_deg_per_m"]) < 5.0
+
+    def test_steering_rack_turns_the_wheel(self):
+        v = Vehicle(json.loads(TEMPLATE.read_text(encoding="utf-8")))
+        r0, r1 = v.wheel_sweep("FL", [0.0], steer=0.0)[0], v.wheel_sweep("FL", [0.0], steer=0.01)[0]
+        assert r1["converged"] and abs(r1["toe_deg"] - r0["toe_deg"]) > 1.0
+
+    def test_kingpin_axis_from_the_steering_motion(self):
+        import math
+        v = Vehicle(json.loads(TEMPLATE.read_text(encoding="utf-8")))
+        from svj.loopsolver import steering_axis
+        ax = steering_axis(v.data, "FL")
+        # the template's ball joints give an axis through (0,-0.56,-0.4) and (0,-0.6,-0.12): a pure frontal-plane lean
+        assert abs(ax["caster_deg"]) < 0.01
+        assert abs(ax["kpi_deg"] - math.degrees(math.atan2(0.04, 0.28))) < 0.05          # upper ball joint 40 mm inboard of the lower one: positive
+
+    def test_declared_alignment_is_compared_with_the_geometry(self):
+        from svj.loopsolver import check_alignment
+        doc = json.loads(TEMPLATE.read_text(encoding="utf-8"))
+        warnings = check_alignment(doc)
+        assert any("FL: declared kpi" in w for w in warnings) and any("scrub_radius" in w for w in warnings)
+        st = doc["wheel_stations"][0]
+        st["alignment"] = {"camber": 0.0, "toe": 0.0, "kpi": 0.1419, "scrub_radius": 0.1306}      # what the geometry gives
+        doc["wheel_stations"] = [st]
+        assert check_alignment(doc) == []
+
+    def test_roll_center_of_parallel_equal_arms_is_at_the_ground(self):
+        from svj.loopsolver import roll_center
+        doc = json.loads(TEMPLATE.read_text(encoding="utf-8"))
+        rc = roll_center(doc, "FL")
+        assert rc is not None and abs(rc["height"]) < 0.01          # horizontal parallel arms: the instant centre is at infinity
+
+    def test_steering_wheel_coupled_to_the_rack(self):
+        from svj.loopsolver import alignment, solve
+        doc = json.loads(TEMPLATE.read_text(encoding="utf-8"))
+        doc["chassis"]["mass_bodies"].append({"id": "steering_wheel", "name": "Steering wheel", "category": "structural", "mass": 0.6,
+                                              "position": [0.5, -0.4, -0.7], "parent": "chassis", "inertia": {"Ixx": 0.01, "Iyy": 0.01, "Izz": 0.02}})
+        doc["constraints"] += [
+            {"id": "hinge_steering_wheel", "type": "joint", "joint_type": "revolute", "body_a": "chassis", "body_b": "steering_wheel",
+             "frame_a": {"position": [0.5, -0.4, -0.7]}, "frame_b": {"position": [0.5, -0.4, -0.7]}},
+            {"id": "steering_ratio", "type": "coupling", "joint_a": "hinge_steering_wheel", "joint_b": "slide_rack", "ratio": 0.0063}]
+        r = solve(doc, joint_values={"hinge_steering_wheel": 1.0})
+        assert r["converged"] and abs(alignment(doc, "FL", r["transforms"])["toe_deg"]) > 3.0         # one radian of the wheel moves the rack 6.3 mm
+
+    def test_unknown_station(self):
+        from svj.loopsolver import SolveError, sweep
+        with pytest.raises(SolveError):
+            sweep(self._arm(), "XX", [0.0])
+
+
+class TestAttachments:
+    ATT = EXAMPLES_DIR / "attachments"
+
+    def test_assembler_in_sync(self):
+        a = (REPO_ROOT / "tools" / "assemble.py").read_text()
+        b = (REPO_ROOT / "svj-py" / "svj" / "assemble.py").read_text()
+        assert a == b, "tools/assemble.py and svj/assemble.py differ"
+
+    def test_role_table_is_symmetric(self):
+        from svj.assemble import ROLE_MATES
+        for r, m in ROLE_MATES.items():
+            assert ROLE_MATES.get(m) == r, (r, m)
+
+    def _comb(self):
+        from svj.assemble import combination_from_file
+        return combination_from_file(str(self.ATT / "tractor_loader.svj-combination.json"))
+
+    def test_composite_reproduces_the_single_file_tractor(self):
+        from svj.assemble import assemble
+        from svj.constraints import pose_cg, pose_inertia
+        doc, notes = assemble(self._comb())
+        orig = json.loads((EXAMPLES_DIR / "skeleton_tractor_loader_hitch.svj.json").read_text(encoding="utf-8"))
+        assert doc["chassis"]["mass_total"] == pytest.approx(orig["chassis"]["mass_total"])
+        assert doc["chassis"]["center_of_gravity"] == pytest.approx(orig["chassis"]["center_of_gravity"], abs=1e-5)
+        for a, b in (("loader.loader_dump", "loader_dump"), ("loader.loader_dig", "loader_dig")):
+            assert pose_cg(doc, a)["cg"] == pytest.approx(pose_cg(orig, b)["cg"], abs=1e-4)
+        ia, ib = pose_inertia(doc, "loader.loader_dump"), pose_inertia(orig, "loader_dump")
+        for k in ("Ixx", "Iyy", "Izz", "Ixz"):
+            assert ia[k] == pytest.approx(ib[k], rel=1e-4, abs=0.01)
+        assert "loader.loader_boom" in {b["id"] for b in doc["chassis"]["mass_bodies"]}
+        assert any(c["id"] == "loader_mount" and c["joint_type"] == "fixed" for c in doc["constraints"])
+        assert doc.get("x_assembled") is True
+
+    def test_composite_has_no_constraint_errors(self):
+        from svj.assemble import assemble
+        from svj.constraints import check
+        doc, _ = assemble(self._comb())
+        errors, warnings = check(doc)
+        assert errors == [] and warnings == []
+
+    def test_shorthand_equals_combination_file(self):
+        v = load(self.ATT / "tractor_with_loader.svj.json")
+        from svj.assemble import assemble
+        a = v.assemble().data
+        b, _ = assemble(self._comb())
+        assert a["chassis"]["center_of_gravity"] == pytest.approx(b["chassis"]["center_of_gravity"])
+        assert {c["id"] for c in a["constraints"]} == {c["id"] for c in b["constraints"]}
+        assert v.interfaces and v.attachments
+
+    def test_unit_is_placed_so_interface_frames_coincide(self):
+        from svj.assemble import assemble
+        doc, _ = assemble(self._comb())
+        boom = next(b for b in doc["chassis"]["mass_bodies"] if b["id"] == "loader.loader_boom")
+        assert boom["position"] == pytest.approx([1.0, 0.0, -1.0], abs=1e-6)        # where the single-file tractor has it
+
+    def test_mismatched_roles_and_sizes_are_errors(self):
+        from svj.assemble import check_combination
+        c = self._comb()
+        c["units"][1]["doc"]["interfaces"][0]["role"] = "fifth_wheel"
+        errors, _ = check_combination(c)
+        assert any("does not mate" in e for e in errors)
+        c = self._comb()
+        c["units"][1]["doc"]["interfaces"][0]["size"]["pin_spacing"] = 0.5
+        errors, _ = check_combination(c)
+        assert any("pin_spacing" in e for e in errors)
+        c = self._comb()
+        c["units"][1]["doc"]["interfaces"][0]["gender"] = "socket"
+        errors, _ = check_combination(c)
+        assert any("both interfaces" in e for e in errors)
+
+    def test_structure_errors(self):
+        from svj.assemble import check_combination
+        c = self._comb()
+        c["connections"] = []
+        assert any("not connected" in e for e in check_combination(c)[0])
+        c = self._comb()
+        c["connections"][0]["b"] = "loader.nothing"
+        assert any("no interface" in e for e in check_combination(c)[0])
+        c = self._comb()
+        c["units"][1]["root"] = True
+        assert any("exactly one root" in e for e in check_combination(c)[0])
+
+    def test_interface_rules(self):
+        from svj.assemble import check_interfaces
+        doc = {"chassis": {"mass_total": 1, "center_of_gravity": [0, 0, 0], "markers": {}}, "interfaces": [
+            {"id": "a.b", "role": "loader_mount"}, {"id": "x", "role": "mystery", "frame": {"position": [0, 0, 0]}},
+            {"id": "x", "role": "loader_mount", "gender": "neuter", "marker": "gone"}]}
+        errors, warnings = check_interfaces(doc)
+        assert any("reserved" in e for e in errors) and any("duplicate" in e for e in errors)
+        assert any("gender" in e for e in errors) and any("needs a `frame`" in e for e in errors)
+        assert any("vocabulary" in w for w in warnings)
+
+    def test_shipped_attachment_files_validate(self):
+        for name in ("front_loader.svj.json", "tractor_host.svj.json", "tractor_with_loader.svj.json"):
+            assert validate(json.loads((self.ATT / name).read_text(encoding="utf-8")), schema_path=SCHEMA) == [], name
+
+    def test_tractor_and_semi_trailer_at_the_fifth_wheel(self):
+        from svj.assemble import assemble, combination_from_file
+        from svj.constraints import check, pose_cg
+        doc, _ = assemble(combination_from_file(str(self.ATT / "tractor_semi_trailer.svj-combination.json")))
+        assert doc["chassis"]["mass_total"] == pytest.approx(9800.0 + 34000.0)
+        ids = {s["id"] for s in doc["wheel_stations"]}
+        assert {"A1L", "trailer.A1L", "trailer.A3R"} <= ids              # the trailer's stations keep their names, qualified
+        fw = next(c for c in doc["constraints"] if c["id"] == "fifth_wheel")
+        assert fw["joint_type"] == "spherical" and fw["body_b"] == "trailer.chassis"
+        assert check(doc)[0] == []
+        straight, turning = pose_cg(doc)["cg"], pose_cg(doc, "turning_left")["cg"]
+        assert abs(turning[1] - straight[1]) > 0.5                       # the trailer's mass swings sideways
+
+    def test_chain_of_units(self):
+        """A unit joined to another unit (not the root) is placed through the chain; a spherical joint is kept."""
+        from svj.assemble import assemble
+        c = self._comb()
+        extra = json.loads(json.dumps(c["units"][1]["doc"]))
+        extra["interfaces"] = [{"id": "tip", "role": "quick_coupler", "gender": "socket",
+                                "frame": {"position": [0.5, 0.0, 0.0]}}]
+        extra["constraints"], extra["poses"] = [], []
+        extra["chassis"]["mass_bodies"] = []
+        c["units"][1]["doc"]["interfaces"].append({"id": "bucket_tip", "role": "quick_coupler_pin", "gender": "plug",
+                                                   "body": "loader_bucket", "frame": {"position": [3.0, 0.0, 0.0]}})
+        c["units"].append({"id": "tool", "doc": extra})
+        c["connections"].append({"id": "tool_mount", "a": "loader.bucket_tip", "b": "tool.tip", "joint": {"joint_type": "spherical"}})
+        doc, _ = assemble(c)
+        tool_mount = next(k for k in doc["constraints"] if k["id"] == "tool_mount")
+        assert tool_mount["joint_type"] == "spherical" and tool_mount["body_a"] == "loader.loader_bucket" and tool_mount["body_b"] == "tool.chassis"
+
+
+class TestAntiRollBarElements:
+    def test_anti_roll_bar_as_bodies_joints_and_a_torsional_spring(self):
+        from svj import constraints as cc
+        z = {"inertia": {"Ixx": 0.01, "Iyy": 0.01, "Izz": 0.01}, "category": "structural", "mass": 1.0}
+        doc = {"chassis": {"mass_bodies": [
+            dict(z, id="bar_left", name="Bar left", position=[0, -0.4, 0], parent="chassis"),
+            dict(z, id="bar_right", name="Bar right", position=[0, 0.4, 0], parent="chassis")]},
+            "constraints": [
+                {"id": "hinge_bar_left", "type": "joint", "joint_type": "revolute", "body_a": "chassis", "body_b": "bar_left",
+                 "frame_a": {"position": [0, -0.4, 0]}, "frame_b": {"position": [0, -0.4, 0]}},
+                {"id": "hinge_bar_right", "type": "joint", "joint_type": "revolute", "body_a": "chassis", "body_b": "bar_right",
+                 "frame_a": {"position": [0, 0.4, 0]}, "frame_b": {"position": [0, 0.4, 0]}},
+                {"id": "arb_torsion", "type": "spring", "kind": "torsional", "rate": 900.0, "body_a": "bar_left", "body_b": "bar_right",
+                 "frame_a": {"position": [0, 0, 0]}, "frame_b": {"position": [0, 0, 0]}}]}
+        ang = cc.element_angles(doc, {"hinge_bar_left": 0.1, "hinge_bar_right": -0.05})
+        assert abs(abs(ang["arb_torsion"]) - 0.15) < 1e-6                      # the twist is the difference of the two halves
+        assert abs(cc.element_angles(doc)["arb_torsion"]) < 1e-9
+
+    def test_unified_template_loads_without_a_mass_warning(self):
+        load(TEMPLATE)                                           # validate_on_load raises on a mass-sum mismatch

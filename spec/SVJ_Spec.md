@@ -1,4 +1,4 @@
-# Standard Vehicle JSON (SVJ) Specification v0.100
+# Standard Vehicle JSON (SVJ) Specification v0.101
 
 ## 1. Overview & Philosophy
 
@@ -268,7 +268,7 @@ When `mass_bodies` is present:
 
 1. **`mass_total`** remains REQUIRED and represents the fully resolved vehicle mass. It MUST include both sprung and unsprung contributions, **and every body listed**. The list may be **partial** (the movable parts and attachments of §24, say) — the rest of the vehicle is then everything not listed, as an implicit body welded to the chassis. A conforming validator MAY check:
    ```
-   Σ mass_bodies[i].mass + Σ mass_unsprung_per_corner[j]  ≤  mass_total
+   Σ mass_bodies[i].mass + Σ mass_unsprung_per_corner[j]  ≤  mass_total      (the unsprung term only without wheel_stations[])
    ```
    and, only when the file states `chassis.mass_bodies_complete: true`, that the two sides are equal (an exhaustive decomposition).
 
@@ -278,7 +278,7 @@ When `mass_bodies` is present:
 
 > **Design rationale:** Keeping the composite fields required means that simple parsers that only need total mass and CG can ignore `mass_bodies` entirely. Advanced tools can use the decomposition for detailed dynamics or to reposition components.
 
-> **Note on unsprung mass:** The bodies in `mass_bodies` represent the **sprung** portion. Unsprung masses are already captured per-corner in `mass_unsprung_per_corner` and include wheel assemblies, upright, and lower link mass. Do not double-count.
+> **Note on unsprung mass:** In a file with the corner-based `suspension` section the bodies in `mass_bodies` represent the **sprung** portion; unsprung masses are captured per-corner in `mass_unsprung_per_corner` (wheel assemblies, upright, lower link). Do not double-count. In a unified file (`wheel_stations[]`, §25) the uprights, arms and wheels are themselves bodies of `mass_bodies`, so the sum above is taken over the bodies alone and `mass_unsprung_per_corner` is only a per-corner summary of the same masses.
 
 ### 7.3 `chassis_stiffness` — Structural Flexibility
 
@@ -2397,6 +2397,7 @@ This section is **optional**. It provides a standard place to record performance
 
 | Version | Changes                                                                                    |
 |---------|--------------------------------------------------------------------------------------------|
+| 0.101   | **Attachments and combinations** (§27; `proposals/svj_articulated_parts_proposal.md`, phase 4). Additive. Top-level **`interfaces[]`** (named frames with a role from a mating table, a gender and sizes), **`attachments[]`** (units fitted to a vehicle) and the **`*.svj-combination.json`** file (`schema/svj-combination.schema.json`): units joined by connections that carry a joint object. Units are ordinary SVJ files; `vehicle_info.vehicle_class: "attachment"` for units only ever fitted (chassis needs only `mass_total` and `center_of_gravity`). Assembly (`tools/assemble.py`) places units so interface frames coincide, qualifies ids `unit.id`, and builds one composite (mass, CG, inertia, poses) that all §24 / §26 machinery works on. `_metadata.version` gains `0.101` |
 | 0.100   | **Unified suspension** (§25; `proposals/svj_unified_suspension_proposal.md`) — *breaking*, with one release of transition. A wheel station is bodies, joints and elements, not a typed corner: `wheel_stations[]` (wheel and carrier bodies, wheel-centre marker, steering joint, coupling reference, tyre / brake / reference alignment, optional `topology_hint`), `anti_roll_bars[]`, new `damper` constraint, `spring` / `damper` gain `kind` (`linear` / `torsional`) and `reference` (`element` / `wheel`), spring and bump / rebound stops as elements, rack as a body on a slide, leaf pack as a body with eye / slipper / seat joints. The corner-based `suspension` section is **deprecated** (accepted, validators warn) and `tools/migrate_suspension.py` converts it, marking generated items `x_derived` (zero mass allowed only there). `mass_bodies` keeps holding every body. Body ids of known suspension parts keep their canonical names. `placement: link_between_points` works on link bodies. All 28 shipped examples and the template are migrated |
 | 0.99.8  | **Contact** (§24.6.3): `contact` constraints between any two bodies with primitive shapes (point, plane, sphere, box, cylinder) on markers and a penalty law (`gap`, `stiffness`, `damping`, `friction`, `restitution`); the checker computes the signed distance between the shapes at the reference pose and in every pose. The part-name vocabulary now also covers the suspension, steering and brake parts (upright, wishbones, tie rod, rack, …) with the same alias advisory and the multi-axle station suffix (`_a2l`). New tool `tools/suspension_view.py` expands an authored suspension into the body / joint model (transition tool toward `proposals/svj_unified_suspension_proposal.md`). Panels example gains rubber stops |
 | 0.99.7  | **Part names** (§24.2, `docs/naming_convention.md`): optional display `name` on `mass_bodies`, `constraints` and `poses`; a recommended vocabulary for movable parts and attachments (doors, hood, trunk, tailgate, flaps, mirrors, cab, tipper body, loader, excavator, three-point hitch parts, implements) with aliases and side suffixes, patterns for joint, cylinder, strut, latch, coupling and pose ids, and marker names; `tools/constraints_check.py` flags an alias of a listed part and `_ram` / `_piston` actuator names. The three movable-part examples follow the vocabulary and carry display names |
@@ -2920,7 +2921,7 @@ Front and rear groups are taken from `axle_groups` (the group containing `A1`, a
 
 ### 23.8 Not Covered Yet
 
-- **Articulated combinations** — tractor + semi-trailer, drawbar trailers, dollies, articulated dump trucks. These are several bodies joined by a fifth wheel, hitch or articulation joint and need a separate "vehicle units & couplings" addendum. Today, describe each unit in its own file. Research and a draft design (vehicle-side `coupling_points`, `*.svj-combination.json`, UN R55 D/Dc/V/S/U checks) are in `proposals/trailer_coupling_research.md`.
+- **Articulated combinations** — tractor + semi-trailer, drawbar trailers, dollies, articulated dump trucks. These are several bodies joined by a fifth wheel, hitch or articulation joint and need a separate "vehicle units & couplings" addendum. Today, describe each unit in its own file. Interfaces, the combination file and assembly are specified in §27 (research and UN R55 classes in `proposals/trailer_coupling_research.md`).
 - **Operating state** — lift axle raised/lowered, hydraulic group re-plumbing, steering modes. Use override files (§3.4) for alternative configurations.
 
 ---
@@ -3133,7 +3134,7 @@ For a pose, a tool computes (`tools/constraints_check.py`, `svj.constraints`, `V
 
 ### 24.11 Not covered yet
 
-Planned in `proposals/svj_articulated_parts_proposal.md`: collision proxies from glTF nodes, solving closed loops, and **attachments defined in their own files** that mount on declared vehicle interfaces (the combination file and `coupling_points` of `proposals/trailer_coupling_research.md`, using the same joint object, with qualified body ids `unit.body`).
+Planned in `proposals/svj_articulated_parts_proposal.md`: collision proxies from glTF nodes. Attachments defined in their own files are specified in §27, the loop-closure solver in §26.
 
 ---
 
@@ -3189,11 +3190,11 @@ A wheel rate becomes an element rate through the **motion ratio** MR (element le
 
 ### 25.4 Steering
 
-The rack is a body on a lateral `translational` joint to the chassis; each tie rod is a body with spherical joints to the rack and to the upright; the station's `steering_joint` names the rack joint. Coupling the rack to a steering-wheel body (`q_rack = ratio · q_wheel`, §24.6.2) and power assist (`joint.drive`) complete the chain; the old `steering` section still holds the ratios, assist and lock-to-lock data.
+The rack is a body on a lateral `translational` joint to the chassis; each tie rod is a body with spherical joints to the rack and to the upright; the station's `steering_joint` names the rack joint. The steering wheel is a body on a `revolute` joint to the chassis (`hinge_steering_wheel`), and a `coupling` (§24.6.2) gives the rack its value, `q_rack = ratio · q_wheel`, with `ratio` in m per rad of wheel rotation (0.0063 m/rad is 39.6 mm of rack per turn): naming the wheel angle in a pose or in the solver's `joint_values` then steers the stations (§26). Power assist is `joint.drive` on the rack; the `steering` section still holds the lock-to-lock, assist and efficiency data.
 
 ### 25.5 Anti-roll bars
 
-`anti_roll_bars[]`: `id`, `stations` (the stations it connects), `bar_rate` (N·m/rad), and optionally `wheel_rate_equiv`, `motion_ratio`, `mass`, `drop_link_mounts` (station → point). The old files carry no bar axis or lever geometry, so the bar stays data. With geometry it is two bar-half bodies on revolute joints to the chassis, a torsional `spring` between them and a drop-link rod from each half to the arm.
+`anti_roll_bars[]`: `id`, `stations` (the stations it connects), `bar_rate` (N·m/rad), and optionally `wheel_rate_equiv`, `motion_ratio`, `mass`, `drop_link_mounts` (station → point). The old files carry no bar axis or lever geometry, so the bar stays data. With geometry it is two bar-half bodies on revolute joints to the chassis, a torsional `spring` between them and a drop-link rod from each half to the arm. The bar twist (the rotation of one half relative to the other about the bar axis) is what `element_angles()` returns for every torsional spring and damper; the torque is `rate` times that twist.
 
 ### 25.6 How an analysis finds the parts
 
@@ -3209,7 +3210,7 @@ A suspension analysis (wheel travel, camber and toe curves, bump steer, caster, 
 | Springs, dampers, stops | the elements between the same bodies |
 | The driven coordinate for wheel travel | the vertical position of the wheel centre relative to the chassis |
 
-Camber and toe are the angles of the spin axis to the vertical and to the longitudinal axis; caster, kingpin inclination and scrub follow from the steering axis, the screw axis of the carrier relative to the chassis under rack travel. Names help people and viewers; the analysis follows the references. Solving the loop for a given wheel travel is a separate step (§25.10).
+Camber and toe are the angles of the spin axis to the vertical and to the longitudinal axis; caster, kingpin inclination and scrub follow from the steering axis, the screw axis of the carrier relative to the chassis under rack travel. Names help people and viewers; the analysis follows the references. Solving the loop for a given wheel travel is the job of §26.
 
 ### 25.7 Names
 
@@ -3240,7 +3241,118 @@ What the old data does not state is reported as a note: unknown joint types (lea
 
 ### 25.10 Not covered yet
 
-The loop-closure solver (wheel-travel poses, camber / toe / bump-steer curves, alignment cross-checks); coupling the rack to a steering-wheel body; the physical anti-roll bar from its geometry; a flexible leaf pack; torsion-beam twist as an element between the two trailing arms.
+The loop-closure solver exists (§26); still open: the physical anti-roll bar from its geometry; a flexible leaf pack; torsion-beam twist as an element between the two trailing arms.
+
+---
+
+## 26. Loop-Closure Solver *(tooling, v0.100)*
+
+`body_transforms()` (§24.4) walks the joint tree and ignores closed loops. A suspension is a closed loop (chassis, arm, upright, tie rod, rack, chassis), so its pose for a given wheel travel is *solved*, not read off. `tools/loop_solver.py` (mirrored as `svj-py/svj/loopsolver.py`) does this from the §25 model alone; the format gains no keys.
+
+**Method.** The unknowns are the rigid motions of the bodies of one mechanism (chassis and ground fixed; wheel bodies are not loop members). Each `joint` contributes residuals for the motions its type forbids (a revolute joint: coincident frame origins, parallel z axes); its free coordinates stay free. Inputs add residuals: `joint_values` hold joint coordinates (the steering rack position, a door angle) and `travel` raises a station's wheel centre (`wheel_center_marker` on `upright_body`) by a height in metres, bump positive. Stations of the mechanism not named are held at zero travel, and steering joints at zero. Gauss-Newton with Levenberg-Marquardt damping and a finite-difference Jacobian; a sweep continues from the previous pose.
+
+**Results.** Per station and travel: wheel-centre position, camber (negative = top inwards), toe (positive = toe-in), element lengths, the maximum residual and `converged` (residual below 1e-6 m or rad). `gains()` gives the camber gain and bump steer (deg per m) around the reference. The spin axis comes from the `revolute` joint between `upright_body` and `wheel_body` (§25.6).
+
+**Limits.** Joints are rigid (bushings and compliance are not applied); wheel spin and tyre deflection are not modelled; `roll_center()` gives the front-view roll centre from the instant centre of the upright (height above the ground; near zero for parallel horizontal arms). `steering_axis()` gives caster, kingpin inclination, scrub radius and caster trail from the upright's screw axis for a small rack movement. A mechanism with generated (`x_derived`) joints of assumed type may be under- or over-constrained, and the numbers then say little: check `converged`, and treat an unexpected result as a sign of missing data in the source, not of the solver.
+
+```
+python tools/loop_solver.py file.svj.json --station FL --range 0.05 --steps 5 [--steer 0.02]
+```
+
+Axes are SAE J670 (x forward, y right, z down): a bump lowers z; camber is positive with the top of the wheel leaning outwards, toe positive for toe-in, caster positive with the axis leaning back at the top, kingpin inclination positive leaning inwards (the `alignment` table's conventions for `alignment_convention: relative_to_centerline`). `check_alignment()` (`--check-alignment`) compares the `alignment` a station declares with what the geometry gives and reports differences above 0.5 deg or 10 mm.
+
+svj-py: `Vehicle.solve_pose(travel, joint_values)`, `.wheel_sweep(station, travels, steer)`, `.suspension_gains(station)`.
+
+---
+
+## 27. Attachments and Combinations *(v0.101)*
+
+A vehicle is rarely one file. A tractor takes a front loader, a three-point hitch and a mower; a truck takes a tipper body, a crane or a container; a tractor unit pulls a semi-trailer. In SVJ each of these is **a unit: an ordinary SVJ file**. A unit declares the places where it can be joined to another (**interfaces**); two units are joined by a **connection**, which is a joint (§24.4). A fitted unit therefore moves, has mass, CG and inertia, and can be posed, exactly like the parts inside one file.
+
+### 27.1 `interfaces[]`
+
+An interface is a named frame with a role.
+
+| Key | Type | Required | Description |
+|---|---|---|---|
+| `id` | string | YES | Unique in the file; must not contain `.` (reserved for qualified ids) |
+| `role` | string | YES | What it is: a role of the vocabulary in §27.2 |
+| `gender` | string | no | `socket`, `plug` or `symmetric` (default). Two interfaces mate when their roles mate and the genders are not both `socket` or both `plug` |
+| `body` | string | no | `chassis` (default) or a `mass_bodies` id the interface is fixed to |
+| `marker` / `frame` | string / object | one of them | The frame: a marker of `body`, or an inline `{position, orientation}` in the file's own coordinates. Its z axis is the joint axis if the connection is a revolute / translational joint |
+| `size` | object | no | Dimensions and classes that must agree: a number with the same key on both sides must match within 0.5 mm (`pin_diameter`, `kingpin_diameter`, `pin_spacing`); `category`, `class`, `type`, `standard` must be equal text |
+| `max_load` | object | no | Loads through the interface (`vertical_N`, `drawbar_N`, `torque_Nm`, ...); informational |
+| `name`, `description` | string | no | |
+
+A unit of the kind that is only ever fitted (a loader, a tipper body) is marked `vehicle_info.vehicle_class: "attachment"`; its `chassis` then needs only `mass_total` and `center_of_gravity` (the mounting frame or sub-frame: it is the unit's body for the interfaces) and its coordinates are its own (typically with the origin at the main interface).
+
+### 27.2 Interface roles
+
+Each role mates with one other role (a symmetric role with itself). The table is part of the standard; an unlisted role is a warning and mates with nothing.
+
+| Group | Role | Mates with |
+|---|---|---|
+| Road trailers | `fifth_wheel` / `kingpin` | each other |
+| | `drawbar_eye` / `pintle_hook` | each other |
+| | `ball_coupling` / `ball_hitch` | each other |
+| | `gooseneck_ball` / `gooseneck_coupler` | each other |
+| | `turntable` | itself (dolly, converter, swing-bolster) |
+| Agriculture | `three_point_lower_link` / `three_point_lower_pin` | each other (ISO 730 categories in `size.category`) |
+| | `three_point_top_link` / `three_point_top_pin` | each other |
+| | `drawbar_clevis` / `drawbar_pin` | each other |
+| | `pto_shaft` / `pto_stub` | each other |
+| | `loader_mount` | itself |
+| Earthmoving, handling | `quick_coupler` / `quick_coupler_pin` | each other (bucket, fork, hammer) |
+| | `fork_carriage`, `boom_tip`, `crane_mount`, `body_mount`, `bed_mount`, `pallet_fork_mount` | themselves |
+| | `container_corner_casting` / `container_twist_lock` | each other (ISO 1161 / 668) |
+| Military, construction | `winch_mount`, `weapon_mount`, `ring_mount`, `bridge_interface`, `plough_blade_mount`, `dozer_blade_mount` | themselves |
+| Generic | `generic_mount` | itself |
+
+### 27.3 The combination file
+
+`*.svj-combination.json` joins units:
+
+| Key | Description |
+|---|---|
+| `_metadata` | `{"format": "svj-combination", "version": ...}` |
+| `id`, `name` | |
+| `units[]` | `{id, file, root?}`; `file` is relative to the combination file. Exactly one unit is the **root** (the first when none is marked); the composite keeps its coordinates and ids |
+| `connections[]` | `{id, a: "unit.interface", b: "unit.interface", joint?}`; `joint` is the §24.4 joint object without bodies and frames (`joint_type`, `range`, `stop`, `friction`, `damping`, `bushing`, `drive`); default `fixed` |
+| `poses[]` | Named configurations over the composite (§24.7); joint ids are qualified |
+
+A rigid mount is `fixed`; a fifth wheel is a `spherical` or `universal` joint with a pitch / roll range; a pintle hook or drawbar eye a `spherical` joint; a three-point lower link a `spherical` joint or, with the top link, a `fixed` set. Connections may chain (a tool on a loader bucket) but the units form a tree: a connection that closes a loop between units is allowed and warned, and not solved.
+
+### 27.4 `attachments[]` - the shorthand
+
+A vehicle file may list the units fitted to it instead of a separate combination file:
+
+```json
+"attachments": [{"id": "loader", "file": "front_loader.svj.json",
+                 "connections": [{"interface": "loader_mount", "attachment_interface": "mount",
+                                  "joint": {"joint_type": "fixed"}}]}]
+```
+
+`interface` is an interface of this vehicle (or of the unit named in `to_unit`); `attachment_interface` one of the attached unit. The vehicle is the root.
+
+### 27.5 Assembly
+
+The assembly (`tools/assemble.py`, `svj.assemble`; `Vehicle.assemble()`) builds one SVJ document in the root's coordinates:
+
+1. **Placement.** Each unit is moved rigidly so that its connected interface frame coincides, position and orientation, with the interface it joins (the reference pose). The checker's rule that joint frames coincide (§24.10) then holds for every connection.
+2. **Ids.** The root keeps its ids. Every other unit's bodies, constraints and poses become `unit.id` (`loader.loader_boom`, `loader.hinge_loader_boom`, `loader.loader_dump`); references inside the unit are rewritten. `.` is reserved for this, in every file.
+3. **Unit chassis.** A unit's `chassis` becomes a body `unit.chassis` (`category: attachment`, `x_derived: true`) with the mass not described by the unit's `mass_bodies` and its markers; `parent` references to the chassis point to it.
+4. **Connections** become `joint` constraints of the given id between the bodies of the two interfaces, frames at the placed interface.
+5. **Composite.** `mass_total`, `center_of_gravity` and, when every unit gives a `chassis.inertia`, `inertia` are those of the whole combination in the reference pose. A non-root unit's `wheel_stations[]` are carried over with qualified ids (`trailer.A1L`; `wheel_body`, `upright_body` and `steering_joint` qualified too), so its suspension is part of the composite mechanism (§26 works on it); its `axles`, `suspension_couplings`, `tires`, `brakes` and `powertrain` stay in the unit's file (noted by the assembler), where a simulator reads them with the same station ids. The result carries `x_assembled: true` and validates like any file; poses, CG, inertia and element lengths per pose (§24), contacts, and the loop solver (§26) work on it.
+
+`examples/attachments/` splits `skeleton_tractor_loader_hitch` into `tractor_host` + `front_loader` and joins them both ways (`tractor_loader.svj-combination.json`, `tractor_with_loader.svj.json`); the composite reproduces the single-file example's CG and inertia in every pose. `tractor_semi_trailer.svj-combination.json` joins `skeleton_6x4_camelback_tractor` and `skeleton_3axle_air_semi_trailer` at a `fifth_wheel` / `kingpin` pair with a spherical joint; the pose `turning_left` yaws the trailer.
+
+### 27.6 Validation rules
+
+`tools/validate.py` (and `svj.validate()` for the interface rules): interface ids unique, without `.`, with a known gender and a frame or an existing marker of an existing body; role vocabulary (warning); in a combination, unit ids unique and without `.`, exactly one root, every connection end `unit.interface` existing, **roles mate, genders oppose, same-named sizes agree**, joint types valid, every unit reachable from the root; then the assembled composite is checked by §24.10 and the schema.
+
+### 27.7 Not covered yet
+
+`axles`, `suspension_couplings`, tyre sets, brakes and the powertrain of attached units are not merged into the composite (the unit files keep them; a trailer's air circuit is the unit's `suspension_couplings`); interface compatibility by capacity (`max_load` against the host's rating); an attachment file that overrides host values; hydraulic and PTO power supply between units; the viewer.
 
 ---
 
@@ -3265,6 +3377,7 @@ The loop-closure solver (wheel-travel poses, camber / toe / bump-steer curves, a
 | Validation, benchmarks, overrides | v0.98 | ✅ Done                                 |
 | Multi-axle vehicles | v0.99  | ✅ Done — §23, 13 system_types, suspension couplings |
 | Axle groups, plated masses, wheelbase definitions | v0.99.1 | ✅ Done — first real multi-axle example (MAN TGS 8x4) |
+| Attachments and combinations (interfaces, combination file, assembly) | v0.101 | ✅ Done — §27 |
 | Unified suspension (bodies, joints, elements, wheel stations); corner section deprecated | v0.100 | ✅ Done — §25, migration tool; loop solver planned |
 | Movable parts, attachments (joints, springs, actuators, poses) | v0.99.5 | ✅ Done — §24; contacts, latches, attachment files planned |
 | Articulated combinations (tractor/trailer/dolly) | — | Planned (§23.8)            |

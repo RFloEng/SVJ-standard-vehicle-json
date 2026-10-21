@@ -50,9 +50,13 @@ Everything is optional. A file with just metadata and suspension is valid — us
 
 ---
 
-## v0.100 — Unified suspension *(new, breaking, one release of transition)*
+## v0.101 — Attachments and combinations *(new)*
 
-A suspension is no longer a typed corner: it is **bodies, joints and elements** (the §24 model) plus a thin `wheel_stations[]` list. The component defines the mechanism, never a type name: an upright, arms and a tie rod joined by the joints they have; a `spring` (linear or `kind: torsional`) and a `damper`; a rack on a slide; a leaf pack with eye, slipper and seat joints. `wheel_stations[]` names the roles an analysis needs (`wheel_body`, `upright_body`, `wheel_center_marker`, `steering_joint`) and keeps tyre, brake and reference alignment; `anti_roll_bars[]` holds bar data until its geometry exists. Data quoted at the wheel is written as `reference: "wheel"` elements; a wheel rate converts to an element rate through the motion ratio (given, or estimated from the geometry and flagged). Generated items carry `x_derived: true` and are checked leniently until refined. The `suspension` section is deprecated: still accepted, validators warn. **`python tools/migrate_suspension.py old.svj.json -o new.svj.json`** converts a file; all shipped examples and the template are migrated. Not yet: the loop-closure solver (wheel travel, camber / toe / bump-steer curves), steering-wheel coupling, physical anti-roll bar. The viewer (v4.4) still reads only the deprecated section. Details: [`spec/SVJ_Spec.md` §25](spec/SVJ_Spec.md), [`proposals/svj_unified_suspension_proposal.md`](proposals/svj_unified_suspension_proposal.md).
+A loader, a mower, a tipper body, a crane or a semi-trailer is a **unit: an ordinary SVJ file** that declares **`interfaces[]`** (a frame, a role such as `loader_mount`, `three_point_lower_link`, `fifth_wheel` or `container_corner_casting`, a gender and sizes). Roles mate in pairs from a table in the standard, sizes must agree, and a connection is a joint, so a fitted unit moves, has mass and inertia and takes poses like any part. List the units in a vehicle's **`attachments[]`** or in a `*.svj-combination.json` file; **`python tools/assemble.py file -o composite.svj.json`** places the units so the interface frames coincide, qualifies their ids (`loader.loader_boom`) and builds one composite document (mass, CG, inertia) that validation, poses and the loop solver then work on. `examples/attachments/` splits the loader tractor into host + loader; the composite reproduces the single-file CG and inertia in every pose. The tractor and semi-trailer examples join at a fifth wheel (`tractor_semi_trailer.svj-combination.json`). Not yet: axles, tyres, brakes and power flow of attached units, capacity checks. Details: [`spec/SVJ_Spec.md` §27](spec/SVJ_Spec.md).
+
+## v0.100 — Unified suspension *(breaking, one release of transition)*
+
+A suspension is no longer a typed corner: it is **bodies, joints and elements** (the §24 model) plus a thin `wheel_stations[]` list. The component defines the mechanism, never a type name: an upright, arms and a tie rod joined by the joints they have; a `spring` (linear or `kind: torsional`) and a `damper`; a rack on a slide; a leaf pack with eye, slipper and seat joints. `wheel_stations[]` names the roles an analysis needs (`wheel_body`, `upright_body`, `wheel_center_marker`, `steering_joint`) and keeps tyre, brake and reference alignment; `anti_roll_bars[]` holds bar data until its geometry exists. Data quoted at the wheel is written as `reference: "wheel"` elements; a wheel rate converts to an element rate through the motion ratio (given, or estimated from the geometry and flagged). Generated items carry `x_derived: true` and are checked leniently until refined. The `suspension` section is deprecated: still accepted, validators warn. **`python tools/migrate_suspension.py old.svj.json -o new.svj.json`** converts a file; all shipped examples and the template are migrated. Wheel travel, camber, toe and bump steer come from `tools/loop_solver.py` (spec §26). Not yet: caster / kingpin results, steering-wheel coupling, physical anti-roll bar. The viewer (v4.6) shows the unified suspension read-only, through a view derived from the bodies and joints. Details: [`spec/SVJ_Spec.md` §25](spec/SVJ_Spec.md), [`proposals/svj_unified_suspension_proposal.md`](proposals/svj_unified_suspension_proposal.md).
 
 ## v0.99.8 — Contact
 
@@ -343,6 +347,8 @@ python tools/multibody_check.py --joints examples/bmw_e30_325i_semi_trailing.svj
 | `tools/multiaxle_check.py` | Multi-axle cross-reference rules (spec §23.7). Run automatically by `validate.py`; also usable standalone. |
 | `tools/multibody_check.py` | Multibody cross-references (spec §9.2.3.2–9.2.3.3): `body_ref`, `parent`, `outboard_ref`, unit quaternions, mass/CG consistency; `--joints` prints every link's effective (explicit or inferred) joint types. Run automatically by `validate.py`. |
 | `tools/constraints_check.py` | Movable parts (spec §24): constraint and pose references, joint ranges, frame coincidence, graph connectivity, inertia plausibility, actuator reach in every pose; also computes body transforms, CG, composite inertia and element lengths (`--poses`). Run automatically by `validate.py`. |
+| `tools/assemble.py` | Attachments and combinations (spec §27): checks interfaces and connections (roles mate, sizes agree, one root) and assembles units into one composite document. |
+| `tools/loop_solver.py` | Loop-closure solver (spec §26): wheel-travel sweeps with camber, toe, bump steer and camber gain from the bodies and joints. |
 | `tools/migrate_suspension.py` | Converts the deprecated corner-based `suspension` to the unified model (spec §25.8): bodies, joints, elements, `wheel_stations[]`, `anti_roll_bars[]`; `estimate_motion_ratio()`. |
 | `tools/suspension_view.py` | Expands an authored suspension (corners, uprights, links, hardpoints) into bodies and `joint` constraints with coincident frames, reusing existing `body_ref` bodies and noting what the data does not say (unknown joint types, massless parts). `--json` prints the expansion. A transition tool toward the unified suspension model. |
 | `tools/drivetrain_check.py` | Differential-control rules (spec §10.6.1, §10.8.1): `lock_control` curves/targets/limits and `transfer_case.coupling`. Run automatically by `validate.py`; also usable standalone. |
@@ -401,7 +407,7 @@ All example files validate against the current schema (`tools/validate.py`). The
 
 ```
 schema/
-  ├── svj.schema.json             JSON Schema Draft-07 (v0.100)
+  ├── svj.schema.json             JSON Schema Draft-07 (v0.101)
   └── svj-override.schema.json    Override file structure (v0.98)
 spec/
   └── SVJ_Spec.md                 Human-readable specification (§1–§23)
@@ -420,12 +426,14 @@ tools/
   ├── constraints_check.py        Movable parts: checks, kinematics, per-pose CG / inertia, contacts (v0.99.5–0.99.8)
   ├── suspension_view.py          Deprecated suspension expanded to bodies and joints (v0.99.8)
   ├── migrate_suspension.py       Deprecated suspension -> unified model (v0.100)
+  ├── assemble.py                 Attachments: interfaces, combination file, composite (spec §27)
+  ├── loop_solver.py              Loop-closure solver: wheel travel, camber, toe (spec §26)
   ├── multibody_check.py          Multibody cross-references + joint-type inference (v0.96 fields)
   ├── validate_override.py        Override file resolution + validation (v0.98)
   └── integrity_check.py          glTF visual binding checks (v0.99.2)
 svj-py/                           Python library + CLI (v0.2.0, multi-axle aware, runs the same cross-reference checks, `Vehicle.joints()`)
 viewer/
-  └── svj_viewer_v4.4.html        3D inspector/editor — drag & drop any SVJ file; multi-axle layout, axle/wheel editor, performance tab, differential control, joint types and marker frames, per-part mesh fitting with SVJ + GLB save
+  └── svj_viewer_v4.6.html        3D inspector/editor — drag & drop any SVJ file; multi-axle layout, axle/wheel editor, performance tab, differential control, joint types and marker frames, per-part mesh fitting with SVJ + GLB save
 proposals/                        Design proposals and research notes
 ```
 

@@ -1,0 +1,41 @@
+{
+  "_metadata": {
+    "format": "svj-combination",
+    "version": "0.101",
+    "description": "The skeleton tractor with its front loader fitted."
+  },
+  "id": "tractor_with_loader",
+  "name": "4WD tractor with front loader",
+  "units": [
+    {
+      "id": "tractor",
+      "file": "tractor_host.svj.json",
+      "root": true
+    },
+    {
+      "id": "loader",
+      "file": "front_loader.svj.json"
+    }
+  ],
+  "connections": [
+    {
+      "id": "loader_mount",
+      "name": "Loader bolted to the tractor",
+      "a": "tractor.loader_mount",
+      "b": "loader.mount",
+      "joint": {
+        "joint_type": "fixed"
+      }
+    }
+  ],
+  "poses": [
+    {
+      "id": "work_all_up",
+      "values": {
+        "loader.hinge_loader_boom": 0.6,
+        "loader.hinge_loader_bucket": 0.2,
+        "hinge_hitch_lower_link": 0.5
+      }
+    }
+  ]
+}
