@@ -1826,3 +1826,79 @@ class TestTorsionBeam:
         doc, _ = self._doc()
         errors, _ = check(doc)
         assert errors == []
+
+
+class TestCollisionProxies:
+    @staticmethod
+    def _doc():
+        q = [-0.7071067811865476, 0.0, 0.0, 0.7071067811865476]               # frame z -> +y: hinges about the lateral axis
+        fr = {"position": [0.7, 0.0, 0.0], "orientation": q}
+        z = {"inertia": {"Ixx": 1, "Iyy": 1, "Izz": 1}, "category": "structural", "mass": 2.0}
+        return {"chassis": {"collision": [{"id": "cab", "type": "box", "size": [1.0, 1.0, 1.0], "position": [0, 0, 0]}],
+                            "mass_bodies": [
+            dict(z, id="arm", name="Arm", position=[0.7, 0, 0], parent="chassis"),
+            dict(z, id="lid", name="Lid", position=[0.9, 0, 0], parent="arm",
+                 collision=[{"id": "lid_box", "type": "box", "size": [0.4, 1.0, 0.1], "position": [0.9, 0, 0]}]),
+            dict(z, id="knob", name="Knob", position=[5, 0, 0], parent="lid",
+                 collision=[{"id": "knob_ball", "type": "sphere", "radius": 0.1, "position": [5, 0, 0]}])]},
+                "constraints": [
+            {"id": "hinge_arm", "type": "joint", "joint_type": "revolute", "body_a": "chassis", "body_b": "arm", "frame_a": fr, "frame_b": fr},
+            {"id": "hinge_lid", "type": "joint", "joint_type": "revolute", "body_a": "arm", "body_b": "lid", "frame_a": fr, "frame_b": fr}],
+                "poses": [{"id": "folded", "values": {"hinge_arm": 3.141592653589793}}]}
+
+    def test_checker_in_sync(self):
+        a = (REPO_ROOT / "tools" / "collision_check.py").read_text(encoding="utf-8").splitlines()
+        b = (REPO_ROOT / "svj-py" / "svj" / "collision.py").read_text(encoding="utf-8").splitlines()
+        assert a == b
+
+    def test_reference_pose_is_clear_and_a_folded_lid_overlaps(self):
+        from svj.collision import clashes
+        doc = self._doc()
+        ref = clashes(doc, None, 1.0)
+        lid = [k for k in ref if {k["a"], k["b"]} == {"cab", "lid_box"}]
+        assert lid and lid[0]["separation"] == pytest.approx(0.2)           # 0.7 - 0.5 along x
+        folded = [k for k in clashes(doc, "folded", 0.0) if {k["a"], k["b"]} == {"cab", "lid_box"}]
+        assert folded and folded[0]["separation"] == pytest.approx(-0.2)         # centres 0.5 apart along x, half sizes 0.5 and 0.2
+
+    def test_welded_and_directly_jointed_pairs_are_not_compared(self):
+        from svj.collision import clashes, rigid_groups
+        doc = self._doc()
+        assert rigid_groups(doc)["lid"] == "lid" and rigid_groups(doc)["arm"] == "arm"
+        doc["chassis"]["mass_bodies"][0]["collision"] = [{"id": "arm_box", "type": "box", "size": [5, 5, 5], "position": [0.7, 0, 0]}]
+        assert not [k for k in clashes(doc, None, 10.0) if "arm_box" in (k["a"], k["b"]) and {k["body_a"], k["body_b"]} & {"chassis", "lid"}]      # chassis-arm and arm-lid are jointed
+        doc["collision_ignore"] = [["chassis", "lid"]]
+        assert not [k for k in clashes(doc, "folded", 0.0) if {k["body_a"], k["body_b"]} == {"chassis", "lid"}]
+
+    def test_sphere_against_box_and_margins(self):
+        from svj.collision import clashes
+        doc = self._doc()
+        ref = {frozenset((k["a"], k["b"])): k["separation"] for k in clashes(doc, None, 100.0)}
+        assert ref[frozenset(("cab", "knob_ball"))] == pytest.approx(5.0 - 0.5 - 0.1)
+        doc["chassis"]["collision"][0]["margin"] = 0.05
+        ref = {frozenset((k["a"], k["b"])): k["separation"] for k in clashes(doc, None, 100.0)}
+        assert ref[frozenset(("cab", "knob_ball"))] == pytest.approx(5.0 - 0.5 - 0.1 - 0.05)
+
+    def test_check_reports_overlaps_and_bad_proxies(self):
+        from svj.collision import check
+        doc = self._doc()
+        errors, warnings = check(doc)
+        assert errors == [] and any("pose folded" in w for w in warnings)
+        doc["chassis"]["mass_bodies"][1]["collision"][0]["size"] = [0.4, 0, 0.1]
+        assert check(doc)[0]
+        doc = self._doc()
+        doc["chassis"]["collision"].append({"id": "x", "type": "capsule", "position": [0, 0, 0]})
+        assert any("capsule" in m for m in check(doc)[0])
+        doc = self._doc()
+        doc["collision_ignore"] = [["chassis", "nothing"]]
+        assert check(doc)[0]
+
+    def test_composite_carries_the_units_proxies_placed_and_qualified(self):
+        from svj.assemble import assemble, combination_from_file
+        from svj.collision import check
+        comb = combination_from_file(str((EXAMPLES_DIR / "attachments") / "tractor_loader.svj-combination.json"))
+        for u in comb["units"]:
+            u["doc"]["chassis"]["collision"] = [{"id": "hull", "type": "box", "size": [1.0, 1.0, 1.0], "position": list(u["doc"]["chassis"]["center_of_gravity"])}]
+        doc, _ = assemble(comb)
+        ids = [p["id"] for b in [doc["chassis"]] + doc["chassis"]["mass_bodies"] for p in b.get("collision", [])]
+        assert "hull" in ids and any(i.endswith(".hull") for i in ids)
+        assert check(doc)[0] == []

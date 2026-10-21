@@ -69,6 +69,8 @@ tractor.body_transforms("hitch_up")["implement"]     # (R, t) from the reference
 tractor.body_inertia("loader_boom")    # a body's 3x3 inertia in vehicle axes (object or matrix form, inertia_orientation applied)
 ```
 
+**Collision proxies (v0.102).** `Vehicle.clashes(pose, tolerance)` lists the proxy pairs (spec §28) of relatively movable bodies closer than `tolerance` metres; `svj.collision` has `check()`, `separation()` and `rigid_groups()`.
+
 **Attachments (v0.101).** `Vehicle.interfaces` and `.attachments` expose the arrays; `Vehicle.assemble()` returns the composite `Vehicle` with every attached unit fitted (qualified ids `loader.loader_boom`, mass / CG / inertia of the combination), so `pose_cg("loader.loader_dump")`, `element_lengths()` and the loop solver work on it. `svj.assemble` has `check_combination()`, `mates()` and `assemble()` for combination files.
 
 **Unified suspension (v0.100).** `Vehicle.is_unified` is true when the file uses `wheel_stations[]`; `.wheel_stations`, `.stations`, `.corner()`, `.hardpoints()` and `.joints()` then answer from bodies, joints and markers, and the old corner section keeps working (deprecated, `validate()` warns). `svj.migrate_suspension.migrate(doc)` returns `(new_doc, notes)`.

@@ -44,9 +44,10 @@
             "0.99.7",
             "0.99.8",
             "0.100",
-            "0.101"
+            "0.101",
+            "0.102"
           ],
-          "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations). '0.99.1' adds axle_groups, plated masses and explicit wheelbase definitions. '0.99.2' extends the glTF visual binding layer: full category set, visual on links/steering/wheels/brakes/springs/dampers/aero, and the 'placement' field for parts defined by hardpoints. '0.99.3' adds differential control: lock_control (dynamic differential lock) and transfer_case.coupling (torque-limited centre coupling). '0.99.4' adds the strut_lower hardpoint convention for MacPherson/Chapman struts and damper.reference ('damper' or 'wheel'). '0.99.5' adds movable parts: constraints[] (joint, spring, actuator between mass bodies), poses[] and chassis.markers. '0.99.6' completes the constraint set: latch, coupling and joint.drive. '0.99.7' adds the optional display name on bodies, constraints and poses, and the naming vocabulary for movable parts. '0.99.8' adds the contact constraint (primitives at markers with a penalty law). '0.100' unifies the suspension: wheel stations are bodies, joints and elements (spring, damper; linear or torsional) with a thin wheel_stations[] list and anti_roll_bars[]; the corner-based suspension section is deprecated. '0.101' adds attachments: interfaces[] (named frames with a role and size), attachments[] (units fitted to this vehicle) and the svj-combination file."
+          "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations). '0.99.1' adds axle_groups, plated masses and explicit wheelbase definitions. '0.99.2' extends the glTF visual binding layer: full category set, visual on links/steering/wheels/brakes/springs/dampers/aero, and the 'placement' field for parts defined by hardpoints. '0.99.3' adds differential control: lock_control (dynamic differential lock) and transfer_case.coupling (torque-limited centre coupling). '0.99.4' adds the strut_lower hardpoint convention for MacPherson/Chapman struts and damper.reference ('damper' or 'wheel'). '0.99.5' adds movable parts: constraints[] (joint, spring, actuator between mass bodies), poses[] and chassis.markers. '0.99.6' completes the constraint set: latch, coupling and joint.drive. '0.99.7' adds the optional display name on bodies, constraints and poses, and the naming vocabulary for movable parts. '0.99.8' adds the contact constraint (primitives at markers with a penalty law). '0.100' unifies the suspension: wheel stations are bodies, joints and elements (spring, damper; linear or torsional) with a thin wheel_stations[] list and anti_roll_bars[]; the corner-based suspension section is deprecated. '0.101' adds attachments: interfaces[] (named frames with a role and size), attachments[] (units fitted to this vehicle) and the svj-combination file. '0.102' adds collision proxies: collision[] on the chassis and on mass bodies, and collision_ignore."
         },
         "description": {
           "type": "string"
@@ -303,6 +304,11 @@
           "type": "boolean",
           "default": false,
           "description": "true: mass_bodies is an exhaustive decomposition, so \u03a3 mass_bodies + \u03a3 unsprung = mass_total (spec 7.2.2). Default false: the bodies are a partial list (movable parts, attachments) and the rest of the vehicle is everything not listed."
+        },
+        "collision": {
+          "type": "array",
+          "description": "Collision proxies of this body (v0.102, spec 28).",
+          "items": {"$ref": "#/definitions/collision_proxy"}
         },
         "markers": {
           "type": "object",
@@ -2520,6 +2526,11 @@
         }
       }
     },
+    "collision_ignore": {
+      "type": "array",
+      "description": "Pairs of body ids whose collision proxies are never compared (v0.102, spec 28.2).",
+      "items": {"type": "array", "items": {"type": "string"}, "minItems": 2, "maxItems": 2}
+    },
     "interfaces": {
       "type": "array",
       "description": "Interfaces (v0.101, spec \u00a727): named frames where this file can be joined to another unit (a loader mount, a fifth wheel, a three-point hitch). Roles mate in pairs (\u00a727.2).",
@@ -3339,6 +3350,11 @@
           "type": "string",
           "description": "Parent body id. Defaults to 'ground' for the main chassis body, 'chassis' for suspension components. Used by multibody solvers to build the topology graph.",
           "default": "chassis"
+        },
+        "collision": {
+          "type": "array",
+          "description": "Collision proxies of this body (v0.102, spec 28).",
+          "items": {"$ref": "#/definitions/collision_proxy"}
         },
         "markers": {
           "type": "object",
@@ -6104,6 +6120,23 @@
           }
         }
       ]
+    },
+    "collision_proxy": {
+      "description": "A simple shape that stands for a body in clash tests (spec 28). Position and orientation are in vehicle coordinates at the reference pose.",
+      "type": "object",
+      "required": ["id", "type", "position"],
+      "additionalProperties": true,
+      "properties": {
+        "id": {"type": "string"},
+        "type": {"type": "string", "enum": ["sphere", "box", "cylinder"]},
+        "radius": {"type": "number", "exclusiveMinimum": 0, "description": "sphere and cylinder (m)."},
+        "length": {"type": "number", "exclusiveMinimum": 0, "description": "cylinder, along its Z axis (m)."},
+        "size": {"type": "array", "items": {"type": "number", "exclusiveMinimum": 0}, "minItems": 3, "maxItems": 3, "description": "box: full lengths along the shape X, Y, Z (m)."},
+        "position": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
+        "orientation": {"type": "array", "items": {"type": "number"}, "minItems": 4, "maxItems": 4, "description": "Quaternion [x, y, z, w]; identity by default."},
+        "margin": {"type": "number", "minimum": 0, "description": "Clearance kept free around the shape (m)."},
+        "source_node": {"type": "string", "description": "glTF node the proxy approximates (informational)."}
+      }
     },
     "contact_shape": {
       "description": "A contact primitive attached to a constraint frame. The shape is centred on the frame origin and its axes are the frame axes; a plane has its normal along +Z (the free side is +Z), a cylinder its axis along Z.",
