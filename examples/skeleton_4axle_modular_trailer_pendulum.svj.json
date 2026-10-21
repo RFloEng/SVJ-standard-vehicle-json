@@ -100,18 +100,6 @@
         "x_derived": true
       },
       {
-        "id": "pendulum_pin_a1l",
-        "name": "Pendulum Pin A1L",
-        "category": "structural",
-        "mass": 0.0,
-        "position": [
-          0.0,
-          0.0,
-          -0.53
-        ],
-        "x_derived": true
-      },
-      {
         "id": "wheel_a1r",
         "name": "Wheel A1R",
         "description": "Rim + tyre",
@@ -121,18 +109,6 @@
           0.0,
           0.91,
           -0.33
-        ],
-        "x_derived": true
-      },
-      {
-        "id": "pendulum_pin_a1r",
-        "name": "Pendulum Pin A1R",
-        "category": "structural",
-        "mass": 0.0,
-        "position": [
-          0.0,
-          0.0,
-          -0.53
         ],
         "x_derived": true
       },
@@ -206,18 +182,6 @@
         "x_derived": true
       },
       {
-        "id": "pendulum_pin_a2l",
-        "name": "Pendulum Pin A2L",
-        "category": "structural",
-        "mass": 0.0,
-        "position": [
-          -1.5,
-          0.0,
-          -0.53
-        ],
-        "x_derived": true
-      },
-      {
         "id": "wheel_a2r",
         "name": "Wheel A2R",
         "description": "Rim + tyre",
@@ -227,18 +191,6 @@
           -1.5,
           0.91,
           -0.33
-        ],
-        "x_derived": true
-      },
-      {
-        "id": "pendulum_pin_a2r",
-        "name": "Pendulum Pin A2R",
-        "category": "structural",
-        "mass": 0.0,
-        "position": [
-          -1.5,
-          0.0,
-          -0.53
         ],
         "x_derived": true
       },
@@ -312,18 +264,6 @@
         "x_derived": true
       },
       {
-        "id": "pendulum_pin_a3l",
-        "name": "Pendulum Pin A3L",
-        "category": "structural",
-        "mass": 0.0,
-        "position": [
-          -3.0,
-          0.0,
-          -0.53
-        ],
-        "x_derived": true
-      },
-      {
         "id": "wheel_a3r",
         "name": "Wheel A3R",
         "description": "Rim + tyre",
@@ -333,18 +273,6 @@
           -3.0,
           0.91,
           -0.33
-        ],
-        "x_derived": true
-      },
-      {
-        "id": "pendulum_pin_a3r",
-        "name": "Pendulum Pin A3R",
-        "category": "structural",
-        "mass": 0.0,
-        "position": [
-          -3.0,
-          0.0,
-          -0.53
         ],
         "x_derived": true
       },
@@ -418,18 +346,6 @@
         "x_derived": true
       },
       {
-        "id": "pendulum_pin_a4l",
-        "name": "Pendulum Pin A4L",
-        "category": "structural",
-        "mass": 0.0,
-        "position": [
-          -4.5,
-          0.0,
-          -0.53
-        ],
-        "x_derived": true
-      },
-      {
         "id": "wheel_a4r",
         "name": "Wheel A4R",
         "description": "Rim + tyre",
@@ -439,18 +355,6 @@
           -4.5,
           0.91,
           -0.33
-        ],
-        "x_derived": true
-      },
-      {
-        "id": "pendulum_pin_a4r",
-        "name": "Pendulum Pin A4R",
-        "category": "structural",
-        "mass": 0.0,
-        "position": [
-          -4.5,
-          0.0,
-          -0.53
         ],
         "x_derived": true
       }
@@ -554,6 +458,40 @@
   },
   "constraints": [
     {
+      "id": "hinge_pendulum_a1",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.0,
+          -0.53
+        ],
+        "orientation": [
+          0.0,
+          0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "a1_axle_line",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.0,
+          -0.53
+        ],
+        "orientation": [
+          0.0,
+          0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
       "id": "hinge_wheel_a1l",
       "type": "joint",
       "joint_type": "revolute",
@@ -577,40 +515,6 @@
           0.0,
           -0.91,
           -0.33
-        ],
-        "orientation": [
-          -0.7071068,
-          0.0,
-          0.0,
-          0.7071068
-        ]
-      },
-      "x_derived": true
-    },
-    {
-      "id": "hinge_pendulum_pin_a1l_outboard",
-      "type": "joint",
-      "joint_type": "revolute",
-      "body_a": "pendulum_pin_a1l",
-      "frame_a": {
-        "position": [
-          0.0,
-          0,
-          -0.53
-        ],
-        "orientation": [
-          -0.7071068,
-          0.0,
-          0.0,
-          0.7071068
-        ]
-      },
-      "body_b": "a1_axle_line",
-      "frame_b": {
-        "position": [
-          0.0,
-          0,
-          -0.53
         ],
         "orientation": [
           -0.7071068,
@@ -693,40 +597,6 @@
       "x_derived": true
     },
     {
-      "id": "hinge_pendulum_pin_a1r_outboard",
-      "type": "joint",
-      "joint_type": "revolute",
-      "body_a": "pendulum_pin_a1r",
-      "frame_a": {
-        "position": [
-          0.0,
-          0,
-          -0.53
-        ],
-        "orientation": [
-          -0.7071068,
-          0.0,
-          0.0,
-          0.7071068
-        ]
-      },
-      "body_b": "a1_axle_line",
-      "frame_b": {
-        "position": [
-          0.0,
-          0,
-          -0.53
-        ],
-        "orientation": [
-          -0.7071068,
-          0.0,
-          0.0,
-          0.7071068
-        ]
-      },
-      "x_derived": true
-    },
-    {
       "id": "spring_a1r",
       "type": "spring",
       "body_a": "chassis",
@@ -764,6 +634,40 @@
       "x_derived": true
     },
     {
+      "id": "hinge_pendulum_a2",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -1.5,
+          0.0,
+          -0.53
+        ],
+        "orientation": [
+          0.0,
+          0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "a2_axle_line",
+      "frame_b": {
+        "position": [
+          -1.5,
+          0.0,
+          -0.53
+        ],
+        "orientation": [
+          0.0,
+          0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
       "id": "hinge_wheel_a2l",
       "type": "joint",
       "joint_type": "revolute",
@@ -787,40 +691,6 @@
           -1.5,
           -0.91,
           -0.33
-        ],
-        "orientation": [
-          -0.7071068,
-          0.0,
-          0.0,
-          0.7071068
-        ]
-      },
-      "x_derived": true
-    },
-    {
-      "id": "hinge_pendulum_pin_a2l_outboard",
-      "type": "joint",
-      "joint_type": "revolute",
-      "body_a": "pendulum_pin_a2l",
-      "frame_a": {
-        "position": [
-          -1.5,
-          0,
-          -0.53
-        ],
-        "orientation": [
-          -0.7071068,
-          0.0,
-          0.0,
-          0.7071068
-        ]
-      },
-      "body_b": "a2_axle_line",
-      "frame_b": {
-        "position": [
-          -1.5,
-          0,
-          -0.53
         ],
         "orientation": [
           -0.7071068,
@@ -903,40 +773,6 @@
       "x_derived": true
     },
     {
-      "id": "hinge_pendulum_pin_a2r_outboard",
-      "type": "joint",
-      "joint_type": "revolute",
-      "body_a": "pendulum_pin_a2r",
-      "frame_a": {
-        "position": [
-          -1.5,
-          0,
-          -0.53
-        ],
-        "orientation": [
-          -0.7071068,
-          0.0,
-          0.0,
-          0.7071068
-        ]
-      },
-      "body_b": "a2_axle_line",
-      "frame_b": {
-        "position": [
-          -1.5,
-          0,
-          -0.53
-        ],
-        "orientation": [
-          -0.7071068,
-          0.0,
-          0.0,
-          0.7071068
-        ]
-      },
-      "x_derived": true
-    },
-    {
       "id": "spring_a2r",
       "type": "spring",
       "body_a": "chassis",
@@ -974,6 +810,40 @@
       "x_derived": true
     },
     {
+      "id": "hinge_pendulum_a3",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -3.0,
+          0.0,
+          -0.53
+        ],
+        "orientation": [
+          0.0,
+          0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "a3_axle_line",
+      "frame_b": {
+        "position": [
+          -3.0,
+          0.0,
+          -0.53
+        ],
+        "orientation": [
+          0.0,
+          0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
       "id": "hinge_wheel_a3l",
       "type": "joint",
       "joint_type": "revolute",
@@ -997,40 +867,6 @@
           -3.0,
           -0.91,
           -0.33
-        ],
-        "orientation": [
-          -0.7071068,
-          0.0,
-          0.0,
-          0.7071068
-        ]
-      },
-      "x_derived": true
-    },
-    {
-      "id": "hinge_pendulum_pin_a3l_outboard",
-      "type": "joint",
-      "joint_type": "revolute",
-      "body_a": "pendulum_pin_a3l",
-      "frame_a": {
-        "position": [
-          -3.0,
-          0,
-          -0.53
-        ],
-        "orientation": [
-          -0.7071068,
-          0.0,
-          0.0,
-          0.7071068
-        ]
-      },
-      "body_b": "a3_axle_line",
-      "frame_b": {
-        "position": [
-          -3.0,
-          0,
-          -0.53
         ],
         "orientation": [
           -0.7071068,
@@ -1113,40 +949,6 @@
       "x_derived": true
     },
     {
-      "id": "hinge_pendulum_pin_a3r_outboard",
-      "type": "joint",
-      "joint_type": "revolute",
-      "body_a": "pendulum_pin_a3r",
-      "frame_a": {
-        "position": [
-          -3.0,
-          0,
-          -0.53
-        ],
-        "orientation": [
-          -0.7071068,
-          0.0,
-          0.0,
-          0.7071068
-        ]
-      },
-      "body_b": "a3_axle_line",
-      "frame_b": {
-        "position": [
-          -3.0,
-          0,
-          -0.53
-        ],
-        "orientation": [
-          -0.7071068,
-          0.0,
-          0.0,
-          0.7071068
-        ]
-      },
-      "x_derived": true
-    },
-    {
       "id": "spring_a3r",
       "type": "spring",
       "body_a": "chassis",
@@ -1184,6 +986,40 @@
       "x_derived": true
     },
     {
+      "id": "hinge_pendulum_a4",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -4.5,
+          0.0,
+          -0.53
+        ],
+        "orientation": [
+          0.0,
+          0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "body_b": "a4_axle_line",
+      "frame_b": {
+        "position": [
+          -4.5,
+          0.0,
+          -0.53
+        ],
+        "orientation": [
+          0.0,
+          0.7071068,
+          0.0,
+          0.7071068
+        ]
+      },
+      "x_derived": true
+    },
+    {
       "id": "hinge_wheel_a4l",
       "type": "joint",
       "joint_type": "revolute",
@@ -1207,40 +1043,6 @@
           -4.5,
           -0.91,
           -0.33
-        ],
-        "orientation": [
-          -0.7071068,
-          0.0,
-          0.0,
-          0.7071068
-        ]
-      },
-      "x_derived": true
-    },
-    {
-      "id": "hinge_pendulum_pin_a4l_outboard",
-      "type": "joint",
-      "joint_type": "revolute",
-      "body_a": "pendulum_pin_a4l",
-      "frame_a": {
-        "position": [
-          -4.5,
-          0,
-          -0.53
-        ],
-        "orientation": [
-          -0.7071068,
-          0.0,
-          0.0,
-          0.7071068
-        ]
-      },
-      "body_b": "a4_axle_line",
-      "frame_b": {
-        "position": [
-          -4.5,
-          0,
-          -0.53
         ],
         "orientation": [
           -0.7071068,
@@ -1312,40 +1114,6 @@
           -4.5,
           0.91,
           -0.33
-        ],
-        "orientation": [
-          -0.7071068,
-          0.0,
-          0.0,
-          0.7071068
-        ]
-      },
-      "x_derived": true
-    },
-    {
-      "id": "hinge_pendulum_pin_a4r_outboard",
-      "type": "joint",
-      "joint_type": "revolute",
-      "body_a": "pendulum_pin_a4r",
-      "frame_a": {
-        "position": [
-          -4.5,
-          0,
-          -0.53
-        ],
-        "orientation": [
-          -0.7071068,
-          0.0,
-          0.0,
-          0.7071068
-        ]
-      },
-      "body_b": "a4_axle_line",
-      "frame_b": {
-        "position": [
-          -4.5,
-          0,
-          -0.53
         ],
         "orientation": [
           -0.7071068,
