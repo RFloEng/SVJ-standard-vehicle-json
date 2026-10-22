@@ -893,7 +893,9 @@ def check(doc):
         b = bodies[bid]
         where = f"mass_body '{bid}'"
         if not isinstance(b.get("mass"), (int, float)) or b["mass"] <= 0:
-            (warnings if b.get("x_derived") else errors).append(f"{where}: a moving body needs a positive mass")
+            if b.get("x_derived"):
+                continue                         # generated bodies (mass 0 allowed, §7.2) are exempt
+            errors.append(f"{where}: a moving body needs a positive mass")
         im = body_inertia(b)
         if im is None:
             if b.get("x_derived"):

@@ -2,23 +2,32 @@
 
 ## What This Is
 
-SVJ (Standard Vehicle JSON) is a universal exchange format for vehicle dynamics data — a "Rosetta Stone" that lets any simulator read the same vehicle definition. Current version: **v0.99.2**.
+SVJ (Standard Vehicle JSON) is a universal exchange format for vehicle dynamics data — a "Rosetta Stone" that lets any simulator read the same vehicle definition. Current version: **v0.102** (spec §1–§28; `_metadata.version` accepts every release from 0.96 on). The full per-release history is in `CHANGELOG.md`; this brief summarises it.
 
 ## Repo Structure
 
 ```
-spec/SVJ_Spec.md                        THE specification (§1–§23)
-schema/svj.schema.json                  JSON Schema Draft-07 (v0.99.2)
+spec/SVJ_Spec.md                        THE specification (§1–§28)
+schema/svj.schema.json                  JSON Schema Draft-07 (v0.102)
 schema/svj-override.schema.json         Override file structure (v0.98)
-examples/                               24 examples (real cars, 2-axle skeletons, 10 multi-axle skeletons, 4 real multi-axle trucks, visual-binding skeleton, tire file)
+schema/svj-combination.schema.json     Combination file structure (v0.101)
+examples/                               ~30 examples (real cars, 2-axle skeletons, multi-axle skeletons, real multi-axle trucks, visual-binding, articulated-parts, tire file)
+examples/attachments/                   Host/attachment units and *.svj-combination.json files (tractor + loader, tractor + semi-trailer)
 docs/naming_convention.md               SVJ::category::id glTF naming convention + canonical part names
-tools/validate.py                       Schema + multi-axle validation
-tools/multiaxle_check.py                Multi-axle cross-reference rules (v0.99)
+tools/validate.py                       Schema + all cross-reference checks (also combination files and their assembled composite)
+tools/multiaxle_check.py                Multi-axle rules (§23.7)
+tools/multibody_check.py                Mass-body / marker / joint-type rules (v0.96)
+tools/drivetrain_check.py               Differential lock_control / coupling rules (v0.99.3)
+tools/constraints_check.py              Joints, springs, actuators, latches, couplings, contacts, poses (§24)
+tools/loop_solver.py                    Loop-closure solver, suspension gains and alignment (§26)
+tools/assemble.py                       Interfaces, attachments, combination assembly (§27)
+tools/collision_check.py                Collision-proxy separation per pose (§28)
+tools/migrate_suspension.py, suspension_view.py, anti_roll_bar.py, leaf_pack.py, torsion_beam.py   Unified-suspension migration and component builders (§25)
 tools/validate_override.py              Override resolution + validation (v0.98)
 tools/integrity_check.py                glTF visual binding checks (v0.99.2)
-viewer/svj_viewer_v4.2.html             Interactive SVJ viewer/editor: multi-axle layout, axle/wheel editor, performance tab (drag & drop)
-svj-py/                                 Python parser library with CLI (0.2.0, multi-axle aware)
-templates/mazda_mx5_nd2_2024.svj.json   Full vehicle template
+viewer/svj_viewer_v4.7.html             Interactive viewer/editor: multi-axle layout, performance tab, mesh fitting, poses panel, unified-suspension reader, combinations, collision proxies
+svj-py/                                 Python library with CLI (0.2.0); mirrors of the tools/ checkers in svj-py/svj/ (sync enforced by tests)
+templates/mazda_mx5_nd2_2024.svj.json   Full vehicle template (unified suspension)
 proposals/                              Historical design proposals (read-only)
 ```
 
@@ -94,6 +103,16 @@ Spec §23, all optional and backward-compatible:
 - `gearbox.type: "amt"`; checker validates groups, kerb-load sum and the declared wheelbase; svj-py `axle_groups`, `plated_masses`, weight share from group loads or front/rear group centres; viewer axle-groups panel and correct F/R bias on multi-axle vehicles
 - **`examples/man_tgs_32_430_8x4_twin_steer_tipper.svj.json`** — first real multi-axle vehicle (MAN UK body-builder sheet, May 2022)
 
+## v0.99.3 → v0.102 — Summary (details in CHANGELOG.md)
+
+- **v0.99.3** Differential control: `lock_control` stage chains, `transfer_case.coupling` (§10.6.1)
+- **v0.99.4** Strut/damper conventions: `strut_lower` hardpoint, `damper.reference` (`damper`|`wheel`)
+- **v0.99.5–0.99.8** Movable parts (§24): `constraints[]` (joint, spring, actuator, latch, coupling, contact), `poses[]`, `chassis.markers`, partial `mass_bodies` decomposition, canonical part-name vocabulary
+- **v0.100** *Breaking, one release of transition:* unified suspension (§25) — bodies, joints, elements plus `wheel_stations[]`; the old `suspension` section is deprecated (accepted, validators warn). All shipped examples and the MX-5 template are migrated; legacy copies live in `svj-py/tests/fixtures/legacy_*.svj.json`. Loop-closure solver (§26)
+- **v0.101** Attachments and combinations (§27): `interfaces[]`, `attachments[]`, `*.svj-combination.json`, role mating table, `vehicle_class: attachment`; `.` in ids is reserved for qualified ids (`unit.id`)
+- **v0.102** Collision proxies (§28): `collision[]` on chassis and mass bodies, `collision_ignore`; interface `supply`/`demand`
+- Generated (`x_derived`) bodies and joints are exempt from the mass, inertia and parent rules, including in assembled composites
+
 ## Topology Coverage (all 13 with examples)
 
 ✅ double_wishbone (Alfa 75 front, Corvette C3 front, F1 front/rear, AWD EV)
@@ -118,7 +137,8 @@ Spec §23, all optional and backward-compatible:
 - Any ambiguities found during parser development become spec patches
 
 ### Future (v1.x)
-- Articulated combinations addendum (tractor/semi-trailer, dolly, ADT) — §23.8; research + draft design in `proposals/trailer_coupling_research.md` (vehicle-side `coupling_points`, `*.svj-combination.json`, R55 D-value checks)
+- Articulated combinations: ✅ implemented in v0.101 (§27, `tools/assemble.py`). Still open from `proposals/trailer_coupling_research.md`: R55 D-value checks, dolly and ADT examples
+- STEP visual binding (`proposals/svj_step_visual_binding_proposal.md`) — feasibility study only, nothing implemented
 - Known data issues: `examples/formula_f1_2025_aero.svj.json` breaks SAE conventions (CG.x/Z positive, left wheels at +Y, rear axle at -2.8 vs wheelbase 3.6); Mazda template mass_bodies + unsprung (1145 kg) ≠ mass_total (1077 kg)
 - Real-vehicle multi-axle examples — ✅ MAN TGS 8x4 twin-steer, ✅ MAN TGS 8x4-4 tridem, ✅ Oshkosh HEMTT A4 (spreads measured from drawing), ✅ Tatra T815-7N0R99 8x8 (swing axles) (shortlist: `proposals/multi_axle_real_vehicle_examples_research.md`)
 - BeamNG converter
@@ -150,6 +170,8 @@ for f in examples/*.svj.json; do python tools/validate.py "$f"; done   # include
 python tools/integrity_check.py examples/formula_f1_2025_aero.svj.json --strict
 # Override files:
 python tools/validate_override.py examples/bmw_e30_325i_stiffer_front.svj-override.json
+# Combination files (also validates the assembled composite):
+python tools/validate.py examples/attachments/tractor_semi_trailer.svj-combination.json
 # Python library tests (also checks tools/ and svj-py checker copies are in sync):
 cd svj-py && python -m pytest -q
 ```
@@ -158,4 +180,5 @@ cd svj-py && python -m pytest -q
 
 1. **Read the spec first** for any section you're modifying — it's the source of truth.
 2. **Change spec text → update schema → update examples → validate** — always in this order.
-3.
+3. **Mirrored checkers:** each `tools/*_check.py` has an identical copy in `svj-py/svj/`; edit both (a test enforces sync).
+4. **Record the change** in `CHANGELOG.md` and bump `_metadata.version` handling in `tools/validate.py` for any spec/schema release.
