@@ -166,7 +166,12 @@
           -0.71
         ],
         "description": "Leaf spring pack",
-        "x_derived": true
+        "x_derived": true,
+        "_est": true,
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.spring_pad"
+        }
       },
       {
         "id": "wheel_a1r",
@@ -192,7 +197,12 @@
           -0.71
         ],
         "description": "Leaf spring pack",
-        "x_derived": true
+        "x_derived": true,
+        "_est": true,
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.spring_pad"
+        }
       },
       {
         "id": "a2_drop_beam",
@@ -292,7 +302,12 @@
           -0.71
         ],
         "description": "Leaf spring pack",
-        "x_derived": true
+        "x_derived": true,
+        "_est": true,
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.spring_pad"
+        }
       },
       {
         "id": "wheel_a2r",
@@ -318,7 +333,12 @@
           -0.71
         ],
         "description": "Leaf spring pack",
-        "x_derived": true
+        "x_derived": true,
+        "_est": true,
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.spring_pad"
+        }
       },
       {
         "id": "a3_drive_housing",
@@ -404,7 +424,12 @@
           -0.71
         ],
         "description": "Leaf spring pack",
-        "x_derived": true
+        "x_derived": true,
+        "_est": true,
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.spring_pad"
+        }
       },
       {
         "id": "wheel_a3r",
@@ -430,7 +455,12 @@
           -0.71
         ],
         "description": "Leaf spring pack",
-        "x_derived": true
+        "x_derived": true,
+        "_est": true,
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.spring_pad"
+        }
       },
       {
         "id": "a4_drive_housing",
@@ -516,7 +546,12 @@
           -0.71
         ],
         "description": "Leaf spring pack",
-        "x_derived": true
+        "x_derived": true,
+        "_est": true,
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.spring_pad"
+        }
       },
       {
         "id": "wheel_a4r",
@@ -542,7 +577,12 @@
           -0.71
         ],
         "description": "Leaf spring pack",
-        "x_derived": true
+        "x_derived": true,
+        "_est": true,
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.spring_pad"
+        }
       }
     ]
   },

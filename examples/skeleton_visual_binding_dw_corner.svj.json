@@ -180,7 +180,11 @@
           "scale_to_length": false,
           "_note": "mesh modelled pointing outboard along its own +Y, pivot axis at the origin"
         },
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.upper_ball_joint"
+        }
       },
       {
         "id": "lower_wishbone_fl",
@@ -200,7 +204,11 @@
           "mesh_axis": "+y",
           "scale_to_length": false
         },
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.lower_ball_joint"
+        }
       },
       {
         "id": "tie_rod_fl",
@@ -221,7 +229,11 @@
           "scale_to_length": true,
           "_note": "straight rod mesh, stretched to the exact hardpoint distance"
         },
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "rod",
+          "outboard_ref": "hardpoints.tie_rod_end"
+        }
       },
       {
         "id": "rack",
@@ -329,7 +341,11 @@
           "scale_to_length": false,
           "_note": "mesh modelled pointing outboard along its own +Y, pivot axis at the origin"
         },
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.upper_ball_joint"
+        }
       },
       {
         "id": "lower_wishbone_fr",
@@ -349,7 +365,11 @@
           "mesh_axis": "+y",
           "scale_to_length": false
         },
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.lower_ball_joint"
+        }
       },
       {
         "id": "tie_rod_fr",
@@ -370,7 +390,11 @@
           "scale_to_length": true,
           "_note": "straight rod mesh, stretched to the exact hardpoint distance"
         },
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "rod",
+          "outboard_ref": "hardpoints.tie_rod_end"
+        }
       },
       {
         "id": "upright_rl",
@@ -465,7 +489,11 @@
           "scale_to_length": false,
           "_note": "mesh modelled pointing outboard along its own +Y, pivot axis at the origin"
         },
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.upper_ball_joint"
+        }
       },
       {
         "id": "lower_wishbone_rl",
@@ -485,7 +513,11 @@
           "mesh_axis": "+y",
           "scale_to_length": false
         },
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.lower_ball_joint"
+        }
       },
       {
         "id": "toe_link_rl",
@@ -505,7 +537,11 @@
           "mesh_axis": "+y",
           "scale_to_length": true
         },
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "rod",
+          "outboard_ref": "hardpoints.toe_link_end"
+        }
       },
       {
         "id": "upright_rr",
@@ -600,7 +636,11 @@
           "scale_to_length": false,
           "_note": "mesh modelled pointing outboard along its own +Y, pivot axis at the origin"
         },
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.upper_ball_joint"
+        }
       },
       {
         "id": "lower_wishbone_rr",
@@ -620,7 +660,11 @@
           "mesh_axis": "+y",
           "scale_to_length": false
         },
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.lower_ball_joint"
+        }
       },
       {
         "id": "toe_link_rr",
@@ -640,7 +684,11 @@
           "mesh_axis": "+y",
           "scale_to_length": true
         },
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "rod",
+          "outboard_ref": "hardpoints.toe_link_end"
+        }
       }
     ],
     "visual": {
@@ -863,9 +911,9 @@
       "x_derived": true
     },
     {
-      "id": "hinge_upper_wishbone_fl_inboard",
+      "id": "ball_upper_wishbone_fl_inboard_1",
       "type": "joint",
-      "joint_type": "revolute",
+      "joint_type": "spherical",
       "body_a": "chassis",
       "frame_a": {
         "position": [
@@ -874,10 +922,10 @@
           -0.46
         ],
         "orientation": [
-          -0.0,
-          -0.6943733,
           0.0,
-          0.719615
+          0.0,
+          0.0,
+          1.0
         ]
       },
       "body_b": "upper_wishbone_fl",
@@ -888,10 +936,44 @@
           -0.46
         ],
         "orientation": [
-          -0.0,
-          -0.6943733,
           0.0,
-          0.719615
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_wishbone_fl_inboard_2",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.14,
+          -0.2964,
+          -0.45
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upper_wishbone_fl",
+      "frame_b": {
+        "position": [
+          -0.14,
+          -0.2964,
+          -0.45
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
         ]
       },
       "x_derived": true
@@ -931,9 +1013,9 @@
       "x_derived": true
     },
     {
-      "id": "hinge_lower_wishbone_fl_inboard",
+      "id": "ball_lower_wishbone_fl_inboard_1",
       "type": "joint",
-      "joint_type": "revolute",
+      "joint_type": "spherical",
       "body_a": "chassis",
       "frame_a": {
         "position": [
@@ -942,10 +1024,10 @@
           -0.16
         ],
         "orientation": [
-          -0.0,
-          -0.697744,
           0.0,
-          0.7163472
+          0.0,
+          0.0,
+          1.0
         ]
       },
       "body_b": "lower_wishbone_fl",
@@ -956,10 +1038,44 @@
           -0.16
         ],
         "orientation": [
-          -0.0,
-          -0.697744,
           0.0,
-          0.7163472
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_wishbone_fl_inboard_2",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.18,
+          -0.2574,
+          -0.15
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "lower_wishbone_fl",
+      "frame_b": {
+        "position": [
+          -0.18,
+          -0.2574,
+          -0.15
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
         ]
       },
       "x_derived": true
@@ -1137,7 +1253,8 @@
       "free_length": 0.235,
       "x_converted_from_wheel_rate": {
         "motion_ratio": 0.62,
-        "estimated": false
+        "estimated": false,
+        "wheel_rate": 42000.0
       },
       "rate": 109261.1863,
       "visual": {
@@ -1259,9 +1376,9 @@
       "x_derived": true
     },
     {
-      "id": "hinge_upper_wishbone_fr_inboard",
+      "id": "ball_upper_wishbone_fr_inboard_1",
       "type": "joint",
-      "joint_type": "revolute",
+      "joint_type": "spherical",
       "body_a": "chassis",
       "frame_a": {
         "position": [
@@ -1270,10 +1387,10 @@
           -0.46
         ],
         "orientation": [
-          -0.0,
-          -0.6943733,
           0.0,
-          0.719615
+          0.0,
+          0.0,
+          1.0
         ]
       },
       "body_b": "upper_wishbone_fr",
@@ -1284,10 +1401,44 @@
           -0.46
         ],
         "orientation": [
-          -0.0,
-          -0.6943733,
           0.0,
-          0.719615
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_wishbone_fr_inboard_2",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.14,
+          0.2964,
+          -0.45
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upper_wishbone_fr",
+      "frame_b": {
+        "position": [
+          -0.14,
+          0.2964,
+          -0.45
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
         ]
       },
       "x_derived": true
@@ -1327,9 +1478,9 @@
       "x_derived": true
     },
     {
-      "id": "hinge_lower_wishbone_fr_inboard",
+      "id": "ball_lower_wishbone_fr_inboard_1",
       "type": "joint",
-      "joint_type": "revolute",
+      "joint_type": "spherical",
       "body_a": "chassis",
       "frame_a": {
         "position": [
@@ -1338,10 +1489,10 @@
           -0.16
         ],
         "orientation": [
-          -0.0,
-          -0.697744,
           0.0,
-          0.7163472
+          0.0,
+          0.0,
+          1.0
         ]
       },
       "body_b": "lower_wishbone_fr",
@@ -1352,10 +1503,44 @@
           -0.16
         ],
         "orientation": [
-          -0.0,
-          -0.697744,
           0.0,
-          0.7163472
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_wishbone_fr_inboard_2",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.18,
+          0.2574,
+          -0.15
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "lower_wishbone_fr",
+      "frame_b": {
+        "position": [
+          -0.18,
+          0.2574,
+          -0.15
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
         ]
       },
       "x_derived": true
@@ -1499,7 +1684,8 @@
       "free_length": 0.235,
       "x_converted_from_wheel_rate": {
         "motion_ratio": 0.62,
-        "estimated": false
+        "estimated": false,
+        "wheel_rate": 42000.0
       },
       "rate": 109261.1863,
       "visual": {
@@ -1621,9 +1807,9 @@
       "x_derived": true
     },
     {
-      "id": "hinge_upper_wishbone_rl_inboard",
+      "id": "ball_upper_wishbone_rl_inboard_1",
       "type": "joint",
-      "joint_type": "revolute",
+      "joint_type": "spherical",
       "body_a": "chassis",
       "frame_a": {
         "position": [
@@ -1632,10 +1818,10 @@
           -0.46
         ],
         "orientation": [
-          -0.0,
-          -0.6943733,
           0.0,
-          0.719615
+          0.0,
+          0.0,
+          1.0
         ]
       },
       "body_b": "upper_wishbone_rl",
@@ -1646,10 +1832,44 @@
           -0.46
         ],
         "orientation": [
-          -0.0,
-          -0.6943733,
           0.0,
-          0.719615
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_wishbone_rl_inboard_2",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.74,
+          -0.2926,
+          -0.45
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upper_wishbone_rl",
+      "frame_b": {
+        "position": [
+          -2.74,
+          -0.2926,
+          -0.45
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
         ]
       },
       "x_derived": true
@@ -1689,9 +1909,9 @@
       "x_derived": true
     },
     {
-      "id": "hinge_lower_wishbone_rl_inboard",
+      "id": "ball_lower_wishbone_rl_inboard_1",
       "type": "joint",
-      "joint_type": "revolute",
+      "joint_type": "spherical",
       "body_a": "chassis",
       "frame_a": {
         "position": [
@@ -1700,10 +1920,10 @@
           -0.16
         ],
         "orientation": [
-          -0.0,
-          -0.697744,
           0.0,
-          0.7163472
+          0.0,
+          0.0,
+          1.0
         ]
       },
       "body_b": "lower_wishbone_rl",
@@ -1714,10 +1934,44 @@
           -0.16
         ],
         "orientation": [
-          -0.0,
-          -0.697744,
           0.0,
-          0.7163472
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_wishbone_rl_inboard_2",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.78,
+          -0.2541,
+          -0.15
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "lower_wishbone_rl",
+      "frame_b": {
+        "position": [
+          -2.78,
+          -0.2541,
+          -0.15
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
         ]
       },
       "x_derived": true
@@ -1861,7 +2115,8 @@
       "free_length": 0.235,
       "x_converted_from_wheel_rate": {
         "motion_ratio": 0.62,
-        "estimated": false
+        "estimated": false,
+        "wheel_rate": 42000.0
       },
       "rate": 109261.1863,
       "visual": {
@@ -1983,9 +2238,9 @@
       "x_derived": true
     },
     {
-      "id": "hinge_upper_wishbone_rr_inboard",
+      "id": "ball_upper_wishbone_rr_inboard_1",
       "type": "joint",
-      "joint_type": "revolute",
+      "joint_type": "spherical",
       "body_a": "chassis",
       "frame_a": {
         "position": [
@@ -1994,10 +2249,10 @@
           -0.46
         ],
         "orientation": [
-          -0.0,
-          -0.6943733,
           0.0,
-          0.719615
+          0.0,
+          0.0,
+          1.0
         ]
       },
       "body_b": "upper_wishbone_rr",
@@ -2008,10 +2263,44 @@
           -0.46
         ],
         "orientation": [
-          -0.0,
-          -0.6943733,
           0.0,
-          0.719615
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_wishbone_rr_inboard_2",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.74,
+          0.2926,
+          -0.45
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upper_wishbone_rr",
+      "frame_b": {
+        "position": [
+          -2.74,
+          0.2926,
+          -0.45
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
         ]
       },
       "x_derived": true
@@ -2051,9 +2340,9 @@
       "x_derived": true
     },
     {
-      "id": "hinge_lower_wishbone_rr_inboard",
+      "id": "ball_lower_wishbone_rr_inboard_1",
       "type": "joint",
-      "joint_type": "revolute",
+      "joint_type": "spherical",
       "body_a": "chassis",
       "frame_a": {
         "position": [
@@ -2062,10 +2351,10 @@
           -0.16
         ],
         "orientation": [
-          -0.0,
-          -0.697744,
           0.0,
-          0.7163472
+          0.0,
+          0.0,
+          1.0
         ]
       },
       "body_b": "lower_wishbone_rr",
@@ -2076,10 +2365,44 @@
           -0.16
         ],
         "orientation": [
-          -0.0,
-          -0.697744,
           0.0,
-          0.7163472
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_wishbone_rr_inboard_2",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.78,
+          0.2541,
+          -0.15
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "lower_wishbone_rr",
+      "frame_b": {
+        "position": [
+          -2.78,
+          0.2541,
+          -0.15
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
         ]
       },
       "x_derived": true
@@ -2223,7 +2546,8 @@
       "free_length": 0.235,
       "x_converted_from_wheel_rate": {
         "motion_ratio": 0.62,
-        "estimated": false
+        "estimated": false,
+        "wheel_rate": 42000.0
       },
       "rate": 109261.1863,
       "visual": {

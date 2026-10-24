@@ -168,7 +168,12 @@
           -0.7275
         ],
         "description": "Leaf spring pack",
-        "x_derived": true
+        "x_derived": true,
+        "_est": true,
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.spring_pad"
+        }
       },
       {
         "id": "wheel_a1r",
@@ -194,7 +199,12 @@
           -0.7275
         ],
         "description": "Leaf spring pack",
-        "x_derived": true
+        "x_derived": true,
+        "_est": true,
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.spring_pad"
+        }
       },
       {
         "id": "a2_drive_housing",
@@ -293,7 +303,12 @@
           -0.45,
           -0.41500000000000004
         ],
-        "x_derived": true
+        "x_derived": true,
+        "_est": true,
+        "x_legacy_link": {
+          "type": "torque_rod",
+          "outboard_ref": "hardpoints.lower_rod_end"
+        }
       },
       {
         "id": "upper_torque_rod_a2l",
@@ -305,7 +320,12 @@
           -0.185,
           -0.76
         ],
-        "x_derived": true
+        "x_derived": true,
+        "_est": true,
+        "x_legacy_link": {
+          "type": "torque_rod",
+          "outboard_ref": "hardpoints.upper_rod_end"
+        }
       },
       {
         "id": "wheel_a2r",
@@ -330,7 +350,12 @@
           0.45,
           -0.41500000000000004
         ],
-        "x_derived": true
+        "x_derived": true,
+        "_est": true,
+        "x_legacy_link": {
+          "type": "torque_rod",
+          "outboard_ref": "hardpoints.lower_rod_end"
+        }
       },
       {
         "id": "upper_torque_rod_a2r",
@@ -342,7 +367,12 @@
           0.185,
           -0.76
         ],
-        "x_derived": true
+        "x_derived": true,
+        "_est": true,
+        "x_legacy_link": {
+          "type": "torque_rod",
+          "outboard_ref": "hardpoints.upper_rod_end"
+        }
       },
       {
         "id": "a3_drive_housing",
@@ -441,7 +471,12 @@
           -0.45,
           -0.41500000000000004
         ],
-        "x_derived": true
+        "x_derived": true,
+        "_est": true,
+        "x_legacy_link": {
+          "type": "torque_rod",
+          "outboard_ref": "hardpoints.lower_rod_end"
+        }
       },
       {
         "id": "upper_torque_rod_a3l",
@@ -453,7 +488,12 @@
           -0.185,
           -0.76
         ],
-        "x_derived": true
+        "x_derived": true,
+        "_est": true,
+        "x_legacy_link": {
+          "type": "torque_rod",
+          "outboard_ref": "hardpoints.upper_rod_end"
+        }
       },
       {
         "id": "wheel_a3r",
@@ -478,7 +518,12 @@
           0.45,
           -0.41500000000000004
         ],
-        "x_derived": true
+        "x_derived": true,
+        "_est": true,
+        "x_legacy_link": {
+          "type": "torque_rod",
+          "outboard_ref": "hardpoints.lower_rod_end"
+        }
       },
       {
         "id": "upper_torque_rod_a3r",
@@ -490,7 +535,12 @@
           0.185,
           -0.76
         ],
-        "x_derived": true
+        "x_derived": true,
+        "_est": true,
+        "x_legacy_link": {
+          "type": "torque_rod",
+          "outboard_ref": "hardpoints.upper_rod_end"
+        }
       },
       {
         "id": "a4_steered_tag_axle",
@@ -603,7 +653,12 @@
           -0.45,
           -0.41500000000000004
         ],
-        "x_derived": true
+        "x_derived": true,
+        "_est": true,
+        "x_legacy_link": {
+          "type": "torque_rod",
+          "outboard_ref": "hardpoints.lower_rod_end"
+        }
       },
       {
         "id": "upper_torque_rod_a4l",
@@ -615,7 +670,12 @@
           -0.185,
           -0.76
         ],
-        "x_derived": true
+        "x_derived": true,
+        "_est": true,
+        "x_legacy_link": {
+          "type": "torque_rod",
+          "outboard_ref": "hardpoints.upper_rod_end"
+        }
       },
       {
         "id": "wheel_a4r",
@@ -640,7 +700,12 @@
           0.45,
           -0.41500000000000004
         ],
-        "x_derived": true
+        "x_derived": true,
+        "_est": true,
+        "x_legacy_link": {
+          "type": "torque_rod",
+          "outboard_ref": "hardpoints.lower_rod_end"
+        }
       },
       {
         "id": "upper_torque_rod_a4r",
@@ -652,7 +717,12 @@
           0.185,
           -0.76
         ],
-        "x_derived": true
+        "x_derived": true,
+        "_est": true,
+        "x_legacy_link": {
+          "type": "torque_rod",
+          "outboard_ref": "hardpoints.upper_rod_end"
+        }
       }
     ]
   },

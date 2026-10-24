@@ -119,7 +119,11 @@
           -0.64
         ],
         "description": "Trailing arm",
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.arm_axle_seat"
+        }
       },
       {
         "id": "wheel_a1r",
@@ -145,7 +149,11 @@
           -0.64
         ],
         "description": "Trailing arm",
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.arm_axle_seat"
+        }
       },
       {
         "id": "a2_beam",
@@ -228,7 +236,11 @@
           -0.64
         ],
         "description": "Trailing arm",
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.arm_axle_seat"
+        }
       },
       {
         "id": "wheel_a2r",
@@ -254,7 +266,11 @@
           -0.64
         ],
         "description": "Trailing arm",
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.arm_axle_seat"
+        }
       },
       {
         "id": "a3_beam",
@@ -337,7 +353,11 @@
           -0.64
         ],
         "description": "Trailing arm",
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.arm_axle_seat"
+        }
       },
       {
         "id": "wheel_a3r",
@@ -363,7 +383,11 @@
           -0.64
         ],
         "description": "Trailing arm",
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.arm_axle_seat"
+        }
       }
     ],
     "markers": {
@@ -594,7 +618,8 @@
       "nominal_pressure": 480000,
       "x_converted_from_wheel_rate": {
         "motion_ratio": 1.0,
-        "estimated": true
+        "estimated": true,
+        "wheel_rate": 160000
       },
       "rate": 160000.0,
       "x_derived": true
@@ -801,7 +826,8 @@
       "nominal_pressure": 480000,
       "x_converted_from_wheel_rate": {
         "motion_ratio": 1.0,
-        "estimated": true
+        "estimated": true,
+        "wheel_rate": 160000
       },
       "rate": 160000.0,
       "x_derived": true
@@ -1008,7 +1034,8 @@
       "nominal_pressure": 480000,
       "x_converted_from_wheel_rate": {
         "motion_ratio": 1.0,
-        "estimated": true
+        "estimated": true,
+        "wheel_rate": 160000
       },
       "rate": 160000.0,
       "x_derived": true
@@ -1215,7 +1242,8 @@
       "nominal_pressure": 480000,
       "x_converted_from_wheel_rate": {
         "motion_ratio": 1.0,
-        "estimated": true
+        "estimated": true,
+        "wheel_rate": 160000
       },
       "rate": 160000.0,
       "x_derived": true
@@ -1422,7 +1450,8 @@
       "nominal_pressure": 480000,
       "x_converted_from_wheel_rate": {
         "motion_ratio": 1.0,
-        "estimated": true
+        "estimated": true,
+        "wheel_rate": 160000
       },
       "rate": 160000.0,
       "x_derived": true
@@ -1629,7 +1658,8 @@
       "nominal_pressure": 480000,
       "x_converted_from_wheel_rate": {
         "motion_ratio": 1.0,
-        "estimated": true
+        "estimated": true,
+        "wheel_rate": 160000
       },
       "rate": 160000.0,
       "x_derived": true

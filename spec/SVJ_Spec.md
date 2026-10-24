@@ -3154,7 +3154,7 @@ The mechanism is defined by its components, never by a name or a type. A double 
 | Wheel carrier (upright, hub carrier, axle housing, De Dion tube) | a `mass_body`; its hardpoints are `markers` (`wheel_center`, `strut_lower`, `spring_pad`, …) |
 | Control arms, links, tie rods, struts, torque rods | `mass_bodies`, with their canonical part names (§25.7) |
 | Wheel (rim + tyre) | a `mass_body` joined to the carrier by a `revolute` joint about the lateral axis through the wheel centre |
-| Link ends | `joint` constraints with coincident frames and stated types (spherical, revolute, translational, fixed, …); compliance as `joint.bushing` |
+| Link ends | `joint` constraints with coincident frames and stated types (spherical, revolute, translational, fixed, …); compliance as `joint.bushing`. An arm with two chassis pivots (A-arm, semi-trailing arm, trailing arm on two bushings) is **two `spherical` joints at the real pickup points**: the line through them is the hinge axis, and each pickup keeps its own bushing (`bushings[i]` of the old link goes to pickup *i*). One `revolute` joint is for a hinge whose pickup points are not known |
 | Steering rack | a `mass_body` on a lateral `translational` joint; tie rods hang from it |
 | Coil, air, torsion-bar spring | `spring` (§24.5) |
 | Damper | `damper` (§24.5.1) |

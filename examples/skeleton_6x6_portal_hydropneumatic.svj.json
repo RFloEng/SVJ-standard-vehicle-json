@@ -137,7 +137,11 @@
           -0.45,
           -0.46499999999999997
         ],
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "torque_rod",
+          "outboard_ref": "hardpoints.lower_rod_end"
+        }
       },
       {
         "id": "upper_torque_rod_a1l",
@@ -149,7 +153,11 @@
           -0.185,
           -0.8500000000000001
         ],
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "torque_rod",
+          "outboard_ref": "hardpoints.upper_rod_end"
+        }
       },
       {
         "id": "wheel_a1r",
@@ -174,7 +182,11 @@
           0.45,
           -0.46499999999999997
         ],
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "torque_rod",
+          "outboard_ref": "hardpoints.lower_rod_end"
+        }
       },
       {
         "id": "upper_torque_rod_a1r",
@@ -186,7 +198,11 @@
           0.185,
           -0.8500000000000001
         ],
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "torque_rod",
+          "outboard_ref": "hardpoints.upper_rod_end"
+        }
       },
       {
         "id": "a2_housing",
@@ -272,7 +288,11 @@
           -0.45,
           -0.46499999999999997
         ],
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "torque_rod",
+          "outboard_ref": "hardpoints.lower_rod_end"
+        }
       },
       {
         "id": "upper_torque_rod_a2l",
@@ -284,7 +304,11 @@
           -0.185,
           -0.8500000000000001
         ],
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "torque_rod",
+          "outboard_ref": "hardpoints.upper_rod_end"
+        }
       },
       {
         "id": "wheel_a2r",
@@ -309,7 +333,11 @@
           0.45,
           -0.46499999999999997
         ],
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "torque_rod",
+          "outboard_ref": "hardpoints.lower_rod_end"
+        }
       },
       {
         "id": "upper_torque_rod_a2r",
@@ -321,7 +349,11 @@
           0.185,
           -0.8500000000000001
         ],
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "torque_rod",
+          "outboard_ref": "hardpoints.upper_rod_end"
+        }
       },
       {
         "id": "a3_housing",
@@ -407,7 +439,11 @@
           -0.45,
           -0.46499999999999997
         ],
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "torque_rod",
+          "outboard_ref": "hardpoints.lower_rod_end"
+        }
       },
       {
         "id": "upper_torque_rod_a3l",
@@ -419,7 +455,11 @@
           -0.185,
           -0.8500000000000001
         ],
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "torque_rod",
+          "outboard_ref": "hardpoints.upper_rod_end"
+        }
       },
       {
         "id": "wheel_a3r",
@@ -444,7 +484,11 @@
           0.45,
           -0.46499999999999997
         ],
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "torque_rod",
+          "outboard_ref": "hardpoints.lower_rod_end"
+        }
       },
       {
         "id": "upper_torque_rod_a3r",
@@ -456,7 +500,11 @@
           0.185,
           -0.8500000000000001
         ],
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "torque_rod",
+          "outboard_ref": "hardpoints.upper_rod_end"
+        }
       }
     ]
   },
