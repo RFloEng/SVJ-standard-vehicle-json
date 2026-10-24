@@ -14,6 +14,7 @@ from typing import Any
 from svj.drivetrain import check as drivetrain_check
 from svj.multiaxle import check as multiaxle_check
 from svj.constraints import check as constraints_check
+from svj.setups import check as setups_check
 from svj.multibody import check as multibody_check
 from svj.vehicle import STATION_RE
 
@@ -188,6 +189,8 @@ def _consistency_checks(data: dict) -> list[str]:
     # ── Movable parts (spec §24) ──
     ct_errors, ct_warnings = constraints_check(data)
     warnings.extend(f"constraints: {e}" for e in ct_errors + ct_warnings)
+    su_errors, su_warnings = setups_check(data)
+    warnings.extend(f"setups: {e}" for e in su_errors + su_warnings)
 
     # ── Attachments: interfaces (spec §27) ──
     if data.get("interfaces"):

@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.100",
+    "version": "0.103",
     "description": "Mazda MX-5 ND2 (2019+) 2.0L Skyactiv-G 6MT Club — factory specs where available, engineering estimates marked.",
     "coordinate_system": "SAE_J670",
     "units": "SI",
@@ -5567,5 +5567,932 @@
         ]
       }
     }
-  ]
+  ],
+  "adjustments": [
+    {
+      "id": "front_spring_preload",
+      "name": "Front spring preload",
+      "group": "Springs",
+      "paths": [
+        "constraints[spring_fl].preload",
+        "constraints[spring_fr].preload"
+      ],
+      "min": 0,
+      "max": 900,
+      "unit": "N",
+      "_est": true
+    },
+    {
+      "id": "rear_spring_preload",
+      "name": "Rear spring preload",
+      "group": "Springs",
+      "paths": [
+        "constraints[spring_rl].preload",
+        "constraints[spring_rr].preload"
+      ],
+      "min": 0,
+      "max": 1000,
+      "unit": "N",
+      "_est": true
+    },
+    {
+      "id": "front_damper_bump",
+      "name": "Front damper, bump",
+      "group": "Dampers",
+      "paths": [
+        "constraints[damper_fl].bump_curve",
+        "constraints[damper_fr].bump_curve"
+      ],
+      "values": [
+        [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.025,
+            225.0
+          ],
+          [
+            0.05,
+            420.0
+          ],
+          [
+            0.1,
+            675.0
+          ],
+          [
+            0.2,
+            1012.5
+          ],
+          [
+            0.5,
+            1650.0
+          ]
+        ],
+        [
+          [
+            0.0,
+            0
+          ],
+          [
+            0.025,
+            300
+          ],
+          [
+            0.05,
+            560
+          ],
+          [
+            0.1,
+            900
+          ],
+          [
+            0.2,
+            1350
+          ],
+          [
+            0.5,
+            2200
+          ]
+        ],
+        [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.025,
+            390.0
+          ],
+          [
+            0.05,
+            728.0
+          ],
+          [
+            0.1,
+            1170.0
+          ],
+          [
+            0.2,
+            1755.0
+          ],
+          [
+            0.5,
+            2860.0
+          ]
+        ]
+      ],
+      "labels": [
+        "soft",
+        "standard",
+        "firm"
+      ],
+      "_est": true
+    },
+    {
+      "id": "front_damper_rebound",
+      "name": "Front damper, rebound",
+      "group": "Dampers",
+      "paths": [
+        "constraints[damper_fl].rebound_curve",
+        "constraints[damper_fr].rebound_curve"
+      ],
+      "values": [
+        [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.025,
+            337.5
+          ],
+          [
+            0.05,
+            630.0
+          ],
+          [
+            0.1,
+            1012.5
+          ],
+          [
+            0.2,
+            1575.0
+          ],
+          [
+            0.5,
+            2700.0
+          ]
+        ],
+        [
+          [
+            0.0,
+            0
+          ],
+          [
+            0.025,
+            450
+          ],
+          [
+            0.05,
+            840
+          ],
+          [
+            0.1,
+            1350
+          ],
+          [
+            0.2,
+            2100
+          ],
+          [
+            0.5,
+            3600
+          ]
+        ],
+        [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.025,
+            585.0
+          ],
+          [
+            0.05,
+            1092.0
+          ],
+          [
+            0.1,
+            1755.0
+          ],
+          [
+            0.2,
+            2730.0
+          ],
+          [
+            0.5,
+            4680.0
+          ]
+        ]
+      ],
+      "labels": [
+        "soft",
+        "standard",
+        "firm"
+      ],
+      "_est": true
+    },
+    {
+      "id": "rear_damper_bump",
+      "name": "Rear damper, bump",
+      "group": "Dampers",
+      "paths": [
+        "constraints[damper_rl].bump_curve",
+        "constraints[damper_rr].bump_curve"
+      ],
+      "values": [
+        [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.025,
+            247.5
+          ],
+          [
+            0.05,
+            465.0
+          ],
+          [
+            0.1,
+            750.0
+          ],
+          [
+            0.2,
+            1125.0
+          ],
+          [
+            0.5,
+            1875.0
+          ]
+        ],
+        [
+          [
+            0.0,
+            0
+          ],
+          [
+            0.025,
+            330
+          ],
+          [
+            0.05,
+            620
+          ],
+          [
+            0.1,
+            1000
+          ],
+          [
+            0.2,
+            1500
+          ],
+          [
+            0.5,
+            2500
+          ]
+        ],
+        [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.025,
+            429.0
+          ],
+          [
+            0.05,
+            806.0
+          ],
+          [
+            0.1,
+            1300.0
+          ],
+          [
+            0.2,
+            1950.0
+          ],
+          [
+            0.5,
+            3250.0
+          ]
+        ]
+      ],
+      "labels": [
+        "soft",
+        "standard",
+        "firm"
+      ],
+      "_est": true
+    },
+    {
+      "id": "rear_damper_rebound",
+      "name": "Rear damper, rebound",
+      "group": "Dampers",
+      "paths": [
+        "constraints[damper_rl].rebound_curve",
+        "constraints[damper_rr].rebound_curve"
+      ],
+      "values": [
+        [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.025,
+            375.0
+          ],
+          [
+            0.05,
+            697.5
+          ],
+          [
+            0.1,
+            1125.0
+          ],
+          [
+            0.2,
+            1762.5
+          ],
+          [
+            0.5,
+            3000.0
+          ]
+        ],
+        [
+          [
+            0.0,
+            0
+          ],
+          [
+            0.025,
+            500
+          ],
+          [
+            0.05,
+            930
+          ],
+          [
+            0.1,
+            1500
+          ],
+          [
+            0.2,
+            2350
+          ],
+          [
+            0.5,
+            4000
+          ]
+        ],
+        [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.025,
+            650.0
+          ],
+          [
+            0.05,
+            1209.0
+          ],
+          [
+            0.1,
+            1950.0
+          ],
+          [
+            0.2,
+            3055.0
+          ],
+          [
+            0.5,
+            5200.0
+          ]
+        ]
+      ],
+      "labels": [
+        "soft",
+        "standard",
+        "firm"
+      ],
+      "_est": true
+    },
+    {
+      "id": "front_arb_rate",
+      "name": "Front anti-roll bar",
+      "group": "Anti-roll bars",
+      "path": "anti_roll_bars[arb_front].bar_rate",
+      "values": [
+        400.0,
+        600.0,
+        800.0
+      ],
+      "labels": [
+        "soft",
+        "standard",
+        "firm"
+      ],
+      "unit": "N·m/rad",
+      "_est": true
+    },
+    {
+      "id": "rear_arb_rate",
+      "name": "Rear anti-roll bar",
+      "group": "Anti-roll bars",
+      "path": "anti_roll_bars[arb_rear].bar_rate",
+      "values": [
+        250.0,
+        350.0,
+        450.0
+      ],
+      "labels": [
+        "soft",
+        "standard",
+        "firm"
+      ],
+      "unit": "N·m/rad",
+      "_est": true
+    },
+    {
+      "id": "front_tyre_pressure",
+      "name": "Front tyre pressure",
+      "group": "Tyres",
+      "paths": [
+        "wheel_stations[FL].tire.pressure",
+        "wheel_stations[FR].tire.pressure"
+      ],
+      "min": 160000,
+      "max": 280000,
+      "step": 5000,
+      "unit": "Pa",
+      "_est": true
+    },
+    {
+      "id": "rear_tyre_pressure",
+      "name": "Rear tyre pressure",
+      "group": "Tyres",
+      "paths": [
+        "wheel_stations[RL].tire.pressure",
+        "wheel_stations[RR].tire.pressure"
+      ],
+      "min": 160000,
+      "max": 280000,
+      "step": 5000,
+      "unit": "Pa",
+      "_est": true
+    }
+  ],
+  "setups": [
+    {
+      "id": "road",
+      "name": "Road (as delivered)",
+      "description": "The values of this file.",
+      "set": {
+        "constraints[spring_fl].preload": 388.8889,
+        "constraints[spring_fr].preload": 388.8889,
+        "constraints[spring_rl].preload": 447.0588,
+        "constraints[spring_rr].preload": 447.0588,
+        "constraints[damper_fl].bump_curve": [
+          [
+            0.0,
+            0
+          ],
+          [
+            0.025,
+            300
+          ],
+          [
+            0.05,
+            560
+          ],
+          [
+            0.1,
+            900
+          ],
+          [
+            0.2,
+            1350
+          ],
+          [
+            0.5,
+            2200
+          ]
+        ],
+        "constraints[damper_fr].bump_curve": [
+          [
+            0.0,
+            0
+          ],
+          [
+            0.025,
+            300
+          ],
+          [
+            0.05,
+            560
+          ],
+          [
+            0.1,
+            900
+          ],
+          [
+            0.2,
+            1350
+          ],
+          [
+            0.5,
+            2200
+          ]
+        ],
+        "constraints[damper_fl].rebound_curve": [
+          [
+            0.0,
+            0
+          ],
+          [
+            0.025,
+            450
+          ],
+          [
+            0.05,
+            840
+          ],
+          [
+            0.1,
+            1350
+          ],
+          [
+            0.2,
+            2100
+          ],
+          [
+            0.5,
+            3600
+          ]
+        ],
+        "constraints[damper_fr].rebound_curve": [
+          [
+            0.0,
+            0
+          ],
+          [
+            0.025,
+            450
+          ],
+          [
+            0.05,
+            840
+          ],
+          [
+            0.1,
+            1350
+          ],
+          [
+            0.2,
+            2100
+          ],
+          [
+            0.5,
+            3600
+          ]
+        ],
+        "constraints[damper_rl].bump_curve": [
+          [
+            0.0,
+            0
+          ],
+          [
+            0.025,
+            330
+          ],
+          [
+            0.05,
+            620
+          ],
+          [
+            0.1,
+            1000
+          ],
+          [
+            0.2,
+            1500
+          ],
+          [
+            0.5,
+            2500
+          ]
+        ],
+        "constraints[damper_rr].bump_curve": [
+          [
+            0.0,
+            0
+          ],
+          [
+            0.025,
+            330
+          ],
+          [
+            0.05,
+            620
+          ],
+          [
+            0.1,
+            1000
+          ],
+          [
+            0.2,
+            1500
+          ],
+          [
+            0.5,
+            2500
+          ]
+        ],
+        "constraints[damper_rl].rebound_curve": [
+          [
+            0.0,
+            0
+          ],
+          [
+            0.025,
+            500
+          ],
+          [
+            0.05,
+            930
+          ],
+          [
+            0.1,
+            1500
+          ],
+          [
+            0.2,
+            2350
+          ],
+          [
+            0.5,
+            4000
+          ]
+        ],
+        "constraints[damper_rr].rebound_curve": [
+          [
+            0.0,
+            0
+          ],
+          [
+            0.025,
+            500
+          ],
+          [
+            0.05,
+            930
+          ],
+          [
+            0.1,
+            1500
+          ],
+          [
+            0.2,
+            2350
+          ],
+          [
+            0.5,
+            4000
+          ]
+        ],
+        "anti_roll_bars[arb_front].bar_rate": 600.0,
+        "anti_roll_bars[arb_rear].bar_rate": 350.0,
+        "wheel_stations[FL].tire.pressure": 200000.0,
+        "wheel_stations[FR].tire.pressure": 200000.0,
+        "wheel_stations[RL].tire.pressure": 200000.0,
+        "wheel_stations[RR].tire.pressure": 200000.0
+      },
+      "_est": true
+    },
+    {
+      "id": "track",
+      "name": "Track day",
+      "description": "Firmer bars, dampers and springs, higher pressures. Illustrative values to show how a setup is written; not a Mazda recommendation.",
+      "set": {
+        "constraints[spring_fl].preload": 508.8889,
+        "constraints[spring_fr].preload": 508.8889,
+        "constraints[spring_rl].preload": 567.0588,
+        "constraints[spring_rr].preload": 567.0588,
+        "constraints[damper_fl].bump_curve": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.025,
+            390.0
+          ],
+          [
+            0.05,
+            728.0
+          ],
+          [
+            0.1,
+            1170.0
+          ],
+          [
+            0.2,
+            1755.0
+          ],
+          [
+            0.5,
+            2860.0
+          ]
+        ],
+        "constraints[damper_fr].bump_curve": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.025,
+            390.0
+          ],
+          [
+            0.05,
+            728.0
+          ],
+          [
+            0.1,
+            1170.0
+          ],
+          [
+            0.2,
+            1755.0
+          ],
+          [
+            0.5,
+            2860.0
+          ]
+        ],
+        "constraints[damper_fl].rebound_curve": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.025,
+            585.0
+          ],
+          [
+            0.05,
+            1092.0
+          ],
+          [
+            0.1,
+            1755.0
+          ],
+          [
+            0.2,
+            2730.0
+          ],
+          [
+            0.5,
+            4680.0
+          ]
+        ],
+        "constraints[damper_fr].rebound_curve": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.025,
+            585.0
+          ],
+          [
+            0.05,
+            1092.0
+          ],
+          [
+            0.1,
+            1755.0
+          ],
+          [
+            0.2,
+            2730.0
+          ],
+          [
+            0.5,
+            4680.0
+          ]
+        ],
+        "constraints[damper_rl].bump_curve": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.025,
+            429.0
+          ],
+          [
+            0.05,
+            806.0
+          ],
+          [
+            0.1,
+            1300.0
+          ],
+          [
+            0.2,
+            1950.0
+          ],
+          [
+            0.5,
+            3250.0
+          ]
+        ],
+        "constraints[damper_rr].bump_curve": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.025,
+            429.0
+          ],
+          [
+            0.05,
+            806.0
+          ],
+          [
+            0.1,
+            1300.0
+          ],
+          [
+            0.2,
+            1950.0
+          ],
+          [
+            0.5,
+            3250.0
+          ]
+        ],
+        "constraints[damper_rl].rebound_curve": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.025,
+            650.0
+          ],
+          [
+            0.05,
+            1209.0
+          ],
+          [
+            0.1,
+            1950.0
+          ],
+          [
+            0.2,
+            3055.0
+          ],
+          [
+            0.5,
+            5200.0
+          ]
+        ],
+        "constraints[damper_rr].rebound_curve": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.025,
+            650.0
+          ],
+          [
+            0.05,
+            1209.0
+          ],
+          [
+            0.1,
+            1950.0
+          ],
+          [
+            0.2,
+            3055.0
+          ],
+          [
+            0.5,
+            5200.0
+          ]
+        ],
+        "anti_roll_bars[arb_front].bar_rate": 800.0,
+        "anti_roll_bars[arb_rear].bar_rate": 450.0,
+        "wheel_stations[FL].tire.pressure": 220000.0,
+        "wheel_stations[FR].tire.pressure": 220000.0,
+        "wheel_stations[RL].tire.pressure": 210000.0,
+        "wheel_stations[RR].tire.pressure": 210000.0
+      },
+      "_est": true
+    }
+  ],
+  "active_setup": "road"
 }

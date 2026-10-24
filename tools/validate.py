@@ -30,6 +30,7 @@ from multibody_check import check as multibody_check  # noqa: E402
 from constraints_check import check as constraints_check  # noqa: E402
 import assemble as _asm  # noqa: E402
 import collision_check as _col  # noqa: E402
+import setup_check as _setup  # noqa: E402
 
 try:
     import jsonschema
@@ -113,6 +114,20 @@ def validate_file(svj_path: str, schema: dict, strict: bool) -> bool:
     errors.extend(col_errors)
     warnings.extend(col_warnings)
 
+    # Adjustments and setups (spec §29): ranges, paths, and every setup must still validate once applied
+    su_errors, su_warnings = _setup.check(doc)
+    errors.extend(su_errors)
+    warnings.extend(su_warnings)
+    if not su_errors:
+        for st in doc.get("setups") or []:
+            applied = _setup.apply_setup(doc, st["id"])
+            for err in validator.iter_errors(applied):
+                if not _is_ref_error(err):
+                    path_str = " → ".join(str(p) for p in err.absolute_path) if err.absolute_path else "<root>"
+                    errors.append(f"setup '{st['id']}': [{path_str}] {err.message}")
+            c_e, c_w = constraints_check(applied)
+            errors.extend(f"setup '{st['id']}': {e}" for e in c_e)
+
     # Attachments: interfaces and fitted units (spec §27)
     if doc.get("interfaces"):
         i_errors, i_warnings = _asm.check_interfaces(doc)
@@ -141,10 +156,10 @@ def validate_file(svj_path: str, schema: dict, strict: bool) -> bool:
 
     # Version advisory
     version = doc.get("_metadata", {}).get("version", "unknown")
-    if version not in ("0.99", "0.99.1", "0.99.2", "0.99.3", "0.99.4", "0.99.5", "0.99.6", "0.99.7", "0.99.8", "0.100", "0.101", "0.102"):
+    if version not in ("0.99", "0.99.1", "0.99.2", "0.99.3", "0.99.4", "0.99.5", "0.99.6", "0.99.7", "0.99.8", "0.100", "0.101", "0.102", "0.103"):
         warnings.append(
-            f"_metadata.version is '{version}' — current spec is '0.102' "
-            "(collision proxies)"
+            f"_metadata.version is '{version}' — current spec is '0.103' "
+            "(adjustments and setups)"
         )
 
     for w in warnings:

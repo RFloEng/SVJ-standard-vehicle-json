@@ -1995,3 +1995,114 @@ class TestLeafPackFrictionAndShackle:
         doc = {"chassis": {"mass_bodies": [dict(z, id="axle", name="Axle", mass=60.0, position=[0, 0.5, -0.2])] + r["bodies"]},
                "constraints": r["constraints"]}
         assert check(doc)[0] == []
+
+
+class TestAdjustmentsAndSetups:
+    """Spec §29: adjustments[], setups[], active_setup."""
+
+    def _doc(self):
+        return {"_metadata": {"version": "0.103"},
+                "constraints": [{"id": "spring_fl", "type": "spring", "preload": 350.0}, {"id": "spring_fr", "type": "spring", "preload": 350.0},
+                                {"id": "trailer.hinge", "type": "joint", "stiffness": 1.0}],
+                "wheel_stations": [{"id": "FL", "tire": {"pressure": 200000.0}}],
+                "tires": {"sets": {"s1": {"pressure": 210000.0}}},
+                "adjustments": [{"id": "pre", "paths": ["constraints[spring_fl].preload", "constraints[spring_fr].preload"], "min": 0, "max": 800},
+                                {"id": "p", "path": "wheel_stations[FL].tire.pressure", "min": 160000, "max": 280000, "step": 5000},
+                                {"id": "arb", "path": "tires.sets.s1.pressure", "values": [200000.0, 210000.0], "labels": ["lo", "hi"]}],
+                "setups": [{"id": "base", "set": {"constraints[spring_fl].preload": 350.0, "constraints[spring_fr].preload": 350.0}},
+                           {"id": "track", "set": {"constraints[spring_fl].preload": 500.0, "constraints[spring_fr].preload": 500.0,
+                                                   "wheel_stations[FL].tire.pressure": 220000.0}}],
+                "active_setup": "base"}
+
+    def test_checker_in_sync(self):
+        a = (REPO_ROOT / "tools" / "setup_check.py").read_text(encoding="utf-8").splitlines()
+        b = (REPO_ROOT / "svj-py" / "svj" / "setups.py").read_text(encoding="utf-8").splitlines()
+        assert a == b
+
+    def test_paths(self):
+        from svj.setups import get_path, set_path, parse_path
+        d = self._doc()
+        assert parse_path("constraints[trailer.hinge].stiffness") == [("constraints", "trailer.hinge"), ("stiffness", None)]
+        assert get_path(d, "constraints[spring_fl].preload") == 350.0
+        assert get_path(d, "tires.sets.s1.pressure") == 210000.0
+        assert get_path(d, "constraints[trailer.hinge].stiffness") == 1.0
+        set_path(d, "wheel_stations[FL].tire.pressure", 1.0)
+        assert d["wheel_stations"][0]["tire"]["pressure"] == 1.0
+        with pytest.raises(KeyError):
+            get_path(d, "constraints[nope].preload")
+        with pytest.raises(KeyError):
+            set_path(d, "constraints[spring_fl]", 1)            # a path ends at a value, not at an array element
+
+    def test_clean_document_has_no_findings(self):
+        from svj.setups import check
+        assert check(self._doc()) == ([], [])
+
+    def test_value_outside_range_and_list_is_an_error(self):
+        from svj.setups import check
+        d = self._doc()
+        d["constraints"][0]["preload"] = 900.0
+        d["tires"]["sets"]["s1"]["pressure"] = 215000.0
+        errors, _ = check(d)
+        assert any("outside the adjustment" in e and "preload" in e for e in errors)
+        assert any("outside the adjustment" in e and "tires.sets" in e for e in errors)
+
+    def test_setup_checks(self):
+        from svj.setups import check
+        d = self._doc()
+        d["setups"][1]["set"]["wheel_stations[FL].tire.pressure"] = 300000.0            # outside the range
+        d["setups"][1]["set"]["constraints[nope].preload"] = 1.0                           # does not resolve
+        d["setups"].append({"id": "track", "set": {}})                                     # duplicate id
+        d["active_setup"] = "ghost"
+        errors, _ = check(d)
+        assert any("outside the adjustment 'p'" in e for e in errors)
+        assert any("does not resolve" in e for e in errors)
+        assert any("duplicate id" in e for e in errors)
+        assert any("active_setup 'ghost'" in e for e in errors)
+
+    def test_warnings(self):
+        from svj.setups import check
+        d = self._doc()
+        d["setups"][1]["set"] = {"constraints[spring_fl].preload": 500.0,                  # only one of two linked paths
+                                 "constraints[trailer.hinge].stiffness": 2.0}              # no adjustment declares it
+        d["wheel_stations"][0]["tire"]["pressure"] = 201000.0                              # off the 5000 step grid
+        d["active_setup"] = "track"                                                        # the file does not carry track's values
+        _, warnings = check(d)
+        assert any("only some of the linked paths" in w for w in warnings)
+        assert any("no adjustment declares" in w for w in warnings)
+        assert any("step grid" in w for w in warnings)
+        assert any("differs from the setup's" in w for w in warnings)
+
+    def test_range_and_list_must_be_well_formed(self):
+        from svj.setups import check
+        d = self._doc()
+        d["adjustments"] += [{"id": "bad1", "path": "constraints[spring_fl].preload", "min": 5, "max": 1},
+                             {"id": "bad2", "path": "constraints[spring_fl].preload", "min": 0, "max": 9, "values": [1]},
+                             {"id": "bad3", "path": "constraints[spring_fl].nothing", "min": 0, "max": 9},
+                             {"id": "bad4", "path": "constraints[spring_fl].type", "min": 0, "max": 9},
+                             {"id": "bad5", "path": "tires.sets.s1.pressure", "values": [1, 2], "labels": ["a"]}]
+        errors, _ = check(d)
+        for needle in ("above max", "not both", "does not resolve", "not a number", "one entry per value"):
+            assert any(needle in e for e in errors), needle
+
+    def test_apply_setup(self):
+        from svj.setups import apply_setup
+        d = self._doc()
+        out = apply_setup(d, "track")
+        assert out["constraints"][0]["preload"] == 500.0 and out["wheel_stations"][0]["tire"]["pressure"] == 220000.0
+        assert out["active_setup"] == "track"
+        assert d["constraints"][0]["preload"] == 350.0                                       # the input is untouched
+        with pytest.raises(KeyError):
+            apply_setup(d, "missing")
+
+    def test_template_adjustments_and_setups(self):
+        from svj import Vehicle
+        from svj.setups import check
+        v = Vehicle.from_file(TEMPLATE) if hasattr(Vehicle, "from_file") else Vehicle(json.loads(TEMPLATE.read_text(encoding="utf-8")))
+        assert check(v.data) == ([], [])
+        assert {s["id"] for s in v.setups} == {"road", "track"} and v.active_setup == "road"
+        t = v.apply_setup("track")
+        assert t.active_setup == "track"
+        assert next(c for c in t.data["constraints"] if c["id"] == "spring_fl")["preload"] > next(c for c in v.data["constraints"] if c["id"] == "spring_fl")["preload"]
+        # the track setup still validates against the schema and the constraint checks
+        from svj.constraints import check as cc
+        assert cc(t.data)[0] == []
