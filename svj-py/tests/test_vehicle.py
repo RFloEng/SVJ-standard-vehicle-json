@@ -1034,7 +1034,9 @@ class TestSuspensionView:
         strut = ids["slide_strut_fl_outboard"]
         assert (strut["joint_type"], strut["body_a"], strut["body_b"]) == ("translational", "strut_fl", "upright_fl")
         assert ids["fixed_strut_fl_inboard"]["joint_type"] == "fixed"          # the legacy fixture states it explicitly: an explicit value wins
-        assert ids["hinge_lower_control_arm_fl_inboard"]["joint_type"] == "revolute"
+        assert ids["ball_lower_control_arm_fl_inboard_1"]["joint_type"] == "spherical"       # a two-pivot arm: one spherical joint per real pickup
+        assert ids["ball_lower_control_arm_fl_inboard_2"]["joint_type"] == "spherical"
+        assert "hinge_lower_control_arm_fl_inboard" not in ids
         assert ids["ball_lower_control_arm_fl_outboard"]["joint_type"] == "spherical"
         assert ids["ball_steering_tie_rod_fl_inboard"]["joint_type"] == "spherical"
         assert ids["hinge_wheel_fl"]["body_a"] == "upright_fl" and ids["hinge_wheel_fl"]["body_b"] == "wheel_fl"
@@ -1048,13 +1050,10 @@ class TestSuspensionView:
         pts = {b["name"]: b for b in d["suspension"]["FL"]["topology"]["links"]}
         arm = pts["lower_control_arm"]["inboard_points"]
         ids = {c["id"]: c for c in expand_suspension(d)["constraints"]}
-        hinge = ids["hinge_lower_control_arm_fl_inboard"]
-        assert hinge["frame_a"] == hinge["frame_b"]
-        z = [quat_to_mat(hinge["frame_a"]["orientation"])[i][2] for i in range(3)]
-        axis = [arm[1][i] - arm[0][i] for i in range(3)]
-        n = math.sqrt(sum(c * c for c in axis))
-        assert z == pytest.approx([c / n for c in axis], abs=1e-6)             # hinge axis through the two inboard points
-        assert hinge["frame_a"]["position"] == pytest.approx(arm[0], abs=1e-6)
+        for k in (0, 1):                                                       # one spherical joint at each real inboard point
+            ball = ids[f"ball_lower_control_arm_fl_inboard_{k + 1}"]
+            assert ball["frame_a"] == ball["frame_b"]
+            assert ball["frame_a"]["position"] == pytest.approx(arm[k], abs=1e-6)
         # the strut slides along top -> lower clamp
         slide = ids["slide_strut_fl_outboard"]
         top = d["suspension"]["FL"]["topology"]["upright"]["hardpoints"]["strut_top"]
