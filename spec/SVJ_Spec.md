@@ -2399,6 +2399,7 @@ This section is **optional**. It provides a standard place to record performance
 
 | Version | Changes                                                                                    |
 |---------|--------------------------------------------------------------------------------------------|
+| 0.103   | **Adjustments and setups** (§29). Additive. Top-level `adjustments[]` (what can be changed: a range `min`/`max`/`step` or a list of `values`, on one path or several linked `paths`), `setups[]` (named `{path: value}` assignments) and `active_setup`; paths address a value with `id` selectors (`constraints[spring_fl].preload`). `_metadata.version` gains `0.103` |
 | 0.102   | **Collision proxies** (§28). Additive. `collision[]` on `chassis` and on any `mass_bodies` entry (sphere, box, cylinder in vehicle coordinates, optional `margin`, `source_node`) and a top-level `collision_ignore`; pairs of relatively movable bodies are compared in the reference pose and every pose (`tools/collision_check.py`, `svj.collision`); the validator warns about overlaps and errors on malformed proxies. `_metadata.version` gains `0.102` |
 | 0.101   | **Attachments and combinations** (§27; `proposals/svj_articulated_parts_proposal.md`, phase 4). Additive. Top-level **`interfaces[]`** (named frames with a role from a mating table, a gender and sizes), **`attachments[]`** (units fitted to a vehicle) and the **`*.svj-combination.json`** file (`schema/svj-combination.schema.json`): units joined by connections that carry a joint object. Units are ordinary SVJ files; `vehicle_info.vehicle_class: "attachment"` for units only ever fitted (chassis needs only `mass_total` and `center_of_gravity`). Assembly (`tools/assemble.py`) places units so interface frames coincide, qualifies ids `unit.id`, and builds one composite (mass, CG, inertia, poses) that all §24 / §26 machinery works on. `_metadata.version` gains `0.101` |
 | 0.100   | **Unified suspension** (§25; `proposals/svj_unified_suspension_proposal.md`) — *breaking*, with one release of transition. A wheel station is bodies, joints and elements, not a typed corner: `wheel_stations[]` (wheel and carrier bodies, wheel-centre marker, steering joint, coupling reference, tyre / brake / reference alignment, optional `topology_hint`), `anti_roll_bars[]`, new `damper` constraint, `spring` / `damper` gain `kind` (`linear` / `torsional`) and `reference` (`element` / `wheel`), spring and bump / rebound stops as elements, rack as a body on a slide, leaf pack as a body with eye / slipper / seat joints. The corner-based `suspension` section is **deprecated** (accepted, validators warn) and `tools/migrate_suspension.py` converts it, marking generated items `x_derived` (zero mass allowed only there). `mass_bodies` keeps holding every body. Body ids of known suspension parts keep their canonical names. `placement: link_between_points` works on link bodies. All 28 shipped examples and the template are migrated |
@@ -3434,6 +3435,73 @@ The **separation** of a pair is positive when the shapes are apart and negative 
 ### 28.5 Not covered yet
 
 Proxies from glTF meshes (hulls), a capsule and a true cylinder pair test, and contact with the ground. A force between proxies is a `contact`.
+
+---
+
+## 29. Adjustments and Setups *(v0.103)*
+
+A file describes a vehicle in one configuration: its numbers are the **reference setup**. Real cars are tuned: spring preload and perch height, damper clicks, anti-roll bar blades, tyre pressures, alignment. This section lets a file say **what can be changed and within what limits** (§29.2) and carry **named alternative setups** (§29.3). It is optional and additive: a reader that ignores both sees the reference setup, exactly as before.
+
+### 29.1 Paths
+
+A path addresses one value of the document: keys joined by `.`, an array element selected by its `id` in brackets.
+
+| Path | Value |
+|---|---|
+| `constraints[spring_fl].preload` | preload of the front-left spring element |
+| `constraints[damper_fl].bump_curve` | bump curve of the front-left damper |
+| `wheel_stations[FL].tire.pressure` | front-left tyre pressure (Pa) |
+| `anti_roll_bars[arb_front].bar_rate` | front anti-roll bar rate |
+| `tires.sets.front_205_45r17.pressure` | an object keyed by id is addressed with plain dots |
+
+An `id` may contain `.` (qualified ids of attached units, §27); a dot inside brackets is not a separator. A path ends at a value (a number, a string, a curve), never at an array element. It MUST resolve in the file.
+
+### 29.2 `adjustments[]`
+
+Top-level array. Each entry limits one value, or several that one adjuster moves together.
+
+| Key | Type | Required | Description |
+|---|---|---|---|
+| `id` | string | YES | Unique in the file |
+| `path` / `paths` | string / array | one of them | The value(s) driven. Several `paths` are **linked**: left and right spring perches, both halves of an axle |
+| `min`, `max`, `step` | number | range form | Continuous or stepped range; `step > 0`; the values are `min + k·step` |
+| `values` | array | list form | Allowed values (clicks, blade positions, whole curve sets); any JSON values, so a damper adjustment lists complete curves |
+| `labels` | array of string | no | One label per entry of `values` (`"soft"`, `"click 8"`) |
+| `unit` | string | no | Unit of the value, for display (the file is SI; `"Pa"`, `"N/m"`) |
+| `name`, `group` | string | no | Display name and a grouping label for setup tools |
+
+A range or a list is given, never both. The value in the file MUST be inside the range (or one of the listed values), and SHOULD lie on the step grid.
+
+```json
+"adjustments": [
+  { "id": "front_preload", "paths": ["constraints[spring_fl].preload", "constraints[spring_fr].preload"], "min": 0, "max": 800, "unit": "N" },
+  { "id": "front_arb", "path": "anti_roll_bars[arb_front].bar_rate", "values": [400, 600, 800], "labels": ["soft", "medium", "firm"] },
+  { "id": "front_pressure", "paths": ["wheel_stations[FL].tire.pressure", "wheel_stations[FR].tire.pressure"], "min": 160000, "max": 280000, "step": 5000, "unit": "Pa" }
+]
+```
+
+### 29.3 `setups[]` and `active_setup`
+
+A **setup** is a named set of assignments: `{ "id", "name"?, "description"?, "set": { "<path>": <value>, … } }`. Applying a setup writes its values over a copy of the file; everything it does not name keeps the file's value. `active_setup` names the setup whose values the file itself carries (the reference setup); a validator MAY check that applying it changes nothing.
+
+```json
+"active_setup": "road",
+"setups": [
+  { "id": "road",  "name": "Road", "set": { "anti_roll_bars[arb_front].bar_rate": 600, "wheel_stations[FL].tire.pressure": 200000 } },
+  { "id": "track", "name": "Track", "set": { "anti_roll_bars[arb_front].bar_rate": 800, "wheel_stations[FL].tire.pressure": 220000 } }
+]
+```
+
+Setups replace the use of an override file (§3.4) for alternatives that belong together; an override file stays the tool for a supplier hand-off or a DOE variant kept outside the file. A merge patch (§3.4) cannot address one element of an array such as `constraints[]`, which is why a setup names its values by path.
+
+### 29.4 Validation
+
+`tools/setup_check.py` (run by `tools/validate.py`; mirrored as `svj-py/svj/setups.py` with a sync test):
+
+- **Errors:** ids unique; every path resolves; a range has `min ≤ max` and a positive `step`, applies to a number, and the file's value is inside it; a list is non-empty, contains the file's value, and its `labels` match it in count; every value a setup assigns is inside the adjustment that declares its path; `active_setup` is a setup id; every setup, applied, still validates against the schema and passes the constraint checks (§24).
+- **Warnings:** a setup changes a path no adjustment declares; a setup moves only some of the linked paths of an adjustment; a value changes type; the file's value is off the step grid; the file's values differ from those of its `active_setup`.
+
+`svj-py`: `Vehicle.adjustments`, `.setups`, `.active_setup`, `.apply_setup(id)`.
 
 ---
 

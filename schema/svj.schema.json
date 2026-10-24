@@ -45,7 +45,8 @@
             "0.99.8",
             "0.100",
             "0.101",
-            "0.102"
+            "0.102",
+            "0.103"
           ],
           "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations). '0.99.1' adds axle_groups, plated masses and explicit wheelbase definitions. '0.99.2' extends the glTF visual binding layer: full category set, visual on links/steering/wheels/brakes/springs/dampers/aero, and the 'placement' field for parts defined by hardpoints. '0.99.3' adds differential control: lock_control (dynamic differential lock) and transfer_case.coupling (torque-limited centre coupling). '0.99.4' adds the strut_lower hardpoint convention for MacPherson/Chapman struts and damper.reference ('damper' or 'wheel'). '0.99.5' adds movable parts: constraints[] (joint, spring, actuator between mass bodies), poses[] and chassis.markers. '0.99.6' completes the constraint set: latch, coupling and joint.drive. '0.99.7' adds the optional display name on bodies, constraints and poses, and the naming vocabulary for movable parts. '0.99.8' adds the contact constraint (primitives at markers with a penalty law). '0.100' unifies the suspension: wheel stations are bodies, joints and elements (spring, damper; linear or torsional) with a thin wheel_stations[] list and anti_roll_bars[]; the corner-based suspension section is deprecated. '0.101' adds attachments: interfaces[] (named frames with a role and size), attachments[] (units fitted to this vehicle) and the svj-combination file. '0.102' adds collision proxies: collision[] on the chassis and on mass bodies, and collision_ignore."
         },
@@ -2525,6 +2526,51 @@
           }
         }
       }
+    },
+    "adjustments": {
+      "type": "array",
+      "description": "What can be changed in this file and within what limits (v0.103, spec §29.2). The values in the file are the reference setup; each entry limits one value (or several linked ones) to a range or a list of allowed values.",
+      "items": {
+        "type": "object",
+        "required": ["id"],
+        "additionalProperties": true,
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "name": {"type": "string"},
+          "group": {"type": "string", "description": "Grouping label for a setup tool (e.g. 'front springs')."},
+          "path": {"type": "string", "description": "Path of the adjusted value, e.g. constraints[spring_fl].preload (spec §29.1)."},
+          "paths": {"type": "array", "minItems": 1, "items": {"type": "string"}, "description": "Linked values moved together by one adjuster (left and right spring perches)."},
+          "min": {"type": "number"},
+          "max": {"type": "number"},
+          "step": {"type": "number", "exclusiveMinimum": 0},
+          "values": {"type": "array", "minItems": 1, "description": "Discrete positions (clicks, blade positions, curve sets); any JSON values."},
+          "labels": {"type": "array", "items": {"type": "string"}, "description": "One label per entry of `values`."},
+          "unit": {"type": "string"},
+          "_est": {"type": "boolean"},
+          "_note": {"type": "string"}
+        }
+      }
+    },
+    "setups": {
+      "type": "array",
+      "description": "Named alternative setups of this vehicle (v0.103, spec §29.3): each one assigns values to paths of the file.",
+      "items": {
+        "type": "object",
+        "required": ["id", "set"],
+        "additionalProperties": true,
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "name": {"type": "string"},
+          "description": {"type": "string"},
+          "set": {"type": "object", "description": "{path: value}", "additionalProperties": true},
+          "_est": {"type": "boolean"},
+          "_note": {"type": "string"}
+        }
+      }
+    },
+    "active_setup": {
+      "type": "string",
+      "description": "Id of the setup the values of this file correspond to (v0.103, spec §29.3)."
     },
     "collision_ignore": {
       "type": "array",

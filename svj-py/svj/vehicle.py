@@ -276,6 +276,26 @@ class Vehicle:
         """The `attachments` array: units fitted to this vehicle (spec §27.4)."""
         return self.data.get("attachments", [])
 
+    @property
+    def adjustments(self) -> list[dict[str, Any]]:
+        """The `adjustments` array: what can be changed and within what limits (spec §29.2)."""
+        return self.data.get("adjustments", [])
+
+    @property
+    def setups(self) -> list[dict[str, Any]]:
+        """The `setups` array: named alternative setups, each `{path: value}` (spec §29.3)."""
+        return self.data.get("setups", [])
+
+    @property
+    def active_setup(self) -> str | None:
+        """Id of the setup this file's values correspond to, when declared."""
+        return self.data.get("active_setup")
+
+    def apply_setup(self, setup_id: str) -> "Vehicle":
+        """A copy of this vehicle with the values of one setup written in (spec §29.3)."""
+        from svj.setups import apply_setup
+        return Vehicle(apply_setup(self.data, setup_id))
+
     def clashes(self, pose=None, tolerance: float = 0.0) -> list[dict]:
         """Collision proxies of relatively movable bodies closer than `tolerance` (m) in `pose` (spec §28)."""
         from svj.collision import clashes
