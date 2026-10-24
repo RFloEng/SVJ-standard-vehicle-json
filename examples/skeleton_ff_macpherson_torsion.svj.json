@@ -89,7 +89,11 @@
           -0.52,
           -0.62
         ],
-        "parent": "chassis"
+        "parent": "chassis",
+        "x_legacy_link": {
+          "type": "strut",
+          "outboard_ref": "hardpoints.strut_lower"
+        }
       },
       {
         "id": "lower_control_arm_fl",
@@ -101,7 +105,11 @@
           -0.3533,
           -0.13
         ],
-        "parent": "chassis"
+        "parent": "chassis",
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.lower_ball_joint"
+        }
       },
       {
         "id": "steering_tie_rod_fl",
@@ -113,7 +121,11 @@
           -0.37,
           -0.18
         ],
-        "parent": "chassis"
+        "parent": "chassis",
+        "x_legacy_link": {
+          "type": "rod",
+          "outboard_ref": "hardpoints.steering_tie_rod_end"
+        }
       },
       {
         "id": "upright_fr",
@@ -174,7 +186,11 @@
           0.52,
           -0.62
         ],
-        "parent": "chassis"
+        "parent": "chassis",
+        "x_legacy_link": {
+          "type": "strut",
+          "outboard_ref": "hardpoints.strut_lower"
+        }
       },
       {
         "id": "lower_control_arm_fr",
@@ -186,7 +202,11 @@
           0.3533,
           -0.13
         ],
-        "parent": "chassis"
+        "parent": "chassis",
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.lower_ball_joint"
+        }
       },
       {
         "id": "steering_tie_rod_fr",
@@ -198,7 +218,11 @@
           0.37,
           -0.18
         ],
-        "parent": "chassis"
+        "parent": "chassis",
+        "x_legacy_link": {
+          "type": "rod",
+          "outboard_ref": "hardpoints.steering_tie_rod_end"
+        }
       },
       {
         "id": "upright_rl",
@@ -222,7 +246,11 @@
           -0.4417,
           -0.2567
         ],
-        "parent": "chassis"
+        "parent": "chassis",
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.wheel_center"
+        }
       },
       {
         "id": "upright_rr",
@@ -246,7 +274,11 @@
           0.4417,
           -0.2567
         ],
-        "parent": "chassis"
+        "parent": "chassis",
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.wheel_center"
+        }
       },
       {
         "id": "wheel_fl",
@@ -581,9 +613,9 @@
       "x_derived": true
     },
     {
-      "id": "hinge_lower_control_arm_fl_inboard",
+      "id": "ball_lower_control_arm_fl_inboard_1",
       "type": "joint",
-      "joint_type": "revolute",
+      "joint_type": "spherical",
       "body_a": "chassis",
       "frame_a": {
         "position": [
@@ -592,10 +624,10 @@
           -0.13
         ],
         "orientation": [
-          -0.0,
-          -0.7071068,
           0.0,
-          0.7071068
+          0.0,
+          0.0,
+          1.0
         ]
       },
       "body_b": "lower_control_arm_fl",
@@ -606,10 +638,44 @@
           -0.13
         ],
         "orientation": [
-          -0.0,
-          -0.7071068,
           0.0,
-          0.7071068
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_control_arm_fl_inboard_2",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.15,
+          -0.22,
+          -0.13
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "lower_control_arm_fl",
+      "frame_b": {
+        "position": [
+          -0.15,
+          -0.22,
+          -0.13
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
         ]
       },
       "x_derived": true
@@ -952,9 +1018,9 @@
       "x_derived": true
     },
     {
-      "id": "hinge_lower_control_arm_fr_inboard",
+      "id": "ball_lower_control_arm_fr_inboard_1",
       "type": "joint",
-      "joint_type": "revolute",
+      "joint_type": "spherical",
       "body_a": "chassis",
       "frame_a": {
         "position": [
@@ -963,10 +1029,10 @@
           -0.13
         ],
         "orientation": [
-          -0.0,
-          -0.7071068,
           0.0,
-          0.7071068
+          0.0,
+          0.0,
+          1.0
         ]
       },
       "body_b": "lower_control_arm_fr",
@@ -977,10 +1043,44 @@
           -0.13
         ],
         "orientation": [
-          -0.0,
-          -0.7071068,
           0.0,
-          0.7071068
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_control_arm_fr_inboard_2",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.15,
+          0.22,
+          -0.13
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "lower_control_arm_fr",
+      "frame_b": {
+        "position": [
+          -0.15,
+          0.22,
+          -0.13
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
         ]
       },
       "x_derived": true
@@ -1221,9 +1321,9 @@
       "x_derived": true
     },
     {
-      "id": "hinge_trailing_arm_rl_inboard",
+      "id": "ball_trailing_arm_rl_inboard_1",
       "type": "joint",
-      "joint_type": "revolute",
+      "joint_type": "spherical",
       "body_a": "chassis",
       "frame_a": {
         "position": [
@@ -1232,10 +1332,10 @@
           -0.18
         ],
         "orientation": [
-          1.0,
           0.0,
           0.0,
-          0.0
+          0.0,
+          1.0
         ]
       },
       "body_b": "trailing_arm_rl",
@@ -1246,10 +1346,44 @@
           -0.18
         ],
         "orientation": [
-          1.0,
           0.0,
           0.0,
-          0.0
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_trailing_arm_rl_inboard_2",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.2,
+          -0.28,
+          -0.28
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "trailing_arm_rl",
+      "frame_b": {
+        "position": [
+          -2.2,
+          -0.28,
+          -0.28
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
         ]
       },
       "x_derived": true
@@ -1422,9 +1556,9 @@
       "x_derived": true
     },
     {
-      "id": "hinge_trailing_arm_rr_inboard",
+      "id": "ball_trailing_arm_rr_inboard_1",
       "type": "joint",
-      "joint_type": "revolute",
+      "joint_type": "spherical",
       "body_a": "chassis",
       "frame_a": {
         "position": [
@@ -1433,10 +1567,10 @@
           -0.18
         ],
         "orientation": [
-          1.0,
           0.0,
           0.0,
-          0.0
+          0.0,
+          1.0
         ]
       },
       "body_b": "trailing_arm_rr",
@@ -1447,10 +1581,44 @@
           -0.18
         ],
         "orientation": [
-          1.0,
           0.0,
           0.0,
-          0.0
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_trailing_arm_rr_inboard_2",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.2,
+          0.28,
+          -0.28
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "trailing_arm_rr",
+      "frame_b": {
+        "position": [
+          -2.2,
+          0.28,
+          -0.28
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
         ]
       },
       "x_derived": true

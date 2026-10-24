@@ -136,7 +136,13 @@
           -0.5680000000000001,
           -0.585
         ],
-        "x_derived": true
+        "x_derived": true,
+        "_est": true,
+        "_note": "Half-axle pivots on the central backbone tube; wheel hub reduction at the outer end (published)",
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.wheel_center"
+        }
       },
       {
         "id": "hub_a1r",
@@ -204,7 +210,13 @@
           0.5680000000000001,
           -0.585
         ],
-        "x_derived": true
+        "x_derived": true,
+        "_est": true,
+        "_note": "Half-axle pivots on the central backbone tube; wheel hub reduction at the outer end (published)",
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.wheel_center"
+        }
       },
       {
         "id": "hub_a2l",
@@ -272,7 +284,13 @@
           -0.5680000000000001,
           -0.585
         ],
-        "x_derived": true
+        "x_derived": true,
+        "_est": true,
+        "_note": "Half-axle pivots on the central backbone tube; wheel hub reduction at the outer end (published)",
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.wheel_center"
+        }
       },
       {
         "id": "hub_a2r",
@@ -340,7 +358,13 @@
           0.5680000000000001,
           -0.585
         ],
-        "x_derived": true
+        "x_derived": true,
+        "_est": true,
+        "_note": "Half-axle pivots on the central backbone tube; wheel hub reduction at the outer end (published)",
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.wheel_center"
+        }
       },
       {
         "id": "hub_a3l",
@@ -401,7 +425,13 @@
           -0.5680000000000001,
           -0.585
         ],
-        "x_derived": true
+        "x_derived": true,
+        "_est": true,
+        "_note": "Half-axle pivots on the central backbone tube; wheel hub reduction at the outer end (published)",
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.wheel_center"
+        }
       },
       {
         "id": "hub_a3r",
@@ -462,7 +492,13 @@
           0.5680000000000001,
           -0.585
         ],
-        "x_derived": true
+        "x_derived": true,
+        "_est": true,
+        "_note": "Half-axle pivots on the central backbone tube; wheel hub reduction at the outer end (published)",
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.wheel_center"
+        }
       },
       {
         "id": "hub_a4l",
@@ -523,7 +559,13 @@
           -0.5680000000000001,
           -0.585
         ],
-        "x_derived": true
+        "x_derived": true,
+        "_est": true,
+        "_note": "Half-axle pivots on the central backbone tube; wheel hub reduction at the outer end (published)",
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.wheel_center"
+        }
       },
       {
         "id": "hub_a4r",
@@ -584,7 +626,13 @@
           0.5680000000000001,
           -0.585
         ],
-        "x_derived": true
+        "x_derived": true,
+        "_est": true,
+        "_note": "Half-axle pivots on the central backbone tube; wheel hub reduction at the outer end (published)",
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.wheel_center"
+        }
       }
     ]
   },

@@ -81,7 +81,11 @@
           -0.73,
           -0.365
         ],
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.wheel_center"
+        }
       },
       {
         "id": "hub_a1r",
@@ -128,7 +132,11 @@
           0.73,
           -0.365
         ],
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.wheel_center"
+        }
       },
       {
         "id": "hub_a2l",
@@ -175,7 +183,11 @@
           -0.73,
           -0.365
         ],
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.wheel_center"
+        }
       },
       {
         "id": "hub_a2r",
@@ -222,7 +234,11 @@
           0.73,
           -0.365
         ],
-        "x_derived": true
+        "x_derived": true,
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.wheel_center"
+        }
       }
     ]
   },

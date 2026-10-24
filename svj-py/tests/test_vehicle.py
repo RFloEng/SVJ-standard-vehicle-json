@@ -1321,7 +1321,7 @@ class TestUnifiedSuspension:
         mr = old["motion_ratio"]
         assert sp.get("reference") != "wheel"
         assert sp["rate"] == pytest.approx(old["rate"] / mr ** 2, rel=1e-4)                     # wheel rate -> element rate
-        assert sp["x_converted_from_wheel_rate"] == {"motion_ratio": mr, "estimated": False}
+        assert sp["x_converted_from_wheel_rate"] == {"motion_ratio": mr, "estimated": False, "wheel_rate": old["rate"], "wheel_preload": old["preload"]}   # the quoted wheel values are kept
         assert sp["preload"] == pytest.approx(old["preload"] / mr, rel=1e-4)
         assert sp["spring_type"] == "coilover"
 

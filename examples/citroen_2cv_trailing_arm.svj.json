@@ -69,7 +69,12 @@
           -0.3767,
           -0.26
         ],
-        "parent": "chassis"
+        "parent": "chassis",
+        "_note": "Leading arm: pivot BEHIND wheel (X=-0.35 vs wheel X=0.0). Lateral pivot axis (points differ in Y only).",
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.wheel_center"
+        }
       },
       {
         "id": "upright_fr",
@@ -109,7 +114,12 @@
           0.3767,
           -0.26
         ],
-        "parent": "chassis"
+        "parent": "chassis",
+        "_note": "Leading arm: pivot BEHIND wheel (X=-0.35 vs wheel X=0.0). Lateral pivot axis (points differ in Y only).",
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.wheel_center"
+        }
       },
       {
         "id": "upright_rl",
@@ -149,7 +159,12 @@
           -0.3767,
           -0.26
         ],
-        "parent": "chassis"
+        "parent": "chassis",
+        "_note": "Trailing arm: pivot AHEAD of wheel (X=-2.05 vs wheel X=-2.4). Lateral pivot axis (points differ in Y only).",
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.wheel_center"
+        }
       },
       {
         "id": "upright_rr",
@@ -189,7 +204,12 @@
           0.3767,
           -0.26
         ],
-        "parent": "chassis"
+        "parent": "chassis",
+        "_note": "Trailing arm: pivot AHEAD of wheel (X=-2.05 vs wheel X=-2.4). Lateral pivot axis (points differ in Y only).",
+        "x_legacy_link": {
+          "type": "arm",
+          "outboard_ref": "hardpoints.wheel_center"
+        }
       },
       {
         "id": "wheel_fl",
@@ -381,9 +401,9 @@
       "x_derived": true
     },
     {
-      "id": "hinge_leading_arm_fl_inboard",
+      "id": "ball_leading_arm_fl_inboard_1",
       "type": "joint",
-      "joint_type": "revolute",
+      "joint_type": "spherical",
       "body_a": "chassis",
       "frame_a": {
         "position": [
@@ -392,10 +412,10 @@
           -0.25
         ],
         "orientation": [
-          0.7071068,
           0.0,
           0.0,
-          0.7071068
+          0.0,
+          1.0
         ]
       },
       "body_b": "leading_arm_fl",
@@ -406,10 +426,44 @@
           -0.25
         ],
         "orientation": [
-          0.7071068,
           0.0,
           0.0,
-          0.7071068
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_leading_arm_fl_inboard_2",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.35,
+          -0.35,
+          -0.25
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "leading_arm_fl",
+      "frame_b": {
+        "position": [
+          -0.35,
+          -0.35,
+          -0.25
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
         ]
       },
       "x_derived": true
@@ -582,9 +636,9 @@
       "x_derived": true
     },
     {
-      "id": "hinge_leading_arm_fr_inboard",
+      "id": "ball_leading_arm_fr_inboard_1",
       "type": "joint",
-      "joint_type": "revolute",
+      "joint_type": "spherical",
       "body_a": "chassis",
       "frame_a": {
         "position": [
@@ -593,10 +647,10 @@
           -0.25
         ],
         "orientation": [
-          -0.7071068,
           0.0,
           0.0,
-          0.7071068
+          0.0,
+          1.0
         ]
       },
       "body_b": "leading_arm_fr",
@@ -607,10 +661,44 @@
           -0.25
         ],
         "orientation": [
-          -0.7071068,
           0.0,
           0.0,
-          0.7071068
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_leading_arm_fr_inboard_2",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.35,
+          0.35,
+          -0.25
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "leading_arm_fr",
+      "frame_b": {
+        "position": [
+          -0.35,
+          0.35,
+          -0.25
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
         ]
       },
       "x_derived": true
@@ -783,9 +871,9 @@
       "x_derived": true
     },
     {
-      "id": "hinge_trailing_arm_rl_inboard",
+      "id": "ball_trailing_arm_rl_inboard_1",
       "type": "joint",
-      "joint_type": "revolute",
+      "joint_type": "spherical",
       "body_a": "chassis",
       "frame_a": {
         "position": [
@@ -794,10 +882,10 @@
           -0.25
         ],
         "orientation": [
-          0.7071068,
           0.0,
           0.0,
-          0.7071068
+          0.0,
+          1.0
         ]
       },
       "body_b": "trailing_arm_rl",
@@ -808,10 +896,44 @@
           -0.25
         ],
         "orientation": [
-          0.7071068,
           0.0,
           0.0,
-          0.7071068
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_trailing_arm_rl_inboard_2",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.05,
+          -0.35,
+          -0.25
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "trailing_arm_rl",
+      "frame_b": {
+        "position": [
+          -2.05,
+          -0.35,
+          -0.25
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
         ]
       },
       "x_derived": true
@@ -984,9 +1106,9 @@
       "x_derived": true
     },
     {
-      "id": "hinge_trailing_arm_rr_inboard",
+      "id": "ball_trailing_arm_rr_inboard_1",
       "type": "joint",
-      "joint_type": "revolute",
+      "joint_type": "spherical",
       "body_a": "chassis",
       "frame_a": {
         "position": [
@@ -995,10 +1117,10 @@
           -0.25
         ],
         "orientation": [
-          -0.7071068,
           0.0,
           0.0,
-          0.7071068
+          0.0,
+          1.0
         ]
       },
       "body_b": "trailing_arm_rr",
@@ -1009,10 +1131,44 @@
           -0.25
         ],
         "orientation": [
-          -0.7071068,
           0.0,
           0.0,
-          0.7071068
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_trailing_arm_rr_inboard_2",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.05,
+          0.35,
+          -0.25
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "trailing_arm_rr",
+      "frame_b": {
+        "position": [
+          -2.05,
+          0.35,
+          -0.25
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
         ]
       },
       "x_derived": true
