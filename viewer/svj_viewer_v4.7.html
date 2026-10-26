@@ -89,7 +89,7 @@ body{background:var(--bg);color:var(--tx);font-family:'DM Sans',system-ui,sans-s
 <div id="topbar">
   <div style="display:flex;align-items:center">
     <span class="logo mono">SVJ</span>
-    <span class="subtitle mono">3D Inspector v4.7 — Editor · SVJ v0.103</span>
+    <span class="subtitle mono">3D Inspector v4.7 — Editor · SVJ v0.104</span>
     <span class="filename mono" id="file-name">MX-5 ND2 Club 6MT (v0.96 demo)</span>
   </div>
   <div style="display:flex;gap:4px;align-items:center">
@@ -1375,6 +1375,105 @@ function renderPowertrain(el, data) {
 }
 
 
+/* ═══════════════════════════════════════════════════
+   MAGIC FORMULA EVALUATOR (SVJ v0.104, spec §11.13): TNO MF-Tyre 6.1 equations. Mirrors tools/tire_model.py.
+   ═══════════════════════════════════════════════════ */
+const MF_SCALING = ['LFZO','LCX','LMUX','LEX','LKX','LHX','LVX','LXAL','LCY','LMUY','LEY','LKY','LHY','LVY','LKYC','LYKA','LVYKA','LTR','LRES','LKZC','LS','LMY'];
+function mfNums(g){ const o={}; Object.entries(g||{}).forEach(([k,v])=>{ if(typeof v==='number') o[k]=v; }); return o; }
+function mfParams(s){
+  const pj=s.pacejka; if(!pj) return null;
+  const ref=s.reference||{}, dim=s.dimensions||{};
+  let Fz0=pj.reference_load_N ?? ref.load; if(!(Fz0>0)) return null;
+  let p0=ref.pressure ?? s.pressure; if(!(p0>0)) p0=null;
+  let R0=null;
+  if(typeof dim.overall_diameter==='number') R0=dim.overall_diameter/2;
+  else { const rim=s.rim?.diameter ?? (typeof dim.rim_diameter_code==='number'?dim.rim_diameter_code*0.0254:null);
+         const hh=dim.section_height ?? (dim.section_width&&dim.aspect_ratio?dim.section_width*dim.aspect_ratio:null);
+         if(rim!=null&&hh!=null) R0=rim/2+hh; }
+  const lam={}; MF_SCALING.forEach(k=>lam[k]=1); Object.entries(pj.scaling||{}).forEach(([k,v])=>{ if(k in lam&&typeof v==='number') lam[k]=v; });
+  const comb=mfNums(pj.combined);
+  return {model:pj.model||'MF52', lat:mfNums(pj.lateral), lon:mfNums(pj.longitudinal), alg:mfNums(pj.aligning), comb, roll:mfNums(pj.rolling_resistance),
+          lam, Fz0, p0, R0, V0:(ref.speed>0?ref.speed:16.7), hasComb:!!((comb.rCx1||0)!==0||(comb.rCy1||0)!==0)};
+}
+function mfForces(p,Fz,kappa=0,alpha=0,gamma=0,pressure=null,combined=true,Vx=null){
+  const out={Fx:0,Fy:0,Mz:0,My:0,Fx0:0,Fy0:0,Gxa:1,Gyk:1,SVyk:0,Kya:0,Kxk:0,mu_x:0,mu_y:0,t:0,Mzr:0,s:0};
+  if(!p||!(Fz>0)) return out;
+  const EPS=1e-9, sgn=x=>(x>0)-(x<0), at=Math.atan, L=p.lam, X=p.lon, Y=p.lat, Z=p.alg, R=p.comb, g=(d,k)=>d[k]||0;
+  const mf=(B,C,D,E,x,sh)=>{ const bx=B*x; return D*Math.sin(C*at(bx-E*(bx-at(bx))))+(sh||0); };
+  const wgt=(B,C,E,s_,sh)=>{ const n=Math.cos(C*at(B*s_-E*(B*s_-at(B*s_)))), d=Math.cos(C*at(B*sh-E*(B*sh-at(B*sh)))); return Math.abs(d)>EPS?n/d:1; };
+  const dv=(a,b)=>Math.abs(b)>EPS?a/b:0;
+  const Fz0p=L.LFZO*p.Fz0, dfz=(Fz-Fz0p)/Fz0p, pi=(pressure!=null?pressure:p.p0), dpi=(p.p0&&pi!=null)?(pi-p.p0)/p.p0:0, R0=p.R0||0, gm=gamma, mf62=p.model==='MF62';
+  // longitudinal (33-42)
+  const Cx=g(X,'pCx1')*L.LCX;
+  const mu_x=(g(X,'pDx1')+g(X,'pDx2')*dfz)*(1+g(X,'pPx3')*dpi+g(X,'pPx4')*dpi*dpi)*(1-g(X,'pDx3')*gm*gm)*L.LMUX, Dx=mu_x*Fz;
+  const kx=kappa+(g(X,'pHx1')+g(X,'pHx2')*dfz)*L.LHX;
+  const Ex=Math.min(1,(g(X,'pEx1')+g(X,'pEx2')*dfz+g(X,'pEx3')*dfz*dfz)*(1-g(X,'pEx4')*sgn(kx))*L.LEX);
+  const Kxk=Fz*(g(X,'pKx1')+g(X,'pKx2')*dfz)*Math.exp(g(X,'pKx3')*dfz)*(1+g(X,'pPx1')*dpi+g(X,'pPx2')*dpi*dpi)*L.LKX;
+  const Bx=dv(Kxk,Cx*Dx), SVx=Fz*(g(X,'pVx1')+g(X,'pVx2')*dfz)*L.LVX*L.LMUX;
+  const Fx0=Cx?mf(Bx,Cx,Dx,Ex,kx,SVx):0;
+  // lateral (52-66)
+  const lateral=(gm)=>{
+    const Cy=g(Y,'pCy1')*L.LCY;
+    const mu_y=(g(Y,'pDy1')+g(Y,'pDy2')*dfz)*(1+g(Y,'pPy3')*dpi+g(Y,'pPy4')*dpi*dpi)*(1-g(Y,'pDy3')*gm*gm)*L.LMUY, Dy=mu_y*Fz;
+    const inner=dv(Fz/Fz0p,(g(Y,'pKy2')+g(Y,'pKy5')*gm*gm)*(1+g(Y,'pPy2')*dpi));
+    const Kya=g(Y,'pKy1')*Fz0p*(1+g(Y,'pPy1')*dpi)*(1-g(Y,'pKy3')*Math.abs(gm))*Math.sin(g(Y,'pKy4')*at(inner))*L.LKY;
+    const Kyg=Fz*(g(Y,'pKy6')+g(Y,'pKy7')*dfz)*(1+g(Y,'pPy5')*dpi)*L.LKYC;
+    const SVyg=Fz*(g(Y,'pVy3')+g(Y,'pVy4')*dfz)*gm*L.LKYC*L.LMUY;
+    const SVy=Fz*(g(Y,'pVy1')+g(Y,'pVy2')*dfz)*L.LVY*L.LMUY+SVyg;
+    let SHy=(g(Y,'pHy1')+g(Y,'pHy2')*dfz)*L.LHY; SHy+=mf62?dv(Kyg*gm-SVyg,Kya):g(Y,'pHy3')*gm*L.LKYC;
+    const ay=alpha+SHy;
+    const Ey=Math.min(1,(g(Y,'pEy1')+g(Y,'pEy2')*dfz)*(1+g(Y,'pEy5')*gm*gm-(g(Y,'pEy3')+g(Y,'pEy4')*gm)*sgn(ay))*L.LEY);
+    const By=dv(Kya,Cy*Dy);
+    return {Cy,mu_y,Dy,Kya,By,SVy,SHy,Fy0:Cy?mf(By,Cy,Dy,Ey,ay,SVy):0};
+  };
+  const ly=lateral(gm), Fy0=ly.Fy0, Kya=ly.Kya;
+  // combined slip (43-48, 67-74), else the friction-circle limiter of spec 11.13.5
+  const weights=(gm,ly)=>{
+    if(!combined) return [1,1,0];
+    if(p.hasComb){
+      const SHxa=g(R,'rHx1'), Bxa=(g(R,'rBx1')+g(R,'rBx3')*gm*gm)*Math.cos(at(g(R,'rBx2')*kappa))*L.LXAL, Exa=Math.min(1,g(R,'rEx1')+g(R,'rEx2')*dfz);
+      const Gxa=wgt(Bxa,g(R,'rCx1'),Exa,alpha+SHxa,SHxa);
+      const SHyk=g(R,'rHy1')+g(R,'rHy2')*dfz, Byk=(g(R,'rBy1')+g(R,'rBy4')*gm*gm)*Math.cos(at(g(R,'rBy2')*(alpha-g(R,'rBy3'))))*L.LYKA, Eyk=Math.min(1,g(R,'rEy1')+g(R,'rEy2')*dfz);
+      const Gyk=wgt(Byk,g(R,'rCy1'),Eyk,kappa+SHyk,SHyk);
+      const DVyk=ly.mu_y*Fz*(g(R,'rVy1')+g(R,'rVy2')*dfz+g(R,'rVy3')*gm)*Math.cos(at(g(R,'rVy4')*alpha));
+      return [Gxa,Gyk,DVyk*Math.sin(g(R,'rVy5')*at(g(R,'rVy6')*kappa))*L.LVYKA];
+    }
+    const n=Math.hypot(Dx?Fx0/Dx:0, ly.Dy?Fy0/ly.Dy:0), sc=n>1?1/n:1; return [sc,sc,0];
+  };
+  const [Gxa,Gyk,SVyk]=weights(gm,ly), Fx=Fx0*Gxa, Fy=Fy0*Gyk+SVyk;
+  // aligning moment (75-90)
+  let t=0,Mzr=0,s=0,Mz=0;
+  if(Object.keys(Z).length&&R0){
+    const ly0=gm?lateral(0):ly, [,Gyk0]=weights(0,ly0), Fyp=ly0.Fy0*Gyk0;
+    const att=alpha+g(Z,'qHz1')+g(Z,'qHz2')*dfz+(g(Z,'qHz3')+g(Z,'qHz4')*dfz)*gm;
+    const arr=alpha+ly.SHy+dv(ly.SVy,Kya);
+    let ate=att, are=arr;
+    if(combined&&Kya){ const k2=Math.pow(Kxk/Kya,2)*kappa*kappa; ate=Math.sqrt(att*att+k2)*(sgn(att)||1); are=Math.sqrt(arr*arr+k2)*(sgn(arr)||1); }
+    const Bt=(g(Z,'qBz1')+g(Z,'qBz2')*dfz+g(Z,'qBz3')*dfz*dfz)*(1+g(Z,'qBz4')*gm+g(Z,'qBz5')*Math.abs(gm))*dv(L.LKY,L.LMUY), Ct=g(Z,'qCz1');
+    const Dt=Fz*(R0/Fz0p)*(g(Z,'qDz1')+g(Z,'qDz2')*dfz)*(1-g(Z,'pPz1')*dpi)*(1+g(Z,'qDz3')*gm+g(Z,'qDz4')*gm*gm)*L.LTR;
+    const Et=Math.min(1,(g(Z,'qEz1')+g(Z,'qEz2')*dfz+g(Z,'qEz3')*dfz*dfz)*(1+(g(Z,'qEz4')+g(Z,'qEz5')*gm)*(2/Math.PI)*at(Bt*Ct*att)));
+    const bt=Bt*ate; t=Dt*Math.cos(Ct*at(bt-Et*(bt-at(bt))))*Math.cos(alpha);
+    const Br=g(Z,'qBz9')*dv(L.LKY,L.LMUY)+g(Z,'qBz10')*ly.By*ly.Cy;
+    const Dr=Fz*R0*((g(Z,'qDz6')+g(Z,'qDz7')*dfz)*L.LRES+((g(Z,'qDz8')+g(Z,'qDz9')*dfz)*(1+g(Z,'pPz2')*dpi)+(g(Z,'qDz10')+g(Z,'qDz11')*dfz)*Math.abs(gm))*gm*L.LKZC)*L.LMUY;
+    Mzr=Dr*Math.cos(at(Br*are))*Math.cos(alpha);
+    s=R0*(g(Z,'ssz1')+g(Z,'ssz2')*Fy/Fz0p+(g(Z,'ssz3')+g(Z,'ssz4')*dfz)*gm)*L.LS;
+    Mz=-t*Fyp+Mzr+s*Fx;
+  }
+  let My=0;
+  if(Object.keys(p.roll).length&&Vx!=null&&R0){ const q=k=>p.roll[k]||0, pr=(p.p0&&pi)?pi/p.p0:1;
+    My=-Fz*R0*(q('qsy1')+q('qsy2')*Fx/p.Fz0+q('qsy3')*Math.abs(Vx/p.V0)+q('qsy4')*Math.pow(Vx/p.V0,4)+(q('qsy5')+q('qsy6')*Fz/p.Fz0)*gm*gm)*Math.pow(Fz/p.Fz0,q('qsy7'))*Math.pow(pr,q('qsy8'))*L.LMY; }
+  return Object.assign(out,{Fx,Fy,Mz,My,Fx0,Fy0,Gxa,Gyk,SVyk,Kya,Kxk,mu_x,mu_y:ly.mu_y,t,Mzr,s});
+}
+
+function mfCharacteristics(p, Fz){
+  Fz = Fz || p.Fz0; const d = 1e-4, f = (a, k) => mfForces(p, Fz, k, a, 0, null, false);
+  const fy0 = f(0, 0).Fy, fx0 = f(0, 0).Fx;
+  let my = 0, mx = 0;
+  for(let i = 1; i < 700; i++) my = Math.max(my, Math.abs(f(i / 1000, 0).Fy - fy0));
+  for(let i = 1; i < 1000; i++) mx = Math.max(mx, Math.abs(f(0, i / 1000).Fx - fx0));
+  return {cAlpha: (f(d, 0).Fy - f(-d, 0).Fy) / (2 * d), cKappa: (f(0, d).Fx - f(0, -d).Fx) / (2 * d), muY: my / Fz, muX: mx / Fz, trail: mfForces(p, Fz, 0, 0.02, 0).t};
+}
+window.svjTire = {mfParams, mfForces, mfCharacteristics};      // for tests and scripts
 function renderTires(el, data) {
   const t = data.tires;
   if(!t || !t.sets) { el.innerHTML='<div style="color:var(--txD)">No tire data</div>'; return; }
@@ -1450,89 +1549,17 @@ function renderTires(el, data) {
       // --- Pacejka MF6.2 Full Evaluation ---
       // Auto-detect: if pHy1 or pVy1 exist, use MF6.2; else fallback to MF52
       const hasMF62 = (lat.pHy1!=null || lat.pVy1!=null || lon.pHx1!=null);
-      const modelLabel = hasMF62 ? 'MF 6.2' : (pac.model||'MF52');
+      const modelLabel = pac.model==='MF62' ? 'MF 6.2' : (pac.model==='MF52' ? 'MF 5.2' : (hasMF62 ? 'MF 6.2' : (pac.model||'MF 5.2')));
       
-      // === Helper: MF6.2 Lateral Force Fy ===
-      function evalFy62(alpha_rad, Fz_val, gamma_rad, lat, Fz0) {
-        const dfz = (Fz_val - Fz0) / Fz0;
-        const g = gamma_rad || 0;
-        // Horizontal shift
-        const SHy = ((lat.pHy1||0) + (lat.pHy2||0) * dfz) + (lat.pHy3||0) * g;
-        const ay = alpha_rad + SHy;
-        // Stiffness
-        const Ky = Fz_val * (lat.pKy1||0) * Math.sin(2 * Math.atan(Fz_val / ((lat.pKy2||1) * Fz0 + 0.001)))
-                   * (1 - (lat.pKy3||0) * Math.abs(g));
-        // Peak
-        const Dy = Fz_val * ((lat.pDy1||0) + (lat.pDy2||0) * dfz)
-                   * (1 + (lat.pDy3||0) * g * g);
-        const Cy = lat.pCy1 || 1.3;
-        const By = Ky / (Cy * Dy + 0.001);
-        // Curvature
-        const Ey = ((lat.pEy1||0) + (lat.pEy2||0) * dfz)
-                   * (1 + ((lat.pEy3||0) + (lat.pEy4||0) * g) * (ay >= 0 ? 1 : -1));
-        const Ey_c = Math.min(Ey, 1); // clamp
-        // Vertical shift
-        const SVy = Fz_val * ((lat.pVy1||0) + (lat.pVy2||0) * dfz)
-                    + ((lat.pVy3||0) + (lat.pVy4||0) * dfz) * g;
-        // Magic Formula
-        const Fy0 = Dy * Math.sin(Cy * Math.atan(By * ay - Ey_c * (By * ay - Math.atan(By * ay)))) + SVy;
-        return Fy0;
-      }
-
-      // === Helper: MF6.2 Longitudinal Force Fx ===
-      function evalFx62(kappa, Fz_val, gamma_rad, lon, Fz0) {
-        const dfz = (Fz_val - Fz0) / Fz0;
-        const g = gamma_rad || 0;
-        // Horizontal shift
-        const SHx = (lon.pHx1||0) + (lon.pHx2||0) * dfz;
-        const kx = kappa + SHx;
-        // Peak
-        const Dx = Fz_val * ((lon.pDx1||0) + (lon.pDx2||0) * dfz)
-                   * (1 + (lon.pDx3||0) * g * g);
-        const Cx = lon.pCx1 || 1.5;
-        const Kx = Fz_val * ((lon.pKx1||0) + (lon.pKx2||0) * dfz)
-                   * Math.exp((lon.pKx3||0) * dfz);
-        const Bx = Kx / (Cx * Dx + 0.001);
-        // Curvature
-        const Ex = ((lon.pEx1||0) + (lon.pEx2||0) * dfz)
-                   + ((lon.pEx3||0) + (lon.pEx4||0) * dfz) * (kx >= 0 ? 1 : -1);
-        const Ex_c = Math.min(Ex, 1);
-        // Vertical shift
-        const SVx = Fz_val * ((lon.pVx1||0) + (lon.pVx2||0) * dfz);
-        const Fx0 = Dx * Math.sin(Cx * Math.atan(Bx * kx - Ex_c * (Bx * kx - Math.atan(Bx * kx)))) + SVx;
-        return Fx0;
-      }
-
-      // === Helper: MF6.2 Self-Aligning Torque Mz ===
-      function evalMz62(alpha_rad, Fz_val, gamma_rad, lat, alg, Fz0) {
-        if(!alg || alg.qBz1==null) return 0;
-        const dfz = (Fz_val - Fz0) / Fz0;
-        const g = gamma_rad || 0;
-        // Horizontal shift for trail
-        const SHt = (alg.qHz1||0) + (alg.qHz2||0) * dfz + ((alg.qHz3||0) + (alg.qHz4||0) * dfz) * g;
-        const at = alpha_rad + SHt;
-        // Pneumatic trail t(alpha)
-        const Bt = ((alg.qBz1||0) + (alg.qBz2||0) * dfz + (alg.qBz3||0) * dfz * dfz)
-                   * (1 + (alg.qBz4||0) * g + (alg.qBz5||0) * Math.abs(g));
-        const Ct = alg.qCz1 || 1.0;
-        const R0 = 0.298; // loaded radius approx
-        const Dt = Fz_val * ((alg.qDz1||0) + (alg.qDz2||0) * dfz) * R0
-                   * (1 + (alg.qDz3||0) * g + (alg.qDz4||0) * g * g);
-        const Et = ((alg.qEz1||0) + (alg.qEz2||0) * dfz + (alg.qEz3||0) * dfz * dfz)
-                   * (1 + ((alg.qEz4||0) + (alg.qEz5||0) * g) * (2/Math.PI) * Math.atan(Bt * Ct * at));
-        const Et_c = Math.min(Et, 1);
-        const t0 = Dt * Math.cos(Ct * Math.atan(Bt * at - Et_c * (Bt * at - Math.atan(Bt * at))));
-        // Residual moment Mzr
-        const SHf = SHt; // use same shift
-        const af = alpha_rad + SHf;
-        const Br = ((alg.qBz9||0) + (alg.qBz10||0) * dfz) * (lat.pKy1||0) * Fz_val
-                   * Math.sin(2 * Math.atan(Fz_val / ((lat.pKy2||1) * Fz0 + 0.001))) / (Ct * Dt + 0.001);
-        const Dr = Fz_val * R0 * ((alg.qDz6||0) + (alg.qDz7||0) * dfz + ((alg.qDz8||0) + (alg.qDz9||0) * dfz) * g);
-        const Mzr = Dr * Math.cos(Math.atan(Br * af));
-        // Fy for Mz calculation
-        const Fy0 = evalFy62(alpha_rad, Fz_val, gamma_rad, lat, Fz0);
-        const Mz = -t0 * Fy0 + Mzr;
-        return Mz;
+      // Forces come from the Magic Formula evaluator of spec 11.13 (mfForces), not from local approximations.
+      const MFP = mfParams(s);
+      function evalFy62(a, Fzv, g) { return mfForces(MFP, Fzv, 0, a, g || 0, null, false).Fy; }
+      function evalFx62(k, Fzv, g) { return mfForces(MFP, Fzv, k, 0, g || 0, null, false).Fx; }
+      function evalMz62(a, Fzv, g) { return mfForces(MFP, Fzv, 0, a, g || 0, null, false).Mz; }
+      if(MFP) {
+        const c = mfCharacteristics(MFP);
+        h += '<div class="grid2 mb8" style="font-size:10px">' + stat('Cornering stiffness', fmtN(c.cAlpha * Math.PI / 180, 0), 'N/deg') + stat('Slip stiffness', fmtN(c.cKappa, 0), 'N')
+           + stat('Peak µy', fmtN(c.muY, 2)) + stat('Peak µx', fmtN(c.muX, 2)) + stat('Pneumatic trail', fmtN(c.trail * 1000, 1), 'mm') + stat('Model', MFP.model + (MFP.hasComb ? '' : ' · circle')) + '</div>';
       }
 
       // --- Chart: Fy vs Slip Angle (MF6.2) ---

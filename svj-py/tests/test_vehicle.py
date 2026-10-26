@@ -2106,3 +2106,149 @@ class TestAdjustmentsAndSetups:
         # the track setup still validates against the schema and the constraint checks
         from svj.constraints import check as cc
         assert cc(t.data)[0] == []
+
+
+class TestTireModel:
+    """Spec §11.13: the Magic Formula evaluator."""
+
+    @staticmethod
+    def _set(**over):
+        s = {"dimensions": {"overall_diameter": 0.62}, "reference": {"load": 3000.0, "pressure": 200000.0, "speed": 16.7},
+             "pacejka": {"model": "MF62",
+                         "lateral": {"pCy1": 1.3, "pDy1": 1.1, "pDy2": -0.15, "pDy3": 0.5, "pEy1": -0.4, "pEy2": -0.2, "pEy3": 0.1, "pEy4": 0.2,
+                                     "pKy1": 18.0, "pKy2": 1.8, "pKy3": 0.3, "pKy4": 2.0, "pKy6": 0.9, "pKy7": 0.1, "pPy1": 0.2, "pPy3": 0.1,
+                                     "pPy5": 0.1},
+                         "longitudinal": {"pCx1": 1.6, "pDx1": 1.2, "pDx2": -0.1, "pEx1": 0.3, "pEx2": 0.1, "pKx1": 22.0, "pKx2": 3.0, "pKx3": 0.3,
+                                          "pPx1": 0.2},
+                         "aligning": {"qBz1": 9.0, "qBz2": -1.0, "qCz1": 1.2, "qDz1": 0.1, "qDz2": -0.01, "qEz1": -1.0, "qBz9": 10.0, "qDz6": 0.002,
+                                      "pPz1": 0.1}}}
+        for g, v in over.items():
+            if isinstance(v, dict):
+                s["pacejka"].setdefault(g, {}).update(v)
+            else:
+                s["pacejka"][g] = v
+        return s
+
+    def test_checker_in_sync(self):
+        a = (REPO_ROOT / "tools" / "tire_model.py").read_text(encoding="utf-8").splitlines()
+        b = (REPO_ROOT / "svj-py" / "svj" / "tiremodel.py").read_text(encoding="utf-8").splitlines()
+        assert a == b
+
+    def test_parameters_from_the_tyre_set(self):
+        from svj.tiremodel import params
+        p = params(self._set())
+        assert (p.Fz0, p.p0, p.V0, p.model) == (3000.0, 200000.0, 16.7, "MF62")
+        assert p.R0 == pytest.approx(0.31)
+        with pytest.raises(ValueError):
+            params({"dimensions": {}})
+
+    def test_small_slip_slopes_are_the_stiffnesses(self):
+        from svj.tiremodel import params, forces
+        p = params(self._set(lateral={"pHy1": 0.0, "pVy1": 0.0}))
+        r = forces(p, 3000.0, 0.0, 1e-7, 0.0)
+        assert r["Fy"] / 1e-7 == pytest.approx(r["Kya"], rel=1e-4)
+        r = forces(p, 3000.0, 1e-7, 0.0, 0.0)
+        assert r["Fx"] / 1e-7 == pytest.approx(r["Kxk"], rel=1e-4)
+        assert r["Kxk"] == pytest.approx(3000.0 * 22.0, rel=1e-9)                # Fz * pKx1 at the nominal load
+        # cornering stiffness at the nominal load: pKy1 * Fz0 * sin(pKy4 * atan(1 / pKy2))
+        assert forces(p, 3000.0, 0.0, 0.01, 0.0)["Kya"] == pytest.approx(18.0 * 3000.0 * math.sin(2.0 * math.atan(1 / 1.8)), rel=1e-9)
+
+    def test_equations_against_hand_computation(self):
+        from svj.tiremodel import params, forces
+        s = self._set()
+        p = params(s)
+        Fz, kappa, alpha, gamma, pr = 4200.0, 0.08, 0.06, 0.03, 230000.0
+        dfz, dpi = (Fz - 3000.0) / 3000.0, (pr - 200000.0) / 200000.0
+        L, X = s["pacejka"]["lateral"], s["pacejka"]["longitudinal"]
+        g = lambda d, k: d.get(k, 0.0)
+        # Fx0 (33-42)
+        mux = (g(X, "pDx1") + g(X, "pDx2") * dfz) * (1 - g(X, "pDx3") * gamma ** 2)
+        Kxk = Fz * (g(X, "pKx1") + g(X, "pKx2") * dfz) * math.exp(g(X, "pKx3") * dfz) * (1 + g(X, "pPx1") * dpi)
+        Ex = min(1.0, g(X, "pEx1") + g(X, "pEx2") * dfz)
+        Bx = Kxk / (g(X, "pCx1") * mux * Fz)
+        fx0 = mux * Fz * math.sin(g(X, "pCx1") * math.atan(Bx * kappa - Ex * (Bx * kappa - math.atan(Bx * kappa))))
+        # Fy0 (52-66), MF62 camber shift
+        muy = (g(L, "pDy1") + g(L, "pDy2") * dfz) * (1 + g(L, "pPy3") * dpi) * (1 - g(L, "pDy3") * gamma ** 2)
+        Kya = g(L, "pKy1") * 3000.0 * (1 + g(L, "pPy1") * dpi) * (1 - g(L, "pKy3") * abs(gamma)) * math.sin(g(L, "pKy4") * math.atan((Fz / 3000.0) / g(L, "pKy2")))
+        Kyg = Fz * (g(L, "pKy6") + g(L, "pKy7") * dfz) * (1 + g(L, "pPy5") * dpi)
+        ay = alpha + (Kyg * gamma - 0.0) / Kya
+        Ey = min(1.0, (g(L, "pEy1") + g(L, "pEy2") * dfz) * (1 - (g(L, "pEy3") + g(L, "pEy4") * gamma) * (1 if ay > 0 else -1)))
+        By = Kya / (g(L, "pCy1") * muy * Fz)
+        fy0 = muy * Fz * math.sin(g(L, "pCy1") * math.atan(By * ay - Ey * (By * ay - math.atan(By * ay))))
+        r = forces(p, Fz, kappa, alpha, gamma, pr, combined=False)
+        assert r["Fx"] == pytest.approx(fx0, rel=1e-9)
+        assert r["Fy"] == pytest.approx(fy0, rel=1e-9)
+
+    def test_odd_symmetry_without_shifts(self):
+        from svj.tiremodel import params, forces
+        p = params(self._set(lateral={"pEy3": 0.0}, longitudinal={"pEx4": 0.0}))          # pEy3 / pEx4 make the curvature depend on the sign
+        for a in (0.02, 0.1, 0.3):
+            assert forces(p, 3000.0, 0.0, -a, 0.0)["Fy"] == pytest.approx(-forces(p, 3000.0, 0.0, a, 0.0)["Fy"], rel=1e-9)
+        for k in (0.02, 0.1, 0.4):
+            assert forces(p, 3000.0, -k, 0.0, 0.0)["Fx"] == pytest.approx(-forces(p, 3000.0, k, 0.0, 0.0)["Fx"], rel=1e-9)
+
+    def test_camber_stiffness_and_load_and_pressure_effects(self):
+        from svj.tiremodel import params, forces, characteristics
+        p = params(self._set())
+        g = 0.02
+        fy = forces(p, 3000.0, 0.0, 0.0, g, 200000.0)["Fy"]
+        assert fy == pytest.approx(3000.0 * 0.9 * g, rel=1e-3)                 # MF62: Fy(alpha = 0) = Kyg * gamma
+        c1 = characteristics(p, 3000.0)
+        c2 = characteristics(p, 5000.0)
+        assert c2["Fy_peak"] > c1["Fy_peak"] and c2["mu_y_peak"] < c1["mu_y_peak"]     # load sensitivity: more force, lower friction
+        assert characteristics(p, 3000.0, pressure=250000.0)["cornering_stiffness"] > c1["cornering_stiffness"]
+        assert 0.8 * 1.1 * 3000.0 < c1["Fy_peak"] <= 1.1 * 3000.0 * 1.001
+
+    def test_scaling_factors(self):
+        from svj.tiremodel import params, characteristics
+        a = characteristics(params(self._set()))
+        b = characteristics(params(self._set(scaling={"LMUY": 0.5, "LMUX": 0.5})))
+        assert b["Fy_peak"] == pytest.approx(0.5 * a["Fy_peak"], rel=0.02)
+        assert b["Fx_peak"] == pytest.approx(0.5 * a["Fx_peak"], rel=0.02)
+
+    def test_friction_circle_without_combined_coefficients(self):
+        from svj.tiremodel import params, forces
+        p = params(self._set())
+        assert not p.has_combined()
+        r = forces(p, 3000.0, 0.3, 0.3, 0.0)
+        Dx, Dy = r["mu_x"] * 3000.0, r["mu_y"] * 3000.0
+        assert (r["Fx"] / Dx) ** 2 + (r["Fy"] / Dy) ** 2 <= 1.0 + 1e-9
+        assert (r["Fx"] / r["Fx0"]) == pytest.approx(r["Fy"] / r["Fy0"], rel=1e-9)         # both forces scaled by the same factor
+        assert forces(p, 3000.0, 0.3, 0.3, 0.0, combined=False)["Fy"] == pytest.approx(r["Fy0"])
+        small = forces(p, 3000.0, 0.01, 0.01, 0.0)
+        assert small["Fx"] == pytest.approx(small["Fx0"]) and small["Fy"] == pytest.approx(small["Fy0"])    # inside the circle: no interaction
+
+    def test_combined_slip_coefficients(self):
+        from svj.tiremodel import params, forces
+        p = params(self._set(combined={"rBx1": 8.0, "rCx1": 1.0, "rBy1": 10.0, "rCy1": 1.0}))
+        assert p.has_combined()
+        pure = forces(p, 3000.0, 0.0, 0.1, 0.0)
+        assert pure["Gyk"] == pytest.approx(1.0)                                         # no longitudinal slip: no reduction of Fy
+        assert forces(p, 3000.0, 0.1, 0.0, 0.0)["Gxa"] == pytest.approx(1.0)             # no side slip: no reduction of Fx
+        both = forces(p, 3000.0, 0.15, 0.1, 0.0)
+        assert both["Fy"] < pure["Fy"] and both["Fx"] < forces(p, 3000.0, 0.15, 0.0, 0.0)["Fx"]
+
+    def test_aligning_moment(self):
+        from svj.tiremodel import params, forces
+        p = params(self._set())
+        r = forces(p, 3000.0, 0.0, 0.03, 0.0)
+        assert r["t"] > 0 and r["Fy"] > 0 and r["Mz"] < 0                     # Mz = -t Fy + Mzr (+ s Fx)
+        p0 = params(self._set(aligning={"qDz6": 0.0}))                                    # qDz6 is an offset of the residual moment
+        assert forces(p0, 3000.0, 0.0, 0.0, 0.0)["Mz"] == pytest.approx(0.0, abs=1e-9)
+        assert forces(p, 3000.0, 0.0, 0.0, 0.0)["Mz"] == pytest.approx(3000.0 * 0.31 * 0.002)
+        assert forces(p, 3000.0, 0.0, 0.03, 0.0, 230000.0)["t"] < forces(p, 3000.0, 0.0, 0.03, 0.0, 200000.0)["t"]   # pPz1: trail shrinks with pressure
+
+    def test_rolling_resistance_and_degenerate_loads(self):
+        from svj.tiremodel import params, forces
+        p = params(self._set(rolling_resistance={"qsy1": 0.01, "qsy2": 0.0, "qsy7": 1.0}))
+        r = forces(p, 3000.0, 0.0, 0.0, 0.0, Vx=10.0)
+        assert r["My"] == pytest.approx(-3000.0 * 0.31 * 0.01)
+        assert forces(p, 0.0, 0.1, 0.1, 0.0)["Fy"] == 0.0 and forces(p, -50.0, 0.1, 0.1, 0.0)["Fx"] == 0.0
+
+    def test_mx5_template_tyres(self):
+        from svj.tiremodel import params, characteristics
+        d = json.loads(TEMPLATE.read_text(encoding="utf-8"))
+        for name, s in d["tires"]["sets"].items():
+            c = characteristics(params(s, name))
+            assert 30000 < c["cornering_stiffness"] < 70000 and 1.0 < c["mu_y_peak"] < 1.6 and 1.0 < c["mu_x_peak"] < 1.6, (name, c)
+            assert 0.01 < c["pneumatic_trail"] < 0.06

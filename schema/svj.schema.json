@@ -46,7 +46,8 @@
             "0.100",
             "0.101",
             "0.102",
-            "0.103"
+            "0.103",
+            "0.104"
           ],
           "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations). '0.99.1' adds axle_groups, plated masses and explicit wheelbase definitions. '0.99.2' extends the glTF visual binding layer: full category set, visual on links/steering/wheels/brakes/springs/dampers/aero, and the 'placement' field for parts defined by hardpoints. '0.99.3' adds differential control: lock_control (dynamic differential lock) and transfer_case.coupling (torque-limited centre coupling). '0.99.4' adds the strut_lower hardpoint convention for MacPherson/Chapman struts and damper.reference ('damper' or 'wheel'). '0.99.5' adds movable parts: constraints[] (joint, spring, actuator between mass bodies), poses[] and chassis.markers. '0.99.6' completes the constraint set: latch, coupling and joint.drive. '0.99.7' adds the optional display name on bodies, constraints and poses, and the naming vocabulary for movable parts. '0.99.8' adds the contact constraint (primitives at markers with a penalty law). '0.100' unifies the suspension: wheel stations are bodies, joints and elements (spring, damper; linear or torsional) with a thin wheel_stations[] list and anti_roll_bars[]; the corner-based suspension section is deprecated. '0.101' adds attachments: interfaces[] (named frames with a role and size), attachments[] (units fitted to this vehicle) and the svj-combination file. '0.102' adds collision proxies: collision[] on the chassis and on mass bodies, and collision_ignore."
         },
@@ -3491,6 +3492,17 @@
                 "MF62"
               ]
             },
+            "reference_load_N": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Nominal vertical load Fz0 of the coefficients (N); falls back to reference.load (spec 11.13.1)."
+            },
+            "scaling": {
+              "type": "object",
+              "description": "Magic Formula scaling factors, all 1 when absent (v0.104, spec 11.13.1): LFZO, LCX, LMUX, LEX, LKX, LHX, LVX, LXAL, LCY, LMUY, LEY, LKY, LHY, LVY, LKYC, LYKA, LVYKA, LTR, LRES, LKZC, LS, LMY.",
+              "additionalProperties": {"type": "number"},
+              "patternProperties": {"^_": {}}
+            },
             "lateral": {
               "type": "object",
               "additionalProperties": {
@@ -3516,7 +3528,7 @@
               "additionalProperties": {
                 "type": "number"
               },
-              "description": "Self-aligning torque (Mz) coefficients: qBz1-10, qCz1, qDz1-11, qEz1-5, qHz1-4.",
+              "description": "Self-aligning torque (Mz) coefficients: qBz1-10, qCz1, qDz1-11, qEz1-5, qHz1-4, ssz1-4, pPz1-2.",
               "patternProperties": {
                 "^_": {}
               }
