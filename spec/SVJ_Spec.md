@@ -1602,6 +1602,8 @@ The Pacejka Magic Formula tire model is the industry standard for steady-state t
 | `overturning`   | object | no       | Overturning moment Mx coefficients           |
 | `rolling_resistance` | object | no  | Rolling resistance moment My coefficients    |
 | `combined`      | object | no       | Combined slip weighting factors              |
+| `reference_load_N` | number | no    | Nominal load Fz0 of the coefficients (N); default `reference.load` (§11.13.1) |
+| `scaling`       | object | no       | Magic Formula scaling factors `LFZO`, `LMUX`, … all 1 when absent (§11.13.1) |
 
 #### 11.6.1 Coefficient Naming Convention
 
@@ -1609,10 +1611,10 @@ Coefficients follow the standard Pacejka naming convention used in `.tir` files:
 
 - **`lateral`**: `pCy1`, `pDy1`–`pDy3`, `pEy1`–`pEy5`, `pKy1`–`pKy7`, `pHy1`–`pHy3`, `pVy1`–`pVy4`, `pPy1`–`pPy5`
 - **`longitudinal`**: `pCx1`, `pDx1`–`pDx3`, `pEx1`–`pEx4`, `pKx1`–`pKx3`, `pHx1`–`pHx2`, `pVx1`–`pVx2`, `pPx1`–`pPx4`
-- **`aligning`**: `qBz1`–`qBz10`, `qCz1`, `qDz1`–`qDz11`, `qEz1`–`qEz5`, `qHz1`–`qHz4`
+- **`aligning`**: `qBz1`–`qBz10`, `qCz1`, `qDz1`–`qDz11`, `qEz1`–`qEz5`, `qHz1`–`qHz4`, `ssz1`–`ssz4`, `pPz1`–`pPz2`
 - **`overturning`**: `qsx1`–`qsx14`
 - **`rolling_resistance`**: `qsy1`–`qsy8`
-- **`combined`**: `rBx1`–`rBx3`, `rCx1`, `rHx1`, `rBy1`–`rBy4`, `rCy1`, `rHy1`, `rVy1`–`rVy6`
+- **`combined`**: `rBx1`–`rBx3`, `rCx1`, `rEx1`–`rEx2`, `rHx1`, `rBy1`–`rBy4`, `rCy1`, `rEy1`–`rEy2`, `rHy1`–`rHy2`, `rVy1`–`rVy6`
 
 Each group is stored as a flat JSON object: `{ "pCy1": 1.3, "pDy1": 1.0, ... }`.
 
@@ -1770,6 +1772,178 @@ Each entry in the `external_models` array:
 | MF-Swift | Mid-High | 0–60 Hz | 100+ | Marginal | Ride, obstacle, belt dynamics |
 | FTire | High | 0–200 Hz | 200+ | 10–20× RT | Comfort, durability, ABS/ESC development |
 | CDTire 40/50 | High | 0–500 Hz | 300+ | No | NVH, durability, tire/soil interaction |
+
+---
+
+### 11.13 Evaluating the Magic Formula
+
+This section gives the equations an evaluator uses to turn a `pacejka` block into forces, so that nobody has to look them up elsewhere. They are the equations of **TNO MF-Tyre 6.1** (I.J.M. Besselink, A.J.C. Schmeitz, H.B. Pacejka, *An improved Magic Formula/Swift tyre model that can handle inflation pressure changes*, Vehicle System Dynamics 48, 2010, Appendix, equations 31–90). A MF 5.2 coefficient set is evaluated by the same equations: the pressure terms (`pPx*`, `pPy*`, `pPz*`) are absent and read as zero. Reference implementation: `tools/tire_model.py` (mirror `svj-py/svj/tiremodel.py`).
+
+**Sign convention.** The equations are used as written; the signs of the results follow the coefficients of the file. A file with a positive `pKy1` gives a positive `Fy` for a positive slip angle, one with a negative `pKy1` (the usual SAE-style `.tir`) a negative one. A writer MUST keep one convention per file.
+
+**Not covered:** overturning moment `Mx` (the `qsx*` group), turn slip, transient behaviour (§11.7), thermal and wear effects (§11.8, §11.9), and the `tmeasy` and `brush` models (§11.10, §11.11), which have no evaluator yet. `pacejka.model` `"MF62"` selects the MF-Tyre 6.1 equations of this section; the turn-slip extension and the `tan α`, `sin γ` substitution of later MF-Tyre releases are not part of it.
+
+#### 11.13.1 Inputs, constants and normalisation
+
+| Symbol | Meaning | Source in the file |
+|---|---|---|
+| `Fz`, `κ`, `α`, `γ`, `p`, `Vx` | vertical load (N, > 0), slip ratio, slip angle (rad), inclination angle (rad), inflation pressure (Pa), forward speed (m/s) | inputs; `p` defaults to `p0`; `Vx` is needed only for `My` |
+| `Fz0` | nominal load of the coefficients | `pacejka.reference_load_N`, else `reference.load` |
+| `p0` | nominal pressure | `reference.pressure`, else `pressure` |
+| `V0` | reference speed | `reference.speed`, default 16.7 m/s |
+| `R0` | unloaded tyre radius | `dimensions.overall_diameter / 2`, else rim radius + `section_height` (or `section_width × aspect_ratio`) |
+| `λ…` | scaling factors | `pacejka.scaling`, all 1 when absent |
+
+```
+Fz0' = LFZO · Fz0
+dfz  = (Fz − Fz0') / Fz0'
+dpi  = (p − p0) / p0                       (0 when p0 is unknown)
+```
+
+Scaling factors (`pacejka.scaling`, names as in `.tir` files): `LFZO` (λFz0), `LCX` `LMUX` `LEX` `LKX` `LHX` `LVX` (longitudinal shape, friction, curvature, stiffness, horizontal and vertical shift), `LXAL` (λxα), `LCY` `LMUY` `LEY` `LKY` `LHY` `LVY` (lateral, same order), `LKYC` (λKyγ, camber stiffness), `LYKA` (λyκ), `LVYKA` (λVyκ), `LTR` (λt, pneumatic trail), `LRES` (λr, residual moment), `LKZC` (λγz, camber moment), `LS` (λs), `LMY` (λMy). A parser SHOULD treat a missing coefficient as 0 and a missing scaling factor as 1.
+
+The Magic Formula curve used throughout is
+
+```
+MF(B, C, D, E, x) = D · sin( C · atan( B·x − E·(B·x − atan(B·x)) ) )
+```
+
+A curvature factor `E` greater than 1 makes the curve multivalued, so an evaluator limits every `E` to `E ≤ 1`.
+
+#### 11.13.2 Longitudinal force, pure slip
+
+```
+Cx   = pCx1 · LCX
+μx   = (pDx1 + pDx2·dfz) · (1 + pPx3·dpi + pPx4·dpi²) · (1 − pDx3·γ²) · LMUX
+Dx   = μx · Fz
+SHx  = (pHx1 + pHx2·dfz) · LHX
+κx   = κ + SHx
+Ex   = (pEx1 + pEx2·dfz + pEx3·dfz²) · (1 − pEx4·sgn(κx)) · LEX
+Kxκ  = Fz · (pKx1 + pKx2·dfz) · exp(pKx3·dfz) · (1 + pPx1·dpi + pPx2·dpi²) · LKX
+Bx   = Kxκ / (Cx · Dx)
+SVx  = Fz · (pVx1 + pVx2·dfz) · LVX · LMUX
+Fx0  = MF(Bx, Cx, Dx, Ex, κx) + SVx
+```
+
+`Kxκ` is the longitudinal slip stiffness (N per unit slip ratio) and `μx` the peak friction coefficient.
+
+#### 11.13.3 Lateral force, pure slip
+
+```
+Cy   = pCy1 · LCY
+μy   = (pDy1 + pDy2·dfz) · (1 + pPy3·dpi + pPy4·dpi²) · (1 − pDy3·γ²) · LMUY
+Dy   = μy · Fz
+Kyα  = pKy1 · Fz0' · (1 + pPy1·dpi) · (1 − pKy3·|γ|)
+       · sin( pKy4 · atan( (Fz/Fz0') / ((pKy2 + pKy5·γ²)·(1 + pPy2·dpi)) ) ) · LKY
+Kyγ  = Fz · (pKy6 + pKy7·dfz) · (1 + pPy5·dpi) · LKYC
+SVyγ = Fz · (pVy3 + pVy4·dfz) · γ · LKYC · LMUY
+SVy  = Fz · (pVy1 + pVy2·dfz) · LVY · LMUY + SVyγ
+SHy  = (pHy1 + pHy2·dfz) · LHY + SHyγ
+         MF62:  SHyγ = (Kyγ·γ − SVyγ) / Kyα
+         MF52:  SHyγ = pHy3 · γ · LKYC
+αy   = α + SHy
+Ey   = (pEy1 + pEy2·dfz) · (1 + pEy5·γ² − (pEy3 + pEy4·γ)·sgn(αy)) · LEY
+By   = Kyα / (Cy · Dy)
+Fy0  = MF(By, Cy, Dy, Ey, αy) + SVy
+```
+
+`Kyα` is the cornering stiffness (N/rad). The only place where `model` matters is `SHyγ`: MF-Tyre 6.1 derives the horizontal shift from the camber stiffness `Kyγ` and the vertical shift, MF 5.2 uses the coefficient `pHy3`.
+
+#### 11.13.4 Combined slip
+
+With the `combined` coefficients present (`rCx1` or `rCy1` non zero):
+
+```
+Longitudinal weighting
+  SHxα = rHx1
+  αs   = α + SHxα
+  Bxα  = (rBx1 + rBx3·γ²) · cos(atan(rBx2·κ)) · LXAL
+  Cxα  = rCx1
+  Exα  = rEx1 + rEx2·dfz
+  Gxα  = cos(Cxα·atan(Bxα·αs − Exα·(Bxα·αs − atan(Bxα·αs))))
+       / cos(Cxα·atan(Bxα·SHxα − Exα·(Bxα·SHxα − atan(Bxα·SHxα))))
+
+Lateral weighting
+  SHyκ = rHy1 + rHy2·dfz
+  κs   = κ + SHyκ
+  Byκ  = (rBy1 + rBy4·γ²) · cos(atan(rBy2·(α − rBy3))) · LYKA
+  Cyκ  = rCy1
+  Eyκ  = rEy1 + rEy2·dfz
+  Gyκ  = cos(Cyκ·atan(Byκ·κs − Eyκ·(Byκ·κs − atan(Byκ·κs))))
+       / cos(Cyκ·atan(Byκ·SHyκ − Eyκ·(Byκ·SHyκ − atan(Byκ·SHyκ))))
+  DVyκ = μy · Fz · (rVy1 + rVy2·dfz + rVy3·γ) · cos(atan(rVy4·α))
+  SVyκ = DVyκ · sin(rVy5 · atan(rVy6·κ)) · LVYKA
+
+Forces
+  Fx = Gxα · Fx0
+  Fy = Gyκ · Fy0 + SVyκ
+```
+
+#### 11.13.5 Combined slip without `combined` coefficients
+
+When the `combined` group is absent (or `rCx1` and `rCy1` are zero) the Magic Formula says nothing about the interaction. SVJ then defines a **friction-circle limiter**; this is an SVJ rule, not part of the Magic Formula:
+
+```
+n  = sqrt( (Fx0/Dx)² + (Fy0/Dy)² )
+Fx = Fx0 / max(1, n)
+Fy = Fy0 / max(1, n)
+```
+
+Inside the circle the two forces do not influence each other; on the circle the resultant is `μ·Fz`.
+
+#### 11.13.6 Aligning moment
+
+```
+Fy' = Fy0(γ=0) · Gyκ(γ=0)                  side force at zero inclination, without SVyκ
+SHt = qHz1 + qHz2·dfz + (qHz3 + qHz4·dfz)·γ
+αt  = α + SHt
+SHf = SHy + SVy/Kyα
+αr  = α + SHf
+Pure slip:   αt,eq = αt,   αr,eq = αr,   s = 0
+Combined:    αt,eq = sqrt(αt² + (Kxκ/Kyα)²·κ²)·sgn(αt)
+             αr,eq = sqrt(αr² + (Kxκ/Kyα)²·κ²)·sgn(αr)
+             s     = R0 · (ssz1 + ssz2·Fy/Fz0' + (ssz3 + ssz4·dfz)·γ) · LS
+
+Pneumatic trail t
+  Bt = (qBz1 + qBz2·dfz + qBz3·dfz²) · (1 + qBz4·γ + qBz5·|γ|) · LKY / LMUY
+  Ct = qCz1
+  Dt = Fz · (R0/Fz0') · (qDz1 + qDz2·dfz) · (1 − pPz1·dpi) · (1 + qDz3·γ + qDz4·γ²) · LTR
+  Et = (qEz1 + qEz2·dfz + qEz3·dfz²) · (1 + (qEz4 + qEz5·γ)·(2/π)·atan(Bt·Ct·αt))
+  t  = Dt · cos(Ct·atan(Bt·αt,eq − Et·(Bt·αt,eq − atan(Bt·αt,eq)))) · cos(α)
+
+Residual moment Mzr
+  Br  = qBz9 · LKY/LMUY + qBz10 · By · Cy
+  Dr  = Fz · R0 · [ (qDz6 + qDz7·dfz)·LRES
+                    + ((qDz8 + qDz9·dfz)·(1 + pPz2·dpi) + (qDz10 + qDz11·dfz)·|γ|)·γ·LKZC ] · LMUY
+  Mzr = Dr · cos(atan(Br·αr,eq)) · cos(α)
+
+Mz = −t · Fy' + Mzr + s · Fx
+```
+
+#### 11.13.7 Rolling resistance moment
+
+With the `rolling_resistance` group and a forward speed `Vx`:
+
+```
+My = −Fz · R0 · ( qsy1 + qsy2·Fx/Fz0 + qsy3·|Vx/V0| + qsy4·(Vx/V0)⁴ + (qsy5 + qsy6·Fz/Fz0)·γ² )
+        · (Fz/Fz0)^qsy7 · (p/p0)^qsy8 · LMY
+```
+
+#### 11.13.8 Numerical rules
+
+- `Fz ≤ 0` gives zero forces and moments.
+- A division by a quantity below 1e-9 in magnitude gives 0 for the quotient.
+- The sign function is `sgn(0) = 0`, except in `αt,eq` and `αr,eq`, where it is +1.
+- `Ex`, `Ey`, `Exα`, `Eyκ` and `Et` are limited to 1 (§11.13.1).
+- An evaluator SHOULD NOT extrapolate far outside the range the coefficients were identified in (|γ| beyond about 15°, loads beyond 0.2–2.5 × `Fz0`); MF-Tyre bounds its inputs and scales the result with the actual `Fz`.
+- The sets in the repository (`templates/`, `examples/`) were fitted or estimated by their authors; their `_est` and `_source` fields say how. The evaluator reproduces the equations above and has not been compared numerically with TNO software.
+
+```
+python tools/tire_model.py file.svj.json                                   # characteristics of every tyre set
+python tools/tire_model.py file.svj.json --set front_205_45r17 --fz 4000 --sweep alpha --range 0.3
+```
+
+`svj-py`: `from svj import tiremodel` with `params(tire_set)`, `forces(p, Fz, kappa, alpha, gamma, pressure, Vx)` and `characteristics(p, Fz)`.
 
 ---
 
@@ -2399,6 +2573,7 @@ This section is **optional**. It provides a standard place to record performance
 
 | Version | Changes                                                                                    |
 |---------|--------------------------------------------------------------------------------------------|
+| 0.104   | **Tyre evaluation** (§11.13). Additive. The Magic Formula equations an evaluator uses (MF-Tyre 6.1: Fx, Fy, Mz, My, combined slip, pressure and camber terms), the normalisation and scaling factors, `pacejka.reference_load_N` and `pacejka.scaling`, the friction-circle fallback without `combined` coefficients, coefficient names `rEx1-2`, `rEy1-2`, `rHy2`, `ssz1-4`, `pPz1-2`. `_metadata.version` gains `0.104` |
 | 0.103   | **Adjustments and setups** (§29). Additive. Top-level `adjustments[]` (what can be changed: a range `min`/`max`/`step` or a list of `values`, on one path or several linked `paths`), `setups[]` (named `{path: value}` assignments) and `active_setup`; paths address a value with `id` selectors (`constraints[spring_fl].preload`). `_metadata.version` gains `0.103` |
 | 0.102   | **Collision proxies** (§28). Additive. `collision[]` on `chassis` and on any `mass_bodies` entry (sphere, box, cylinder in vehicle coordinates, optional `margin`, `source_node`) and a top-level `collision_ignore`; pairs of relatively movable bodies are compared in the reference pose and every pose (`tools/collision_check.py`, `svj.collision`); the validator warns about overlaps and errors on malformed proxies. `_metadata.version` gains `0.102` |
 | 0.101   | **Attachments and combinations** (§27; `proposals/svj_articulated_parts_proposal.md`, phase 4). Additive. Top-level **`interfaces[]`** (named frames with a role from a mating table, a gender and sizes), **`attachments[]`** (units fitted to a vehicle) and the **`*.svj-combination.json`** file (`schema/svj-combination.schema.json`): units joined by connections that carry a joint object. Units are ordinary SVJ files; `vehicle_info.vehicle_class: "attachment"` for units only ever fitted (chassis needs only `mass_total` and `center_of_gravity`). Assembly (`tools/assemble.py`) places units so interface frames coincide, qualifies ids `unit.id`, and builds one composite (mass, CG, inertia, poses) that all §24 / §26 machinery works on. `_metadata.version` gains `0.101` |
