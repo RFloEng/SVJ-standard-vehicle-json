@@ -3467,6 +3467,17 @@ The loop-closure solver exists (§26); still open: the bending of the bar's leve
 
 **Results.** Per station and travel: wheel-centre position, camber (negative = top inwards), toe (positive = toe-in), element lengths, the maximum residual and `converged` (residual below 1e-6 m or rad). `gains()` gives the camber gain and bump steer (deg per m) around the reference. The spin axis comes from the `revolute` joint between `upright_body` and `wheel_body` (§25.6).
 
+**Suspension characteristics** (the viewer's Geometry tab, `tools/loop_solver.py`). Wheel travel `t` is the rise of the wheel centre (m, bump positive). With `camber(t)` and `toe(t)` as above (camber positive = top outwards, toe positive = toe-in):
+
+| Quantity | Definition |
+|---|---|
+| Bump camber | `camber(t) − camber(0)` (deg); **camber gain** = its slope at 0 by central difference over ±10 mm (deg/m) |
+| Bump steer | `toe(t) − toe(0)` (deg); the slope at 0 (deg/m) is the **bump steer** value, positive = toe-in with bump |
+| Track gain | outboard movement of the wheel centre per metre of bump, `side · dy/dt` (mm/m) |
+| Wheel recession | forward movement of the wheel centre per metre of bump, `dx/dt` (mm/m) |
+| Caster, kingpin inclination, scrub radius, caster trail | the screw axis of the upright for a small rack movement: caster positive = axis leaning back at the top, inclination positive = leaning inwards at the top, scrub radius positive = ground point inboard of the axis, trail = longitudinal distance from the axis ground point to the wheel centre; also evaluated at other travels |
+| Roll-centre height | front view: the line from the tyre contact point through the instant centre of the upright meets the centreline at the roll centre (m above ground) |
+
 **Limits.** Joints are rigid (bushings and compliance are not applied), except that a bushing direction with a rate below 10 000 is left free (§25.11); wheel spin and tyre deflection are not modelled; `roll_center()` gives the front-view roll centre from the instant centre of the upright (height above the ground; near zero for parallel horizontal arms). `steering_axis()` gives caster, kingpin inclination, scrub radius and caster trail from the upright's screw axis for a small rack movement. A mechanism with generated (`x_derived`) joints of assumed type may be under- or over-constrained, and the numbers then say little: check `converged`, and treat an unexpected result as a sign of missing data in the source, not of the solver.
 
 ```
