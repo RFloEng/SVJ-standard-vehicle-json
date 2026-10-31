@@ -179,7 +179,7 @@ const layerDefs = [
   {key:'collision',label:'Collision proxies',color:'#ff6ad5'}
 ];
 let cornerDefs = [{key:null,label:'All',color:null},{key:'FL',label:'FL',color:'#4d9fff'},{key:'FR',label:'FR',color:'#34d27b'},{key:'RL',label:'RL',color:'#f0b429'},{key:'RR',label:'RR',color:'#b06aff'}];
-const panelDefs = [{id:'overview',label:'Overview'},{id:'suspension',label:'Suspension'},{id:'powertrain',label:'Powertrain'},{id:'brakes',label:'Brakes'},{id:'tires',label:'Tires'},{id:'performance',label:'Performance'},{id:'aero',label:'Aero'},{id:'thermal',label:'Thermal'},{id:'meshes',label:'Meshes'},{id:'poses',label:'Poses'}];
+const panelDefs = [{id:'overview',label:'Overview'},{id:'suspension',label:'Suspension'},{id:'geometry',label:'Geometry'},{id:'powertrain',label:'Powertrain'},{id:'brakes',label:'Brakes'},{id:'tires',label:'Tires'},{id:'performance',label:'Performance'},{id:'aero',label:'Aero'},{id:'thermal',label:'Thermal'},{id:'meshes',label:'Meshes'},{id:'poses',label:'Poses'}];
 
 /* ═══════════════════════════════════════════════════
    HELPERS
@@ -1035,6 +1035,7 @@ function renderPanel() {
   switch(activePanel) {
     case 'overview': renderOverview(el, data); break;
     case 'suspension': renderSuspension(el, data); if(data.__unifiedView) el.insertAdjacentHTML('afterbegin', UNIFIED_BANNER); break;
+    case 'geometry': renderGeometry(el, data); break;
     case 'powertrain': renderPowertrain(el, data); break;
     case 'brakes': renderBrakes(el, data); break;
     case 'tires': renderTires(el, data); break;
@@ -1095,6 +1096,311 @@ function applySetupInViewer(id){
   if(bad.length) console.warn('SVJ setup '+id+': paths not applied', bad);
 }
 document.addEventListener('click',e=>{ const b=e.target.closest?.('[data-setup]'); if(b) applySetupInViewer(b.dataset.setup); });
+
+/* ═══════════════════════════════════════════════════
+   SUSPENSION GEOMETRY (spec §26): loop-closure solver and wheel-travel analysis. Mirrors tools/loop_solver.py.
+   Unknowns: the rigid motion (rotation vector + translation) of every body of a mechanism, chassis and ground fixed.
+   Residual terms: the motions each joint forbids, prescribed joint coordinates, and the wheel travel. Gauss-Newton with
+   Levenberg-Marquardt damping; the Jacobian is built per body, from the terms that involve it.
+   ═══════════════════════════════════════════════════ */
+const GEO_SOFT_RATE = 1e4;
+const GEO_FREE = {revolute:[[],[2]], translational:[[2],[]], cylindrical:[[2],[2]], spherical:[[],[0,1,2]], universal:[[],[0,1]], planar:[[0,1],[2]], fixed:[[],[]]};
+const geoI3 = () => [[1,0,0],[0,1,0],[0,0,1]];
+const geoMM = (a,b) => a.map((r,i) => [0,1,2].map(j => r[0]*b[0][j]+r[1]*b[1][j]+r[2]*b[2][j]));
+const geoMV = (a,v) => a.map(r => r[0]*v[0]+r[1]*v[1]+r[2]*v[2]);
+const geoTr = a => [0,1,2].map(i => [a[0][i],a[1][i],a[2][i]]);
+const geoSub = (a,b) => [a[0]-b[0],a[1]-b[1],a[2]-b[2]];
+const geoApply = (T,p) => { const q = geoMV(T.R,p); return [q[0]+T.t[0],q[1]+T.t[1],q[2]+T.t[2]]; };
+const geoCompose = (a,b) => ({R:geoMM(a.R,b.R), t:geoApply(a,b.t)});
+const geoInv = T => { const Rt = geoTr(T.R), q = geoMV(Rt,T.t); return {R:Rt, t:[-q[0],-q[1],-q[2]]}; };
+function geoRotvec(R){
+  const c = Math.max(-1, Math.min(1, (R[0][0]+R[1][1]+R[2][2]-1)/2)), ang = Math.acos(c);
+  const v = [R[2][1]-R[1][2], R[0][2]-R[2][0], R[1][0]-R[0][1]], s = Math.hypot(...v);
+  if(s < 1e-14) return [0,0,0];
+  const k = ang/s; return [v[0]*k, v[1]*k, v[2]*k];
+}
+function geoTransform(x, o){
+  const w = [x[o],x[o+1],x[o+2]], ang = Math.hypot(...w);
+  return {R: ang ? rotAxis(w, ang) : geoI3(), t:[x[o+3],x[o+4],x[o+5]]};
+}
+function geoSolveLinear(A,b){
+  const n = b.length, M = A.map((r,i) => r.concat([b[i]]));
+  for(let i=0;i<n;i++){
+    let p=i; for(let r=i+1;r<n;r++) if(Math.abs(M[r][i])>Math.abs(M[p][i])) p=r;
+    if(Math.abs(M[p][i])<1e-18) M[p][i]=1e-18;
+    [M[i],M[p]]=[M[p],M[i]];
+    for(let r=i+1;r<n;r++){ const f=M[r][i]/M[i][i]; if(f) for(let c=i;c<=n;c++) M[r][c]-=f*M[i][c]; }
+  }
+  const x = new Array(n).fill(0);
+  for(let i=n-1;i>=0;i--){ let s=M[i][n]; for(let j=i+1;j<n;j++) s-=M[i][j]*x[j]; x[i]=s/M[i][i]; }
+  return x;
+}
+function geoMarker(doc, bodyId, name){
+  const src = bodyId==='chassis' ? doc.chassis?.markers : (doc.chassis?.mass_bodies||[]).find(b=>b.id===bodyId)?.markers;
+  const m = src?.[name]; if(Array.isArray(m)) return {p:m, q:[0,0,0,1]};
+  return (m && Array.isArray(m.position)) ? {p:m.position, q:m.orientation||[0,0,0,1]} : null;
+}
+function geoFrame(doc, c, side){
+  const f = c['frame_'+side];
+  if(f && Array.isArray(f.position)) return {p:f.position, R:quatMat(f.orientation||[0,0,0,1]), q:f.orientation||[0,0,0,1]};
+  const nm = c['marker_'+side]; if(nm!=null){ const m = geoMarker(doc, c['body_'+side], nm); if(m) return {p:m.p, R:quatMat(m.q), q:m.q}; }
+  return null;
+}
+const GEO_ROOTS = ['chassis','ground'];
+function geoModel(doc){
+  if(doc.__geoModel && doc.__geoModelFor === doc.constraints) return doc.__geoModel;
+  const bodies = {}; (doc.chassis?.mass_bodies||[]).forEach(b => { if(b && b.id!=null) bodies[b.id]=b; });
+  const stations = {}; (doc.wheel_stations||[]).forEach(st => { if(st && st.id) stations[st.id]=st; });
+  const wheels = new Set(Object.values(stations).map(s => s.wheel_body));
+  const joints = (doc.constraints||[]).filter(c => c && c.type==='joint' && c.id);
+  const adj = {};
+  joints.forEach(c => { const a=c.body_a, b=c.body_b; [[a,b],[b,a]].forEach(([x,y]) => { if(x in bodies && !wheels.has(x) && y in bodies && !wheels.has(y)) (adj[x] ||= new Set()).add(y); }); });
+  joints.forEach(c => [c.body_a,c.body_b].forEach(x => { if(x in bodies && !wheels.has(x)) (adj[x] ||= new Set()); }));
+  const seen = new Set(), comps = [];
+  Object.keys(adj).sort().forEach(start => {
+    if(seen.has(start)) return; const stack=[start], comp=[]; seen.add(start);
+    while(stack.length){ const x=stack.pop(); comp.push(x); adj[x].forEach(y => { if(!seen.has(y)){ seen.add(y); stack.push(y); } }); }
+    comps.push(comp.sort());
+  });
+  const steerJoints = new Set(Object.values(stations).map(s => s.steering_joint).filter(Boolean));
+  const model = {bodies, stations, wheels, joints, comps, steerJoints, doc};
+  Object.defineProperty(doc, '__geoModel', {value:model, enumerable:false, configurable:true, writable:true});
+  Object.defineProperty(doc, '__geoModelFor', {value:doc.constraints, enumerable:false, configurable:true, writable:true});
+  return model;
+}
+function geoWheelCentre(model, st, X){
+  const m = geoMarker(model.doc, st.upright_body, st.wheel_center_marker||'wheel_center'); if(!m) return null;
+  return geoApply(X[st.upright_body]||{R:geoI3(),t:[0,0,0]}, m.p);
+}
+function geoJointFrames(model, c){
+  if(c.__fr) return c.__fr;
+  const fa = geoFrame(model.doc,c,'a'), fb = geoFrame(model.doc,c,'b'); if(!fa||!fb) return null;
+  const Rfa = quatMat(fa.q), Rfb = quatMat(fb.q), w0 = geoRotvec(geoMM(geoTr(Rfa),Rfb));
+  const bush = (c.bushing && typeof c.bushing==='object') ? c.bushing : {};
+  const [fp, fr] = GEO_FREE[c.joint_type] || [[],[]];
+  const softP = [0,1,2].filter(i => typeof bush['rate_'+'xyz'[i]]==='number' && bush['rate_'+'xyz'[i]]<GEO_SOFT_RATE);
+  const softR = [0,1,2].filter(i => typeof bush['rate_r'+'xyz'[i]]==='number' && bush['rate_r'+'xyz'[i]]<GEO_SOFT_RATE);
+  const fr_ = {fa,fb,Rfa,Rfb,w0, keepP:[0,1,2].filter(i=>!fp.includes(i)&&!softP.includes(i)), keepR:[0,1,2].filter(i=>!fr.includes(i)&&!softR.includes(i))};
+  Object.defineProperty(c,'__fr',{value:fr_,enumerable:false,configurable:true,writable:true});
+  return fr_;
+}
+function geoRel(model, c, X){
+  const f = geoJointFrames(model,c), I = {R:geoI3(),t:[0,0,0]};
+  const Xa = X[c.body_a]||I, Xb = X[c.body_b]||I;
+  const pa = geoApply(Xa,f.fa.p), pb = geoApply(Xb,f.fb.p), Ra = geoMM(Xa.R,f.Rfa), Rb = geoMM(Xb.R,f.Rfb);
+  return {d:geoMV(geoTr(Ra),geoSub(pb,pa)), w:geoRotvec(geoMM(geoTr(Ra),Rb)), f};
+}
+function geoCoordinate(model, c, X){
+  const {d,w} = geoRel(model,c,X);
+  return c.joint_type==='revolute'?[w[2]]:c.joint_type==='translational'?[d[2]]:c.joint_type==='cylindrical'?[w[2],d[2]]:null;
+}
+function geoRefCentres(model){
+  const out = {}; Object.entries(model.stations).forEach(([sid,st]) => { out[sid] = geoWheelCentre(model, st, {}); }); return out;
+}
+/* Pose in which each station's wheel centre has risen by travel[station] (m, bump positive) and the joints in jointValues
+   sit at those coordinates. start: transforms of a previous solve (continuation along a sweep). */
+function geoSolve(model, travel={}, jointValues={}, start=null){
+  const refC = model.refC || (model.refC = geoRefCentres(model)), X_all = {chassis:{R:geoI3(),t:[0,0,0]}, ground:{R:geoI3(),t:[0,0,0]}};
+  let maxRes = 0, iters = 0, ok = true;
+  model.comps.forEach(comp => {
+    const cset = new Set(comp);
+    const cj = model.joints.filter(c => (cset.has(c.body_a)||cset.has(c.body_b)) && [c.body_a,c.body_b].every(b => cset.has(b)||GEO_ROOTS.includes(b)||model.wheels.has(b))
+                                        && !(model.wheels.has(c.body_a)||model.wheels.has(c.body_b)) && geoJointFrames(model,c));
+    const csts = Object.keys(model.stations).filter(sid => cset.has(model.stations[sid].upright_body));
+    const want = {}; cj.forEach(c => { if(model.steerJoints.has(c.id) && ['revolute','translational'].includes(c.joint_type)) want[c.id]=[0]; });
+    Object.entries(jointValues).forEach(([k,v]) => { want[k] = Array.isArray(v)?v:[v]; });
+    const index = {}; comp.forEach((b,i) => { index[b]=i; });
+    const n = 6*comp.length, x = new Array(n).fill(0);
+    if(start) comp.forEach(b => { if(start[b]){ const w = geoRotvec(start[b].R), o = 6*index[b]; x[o]=w[0]; x[o+1]=w[1]; x[o+2]=w[2]; x[o+3]=start[b].t[0]; x[o+4]=start[b].t[1]; x[o+5]=start[b].t[2]; } });
+    // residual terms: each lists the bodies it depends on
+    const terms = [];
+    cj.forEach(c => terms.push({bodies:[c.body_a,c.body_b].filter(b=>b in index), len:geoJointFrames(model,c).keepP.length+geoJointFrames(model,c).keepR.length,
+      ev:(X,out)=>{ const {d,w,f}=geoRel(model,c,X); f.keepP.forEach(i=>out.push(d[i])); f.keepR.forEach(i=>out.push(w[i]-f.w0[i])); }}));
+    cj.filter(c => c.id in want && ['revolute','translational','cylindrical'].includes(c.joint_type)).forEach(c => {
+      const w = want[c.id]; terms.push({bodies:[c.body_a,c.body_b].filter(b=>b in index), len:c.joint_type==='cylindrical'?2:1,
+        ev:(X,out)=>{ const got = geoCoordinate(model,c,X); got.forEach((g,k) => out.push(k<w.length?g-w[k]:0)); }}); });
+    csts.forEach(sid => { const st = model.stations[sid]; if(refC[sid]) terms.push({bodies:[st.upright_body], len:1,
+      ev:(X,out)=>{ const p = geoWheelCentre(model,st,X); out.push(p[2]-refC[sid][2]+(travel[sid]||0)); }}); });
+    terms.forEach(t => { t.bodies = t.bodies.filter(b => b in index); });
+    const byBody = comp.map(() => []); terms.forEach((t,ti) => t.bodies.forEach(b => byBody[index[b]].push(ti)));
+    const offs = []; let m = 0; terms.forEach(t => { offs.push(m); m += t.len; });
+    const state = xv => { const X = Object.assign({}, X_all); comp.forEach((b,i) => { X[b] = geoTransform(xv,6*i); }); return X; };
+    const evalTerms = (X, idxs, r) => idxs.forEach(ti => { const out=[]; terms[ti].ev(X,out); for(let k=0;k<terms[ti].len;k++) r[offs[ti]+k]=out[k]; });
+    const all = terms.map((_,i)=>i);
+    const resid = xv => { const r = new Array(m).fill(0); evalTerms(state(xv), all, r); return r; };
+    const maxAbs = r => r.reduce((a,v)=>Math.max(a,Math.abs(v)),0), sumSq = r => r.reduce((a,v)=>a+v*v,0);
+    let lam = 1e-6, r0 = resid(x), it = 0;
+    for(it=1; it<=60; it++){
+      if(!m || maxAbs(r0) < 1e-9) break;
+      const J = Array.from({length:m}, () => new Array(n).fill(0)), h = 1e-7, Xb = state(x);
+      for(let bi=0; bi<comp.length; bi++) for(let k=0;k<6;k++){
+        const j = 6*bi+k, xp = x.slice(); xp[j] += h; const rp = r0.slice(), Xp = Object.assign({}, Xb); Xp[comp[bi]] = geoTransform(xp, 6*bi); evalTerms(Xp, byBody[bi], rp);
+        byBody[bi].forEach(ti => { for(let q=0;q<terms[ti].len;q++){ const i=offs[ti]+q; J[i][j] = (rp[i]-r0[i])/h; } });
+      }
+      const JtJ = Array.from({length:n}, (_,i) => Array.from({length:n}, (_,j) => { let s=0; for(let r=0;r<m;r++) s+=J[r][i]*J[r][j]; return s; }));
+      const Jtr = Array.from({length:n}, (_,i) => { let s=0; for(let r=0;r<m;r++) s+=J[r][i]*r0[r]; return s; });
+      let done = false;
+      for(let tr=0; tr<12; tr++){
+        const A = JtJ.map(row => row.slice()); for(let i=0;i<n;i++) A[i][i]+=lam;
+        const dx = geoSolveLinear(A, Jtr.map(v=>-v)), xn = x.map((v,i)=>v+dx[i]), rn = resid(xn);
+        if(sumSq(rn) < sumSq(r0)){ for(let i=0;i<n;i++) x[i]=xn[i]; r0=rn; lam=Math.max(lam/5,1e-12); done=true; break; }
+        lam *= 10;
+      }
+      if(!done) break;
+    }
+    const res = maxAbs(r0); maxRes = Math.max(maxRes,res); iters = Math.max(iters,it); ok = ok && res < 1e-6;
+    Object.assign(X_all, state(x));
+  });
+  const centres = {}; Object.entries(model.stations).forEach(([sid,st]) => { const p = geoWheelCentre(model,st,X_all); if(p) centres[sid]=p; });
+  return {transforms:X_all, residual:maxRes, converged:ok, iterations:iters, centres};
+}
+function geoWheelAxis(model, sid, X){
+  const st = model.stations[sid]; if(!st) return null;
+  const h = model.joints.find(c => (c.body_a===st.upright_body&&c.body_b===st.wheel_body)||(c.body_b===st.upright_body&&c.body_a===st.wheel_body)); if(!h) return null;
+  const side = h.body_a===st.upright_body?'a':'b', fr = geoFrame(model.doc,h,side); if(!fr) return null;
+  const R = geoMM((X[st.upright_body]||{R:geoI3()}).R, quatMat(fr.q)); let a = [R[0][2],R[1][2],R[2][2]];
+  const c = geoWheelCentre(model,st,X)||[0,0,0]; if(a[1]*(c[1]||1) < 0) a = a.map(v=>-v);
+  return a;
+}
+function geoAlignment(model, sid, X){
+  const a = geoWheelAxis(model,sid,X); if(!a) return null;
+  const c = geoWheelCentre(model,model.stations[sid],X), s = (c&&c[1]>=0)?1:-1;
+  return {camber:Math.asin(Math.max(-1,Math.min(1,a[2])))*180/Math.PI, toe:Math.atan2(a[0],s*a[1])*180/Math.PI};
+}
+function geoTyreRadius(st){
+  const w = st.wheel||{}, t = st.tire||{};
+  for(const k of ['loaded_radius','rolling_radius','radius']) if(typeof w[k]==='number') return w[k];
+  for(const k of ['loaded_radius','radius']) if(typeof t[k]==='number') return t[k];
+  return 0.3;
+}
+/* Kingpin geometry from the screw axis of the upright for a small rack movement. */
+function geoSteeringAxis(model, sid, travel=0, delta=0.002){
+  const st = model.stations[sid], sj = st?.steering_joint; if(!sj) return null;
+  const lo = geoSolve(model,{[sid]:travel},{[sj]:-delta}), hi = geoSolve(model,{[sid]:travel},{[sj]:delta});
+  if(!lo.converged||!hi.converged) return null;
+  const ub = st.upright_body, rel = geoCompose(hi.transforms[ub], geoInv(lo.transforms[ub])), w = geoRotvec(rel.R), nn = Math.hypot(...w);
+  if(nn < 1e-9) return null;
+  let u = w.map(v=>v/nn); if(u[2] > 0) u = u.map(v=>-v);
+  const mid = geoSolve(model,{[sid]:travel},{[sj]:0}), centre = geoWheelCentre(model,st,mid.transforms), side = centre[1]>=0?1:-1;
+  const A = [0,1,2].map(i => [0,1,2].map(j => (i===j?1:0)-rel.R[i][j]+u[i]*u[j])), q = geoSolveLinear(A, rel.t.slice());
+  const d = geoSub(centre,q), k = d[0]*u[0]+d[1]*u[1]+d[2]*u[2], foot = q.map((v,i)=>v+k*u[i]);
+  const zg = centre[2]+geoTyreRadius(st), sc = Math.abs(u[2])>1e-9?(zg-foot[2])/u[2]:0, ground = foot.map((v,i)=>v+sc*u[i]);
+  return {caster:Math.atan2(-u[0],-u[2])*180/Math.PI, kpi:Math.atan2(-u[1]*side,-u[2])*180/Math.PI, scrub:side*(centre[1]-ground[1]), trail:ground[0]-centre[0]};
+}
+/* Front-view roll centre from the instant centre of the upright between wheel travel -delta and +delta. */
+function geoRollCentre(model, sid, delta=0.005){
+  const st = model.stations[sid]; if(!st) return null;
+  const lo = geoSolve(model,{[sid]:-delta}), hi = geoSolve(model,{[sid]:delta}); if(!lo.converged||!hi.converged) return null;
+  const ub = st.upright_body, mid = geoSolve(model), rel = geoCompose(hi.transforms[ub], geoInv(lo.transforms[ub])), R = rel.R, t = rel.t;
+  const th = Math.atan2(R[2][1],R[1][1]); if(Math.abs(th)<1e-9) return null;
+  const c = Math.cos(th), sn = Math.sin(th), det = (1-c)**2+sn**2, icy = ((1-c)*t[1]-sn*t[2])/det, icz = (sn*t[1]+(1-c)*t[2])/det;
+  const centre = geoWheelCentre(model,st,mid.transforms), contact = [centre[1], centre[2]+geoTyreRadius(st)];
+  const dy = icy-contact[0], dz = icz-contact[1]; if(Math.abs(dy)<1e-9) return null;
+  const k = -contact[0]/dy, zrc = contact[1]+k*dz;
+  return {height:contact[1]-zrc};
+}
+/* The wheel-travel analysis of one station: sweep over -range..+range (m), gains by central difference around the reference. */
+function geoAnalyseStation(model, sid, range, steps){
+  const st = model.stations[sid], rows = []; let prev = null, closed = true, maxRes = 0;
+  for(let i=0;i<steps;i++){
+    const t = -range + 2*range*i/(steps-1), r = geoSolve(model,{[sid]:t},{},prev); prev = r.transforms;
+    const al = geoAlignment(model,sid,r.transforms)||{}, c = r.centres[sid]||[0,0,0];
+    rows.push({t, camber:al.camber, toe:al.toe, c}); closed = closed && r.converged; maxRes = Math.max(maxRes,r.residual);
+  }
+  const ref = geoSolve(model,{[sid]:0}), a0 = geoAlignment(model,sid,ref.transforms)||{}, c0 = ref.centres[sid]||[0,0,0];
+  const dl = 0.01, lo = geoSolve(model,{[sid]:-dl}), hi = geoSolve(model,{[sid]:dl}), alo = geoAlignment(model,sid,lo.transforms)||{}, ahi = geoAlignment(model,sid,hi.transforms)||{};
+  const clo = lo.centres[sid]||[0,0,0], chi = hi.centres[sid]||[0,0,0], side = c0[1]>=0?1:-1;
+  const out = {sid, closed:closed&&ref.converged, residual:Math.max(maxRes,ref.residual), rows, camber0:a0.camber, toe0:a0.toe,
+    camberGain:(ahi.camber-alo.camber)/(2*dl), bumpSteer:(ahi.toe-alo.toe)/(2*dl), trackGain:side*(chi[1]-clo[1])/(2*dl), recession:(chi[0]-clo[0])/(2*dl)};
+  out.rows.forEach(r => { r.dCamber = r.camber-a0.camber; r.dToe = r.toe-a0.toe; r.dTrack = side*(r.c[1]-c0[1]); r.dX = r.c[0]-c0[0]; });
+  if(st.steering_joint){
+    out.axis0 = geoSteeringAxis(model,sid,0);
+    out.axisRows = out.axis0 ? [-range,-range/2,0,range/2,range].map(t => ({t, ax:geoSteeringAxis(model,sid,t)})).filter(r=>r.ax) : [];
+  }
+  out.rc = geoRollCentre(model,sid);
+  return out;
+}
+
+/* ═══════════════════════════════════════════════════
+   GEOMETRY TAB: bump camber, bump steer (toe), track and wheelbase change, kingpin geometry, roll centre.
+   ═══════════════════════════════════════════════════ */
+let geoRange = 0.05, geoState = null;          // geoState: {key, range, results, pending}
+function geoKey(d){ return d.constraints; }
+function geoStart(d){
+  if(geoState && geoState.key===geoKey(d) && geoState.range===geoRange) return;
+  const st = {key:geoKey(d), range:geoRange, results:[], pending:null, done:false, error:null};
+  geoState = st;
+  let model; try { model = geoModel(d); } catch(e){ st.error = String(e); st.done = true; return; }
+  const ids = (d.wheel_stations||[]).map(s => s.id).filter(Boolean);
+  const step = i => {
+    if(geoState !== st) return;
+    if(i >= ids.length){ st.done = true; st.pending = null; if(activePanel==='geometry') renderPanel(); return; }
+    st.pending = ids[i]; if(activePanel==='geometry') geoRefreshProgress(st, ids.length, i);
+    try { st.results.push(geoAnalyseStation(model, ids[i], st.range, 21)); } catch(e){ st.results.push({sid:ids[i], error:String(e)}); }
+    setTimeout(() => step(i+1), 0);
+  };
+  setTimeout(() => step(0), 30);
+}
+function geoRefreshProgress(st, total, i){
+  const el = document.getElementById('geo-progress'); if(el) el.textContent = 'Solving ' + st.pending + ' (' + (i+1) + '/' + total + ')…';
+}
+function renderGeometry(el, data){
+  if(!(data.wheel_stations||[]).length || !(data.constraints||[]).length){
+    el.innerHTML = '<div style="color:var(--txD);font-size:11px;line-height:1.5">Geometry analysis needs the unified suspension (SVJ v0.100: <code>wheel_stations[]</code> with bodies and joints). This file has the old corner-based <code>suspension</code> section only; migrate it with <code>tools/migrate_suspension.py</code>.</div>';
+    return;
+  }
+  geoStart(data);
+  const st = geoState;
+  const rng = [0.03,0.05,0.08,0.12].map(r => `<button class="btn" data-georange="${r}" style="margin-right:4px${geoRange===r?';outline:1px solid var(--bl)':''}">±${Math.round(r*1000)} mm</button>`).join('');
+  let h = `<div style="font-size:10px;color:var(--txD);margin-bottom:6px">Wheel travel analysis from the loop-closure solver (spec §26): the wheel centre is moved up (bump, +) and down (rebound, −) and the mechanism is solved at each position. Camber positive = top of the wheel outwards; toe positive = toe-in; SAE axes.</div>`
+    + `<div class="mb8"><span style="font-size:10px;color:var(--txD);margin-right:6px">Travel range</span>${rng}</div>`;
+  if(st.error){ el.innerHTML = h + `<div style="color:var(--rd);font-size:11px">${escHtml(st.error)}</div>`; return; }
+  const res = st.results.filter(r => !r.error);
+  if(!st.done) h += `<div id="geo-progress" style="font-size:10px;color:var(--yl);margin-bottom:6px">Solving…</div>`;
+  if(res.length){
+    const f = (v,d=2) => (v==null||Number.isNaN(v)) ? '—' : (v>=0?'+':'') + v.toFixed(d);
+    const cell = 'padding:2px 5px;text-align:right;white-space:nowrap';
+    h += '<div style="overflow-x:auto"><table class="mono" style="font-size:9.5px;border-collapse:collapse;width:100%">'
+       + '<tr style="color:var(--txD)"><th style="text-align:left;padding:2px 5px">Station</th><th style="'+cell+'">Camber</th><th style="'+cell+'">Toe</th><th style="'+cell+'">Camber gain</th><th style="'+cell+'">Bump steer</th><th style="'+cell+'">Track gain</th><th style="'+cell+'">Recession</th><th style="'+cell+'">Caster</th><th style="'+cell+'">KPI</th><th style="'+cell+'">Scrub</th><th style="'+cell+'">Trail</th><th style="'+cell+'">RC height</th></tr>'
+       + '<tr style="color:var(--txD)"><td></td><td style="'+cell+'">deg</td><td style="'+cell+'">deg</td><td style="'+cell+'">deg/m</td><td style="'+cell+'">deg/m</td><td style="'+cell+'">mm/m</td><td style="'+cell+'">mm/m</td><td style="'+cell+'">deg</td><td style="'+cell+'">deg</td><td style="'+cell+'">mm</td><td style="'+cell+'">mm</td><td style="'+cell+'">mm</td></tr>';
+    res.forEach(r => {
+      const a = r.axis0;
+      h += `<tr style="border-top:1px solid var(--brd)${r.closed?'':';color:var(--rd)'}"><td style="padding:2px 5px">${escHtml(r.sid)}${r.closed?'':' ✗'}</td>`
+         + `<td style="${cell}">${f(r.camber0)}</td><td style="${cell}">${f(r.toe0)}</td><td style="${cell}">${f(r.camberGain,1)}</td><td style="${cell}">${f(r.bumpSteer,1)}</td>`
+         + `<td style="${cell}">${f(r.trackGain*1000,0)}</td><td style="${cell}">${f(r.recession*1000,0)}</td>`
+         + `<td style="${cell}">${a?f(a.caster):'—'}</td><td style="${cell}">${a?f(a.kpi):'—'}</td><td style="${cell}">${a?f(a.scrub*1000,0):'—'}</td><td style="${cell}">${a?f(a.trail*1000,0):'—'}</td>`
+         + `<td style="${cell}">${r.rc?f(r.rc.height*1000,0):'—'}</td></tr>`;
+    });
+    h += '</table></div>';
+    if(res.some(r => !r.closed)) h += '<div style="font-size:9px;color:var(--rd);margin-top:4px">✗ the mechanism does not close over the whole range (residual above 1e-6): check the joints of that station.</div>';
+    h += '<div style="font-size:9px;color:var(--txD);margin:4px 0 8px">Gains are central differences over ±10 mm (deg/m = 0.001 deg/mm). Track gain: outboard movement of the wheel centre per m of bump. Recession: forward movement. Kingpin values only for steered stations; roll centre = front-view instant-centre construction.</div>';
+    const mk = (title, key, unit, scale=1) => {
+      const ds = res.map(r => ({name:r.sid, data:r.rows.map(p => [p.t*1000, p[key]*scale])}));
+      const id = 'geo-' + key + '-' + Math.random().toString(36).slice(2,7);
+      setTimeout(() => drawChart(id, ds), 20);
+      return chartHtml(id, title + ' (' + unit + ' vs bump travel, mm)', ds, 150);
+    };
+    h += mk('Bump camber: camber change', 'dCamber', 'deg');
+    h += mk('Bump steer: toe change (+ = toe-in)', 'dToe', 'deg');
+    h += mk('Track change: wheel centre outboard', 'dTrack', 'mm', 1000);
+    h += mk('Wheel recession: wheel centre forward', 'dX', 'mm', 1000);
+    const steered = res.filter(r => r.axisRows && r.axisRows.length);
+    if(steered.length){
+      const mk2 = (title, pick, unit, scale=1) => {
+        const ds = steered.map(r => ({name:r.sid, data:r.axisRows.map(p => [p.t*1000, pick(p.ax)*scale])}));
+        const id = 'geo-ax-' + Math.random().toString(36).slice(2,7);
+        setTimeout(() => drawChart(id, ds), 20);
+        return chartHtml(id, title + ' (' + unit + ' vs bump travel, mm)', ds, 140);
+      };
+      h += mk2('Caster', a => a.caster, 'deg');
+      h += mk2('Kingpin inclination', a => a.kpi, 'deg');
+      h += mk2('Scrub radius', a => a.scrub, 'mm', 1000);
+    }
+  }
+  st.results.filter(r => r.error).forEach(r => { h += `<div style="font-size:10px;color:var(--rd)">${escHtml(r.sid)}: ${escHtml(r.error)}</div>`; });
+  el.innerHTML = h;
+}
+document.addEventListener('click', e => { const b = e.target.closest?.('[data-georange]'); if(b){ geoRange = +b.dataset.georange; renderPanel(); } });
 
 function renderOverview(el, data) {
   const vi=data.vehicle_info||{};const ch=data.chassis||{};const cg=ch.center_of_gravity||[];
@@ -1474,6 +1780,7 @@ function mfCharacteristics(p, Fz){
   return {cAlpha: (f(d, 0).Fy - f(-d, 0).Fy) / (2 * d), cKappa: (f(0, d).Fx - f(0, -d).Fx) / (2 * d), muY: my / Fz, muX: mx / Fz, trail: mfForces(p, Fz, 0, 0.02, 0).t};
 }
 window.svjTire = {mfParams, mfForces, mfCharacteristics};      // for tests and scripts
+window.svjGeo = {geoModel, geoSolve, geoAnalyseStation, geoSteeringAxis, geoRollCentre};
 function renderTires(el, data) {
   const t = data.tires;
   if(!t || !t.sets) { el.innerHTML='<div style="color:var(--txD)">No tire data</div>'; return; }
