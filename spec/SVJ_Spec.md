@@ -2780,6 +2780,8 @@ See [`docs/naming_convention.md`](../docs/naming_convention.md) for the complete
 
 **Canonical part names.** `docs/naming_convention.md` lists a recommended name per common part (`upper_wishbone`, `lower_wishbone`, `trailing_arm`, `tie_rod`, `toe_link`, `pushrod`, `rocker`, `panhard_rod`, `torque_rod`, `upright`, `spring`, `damper`, `arb`, `disc`, `caliper`, `rack`, `column`, `wheel`, …) with the aliases other tools use, so exporters converge on the same ids. The vocabulary is a recommendation: the checker warns about an unlisted link name, it does not reject it. Note the order — part first, corner last (`upper_wishbone_fl`, not `fl_upper_wishbone`), which keeps one rule across two-axle, multi-axle and dual-wheel vehicles.
 
+**Rename-proof id (optional).** A node name can be changed in a 3D tool without anyone noticing. A glTF node MAY carry the binding string in its `extras`: `"extras": { "svj_node": "SVJ::suspension::upright_fl" }` (Blender writes custom properties there). A reader resolves a binding by node name first and falls back to `extras.svj_node`; when both exist they MUST agree.
+
 ### 22.6 `placement` — Parts Defined by Hardpoints *(v0.99.2; bodies since v0.100)*
 
 > Since v0.100 a link is a `mass_body` held by joints at two ends. A body with a joint where it is `body_b` (the inboard end) and a joint where it is `body_a` (the outboard end) may use `link_between_points`: its inboard points are the frames of the joints where it is `body_b`, its outboard end is the other joint.
@@ -2844,6 +2846,23 @@ Rules 1–5 are errors. Rule 6, and a missing `mesh_ref` when several meshes are
 - A v0.96 parser encountering `visual` or `assets` SHOULD ignore them (unknown-key policy, §20).
 - v0.97 bindings (`SVJ::body::upright_fl` at corner level, no `placement`) remain valid in v0.99.2: the category list was extended, not replaced, and `placement` defaults to `rigid`.
 - A parser that does not understand `placement` treats every binding as `rigid`, which is the v0.97 behaviour.
+
+---
+
+### 22.9 Mesh-side checks *(tooling)*
+
+§22.7 checks the SVJ file. `tools/integrity_check.py --meshes` (module `tools/mesh_check.py`) also opens the glTF / GLB assets, relative to the SVJ file, and checks the other side of each binding. It reads only the JSON of the asset (node tree, transforms and the `min` / `max` of the `POSITION` accessors), never the binary buffers, and needs no library.
+
+1. **Asset** exists and is glTF 2.0 / GLB. Other formats are skipped with a note.
+2. **Node exists**: the bound node is in the asset, by name or by `extras.svj_node`.
+3. **Node is unambiguous**: the name occurs once in the asset.
+4. **Name and extras agree** when both are present.
+5. **Orphans** (advisory): `SVJ::…` nodes in the asset that no part of the file is bound to (`helper` and `lod` excepted).
+6. **Units**: the spread of the nodes' bounding-box centres against the spread of the SVJ positions of the same parts; a factor of 10, 100 or 1000 is reported as centimetres, millimetres or a wrong size.
+7. **Axes**: the geometry is compared with the declared `coordinate_system` (§22.4) and with the common conventions (SAE axes, Y-up with −Z or +Z forward, Z-up with +X forward); when another convention fits clearly better, the report says which.
+8. **Placement**: for each `rigid` binding, the SVJ position of the part (the centre of gravity of the chassis or of a mass body) must lie inside the node's bounding box, within a tolerance of 0.10 m plus 15 % of the box diagonal. A common offset of all parts is reported once, as a shift of the asset against the SVJ origin, with the `x_transform.position` that would correct it; otherwise each part outside its box is named. The `x_transform` of the manifest entry (§22.2) is applied before the comparison.
+
+**Mesh problems are appearance problems.** Every one of these findings is a **warning**, never an error, and none of them makes the physics description invalid; `--strict` still fails on warnings. A file whose mesh files are missing (placeholder paths, a partial checkout) is valid SVJ.
 
 ---
 
