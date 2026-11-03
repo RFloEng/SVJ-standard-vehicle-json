@@ -2657,6 +2657,10 @@ Any part described in the file MAY carry an optional `visual` field. As of **v0.
 |-------|------|------------------|
 | `chassis.visual` | Sprung body | `body` |
 | `chassis.mass_bodies[].visual` | Decomposed mass body (engine block, fuel tank, driver…) | `body`, `powertrain` |
+| `wheel_stations[].visual` | Wheel carrier: upright, hub carrier, axle housing *(unified model, §25.2)* | `suspension` |
+| `wheel_stations[].wheel.visual`, `wheel_stations[].wheel.positions[].visual` | Rim / wheel; one wheel of a dual set *(unified)* | `wheel` |
+| `wheel_stations[].brake.disc.visual` / `.caliper.visual` / `.drum.visual` | Brake disc, caliper, drum *(unified)* | `brake` |
+| `constraints[].visual` | A spring, damper or actuator element *(unified)* | `suspension`, `body` |
 | `suspension.<station>.topology.upright.visual` | Upright / knuckle | `suspension` |
 | `suspension.<station>.visual` | Upright / knuckle (v0.97 corner-level form, still valid) | `body`, `suspension` |
 | `suspension.<station>.topology.links[].visual` | Wishbone, trailing arm, tie rod, toe link, pushrod, torque rod | `suspension` |
@@ -2673,6 +2677,8 @@ Any part described in the file MAY carry an optional `visual` field. As of **v0.
 | `powertrain.engine/gearbox/clutch/transfer_case.visual` | Driveline units | `powertrain` |
 | `powertrain.differentials[].visual`, `powertrain.driveshafts[].visual` | Diff housing, propshaft | `powertrain` |
 | `aerodynamics.components[].visual` | Wing, splitter, diffuser | `aero` |
+
+The rows that start with `suspension.<station>` are the **legacy corner form** (§9, deprecated since v0.100). A unified file (§25) binds the same parts on `wheel_stations[]` and `constraints[]`, with the same id rules (§22.7, rule 2): the station-level `visual` takes the id of the station's `upright_body` (or `upright_<station>`), `wheel.visual` the `wheel_body` id (or `wheel_<station>`), brake parts `disc_<station>` / `caliper_<station>` / `drum_<station>`, and an element of `constraints[]` its constraint id. The uniqueness rule (§22.7, rule 4) holds across both forms and across `mass_bodies`.
 
 ```json
 "chassis": {
@@ -2866,6 +2872,8 @@ Rules 1–5 are errors. Rule 6, and a missing `mesh_ref` when several meshes are
 6. **Units**: the spread of the nodes' bounding-box centres against the spread of the SVJ positions of the same parts; a factor of 10, 100 or 1000 is reported as centimetres, millimetres or a wrong size.
 7. **Axes**: the geometry is compared with the declared `coordinate_system` (§22.4) and with the common conventions (SAE axes, Y-up with −Z or +Z forward, Z-up with +X forward); when another convention fits clearly better, the report says which.
 8. **Placement**: for each `rigid` binding, the SVJ position of the part (the centre of gravity of the chassis or of a mass body) must lie inside the node's bounding box, within a tolerance of 0.10 m plus 15 % of the box diagonal. A common offset of all parts is reported once, as a shift of the asset against the SVJ origin, with the `x_transform.position` that would correct it; otherwise each part outside its box is named. The `x_transform` of the manifest entry (§22.2) is applied before the comparison.
+
+9. **Animation and physics data belong to the nearest bound node.** A binding covers the node and its descendants (§22.10, rule 3), but a descendant that is itself bound to a part of the file belongs to that part: an animated door under the body node is checked against `door_fl` and its joint, not against the chassis. A descendant bound to nothing counts for its nearest bound ancestor. This holds for glTF animation (nodes targeted by an animation channel) and for USD time samples, masses and collision shapes alike (§22.10, rule 8).
 
 **Mesh problems are appearance problems.** Every one of these findings is a **warning**, never an error, and none of them makes the physics description invalid; `--strict` still fails on warnings. A file whose mesh files are missing (placeholder paths, a partial checkout) is valid SVJ.
 

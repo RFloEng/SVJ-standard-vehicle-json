@@ -340,3 +340,168 @@ def test_usd_physics_and_animation_must_be_copies_of_the_json(tmp_path):
     _, w, notes = mc.check_meshes(doc, ic.collect_bindings(doc), str(tmp_path))
     assert not any("differs" in x or "collision shape" in x or "no joint" in x for x in w)
     assert any("the JSON wins, the asset's animation is ignored" in n for n in notes)
+
+
+# ── unified files: bindings on wheel_stations[] and constraints[]; animation attributed to the nearest bound node ──────────
+def unified_doc():
+    """The structure an AC_to_SVJ conversion writes: chassis, upright, wheel and a door as bodies; the carrier and the disc bound on
+    wheel_stations[]; the door moved by its own joint and pose."""
+    body = lambda i, pos, **kw: dict({"id": i, "mass": 10.0, "position": pos}, **kw)
+    vis = lambda node: {"mesh_ref": "x", "node": node}
+    return {"_metadata": {"version": "0.106"}, "assets": {"meshes": [{"id": "x", "uri": "car.glb"}]},
+            "chassis": {"mass_total": 1000.0, "center_of_gravity": [-1.2, 0.0, -0.4], "visual": vis("SVJ::body::chassis"),
+                        "mass_bodies": [body("upright_fl", [0.0, -0.8, -0.3]),
+                                        body("wheel_fl", [0.0, -0.8, -0.3], visual=vis("SVJ::wheel::wheel_fl")),
+                                        body("door_fl", [-1.0, -0.9, -0.6], visual=vis("SVJ::body::door_fl"))]},
+            "wheel_stations": [{"id": "FL", "upright_body": "upright_fl", "wheel_body": "wheel_fl",
+                                "visual": vis("SVJ::suspension::upright_fl"),
+                                "brake": {"disc": {"visual": vis("SVJ::brake::disc_fl")}}}],
+            "constraints": [{"id": "hinge_door_fl", "type": "joint", "joint_type": "revolute", "body_a": "chassis", "body_b": "door_fl"}],
+            "poses": [{"id": "door_fl_open", "values": {"hinge_door_fl": 1.0}}]}
+
+
+UNIFIED_PARTS = {
+    "SVJ::body::chassis": ([-1.2, 0.0, -0.4], [2.2, 0.9, 0.6]),
+    "SVJ::suspension::upright_fl": ([0.0, -0.8, -0.3], [0.1, 0.1, 0.2]),
+    "SVJ::wheel::wheel_fl": ([0.0, -0.8, -0.3], [0.3, 0.12, 0.3]),
+    "SVJ::brake::disc_fl": ([0.0, -0.8, -0.3], [0.15, 0.02, 0.15]),
+    "SVJ::body::door_fl": ([-1.0, -0.9, -0.6], [0.5, 0.05, 0.4]),
+}
+
+
+def test_unified_bindings_on_stations_are_collected_and_checked(tmp_path):
+    doc = unified_doc()
+    b = {x["location"]: x for x in ic.collect_bindings(doc)}
+    assert set(b) >= {"chassis", "wheel_stations[FL]", "wheel_stations[FL].brake.disc", "chassis.mass_bodies[wheel_fl]"}
+    assert b["wheel_stations[FL]"]["ids"] == {"upright_fl"} and b["wheel_stations[FL]"]["pos"] == [0.0, -0.8, -0.3]    # the upright body's position
+    assert {"disc_fl", "disc"} <= b["wheel_stations[FL].brake.disc"]["ids"]
+    # 1. nothing is an orphan; a node bound nowhere still is
+    g = make_gltf(parts=UNIFIED_PARTS)
+    g["nodes"].append({"name": "SVJ::brake::caliper_fl"})
+    w, _ = run(tmp_path, g, doc=doc)
+    assert [x for x in w if "not bound" in x] == ["[mesh 'x'] node 'SVJ::brake::caliper_fl' in car.glb is not bound by any part of this file"]
+    assert not any("upright_fl" in x or "disc_fl" in x for x in w)
+    # the placement check covers the station-level bindings too: move the upright 1 m forward
+    g = make_gltf(parts=UNIFIED_PARTS)
+    i = [n["name"] for n in g["nodes"]].index("SVJ::suspension::upright_fl")
+    acc = g["accessors"][g["nodes"][i]["mesh"]]
+    acc["min"][0] += 1.0
+    acc["max"][0] += 1.0
+    w, _ = run(tmp_path, g, doc=doc)
+    assert any("SVJ::suspension::upright_fl" in x and "outside the node's box" in x for x in w)
+
+
+def test_station_binding_id_rule_and_uniqueness(tmp_path, capsys):
+    doc = unified_doc()
+    doc["wheel_stations"][0]["visual"]["node"] = "SVJ::suspension::upright_rl"           # the wrong station
+    f = tmp_path / "u.svj.json"
+    f.write_text(json.dumps(doc), encoding="utf-8")
+    assert ic.check(str(f)) is False
+    out = capsys.readouterr().out
+    assert "[wheel_stations[FL]] Binding mismatch" in out and "upright_rl" in out
+    # one node bound from wheel_stations[] and from mass_bodies[] is a duplicate
+    doc = unified_doc()
+    doc["chassis"]["mass_bodies"][0]["visual"] = {"mesh_ref": "x", "node": "SVJ::suspension::upright_fl"}
+    f.write_text(json.dumps(doc), encoding="utf-8")
+    assert ic.check(str(f)) is False
+    assert "Duplicate node 'SVJ::suspension::upright_fl'" in capsys.readouterr().out
+    # constraints[] elements are bound under their own id
+    doc = unified_doc()
+    doc["constraints"].append({"id": "spring_fl", "type": "spring", "visual": {"mesh_ref": "x", "node": "SVJ::suspension::spring_fl"}})
+    assert {x["location"]: x["ids"] for x in ic.collect_bindings(doc)}["constraints[spring_fl]"] == {"spring_fl"}
+
+
+def gltf_with_door(animated_door=True, door_name="SVJ::body::door_fl", other_animated=False):
+    """chassis node with a door node below it (and an unnamed flap), the door animated, plus the station parts."""
+    accessors, meshes = [], []
+    mk = lambda pos, half: box_mesh(accessors, meshes, [p - h for p, h in zip(pos, half)], [p + h for p, h in zip(pos, half)])
+    nodes = [{"name": "SVJ::body::chassis", "mesh": mk(*UNIFIED_PARTS["SVJ::body::chassis"]), "children": [1, 2]},
+             {"name": door_name, "mesh": mk(*UNIFIED_PARTS["SVJ::body::door_fl"])},
+             {"name": "flap", "mesh": mk([-2.0, 0.0, -0.9], [0.1, 0.3, 0.02])}]
+    for n in ("SVJ::suspension::upright_fl", "SVJ::wheel::wheel_fl", "SVJ::brake::disc_fl"):
+        nodes.append({"name": n, "mesh": mk(*UNIFIED_PARTS[n])})
+    targets = ([1] if animated_door else []) + ([2] if other_animated else [])
+    anim = [{"samplers": [{"input": 0, "output": 0}], "channels": [{"sampler": 0, "target": {"node": t, "path": "rotation"}} for t in targets]}] if targets else []
+    g = {"asset": {"version": "2.0"}, "nodes": nodes, "meshes": meshes, "accessors": accessors, "scenes": [{"nodes": [0, 3, 4, 5]}]}
+    if anim:
+        g["animations"] = anim
+    return g
+
+
+def test_animation_belongs_to_the_nearest_bound_node_gltf(tmp_path):
+    doc = unified_doc()
+    # 4. the animated descendant is bound to door_fl, which has a joint: nothing against the chassis, the JSON-wins note for the door
+    w, notes = run(tmp_path, gltf_with_door(), doc=doc)
+    assert not any("animated" in x for x in w)
+    assert any("SVJ::body::door_fl" in n and "JSON wins" in n for n in notes) and not any("SVJ::body::chassis" in n and "JSON wins" in n for n in notes)
+    # an animated descendant bound to nothing (an unnamed flap) is still reported against the chassis
+    w, _ = run(tmp_path, gltf_with_door(animated_door=False, other_animated=True), doc=doc)
+    assert any("'SVJ::body::chassis' is animated" in x and "no joint" in x for x in w)
+    # a bound door the JSON has no joint for is reported against the door, not the chassis
+    doc["constraints"] = []
+    w, _ = run(tmp_path, gltf_with_door(), doc=doc)
+    assert any("'SVJ::body::door_fl' is animated" in x for x in w) and not any("'SVJ::body::chassis' is animated" in x for x in w)
+    # the door node is in the asset but no part binds it: its animation falls back to the chassis
+    doc = unified_doc()
+    doc["chassis"]["mass_bodies"] = [b for b in doc["chassis"]["mass_bodies"] if b["id"] != "door_fl"]
+    w, _ = run(tmp_path, gltf_with_door(), doc=doc)
+    assert any("'SVJ::body::chassis' is animated" in x for x in w) and any("'SVJ::body::door_fl'" in x and "not bound" in x for x in w)
+
+
+def make_usd_unified(path, door_animated=True, flap_animated=False, door_name="door"):
+    stage = Usd.Stage.CreateNew(str(path))
+    UsdGeom.SetStageMetersPerUnit(stage, 1.0)
+    UsdGeom.SetStageUpAxis(stage, "Z")
+    UsdGeom.Xform.Define(stage, "/Car")
+
+    def part(prim_path, node, pos, half, animate=False):
+        x = UsdGeom.Xform.Define(stage, prim_path)
+        x.GetPrim().CreateAttribute("svj:node", Sdf.ValueTypeNames.String, custom=True).Set(node) if node else None
+        UsdGeom.XformCommonAPI(x).SetTranslate(Gf.Vec3d(*pos))
+        cube = UsdGeom.Cube.Define(stage, prim_path + "/shape")
+        cube.GetSizeAttr().Set(2.0)
+        UsdGeom.XformCommonAPI(cube).SetScale(Gf.Vec3f(*half))
+        if animate:
+            op = x.AddRotateYOp()
+            op.Set(0.0, Usd.TimeCode(0))
+            op.Set(80.0, Usd.TimeCode(24))
+    part("/Car/body", "SVJ::body::chassis", [0, 0, 0], [0.01, 0.01, 0.01])
+    stage.GetPrimAtPath("/Car/body").GetAttribute("svj:node")
+    for n, (pos, half) in UNIFIED_PARTS.items():
+        if n in ("SVJ::body::door_fl",):
+            continue
+        if n == "SVJ::body::chassis":
+            continue
+        part("/Car/" + n.split("::")[2], n, pos, half)
+    part("/Car/body/" + door_name, "SVJ::body::door_fl" if door_name == "door" else None, UNIFIED_PARTS["SVJ::body::door_fl"][0], UNIFIED_PARTS["SVJ::body::door_fl"][1], animate=door_animated)
+    part("/Car/body/flap", None, [-2.0, 0.0, -0.9], [0.1, 0.3, 0.02], animate=flap_animated)
+    stage.GetRootLayer().Save()
+
+
+@needs_usd
+def test_station_bindings_and_animation_ownership_usd(tmp_path):
+    doc = unified_doc()
+    doc["assets"]["meshes"][0].update({"uri": "car.usda", "format": "usd"})
+    make_usd_unified(tmp_path / "car.usda")
+    errors, w, notes = mc.check_meshes(doc, ic.collect_bindings(doc), str(tmp_path))
+    assert errors == [] and not any("not bound" in x for x in w) and not any("animated" in x for x in w)
+    assert any("SVJ::body::door_fl" in n and "JSON wins" in n for n in notes)
+    # an animated flap bound to nothing is reported against the chassis
+    make_usd_unified(tmp_path / "car.usda", door_animated=False, flap_animated=True)
+    _, w, _ = mc.check_meshes(doc, ic.collect_bindings(doc), str(tmp_path))
+    assert any("'SVJ::body::chassis' is animated" in x and "no joint" in x for x in w)
+    # a door without a joint in the JSON is reported against the door only
+    doc["constraints"] = []
+    make_usd_unified(tmp_path / "car.usda")
+    _, w, _ = mc.check_meshes(doc, ic.collect_bindings(doc), str(tmp_path))
+    assert any("'SVJ::body::door_fl' is animated" in x for x in w) and not any("'SVJ::body::chassis' is animated" in x for x in w)
+    # physics data in a bound descendant is attributed the same way: the door's mass is checked against the door body, not the chassis
+    from pxr import UsdPhysics
+    doc = unified_doc()
+    doc["assets"]["meshes"][0].update({"uri": "car.usda", "format": "usd"})
+    make_usd_unified(tmp_path / "car.usda", door_animated=False)
+    stage = Usd.Stage.Open(str(tmp_path / "car.usda"))
+    UsdPhysics.MassAPI.Apply(stage.GetPrimAtPath("/Car/body/door")).CreateMassAttr(10.0)           # the JSON door is 10 kg
+    stage.GetRootLayer().Save()
+    _, w, _ = mc.check_meshes(doc, ic.collect_bindings(doc), str(tmp_path))
+    assert not any("differs from the JSON" in x or "carries a mass" in x for x in w)
