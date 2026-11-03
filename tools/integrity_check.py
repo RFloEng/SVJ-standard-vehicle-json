@@ -124,6 +124,34 @@ def collect_bindings(data: dict) -> list:
         bid = body.get("id", f"<mass_decomposition[{i}]>")
         add(f"chassis.mass_decomposition[{bid}]", body.get("visual"), {slug(bid)}, "body", pos=body.get("position"))
 
+    # unified model (v0.100, spec 25.2): the carrier, wheel and brake parts are bound on wheel_stations[], spring / damper / actuator
+    # elements on constraints[]. The corner rows below are the legacy form of the same bindings.
+    bodies = {b.get("id"): b for b in (chassis.get("mass_bodies") or []) if isinstance(b, dict)}
+    for st in data.get("wheel_stations") or []:
+        if not isinstance(st, dict) or not st.get("id"):
+            continue
+        sid, ub, wb = st["id"], st.get("upright_body"), st.get("wheel_body")
+        loc = f"wheel_stations[{sid}]"
+        up_ids = ({slug(ub)} if ub else set()) | {f"upright_{slug(sid)}"}
+        add(loc, st.get("visual"), up_ids, "suspension", pos=(bodies.get(ub) or {}).get("position"))
+        wheel = st.get("wheel") if isinstance(st.get("wheel"), dict) else {}
+        w_ids = ({slug(wb)} if wb else set()) | with_station("wheel", sid)
+        add(f"{loc}.wheel", wheel.get("visual"), w_ids, "wheel", pos=(bodies.get(wb) or {}).get("position"))
+        for pi, pos in enumerate(wheel.get("positions") or []):
+            if isinstance(pos, dict):
+                label = slug(pos.get("label") or f"p{pi + 1}")
+                add(f"{loc}.wheel.positions[{label}]", pos.get("visual"), {f"wheel_{slug(sid)}_{label}"}, "wheel")
+        brake = st.get("brake") if isinstance(st.get("brake"), dict) else {}
+        for part in ("disc", "caliper", "drum"):
+            obj = brake.get(part)
+            if isinstance(obj, dict):
+                ids = with_station(obj.get("id") or part, sid) | with_station(part, sid)
+                add(f"{loc}.brake.{part}", obj.get("visual"), ids, "brake")
+    for i, c in enumerate(data.get("constraints") or []):
+        if isinstance(c, dict) and isinstance(c.get("visual"), dict):
+            cid = c.get("id", f"<constraints[{i}]>")
+            add(f"constraints[{cid}]", c["visual"], {slug(cid)}, "any")
+
     suspension = data.get("suspension") or {}
     for st in [k for k in suspension if STATION_RE.match(k)]:
         corner = suspension.get(st) or {}
