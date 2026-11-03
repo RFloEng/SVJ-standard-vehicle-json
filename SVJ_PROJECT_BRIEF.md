@@ -23,6 +23,7 @@ tools/loop_solver.py                    Loop-closure solver, suspension gains an
 tools/assemble.py                       Interfaces, attachments, combination assembly (§27)
 tools/collision_check.py                Collision-proxy separation per pose (§28)
 tools/setup_check.py                    Adjustment ranges, setups, apply_setup (§29)
+tools/mesh_check.py                     Mesh-side binding checks, run by integrity_check.py --meshes (§22.9)
 tools/tire_model.py                     Magic Formula evaluator: Fx, Fy, Mz, My, characteristics (§11.13)
 tools/migrate_suspension.py, suspension_view.py, anti_roll_bar.py, leaf_pack.py, torsion_beam.py   Unified-suspension migration and component builders (§25)
 tools/validate_override.py              Override resolution + validation (v0.98)

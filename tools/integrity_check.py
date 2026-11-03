@@ -19,11 +19,17 @@ Validates that all visual bindings in an SVJ file are internally consistent
 Rules 1–5 are errors; rule 6 and an ambiguous mesh_ref are warnings. Using the
 legacy 'body' category on a non-body part is valid and reported as a NOTE.
 
+With --meshes the glTF / GLB assets are opened too (tools/mesh_check.py, spec §22.9):
+bound nodes exist and are unambiguous, units and axes fit, parts sit where the SVJ
+file says. Mesh problems are warnings about appearance, never errors.
+
 Usage:
-    python tools/integrity_check.py <path-to-file.svj.json> [...] [--strict]
+    python tools/integrity_check.py <path-to-file.svj.json> [...] [--strict] [--meshes]
 
 Options:
     --strict    Treat warnings as errors (non-zero exit on any issue).
+    --meshes    Also check the mesh side of the bindings (the assets are read
+                relative to the SVJ file).
 """
 
 import json
@@ -82,13 +88,15 @@ def collect_bindings(data: dict) -> list:
     out = []
     LINK_NAMES.clear()
 
-    def add(location, visual, ids=None, kind="body", ends=False, link=None, shared=False):
+    def add(location, visual, ids=None, kind="body", ends=False, link=None, shared=False, pos=None):
         if isinstance(visual, dict):
+            if not (isinstance(pos, (list, tuple)) and len(pos) == 3 and all(isinstance(c, (int, float)) for c in pos)):
+                pos = None
             out.append({"location": location, "visual": visual, "ids": ids,
-                        "kind": kind, "ends": ends, "link": link, "shared": shared})
+                        "kind": kind, "ends": ends, "link": link, "shared": shared, "pos": pos})
 
     chassis = data.get("chassis") or {}
-    add("chassis", chassis.get("visual"), {"chassis"}, "body")
+    add("chassis", chassis.get("visual"), {"chassis"}, "body", pos=chassis.get("center_of_gravity"))
 
     # unified model: a body held by joints at two ends is link-like (placement 'link_between_points'): the frames of the
     # joints where it is body_b are its inboard points, a joint where it is body_a is its outboard end
@@ -110,11 +118,11 @@ def collect_bindings(data: dict) -> list:
     for i, body in enumerate(chassis.get("mass_bodies") or []):
         bid = body.get("id", f"<mass_bodies[{i}]>")
         link = body_link(bid)
-        add(f"chassis.mass_bodies[{bid}]", body.get("visual"), {slug(bid)}, "any", ends=link is not None, link=link)
+        add(f"chassis.mass_bodies[{bid}]", body.get("visual"), {slug(bid)}, "any", ends=link is not None, link=link, pos=body.get("position"))
     # v0.97 name, kept so older files still get checked
     for i, body in enumerate(chassis.get("mass_decomposition") or []):
         bid = body.get("id", f"<mass_decomposition[{i}]>")
-        add(f"chassis.mass_decomposition[{bid}]", body.get("visual"), {slug(bid)}, "body")
+        add(f"chassis.mass_decomposition[{bid}]", body.get("visual"), {slug(bid)}, "body", pos=body.get("position"))
 
     suspension = data.get("suspension") or {}
     for st in [k for k in suspension if STATION_RE.match(k)]:
@@ -203,7 +211,7 @@ CATEGORY_FIT = {
 }
 
 
-def check(path: str, strict: bool = False) -> bool:
+def check(path: str, strict: bool = False, meshes: bool = False) -> bool:
     print(f"\nChecking: {path}")
     print("=" * 60)
 
@@ -317,6 +325,16 @@ def check(path: str, strict: bool = False) -> bool:
                 f"will not recognise it"
             )
 
+    if meshes:
+        try:
+            import mesh_check
+        except ImportError:
+            sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+            import mesh_check
+        _e, mesh_warnings, mesh_notes = mesh_check.check_meshes(data, bindings, os.path.dirname(os.path.abspath(path)))
+        warnings.extend(mesh_warnings)
+        notes.extend(mesh_notes)
+
     for n in notes:
         print(f"  NOTE   {n}")
     for w in warnings:
@@ -342,6 +360,7 @@ def main():
         sys.exit(0)
 
     strict = "--strict" in args
+    meshes = "--meshes" in args
     files = [a for a in args if not a.startswith("--")]
 
     if not files:
@@ -350,7 +369,7 @@ def main():
 
     all_passed = True
     for path in files:
-        if not check(path, strict=strict):
+        if not check(path, strict=strict, meshes=meshes):
             all_passed = False
 
     sys.exit(0 if all_passed else 1)

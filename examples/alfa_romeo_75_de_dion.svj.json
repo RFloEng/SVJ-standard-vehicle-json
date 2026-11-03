@@ -431,7 +431,7 @@
         },
         "visual": {
           "mesh_ref": "alfa_romeo_75",
-          "node": "SVJ::body::de_dion_tube"
+          "node": "SVJ::body::axle_body"
         },
         "x_derived": true
       },
