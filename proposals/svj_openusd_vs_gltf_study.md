@@ -107,3 +107,91 @@ What remains: **geometry, materials, colours, textures, instancing, levels of de
 Verified: glTF 2.0 as ISO/IEC 12113:2022 ([Khronos](https://www.khronos.org/news/press/khronos-gltf-2.0-released-as-an-iso-iec-international-standard)); the scope of AOUSD Core Specification 1.0 ([Linux Foundation](https://www.linuxfoundation.org/press/alliance-for-openusd-announces-core-specification-1.0-the-universal-language-for-building-3d-worlds), [AOUSD](https://aousd.org/uncategorized/core-spec-announcement/)); clearcoat as a ratified glTF extension ([Khronos repository](https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_clearcoat)); sheen and transmission announced with it ([Khronos](https://www.khronos.org/news/press/khronos-releases-wave-of-new-gltf-pbr-3d-material-capabilities)); the limits of three.js's USD loader ([forum](https://discourse.threejs.org/t/usdz-loader-for-three-js/35357), [PR 25023](https://github.com/mrdoob/three.js/pull/25023)); the experimental WebAssembly build of the USD bindings ([grill-usd-core](https://pypi.org/project/grill-usd-core/)).
 
 From general knowledge, not checked here: the status of glTF material variants and mesh instancing extensions, OpenUSD's current licence terms, the prim-name character rules, the default `metersPerUnit`, and Blender and Unreal import and export support. Check these before a decision. The sources date from late 2025.
+
+
+---
+
+## 10. Note: the interface between an SVJ vehicle and a track (STJ)
+
+**Context.** A track format based on USD is being designed (working name STJ). The ground rule of this study (top of the document) applies to **vehicles**: a car's behaviour can be simulated without its shape, so the JSON is the authority and the mesh is appearance. It does **not** apply to tracks: the shape of a road (elevation, banking, camber, curvature, surface zones) is part of its physics, so a USD track with the geometry as authority is consistent. This note lists what the two formats have to agree on so that they can be developed separately. It changes neither the SVJ standard nor the track format; it is the checklist for the contract between them.
+
+### 10.1 Who owns what
+
+| | SVJ vehicle | STJ track |
+|---|---|---|
+| Physics authority | the JSON | the USD stage (geometry and surface data) |
+| Shape | appearance only (glTF, optionally USD later) | the physics |
+| Needs the other side's shape? | **No**: a car can be simulated on any ground that answers the contact query | Not the vehicle's shape, only its wheel contact data |
+
+### 10.2 The contact query (the track answers, the vehicle asks)
+
+For each wheel and simulation step the vehicle side asks the track about the ground under the tyre. The contract is a **function**, not a file format: any implementation (mesh ray casts, a parametric road model, a heightmap) may answer it.
+
+| Input | Unit | Source in SVJ |
+|---|---|---|
+| Wheel centre position `(x, y)` and heading in the track frame | m, rad | the vehicle state; SAE axes |
+| Footprint: length, width | m | the tyre set: `dimensions.tread_width` for the width; the contact length from the loaded radius and the load (the evaluator knows `R0` from `dimensions.overall_diameter`) |
+| Vertical load (optional) | N | only for deformable surfaces |
+| Time `t` (optional) | s | only for tracks with moving or changing surfaces |
+
+| Output | Unit | Use on the vehicle side |
+|---|---|---|
+| Height `z` and surface normal `n` of the footprint's mean plane | m, unit vector | wheel travel, camber relative to the ground, the tyre's slip and load geometry |
+| Surface id | string | key into the surface table (§10.3) |
+| High-frequency roughness (optional) | m | excitation of the suspension below the footprint scale; stored apart from the main surface so it stays a separate grid |
+| Surface temperature, wetness (optional) | °C, 0–1 | tyre thermal model, friction variants |
+| Depth of a soft surface (optional) | m | sinkage for gravel, sand, snow; needs the vertical load, which the vehicle passes with the query |
+
+**Footprint, not a point.** A tyre envelopes a kerb or a bump; a single ray gives a wrong height and normal. The track side should answer for the footprint: the mean plane over a small grid of samples (3 × 3 over the contact patch is a sensible default) or an analytic average. The query includes the footprint size so that the answer is the same between implementations.
+
+### 10.3 Surface table (the link between track and tyre)
+
+The surface id selects a row of a table published by the track. The numbers must be meaningful for the tyre model of §11.13, which scales friction and stiffness through `pacejka.scaling`. A surface cannot give one tyre-independent friction number: friction depends on the tyre as well as on the road. A workable split:
+
+| Side | Gives |
+|---|---|
+| Track surface | an intrinsic **friction level** relative to a stated reference surface (the surface the tyre data were measured on), a rolling-resistance factor, a roughness class, wet and dry variants |
+| Tyre set (SVJ) | the **sensitivity** to a surface: how much a given tyre loses on gravel or wet asphalt |
+
+Mapping onto the SVJ evaluator: `LMUX = LMUY = mu_surface / mu_reference` for a road tyre on a plain surface; a tyre-specific table would refine it. A table the track might publish (the numbers are illustrations only):
+
+```json
+{ "surfaces": {
+    "asphalt_dry": { "mu_scale": 1.00, "rolling_resistance": 0.010 },
+    "asphalt_wet": { "mu_scale": 0.70, "rolling_resistance": 0.012 },
+    "kerb":        { "mu_scale": 0.95, "rolling_resistance": 0.015 },
+    "grass":       { "mu_scale": 0.40, "rolling_resistance": 0.060 } },
+  "reference_surface": "asphalt_dry" }
+```
+
+If tyre-specific behaviour on surfaces is wanted, the SVJ side would gain an optional table in the tyre set, for example `tires.sets.<id>.surface_scaling: { "gravel": { "LMUX": 0.6, "LMUY": 0.55 } }`. That is an open point (§10.6), not a decision.
+
+### 10.4 What the vehicle passes to the track
+
+- **Wheel contact data**: the position of the wheel centre, the loaded or unloaded radius, the tread width, and the vertical load when the surface is deformable (soft soil, snow). All of it is in the SVJ file already (`wheel_stations[]`, `tires.sets`, the evaluator's `R0`).
+- **Ground reference for aerodynamics**: the aero maps are functions of ride height (§13: `Cl_front_vs_ride_height`, `Cd_vs_ride_height`). The vehicle needs the ground height at a few points under the body (front axle centre, rear axle centre, the underbody); the same query serves, with a point footprint.
+- **Placement**: a start pose in the track frame (position and heading of the SVJ origin, which is the front-axle centre at ground level, §2.1).
+
+### 10.5 Conventions to state once, in both formats
+
+| Topic | Rule |
+|---|---|
+| Axes | SAE J670: x forward, y right, z down, in the vehicle frame; the track frame must declare its up axis and handedness, and the conversion is stated, not implied |
+| Units | SI everywhere; a USD stage declares `metersPerUnit = 1` (the USD default is centimetres) |
+| Origin of the track | one stated origin and datum for height (for example mean sea level or the start line), so that a car placed at a pose has a defined ground |
+| Height | `z` of the surface in the track frame, with the declared vertical axis; the contact query returns the surface point under the wheel centre along the track's vertical |
+| Surface ids | lower-case identifiers `[a-z0-9_]+`, like SVJ ids |
+| Addressing | track objects are addressed by prim path; vehicle ids do not appear in the track |
+
+### 10.6 Open points
+
+1. **Where friction sensitivity lives**: in the track (a table per tyre class), in the tyre set (§10.3), or both. The tyre set is the physically honest place; the track would then only name surfaces and give a base level.
+2. **Parametric or mesh road**: a reference line with elevation and crossfall plus a separate fine-roughness grid (the way OpenDRIVE and OpenCRG split road shape and roughness; named from general knowledge, check before relying on it), or a mesh. The contact query hides the choice from the vehicle; the track format should say which it supports.
+3. **Deformable and moving surfaces** (soft soil, rain-wet changes, a moving platform): these need `t` and the load in the query and a defined update rate. Out of scope for a first version.
+4. **Query rate and latency**: how often, and in which coordinate system, a simulator may call the query. For a USD stage this decides whether the road is pre-sampled into a grid.
+5. **Which side holds the surface table**: it must be stable across cars and tracks. The proposal is the track, referenced by the car only through the evaluator's scaling.
+6. **Vertical datum of the aero ride height**: ground height under the car versus a flat reference plane. For banked or crowned roads the two differ, and the aero maps were measured over a flat floor.
+
+### 10.7 What this note does not do
+
+It does not define the STJ file, add fields to SVJ, or fix the footprint algorithm. It lists the information that has to cross the boundary and the conventions both sides must state. Once the STJ authors agree with §10.2 to §10.5, the agreed parts can move into an SVJ appendix, and the open points in §10.6 into the track format's own specification.
