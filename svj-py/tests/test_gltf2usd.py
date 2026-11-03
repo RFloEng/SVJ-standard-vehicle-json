@@ -109,3 +109,15 @@ def test_triangle_strips_and_fans_and_unsupported_accessors(tmp_path):
         js["meshes"][0]["primitives"][0]["mode"] = 4
         write_glb_with_bin(tmp_path / "d.glb", js, binary)
         g2u.convert(str(tmp_path / "d.glb"), str(tmp_path / "d.usda"))
+
+
+def test_glb_animations_are_not_carried_into_the_usd(tmp_path):
+    """spec 22.10 rule 8: animation may only be a copy of data the JSON has first, so the converter leaves it out and says so."""
+    triangle_glb(tmp_path / "a.glb")
+    js, binary = g2u.read_glb(str(tmp_path / "a.glb"))
+    js["animations"] = [{"name": "spin", "samplers": [{"input": 0, "output": 1}], "channels": [{"sampler": 0, "target": {"node": 0, "path": "rotation"}}]}]
+    write_glb_with_bin(tmp_path / "b.glb", js, binary)
+    r = g2u.convert(str(tmp_path / "b.glb"), str(tmp_path / "b.usda"), "Car")
+    assert any("1 glTF animation(s) are not converted" in n and "JSON" in n for n in r["notes"])
+    stage = Usd.Stage.Open(str(tmp_path / "b.usda"))
+    assert not any(UsdGeom.Xformable(p) and UsdGeom.Xformable(p).TransformMightBeTimeVarying() for p in stage.Traverse())
