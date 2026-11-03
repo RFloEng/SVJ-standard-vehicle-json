@@ -2,7 +2,7 @@
 
 ## What This Is
 
-SVJ (Standard Vehicle JSON) is a universal exchange format for vehicle dynamics data — a "Rosetta Stone" that lets any simulator read the same vehicle definition. Current version: **v0.104** (spec §1–§29; `_metadata.version` accepts every release from 0.96 on). The full per-release history is in `CHANGELOG.md`; this brief summarises it.
+SVJ (Standard Vehicle JSON) is a universal exchange format for vehicle dynamics data — a "Rosetta Stone" that lets any simulator read the same vehicle definition. Current version: **v0.105** (spec §1–§29; `_metadata.version` accepts every release from 0.96 on). The full per-release history is in `CHANGELOG.md`; this brief summarises it.
 
 ## Repo Structure
 
@@ -23,7 +23,8 @@ tools/loop_solver.py                    Loop-closure solver, suspension gains an
 tools/assemble.py                       Interfaces, attachments, combination assembly (§27)
 tools/collision_check.py                Collision-proxy separation per pose (§28)
 tools/setup_check.py                    Adjustment ranges, setups, apply_setup (§29)
-tools/mesh_check.py                     Mesh-side binding checks, run by integrity_check.py --meshes (§22.9)
+tools/mesh_check.py                     Mesh-side binding checks for glTF and OpenUSD assets, run by integrity_check.py --meshes (§22.9)
+tools/gltf2usd.py                       GLB to OpenUSD converter for SVJ assets (§22.10; needs usd-core)
 tools/tire_model.py                     Magic Formula evaluator: Fx, Fy, Mz, My, characteristics (§11.13)
 tools/migrate_suspension.py, suspension_view.py, anti_roll_bar.py, leaf_pack.py, torsion_beam.py   Unified-suspension migration and component builders (§25)
 tools/validate_override.py              Override resolution + validation (v0.98)
@@ -106,7 +107,7 @@ Spec §23, all optional and backward-compatible:
 - `gearbox.type: "amt"`; checker validates groups, kerb-load sum and the declared wheelbase; svj-py `axle_groups`, `plated_masses`, weight share from group loads or front/rear group centres; viewer axle-groups panel and correct F/R bias on multi-axle vehicles
 - **`examples/man_tgs_32_430_8x4_twin_steer_tipper.svj.json`** — first real multi-axle vehicle (MAN UK body-builder sheet, May 2022)
 
-## v0.99.3 → v0.104 — Summary (details in CHANGELOG.md)
+## v0.99.3 → v0.105 — Summary (details in CHANGELOG.md)
 
 - **v0.99.3** Differential control: `lock_control` stage chains, `transfer_case.coupling` (§10.6.1)
 - **v0.99.4** Strut/damper conventions: `strut_lower` hardpoint, `damper.reference` (`damper`|`wheel`)
@@ -116,6 +117,7 @@ Spec §23, all optional and backward-compatible:
 - **v0.102** Collision proxies (§28): `collision[]` on chassis and mass bodies, `collision_ignore`; interface `supply`/`demand`
 - **v0.103** Adjustments and setups (§29): `adjustments[]` (range or list of values on a path or linked paths), `setups[]` (`{path: value}`), `active_setup`; paths use `id` selectors, e.g. `constraints[spring_fl].preload`
 - Viewer v4.7 has a **Geometry** tab (bump camber, bump steer, track and wheel-recession change, kingpin geometry, roll centre) from a JS port of the loop solver; keep it in step with `tools/loop_solver.py`
+- **v0.105** OpenUSD assets for shapes and appearance (§22.10): `assets.meshes[].format`, binding name via `svj:node` or the prim name `SVJ__cat__id`, `metersPerUnit = 1`; glTF stays supported; the JSON stays the authority (assets carry shapes and appearance only); viewer shows glTF only
 - **v0.104** Tyre evaluation (§11.13): the MF-Tyre 6.1 equations written into the spec, `pacejka.reference_load_N` / `scaling`, friction-circle fallback; evaluator `tools/tire_model.py`. No evaluator yet for `tmeasy` and `brush`, nor `Mx`
 - Generated (`x_derived`) bodies and joints are exempt from the mass, inertia and parent rules, including in assembled composites
 

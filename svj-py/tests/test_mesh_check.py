@@ -107,9 +107,9 @@ def test_missing_file_and_other_formats(tmp_path):
     doc = make_doc()
     errors, w, notes = mc.check_meshes(doc, ic.collect_bindings(doc), str(tmp_path))
     assert errors == [] and any("file not found" in x for x in w)
-    doc["assets"]["meshes"][0]["uri"] = "car.usdz"
+    doc["assets"]["meshes"][0]["uri"] = "car.fbx"
     errors, w, notes = mc.check_meshes(doc, ic.collect_bindings(doc), str(tmp_path))
-    assert w == [] and any("not a glTF asset" in n for n in notes)
+    assert w == [] and any("not a glTF or OpenUSD asset" in n for n in notes)
 
 
 def test_units_millimetres_are_reported(tmp_path):
@@ -184,3 +184,101 @@ def test_integrity_check_flag_and_strict(tmp_path, capsys):
     assert ic.check(str(f), strict=True, meshes=True) is False          # --strict fails on them
     assert ic.check(str(f), strict=True, meshes=False) is True          # without --meshes the mesh is not opened
     assert "does not exist in car.glb" in capsys.readouterr().out
+
+
+# ── OpenUSD assets (spec 22.10) ───────────────────────────────────────────────
+try:
+    from pxr import Gf, Sdf, Usd, UsdGeom
+    HAVE_USD = True
+except ImportError:                      # usd-core is optional: the USD tests are skipped without it
+    HAVE_USD = False
+needs_usd = pytest.mark.skipif(not HAVE_USD, reason="usd-core is not installed")
+
+
+def make_usd(path, parts=PARTS, meters_per_unit=1.0, up="Z", by="attr", shift=(0.0, 0.0, 0.0), scale=1.0):
+    """A USD stage with one Xform + Cube per part, centred on the SVJ position (SAE axes, stage up Z so no conversion)."""
+    stage = Usd.Stage.CreateNew(str(path))
+    if meters_per_unit is not None:
+        UsdGeom.SetStageMetersPerUnit(stage, meters_per_unit)
+    UsdGeom.SetStageUpAxis(stage, up)
+    UsdGeom.Xform.Define(stage, "/Car")
+    for name, (pos, half) in parts.items():
+        pname = name.replace("::", "__") if by == "name" else "part_" + name.split("::")[2]
+        prim = UsdGeom.Xform.Define(stage, f"/Car/{pname}")
+        cube = UsdGeom.Cube.Define(stage, f"/Car/{pname}/shape")
+        cube.GetSizeAttr().Set(2.0)
+        UsdGeom.XformCommonAPI(cube).SetScale(Gf.Vec3f(*[h * scale for h in half]))
+        UsdGeom.XformCommonAPI(prim).SetTranslate(Gf.Vec3d(*[(p + s) * scale for p, s in zip(pos, shift)]))
+        if by == "attr":
+            prim.GetPrim().CreateAttribute("svj:node", Sdf.ValueTypeNames.String, custom=True).Set(name)
+    stage.GetRootLayer().Save()
+
+
+def usd_run(tmp_path, doc=None, **kw):
+    make_usd(tmp_path / "car.usda", **kw)
+    doc = doc or make_doc()
+    doc["assets"]["meshes"][0].update({"uri": "car.usda", "format": "usd"})
+    errors, warnings, notes = mc.check_meshes(doc, ic.collect_bindings(doc), str(tmp_path))
+    assert errors == []
+    return warnings, notes
+
+
+@needs_usd
+def test_usd_binding_by_attribute_and_by_prim_name(tmp_path):
+    assert usd_run(tmp_path, by="attr") == ([], [])
+    assert usd_run(tmp_path, by="name") == ([], [])
+
+
+@needs_usd
+def test_usd_missing_node_orphan_and_duplicate(tmp_path):
+    parts = dict(PARTS)
+    w, _ = usd_run(tmp_path, parts={k: v for k, v in PARTS.items() if k != "SVJ::wheel::wheel_fl"})
+    assert any("'SVJ::wheel::wheel_fl' does not exist" in x for x in w)
+    parts["SVJ::wheel::wheel_xx"] = ([5.0, 0.0, 0.0], [0.1, 0.1, 0.1])
+    w, _ = usd_run(tmp_path, parts=parts)
+    assert any("'SVJ::wheel::wheel_xx'" in x and "not bound" in x for x in w)
+    make_usd(tmp_path / "car.usda")
+    stage = Usd.Stage.Open(str(tmp_path / "car.usda"))
+    dup = UsdGeom.Xform.Define(stage, "/Car/copy_of_fl")
+    dup.GetPrim().CreateAttribute("svj:node", Sdf.ValueTypeNames.String, custom=True).Set("SVJ::wheel::wheel_fl")
+    stage.GetRootLayer().Save()
+    doc = make_doc()
+    doc["assets"]["meshes"][0].update({"uri": "car.usda", "format": "usd"})
+    _, w, _ = mc.check_meshes(doc, ic.collect_bindings(doc), str(tmp_path))
+    assert any("occurs 2 times" in x for x in w)
+
+
+@needs_usd
+def test_usd_units_declaration_and_conversion(tmp_path):
+    w, _ = usd_run(tmp_path, meters_per_unit=None)
+    assert any("does not author metersPerUnit" in x for x in w)
+    w, _ = usd_run(tmp_path, meters_per_unit=0.01, scale=100.0)                 # a centimetre stage: right size, wrong declaration
+    assert any("metersPerUnit = 0.01" in x for x in w) and not any("times the size" in x for x in w)
+    w, _ = usd_run(tmp_path, meters_per_unit=1.0, scale=1000.0)                 # geometry 1000 times too large
+    assert any("times the size" in x for x in w)
+
+
+@needs_usd
+def test_usd_placement_shift_and_y_up_axes(tmp_path):
+    w, _ = usd_run(tmp_path, shift=(2.5, 0.0, 0.0))
+    assert len(w) == 1 and "appears shifted by (+2.500" in w[0]
+    # a Y-up Blender-style stage with its convention declared
+    parts = {n: ([p[1], -p[2], -p[0]], [h[1], h[2], h[0]]) for n, (p, h) in PARTS.items()}
+    make_usd(tmp_path / "car.usda", parts=parts, up="Y")
+    doc = make_doc(coordinate_system={"up": "Y", "forward": "-Z", "handedness": "right"})
+    doc["assets"]["meshes"][0].update({"uri": "car.usda", "format": "usd"})
+    _, w, _ = mc.check_meshes(doc, ic.collect_bindings(doc), str(tmp_path))
+    assert w == []
+
+
+@needs_usd
+def test_usd_unreadable_and_skipped_without_library(tmp_path, monkeypatch):
+    (tmp_path / "car.usda").write_text("this is not usd", encoding="utf-8")
+    doc = make_doc()
+    doc["assets"]["meshes"][0].update({"uri": "car.usda"})
+    _, w, _ = mc.check_meshes(doc, ic.collect_bindings(doc), str(tmp_path))
+    assert any("not readable as OpenUSD" in x for x in w)
+    make_usd(tmp_path / "car.usda")
+    monkeypatch.setitem(sys.modules, "pxr", None)                               # simulates a missing usd-core
+    _, w, notes = mc.check_meshes(doc, ic.collect_bindings(doc), str(tmp_path))
+    assert w == [] and any("needs the usd-core library" in n for n in notes)
