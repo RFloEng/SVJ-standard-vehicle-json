@@ -158,3 +158,30 @@ def test_cli_and_errors(tmp_path, capsys):
     assert "SVJ nodes" in capsys.readouterr().out and (tmp_path / "p.glb").exists()
     (tmp_path / "bad.usda").write_text("not usd", encoding="utf-8")
     assert u2g.main([str(tmp_path / "bad.usda"), str(tmp_path / "x.glb")]) == 1
+
+
+def test_textures_survive_usd_to_glb_from_usdz_and_folder(tmp_path):
+    from tests.test_gltf2usd import textured_glb, tiny_png
+    textured_glb(tmp_path / "t.glb")
+    for ext in (".usda", ".usdz"):
+        g2u.convert(str(tmp_path / "t.glb"), str(tmp_path / ("t" + ext)), "Car")
+        r = u2g.convert(str(tmp_path / ("t" + ext)), str(tmp_path / "out.glb"))
+        assert r["textures"] == 1 and not any("texture" in n for n in r["notes"])
+        g = read(tmp_path / "out.glb")
+        mat = g["materials"][0]
+        assert "baseColorTexture" in mat["pbrMetallicRoughness"] and "metallicRoughnessTexture" in mat["pbrMetallicRoughness"]
+        assert mat["normalTexture"]["scale"] == pytest.approx(0.5)
+        assert g["samplers"][0]["wrapS"] == 33071
+        bv = g["bufferViews"][g["images"][0]["bufferView"]]
+        _, binary = g2u.read_glb(str(tmp_path / "out.glb"))
+        assert binary[bv["byteOffset"]:bv["byteOffset"] + bv["byteLength"]] == tiny_png()
+
+
+def test_unusable_texture_is_a_note_not_a_failure(tmp_path):
+    from tests.test_gltf2usd import textured_glb
+    import shutil
+    textured_glb(tmp_path / "t.glb")
+    g2u.convert(str(tmp_path / "t.glb"), str(tmp_path / "t.usda"), "Car")
+    shutil.rmtree(tmp_path / "t_textures")
+    r = u2g.convert(str(tmp_path / "t.usda"), str(tmp_path / "out.glb"))
+    assert r["textures"] == 0 and any("missing or not PNG" in n for n in r["notes"])

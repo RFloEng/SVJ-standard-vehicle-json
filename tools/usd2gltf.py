@@ -12,8 +12,12 @@ What is converted:
   * UsdGeomMesh (triangulated; vertex, face-varying and uniform normals; `st` texture coordinates), subdivision
     surfaces as their control mesh, Cube, Sphere and Cylinder,
   * NurbsPatch, tessellated on a grid (rational B-spline surface; trim curves are ignored),
-  * colour: the bound UsdPreviewSurface (diffuseColor, opacity, metallic, roughness, emissiveColor), else displayColor.
-Not converted (reported as notes): curves, points, textures, point instancers, Cone and Capsule.
+  * colour: the bound UsdPreviewSurface (diffuseColor, opacity, metallic, roughness, emissiveColor), else displayColor,
+  * textures: UsdUVTexture images (PNG, JPEG; also those packed in a .usdz) wired to diffuseColor, normal, occlusion,
+    emissiveColor and roughness / metallic (when both come from the G and B channels of one image, as glTF expects) are
+    embedded in the GLB.
+Not converted (reported as notes): curves, points, point instancers, Cone and Capsule, texture transforms, images in
+other formats, roughness / metallic maps that would need their channels repacked.
 
 Units are brought to metres (the stage's metersPerUnit becomes a scale on a root node when it is not 1); the axes are
 left as the stage has them, as in glTF files made by `gltf2usd.py`.
@@ -164,7 +168,8 @@ class _Builder:
     def __init__(self):
         self.bin = bytearray()
         self.views, self.accessors, self.meshes, self.nodes, self.materials = [], [], [], [], []
-        self._mat_cache = {}
+        self.images, self.textures, self.samplers = [], [], []
+        self._mat_cache, self._img_cache, self._tex_cache = {}, {}, {}
 
     def _view(self, data, target=None):
         while len(self.bin) % 4:
@@ -190,14 +195,46 @@ class _Builder:
         self.accessors.append(a)
         return len(self.accessors) - 1
 
-    def material(self, base, alpha, metallic, rough, emissive):
-        key = (tuple(round(c, 5) for c in base), round(alpha, 5), round(metallic, 5), round(rough, 5), tuple(round(c, 5) for c in emissive))
+    def texture(self, key, data, mime, wrap):
+        """Index of a glTF texture for image bytes `data` (embedded once per `key`) with the given (wrapS, wrapT)."""
+        if key not in self._img_cache:
+            self.images.append({"bufferView": self._view(data), "mimeType": mime})
+            self._img_cache[key] = len(self.images) - 1
+        tk = (key, wrap)
+        if tk not in self._tex_cache:
+            sampler = {"wrapS": wrap[0], "wrapT": wrap[1]}
+            if sampler not in self.samplers:
+                self.samplers.append(sampler)
+            self.textures.append({"source": self._img_cache[key], "sampler": self.samplers.index(sampler)})
+            self._tex_cache[tk] = len(self.textures) - 1
+        return self._tex_cache[tk]
+
+    def material(self, base, alpha, metallic, rough, emissive, tex=None):
+        """`tex` maps a glTF slot (baseColor, metallicRoughness, normal, occlusion, emissive) to
+        (key, bytes, mime, wrap, extra) where `extra` is the normal scale or None."""
+        tex = tex or {}
+        key = (tuple(round(c, 5) for c in base), round(alpha, 5), round(metallic, 5), round(rough, 5), tuple(round(c, 5) for c in emissive),
+               tuple(sorted((k, v[0], v[3], v[4]) for k, v in tex.items())))
         if key not in self._mat_cache:
             m = {"pbrMetallicRoughness": {"baseColorFactor": [*base, alpha], "metallicFactor": metallic, "roughnessFactor": rough}}
             if any(emissive):
                 m["emissiveFactor"] = list(emissive)
             if alpha < 1.0:
                 m["alphaMode"] = "BLEND"
+            ref = {k: self.texture(v[0], v[1], v[2], v[3]) for k, v in tex.items()}
+            if "baseColor" in ref:
+                m["pbrMetallicRoughness"]["baseColorTexture"] = {"index": ref["baseColor"]}
+            if "metallicRoughness" in ref:
+                m["pbrMetallicRoughness"]["metallicRoughnessTexture"] = {"index": ref["metallicRoughness"]}
+            if "normal" in ref:
+                m["normalTexture"] = {"index": ref["normal"]}
+                if tex["normal"][4] not in (None, 1.0):
+                    m["normalTexture"]["scale"] = tex["normal"][4]
+            if "occlusion" in ref:
+                m["occlusionTexture"] = {"index": ref["occlusion"]}
+            if "emissive" in ref:
+                m["emissiveTexture"] = {"index": ref["emissive"]}
+                m.setdefault("emissiveFactor", [1.0, 1.0, 1.0])
             self.materials.append(m)
             self._mat_cache[key] = len(self.materials) - 1
         return self._mat_cache[key]
@@ -219,7 +256,8 @@ class _Builder:
                 "nodes": self.nodes, "buffers": [{"byteLength": len(self.bin)}]}
         if extras:
             gltf["asset"]["extras"] = extras
-        for k, v in (("meshes", self.meshes), ("accessors", self.accessors), ("bufferViews", self.views), ("materials", self.materials)):
+        for k, v in (("meshes", self.meshes), ("accessors", self.accessors), ("bufferViews", self.views), ("materials", self.materials),
+                     ("images", self.images), ("textures", self.textures), ("samplers", self.samplers)):
             if v:
                 gltf[k] = v
         js = json.dumps(gltf).encode("utf-8")
@@ -289,6 +327,85 @@ def convert(src, dst):
                 e = val("emissiveColor", None)
                 emis = tuple(float(c) for c in e) if e is not None else emis
         return base, alpha, metallic, rough, emis
+
+    asset_cache = {}
+
+    def asset_bytes(path):
+        """(bytes, mime) of a texture asset (also inside a .usdz), or None."""
+        if path in asset_cache:
+            return asset_cache[path]
+        ext = os.path.splitext(path.split("[")[-1].rstrip("]"))[1].lower()
+        mime = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg"}.get(ext)
+        data = None
+        if mime:
+            try:
+                from pxr import Ar
+                asset = Ar.GetResolver().OpenAsset(Ar.ResolvedPath(path))
+                data = bytes(asset.GetBuffer()) if asset else None
+            except Exception:
+                data = None
+            if data is None and os.path.isfile(path):
+                with open(path, "rb") as f:
+                    data = f.read()
+        asset_cache[path] = (data, mime) if data else None
+        return asset_cache[path]
+
+    def textures(prim):
+        """glTF texture slots of the bound UsdPreviewSurface: {slot: (key, bytes, mime, wrap, normal scale)}."""
+        out = {}
+        try:
+            mat = UsdShade.MaterialBindingAPI(prim).ComputeBoundMaterial()[0]
+        except Exception:
+            return out
+        sh = mat.ComputeSurfaceSource()[0] if mat else None
+        if not sh:
+            return out
+
+        def source(name):
+            inp = sh.GetInput(name)
+            if not inp or not inp.HasConnectedSource():
+                return None
+            src_, out_name, _ = inp.GetConnectedSource()
+            node = UsdShade.Shader(src_.GetPrim())
+            idattr = node.GetIdAttr().Get() if node else None
+            if idattr != "UsdUVTexture":
+                notes.append(f"{prim.GetPath()}: '{name}' is driven by {idattr or 'a non-texture node'}; not converted")
+                return None
+            f = node.GetInput("file")
+            ap = f.Get() if f else None
+            path = (ap.resolvedPath or ap.path) if ap else None
+            got = asset_bytes(path) if path else None
+            if not got:
+                notes.append(f"{prim.GetPath()}: texture for '{name}' ({path or 'no file'}) is missing or not PNG / JPEG; not converted")
+                return None
+            wm = {"clamp": 33071, "mirror": 33648}
+            ws = node.GetInput("wrapS").Get() if node.GetInput("wrapS") else None
+            wt = node.GetInput("wrapT").Get() if node.GetInput("wrapT") else None
+            sc = node.GetInput("scale").Get() if node.GetInput("scale") else None
+            return {"key": path, "data": got[0], "mime": got[1], "wrap": (wm.get(ws, 10497), wm.get(wt, 10497)), "ch": out_name,
+                    "scale": tuple(float(c) for c in sc) if sc is not None else None}
+
+        d = source("diffuseColor")
+        if d:
+            out["baseColor"] = (d["key"], d["data"], d["mime"], d["wrap"], None)
+        r, mt = source("roughness"), source("metallic")
+        if r and (mt is None or (mt["key"] == r["key"] and mt["ch"] == "b")) and r["ch"] == "g":
+            out["metallicRoughness"] = (r["key"], r["data"], r["mime"], r["wrap"], None)
+        elif r or mt:
+            notes.append(f"{prim.GetPath()}: roughness / metallic maps need their channels repacked (glTF: G and B of one image); not converted")
+        n = source("normal")
+        if n:
+            out["normal"] = (n["key"], n["data"], n["mime"], n["wrap"], (n["scale"][0] / 2.0) if n["scale"] else None)
+        o = source("occlusion")
+        if o:
+            if o["ch"] == "r":
+                out["occlusion"] = (o["key"], o["data"], o["mime"], o["wrap"], None)
+            else:
+                notes.append(f"{prim.GetPath()}: occlusion is read from channel '{o['ch']}' (glTF reads R); not converted")
+        e = source("emissiveColor")
+        if e:
+            out["emissive"] = (e["key"], e["data"], e["mime"], e["wrap"], None)
+        return out
 
     def geometry(prim):
         """(points, indices, normals, uvs) of a geometry prim, or None."""
@@ -381,7 +498,10 @@ def convert(src, dst):
         if g:
             pts, idx, normals, uvs = g
             b_, a_, me, ro, em = colour(prim)
-            node["mesh"] = b.mesh(pts, idx, normals, uvs, b.material(b_, a_, me, ro, em))
+            tx = textures(prim)
+            if "baseColor" in tx:
+                b_ = (1.0, 1.0, 1.0)                                                      # the factor is the texture scale; the image carries the colour
+            node["mesh"] = b.mesh(pts, idx, normals, uvs, b.material(b_, a_, me, ro, em, tx))
             stats["meshes"] += 1
             stats["triangles"] += len(idx) // 3
         index = len(b.nodes)
@@ -402,6 +522,7 @@ def convert(src, dst):
     with open(dst, "wb") as f:
         f.write(data)
     stats["notes"] = notes
+    stats["textures"] = len(b.images)
     return stats
 
 
@@ -417,7 +538,7 @@ def main(argv):
     except (ConvertError, OSError) as e:
         print(f"error: {e}")
         return 1
-    print(f"{argv[1]}: {r['nodes']} nodes, {r['meshes']} meshes, {r['triangles']} triangles, {r['named']} SVJ nodes")
+    print(f"{argv[1]}: {r['nodes']} nodes, {r['meshes']} meshes, {r['triangles']} triangles, {r['named']} SVJ nodes, {r['textures']} textures")
     for n in r["notes"]:
         print(f"  note: {n}")
     return 0

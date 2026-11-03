@@ -8,7 +8,9 @@ Writes a USD stage that follows the SVJ rules for USD assets:
   * a node named `SVJ::category::id` becomes the prim `SVJ__category__id` carrying the attribute
     `svj:node = "SVJ::category::id"` (also taken from a node's `extras.svj_node`),
   * triangle meshes (modes 4, 5, 6) as UsdGeomMesh with normals and the first UV set,
-  * the base colour, metallic and roughness factors as a UsdPreviewSurface material (textures are not converted).
+  * the base colour, metallic and roughness factors as a UsdPreviewSurface material,
+  * textures (base colour, normal, metallic-roughness, occlusion, emissive) as UsdUVTexture shaders wired into that material:
+    the images are written to `<name>_textures/` beside a .usd / .usda / .usdc file, or packed inside a .usdz.
 
 glTF animations are NOT carried over: animation, poses and solids in a USD asset may only be copies of data already in the
 SVJ JSON (spec §22.10), so a converter must first put them in the JSON (joints, `poses[]`).
@@ -25,6 +27,7 @@ import json
 import math
 import os
 import re
+import shutil
 import struct
 import sys
 
@@ -127,9 +130,86 @@ def convert(src, dst, root_name="Root"):
     UsdGeom.SetStageMetersPerUnit(stage, 1.0)
     UsdGeom.SetStageUpAxis(stage, "Y")
     stage.GetRootLayer().customLayerData = {"svj": {"converted_from": os.path.basename(src), "tool": "tools/gltf2usd.py"}}
+    tex_dir = os.path.splitext(target)[0] + "_textures"
+    images = {}                                                  # glTF image index -> path relative to the stage file
     root = UsdGeom.Xform.Define(stage, "/" + root_name)
     stage.SetDefaultPrim(root.GetPrim())
     materials, stats = {}, {"nodes": 0, "meshes": 0, "triangles": 0, "named": 0}
+
+    def image_file(img_index):
+        """Write glTF image `img_index` next to the stage and return its relative path, or None."""
+        if img_index in images:
+            return images[img_index]
+        imgs = gltf.get("images") or []
+        im = imgs[img_index] if isinstance(img_index, int) and 0 <= img_index < len(imgs) else None
+        data, ext = None, None
+        if im:
+            uri = im.get("uri")
+            mime = im.get("mimeType") or ""
+            if uri is None and im.get("bufferView") is not None:
+                bv = gltf["bufferViews"][im["bufferView"]]
+                data = bytes(buffers[bv["buffer"]][bv.get("byteOffset", 0):bv.get("byteOffset", 0) + bv["byteLength"]])
+            elif uri and uri.startswith("data:"):
+                head, payload = uri.split(",", 1)
+                mime = mime or head[5:].split(";")[0]
+                data = base64.b64decode(payload)
+            elif uri:
+                with open(os.path.join(os.path.dirname(os.path.abspath(src)), uri), "rb") as f:
+                    data = f.read()
+                ext = os.path.splitext(uri)[1].lower()
+            ext = ext or {"image/png": ".png", "image/jpeg": ".jpg", "image/webp": ".webp"}.get(mime, ".png")
+        if data is None:
+            notes.append(f"image {img_index} could not be read; texture skipped")
+            images[img_index] = None
+            return None
+        if ext == ".webp":
+            notes.append(f"image {img_index} is WebP; USD viewers read PNG and JPEG, convert it first")
+        os.makedirs(tex_dir, exist_ok=True)
+        fname = f"image_{img_index}{ext}"
+        with open(os.path.join(tex_dir, fname), "wb") as f:
+            f.write(data)
+        images[img_index] = f"./{os.path.basename(tex_dir)}/{fname}"
+        return images[img_index]
+
+    def texture(mat, slot, info, outputs, scale=None, bias=None, srgb=False):
+        """Add a UsdUVTexture for the glTF textureInfo `info`; returns the shader or None."""
+        texs = gltf.get("textures") or []
+        tex = texs[info["index"]] if isinstance(info, dict) and isinstance(info.get("index"), int) and info["index"] < len(texs) else None
+        if not tex or tex.get("source") is None:
+            if info:
+                notes.append(f"material texture '{slot}' has no usable image source; skipped")
+            return None
+        rel = image_file(tex["source"])
+        if rel is None:
+            return None
+        if info.get("texCoord", 0):
+            notes.append(f"texture '{slot}' uses TEXCOORD_{info['texCoord']}; only the first UV set is converted")
+        if (info.get("extensions") or {}).get("KHR_texture_transform"):
+            notes.append(f"texture '{slot}': KHR_texture_transform is not converted")
+        base = str(mat.GetPath())
+        reader = UsdShade.Shader.Define(stage, f"{base}/st_reader")
+        if not reader.GetPrim().GetAttribute("inputs:varname"):
+            reader.CreateIdAttr("UsdPrimvarReader_float2")
+            reader.CreateInput("varname", Sdf.ValueTypeNames.Token).Set("st")
+            reader.CreateOutput("result", Sdf.ValueTypeNames.Float2)
+        samplers = gltf.get("samplers") or []
+        sampler = samplers[tex["sampler"]] if isinstance(tex.get("sampler"), int) and tex["sampler"] < len(samplers) else {}
+        wrap = {33071: "clamp", 33648: "mirror"}
+        t = UsdShade.Shader.Define(stage, f"{base}/tex_{slot}")
+        t.CreateIdAttr("UsdUVTexture")
+        t.CreateInput("file", Sdf.ValueTypeNames.Asset).Set(Sdf.AssetPath(rel))
+        t.CreateInput("st", Sdf.ValueTypeNames.Float2).ConnectToSource(reader.ConnectableAPI(), "result")
+        t.CreateInput("sourceColorSpace", Sdf.ValueTypeNames.Token).Set("sRGB" if srgb else "raw")
+        t.CreateInput("wrapS", Sdf.ValueTypeNames.Token).Set(wrap.get(sampler.get("wrapS"), "repeat"))
+        t.CreateInput("wrapT", Sdf.ValueTypeNames.Token).Set(wrap.get(sampler.get("wrapT"), "repeat"))
+        if scale:
+            t.CreateInput("scale", Sdf.ValueTypeNames.Float4).Set(Gf.Vec4f(*scale))
+        if bias:
+            t.CreateInput("bias", Sdf.ValueTypeNames.Float4).Set(Gf.Vec4f(*bias))
+        for o, typ in outputs.items():
+            t.CreateOutput(o, typ)
+        stats["textures"] = stats.get("textures", 0) + 1
+        return t
 
     def material(index):
         if index in materials:
@@ -147,8 +227,33 @@ def convert(src, dst, root_name="Root"):
         if m.get("emissiveFactor"):
             sh.CreateInput("emissiveColor", Sdf.ValueTypeNames.Color3f).Set(Gf.Vec3f(*m["emissiveFactor"][:3]))
         mat.CreateSurfaceOutput().ConnectToSource(sh.ConnectableAPI(), "surface")
-        if pbr.get("baseColorTexture") and "textures" not in " ".join(notes):
-            notes.append("textures are not converted (base colour factors only)")
+        F3, F1 = Sdf.ValueTypeNames.Float3, Sdf.ValueTypeNames.Float
+
+        def wire(name, tex, out, typ):
+            inp = sh.GetInput(name) or sh.CreateInput(name, typ)
+            inp.ConnectToSource(tex.ConnectableAPI(), out)
+
+        t = texture(mat, "baseColor", pbr.get("baseColorTexture"), {"rgb": F3, "a": F1}, scale=(*col[:3], 1.0), srgb=True)
+        if t:
+            wire("diffuseColor", t, "rgb", Sdf.ValueTypeNames.Color3f)
+            if m.get("alphaMode", "OPAQUE") != "OPAQUE":
+                wire("opacity", t, "a", F1)
+        t = texture(mat, "metallicRoughness", pbr.get("metallicRoughnessTexture"), {"g": F1, "b": F1})
+        if t:                                                 # glTF packs roughness in G and metallic in B, each times its factor
+            t.CreateInput("scale", Sdf.ValueTypeNames.Float4).Set(Gf.Vec4f(1.0, float(pbr.get("roughnessFactor", 1.0)), float(pbr.get("metallicFactor", 1.0)), 1.0))
+            wire("roughness", t, "g", F1)
+            wire("metallic", t, "b", F1)
+        nt = m.get("normalTexture")
+        k = 2.0 * (nt or {}).get("scale", 1.0)
+        t = texture(mat, "normal", nt, {"rgb": F3}, scale=(k, k, 2.0, 1.0), bias=(-1.0, -1.0, -1.0, 0.0))
+        if t:
+            wire("normal", t, "rgb", Sdf.ValueTypeNames.Normal3f)
+        t = texture(mat, "occlusion", m.get("occlusionTexture"), {"r": F1})
+        if t:
+            wire("occlusion", t, "r", F1)
+        t = texture(mat, "emissive", m.get("emissiveTexture"), {"rgb": F3}, scale=(*(m.get("emissiveFactor") or [1.0, 1.0, 1.0])[:3], 1.0), srgb=True)
+        if t:
+            wire("emissiveColor", t, "rgb", Sdf.ValueTypeNames.Color3f)
         materials[index] = (mat, col)
         return materials[index]
 
@@ -232,6 +337,7 @@ def convert(src, dst, root_name="Root"):
         from pxr import UsdUtils
         UsdUtils.CreateNewUsdzPackage(target, dst)
         os.remove(target)
+        shutil.rmtree(tex_dir, ignore_errors=True)               # the textures now live inside the package
     stats["notes"] = notes
     return stats
 
@@ -249,7 +355,7 @@ def main(argv):
     except (ConvertError, OSError, KeyError, json.JSONDecodeError) as e:
         print(f"error: {e}")
         return 1
-    print(f"{argv[1]}: {r['nodes']} nodes, {r['meshes']} meshes, {r['triangles']} triangles, {r['named']} SVJ nodes")
+    print(f"{argv[1]}: {r['nodes']} nodes, {r['meshes']} meshes, {r['triangles']} triangles, {r['named']} SVJ nodes, {r.get('textures', 0)} textures")
     for n in r["notes"]:
         print(f"  note: {n}")
     return 0

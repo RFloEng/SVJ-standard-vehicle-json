@@ -1,5 +1,6 @@
 """tools/gltf2usd.py: GLB -> OpenUSD conversion following spec §22.10 (needs the optional usd-core library)."""
 
+import base64
 import json
 import struct
 import sys
@@ -121,3 +122,68 @@ def test_glb_animations_are_not_carried_into_the_usd(tmp_path):
     assert any("1 glTF animation(s) are not converted" in n and "JSON" in n for n in r["notes"])
     stage = Usd.Stage.Open(str(tmp_path / "b.usda"))
     assert not any(UsdGeom.Xformable(p) and UsdGeom.Xformable(p).TransformMightBeTimeVarying() for p in stage.Traverse())
+
+
+def tiny_png():
+    import zlib
+    def chunk(t, d):
+        c = struct.pack(">I", len(d)) + t + d
+        return c + struct.pack(">I", zlib.crc32(t + d) & 0xFFFFFFFF)
+    raw = b"\x00" + bytes([200, 30, 30, 255]) * 2 + b"\x00" + bytes([30, 30, 200, 255]) * 2
+    return b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", 2, 2, 8, 6, 0, 0, 0)) + chunk(b"IDAT", zlib.compress(raw)) + chunk(b"IEND", b"")
+
+
+def textured_glb(path):
+    triangle_glb(path)
+    js, binary = g2u.read_glb(str(path))
+    uri = "data:image/png;base64," + base64.b64encode(tiny_png()).decode()
+    js["images"] = [{"uri": uri}]
+    js["samplers"] = [{"wrapS": 33071, "wrapT": 10497}]
+    js["textures"] = [{"source": 0, "sampler": 0}]
+    js["materials"][0]["pbrMetallicRoughness"]["baseColorTexture"] = {"index": 0}
+    js["materials"][0]["pbrMetallicRoughness"]["metallicRoughnessTexture"] = {"index": 0}
+    js["materials"][0]["normalTexture"] = {"index": 0, "scale": 0.5}
+    write_glb_with_bin(path, js, binary)
+
+
+def test_textures_are_written_and_wired(tmp_path):
+    textured_glb(tmp_path / "t.glb")
+    r = g2u.convert(str(tmp_path / "t.glb"), str(tmp_path / "t.usda"), "Car")
+    assert r["textures"] == 3 and (tmp_path / "t_textures" / "image_0.png").read_bytes() == tiny_png()
+    stage = Usd.Stage.Open(str(tmp_path / "t.usda"))
+    mat = stage.GetPrimAtPath("/Car/Materials/mat_0")
+    surf = UsdShade.Shader(stage.GetPrimAtPath("/Car/Materials/mat_0/Surface"))
+    base = surf.GetInput("diffuseColor").GetConnectedSource()[0].GetPrim()
+    assert UsdShade.Shader(base).GetIdAttr().Get() == "UsdUVTexture"
+    assert UsdShade.Shader(base).GetInput("wrapS").Get() == "clamp" and UsdShade.Shader(base).GetInput("sourceColorSpace").Get() == "sRGB"
+    assert surf.GetInput("roughness").GetConnectedSource()[1] == "g" and surf.GetInput("metallic").GetConnectedSource()[1] == "b"
+    nrm = UsdShade.Shader(surf.GetInput("normal").GetConnectedSource()[0].GetPrim())
+    assert tuple(nrm.GetInput("scale").Get()) == pytest.approx((1.0, 1.0, 2.0, 1.0))        # normal scale 0.5 -> 2 * 0.5
+    assert mat and stage.GetPrimAtPath("/Car/Materials/mat_0/st_reader")
+
+
+def test_usdz_packs_the_textures(tmp_path):
+    textured_glb(tmp_path / "t.glb")
+    g2u.convert(str(tmp_path / "t.glb"), str(tmp_path / "t.usdz"), "Car")
+    assert not (tmp_path / "t_textures").exists()
+    import zipfile
+    assert any(n.endswith("image_0.png") for n in zipfile.ZipFile(tmp_path / "t.usdz").namelist())
+
+
+def test_mesh_check_flags_a_texture_that_was_not_shipped(tmp_path):
+    import shutil
+    textured_glb(tmp_path / "t.glb")
+    g2u.convert(str(tmp_path / "t.glb"), str(tmp_path / "t.usda"), "Car")
+    doc = {"assets": {"meshes": [{"id": "m", "uri": "t.usda"}]},
+           "chassis": {"mass_total": 1000.0, "center_of_gravity": [0.0, 0.0, 0.0],
+                       "mass_bodies": [{"id": "wheel_fl", "mass": 10.0, "position": [0.0, -0.8, -0.3], "visual": {"mesh_ref": "m", "node": "SVJ::wheel::wheel_fl"}}]}}
+    doc["_metadata"] = {"coordinate_system": {"up": "Y", "forward": "-Z", "handedness": "right"}}
+    _, w, _ = mc.check_meshes(doc, ic.collect_bindings(doc), str(tmp_path))
+    assert not any("texture" in x for x in w)
+    shutil.rmtree(tmp_path / "t_textures")
+    _, w, _ = mc.check_meshes(doc, ic.collect_bindings(doc), str(tmp_path))
+    assert any("image_0.png" in x and "was not found" in x for x in w)
+    g2u.convert(str(tmp_path / "t.glb"), str(tmp_path / "p.usdz"), "Car")           # packed: nothing to ship
+    doc["assets"]["meshes"][0]["uri"] = "p.usdz"
+    _, w, _ = mc.check_meshes(doc, ic.collect_bindings(doc), str(tmp_path))
+    assert not any("texture" in x for x in w)

@@ -277,6 +277,10 @@ def _index_gltf(path, ref, uri, warnings):
         if name and name.startswith(NODE_PREFIX) or sv:
             ix.present.append((name if name and name.startswith(NODE_PREFIX) else sv, sv))
     ix.boxes = node_boxes(gltf)
+    for k, im in enumerate(gltf.get("images") or []):
+        u = im.get("uri") if isinstance(im, dict) else None
+        if isinstance(u, str) and not u.startswith("data:") and not os.path.exists(os.path.normpath(os.path.join(os.path.dirname(path), u))):
+            warnings.append(f"[mesh '{ref}'] texture image {k} ({u}) referenced by {uri} does not exist: ship the image beside the asset")
     animated = {t["node"] for a in gltf.get("animations") or [] for ch in a.get("channels") or [] for t in [ch.get("target") or {}]
                 if isinstance(t.get("node"), int) and t.get("path") in ("translation", "rotation", "scale")}
     children = {i: [c for c in (n.get("children") or []) if isinstance(c, int)] for i, n in enumerate(nodes)}
@@ -342,7 +346,15 @@ def _index_usd(path, ref, uri, warnings):
         warnings.append(f"[mesh '{ref}'] the stage {uri} has metersPerUnit = {mpu:g}; spec 22.10 requires 1 (the geometry is checked in metres)")
     cache = UsdGeom.BBoxCache(Usd.TimeCode.Default(), [UsdGeom.Tokens.default_, UsdGeom.Tokens.render])
     ix = _Index()
+    missing_tex = set()
     for prim in stage.Traverse():
+        if prim.GetTypeName() == "Shader":                          # a texture the asset refers to must be shipped with it (spec 22.10)
+            idattr = prim.GetAttribute("info:id")
+            fattr = prim.GetAttribute("inputs:file")
+            if idattr and idattr.Get() == "UsdUVTexture" and fattr and fattr.HasAuthoredValue():
+                ap = fattr.Get()
+                if ap is not None and ap.path and not ap.resolvedPath:
+                    missing_tex.add(ap.path)
         attr = prim.GetAttribute("svj:node")
         logical = attr.Get() if attr and attr.HasAuthoredValue() else None
         logical = logical if isinstance(logical, str) else None
@@ -358,6 +370,8 @@ def _index_usd(path, ref, uri, warnings):
         ix.present.append((logical or by_name, None))
         rng = cache.ComputeWorldBound(prim).ComputeAlignedRange()
         ix.boxes[key] = None if rng.IsEmpty() else ([rng.GetMin()[k] * mpu for k in range(3)], [rng.GetMax()[k] * mpu for k in range(3)])
+    for t in sorted(missing_tex):
+        warnings.append(f"[mesh '{ref}'] texture {t} referenced by {uri} was not found: ship the image beside the asset or pack the asset as .usdz")
     ix.subtree_info = lambda key, exclude: _usd_non_appearance(stage.GetPrimAtPath(key), Usd, UsdGeom, set(exclude))
     return ix
 
