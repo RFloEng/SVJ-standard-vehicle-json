@@ -10,6 +10,9 @@ Writes a USD stage that follows the SVJ rules for USD assets:
   * triangle meshes (modes 4, 5, 6) as UsdGeomMesh with normals and the first UV set,
   * the base colour, metallic and roughness factors as a UsdPreviewSurface material (textures are not converted).
 
+glTF animations are NOT carried over: animation, poses and solids in a USD asset may only be copies of data already in the
+SVJ JSON (spec §22.10), so a converter must first put them in the JSON (joints, `poses[]`).
+
 Needs the `usd-core` library: pip install usd-core.
 
 Usage:
@@ -222,6 +225,8 @@ def convert(src, dst, root_name="Root"):
     taken = set(["Materials"])
     for i in roots:
         add_node(i, "/" + root_name, taken)
+    if gltf.get("animations"):
+        notes.append(f"{len(gltf['animations'])} glTF animation(s) are not converted: animation must first be defined in the SVJ JSON (joints, poses[]), spec 22.10")
     stage.GetRootLayer().Save()
     if ext == ".usdz":
         from pxr import UsdUtils

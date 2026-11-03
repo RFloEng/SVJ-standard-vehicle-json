@@ -306,3 +306,37 @@ def test_preview_copy_of_a_usd_asset(tmp_path):
     doc["assets"]["meshes"][0].update({"uri": "car.glb", "format": "gltf", "preview": "car.preview.glb"})
     _, _, notes = mc.check_meshes(doc, ic.collect_bindings(doc), str(tmp_path))
     assert any("only applies to OpenUSD assets" in n for n in notes)
+
+
+@needs_usd
+def test_usd_physics_and_animation_must_be_copies_of_the_json(tmp_path):
+    """spec 22.10 rule 8: nothing physical or kinematic in the asset that the JSON does not have first."""
+    from pxr import UsdPhysics
+    make_usd(tmp_path / "car.usda")
+    stage = Usd.Stage.Open(str(tmp_path / "car.usda"))
+    fl = stage.GetPrimAtPath("/Car/part_wheel_fl")
+    UsdPhysics.RigidBodyAPI.Apply(fl)
+    UsdPhysics.MassAPI.Apply(fl).CreateMassAttr(12.5)                       # the JSON says 10 kg
+    UsdPhysics.CollisionAPI.Apply(stage.GetPrimAtPath("/Car/part_wheel_fr/shape"))
+    xf = UsdGeom.Xform(stage.GetPrimAtPath("/Car/part_wheel_rl"))
+    op = xf.AddRotateYOp()
+    op.Set(0.0, Usd.TimeCode(0))
+    op.Set(90.0, Usd.TimeCode(24))                                          # an animation, and the JSON has no joint for wheel_rl
+    stage.GetRootLayer().Save()
+    doc = make_doc()
+    doc["assets"]["meshes"][0].update({"uri": "car.usda", "format": "usd"})
+    _, w, notes = mc.check_meshes(doc, ic.collect_bindings(doc), str(tmp_path))
+    assert any("differs from the JSON (10 kg); the JSON wins" in x and "12.5" in x for x in w)
+    assert any("collision shape that the JSON has no `collision` proxy" in x and "wheel_fr" in x for x in w)
+    assert any("animated" in x and "wheel_rl" in x and "no joint" in x for x in w)
+    # the JSON has the data first: same mass, a collision proxy, a joint that moves the part
+    for b in doc["chassis"]["mass_bodies"]:
+        if b["id"] == "wheel_fr":
+            b["collision"] = [{"id": "c", "type": "sphere", "radius": 0.3, "position": b["position"]}]
+    doc["constraints"] = [{"id": "hinge_rl", "type": "joint", "joint_type": "revolute", "body_a": "chassis", "body_b": "wheel_rl"}]
+    for b in doc["chassis"]["mass_bodies"]:
+        if b["id"] == "wheel_fl":
+            b["mass"] = 12.5
+    _, w, notes = mc.check_meshes(doc, ic.collect_bindings(doc), str(tmp_path))
+    assert not any("differs" in x or "collision shape" in x or "no joint" in x for x in w)
+    assert any("the JSON wins, the asset's animation is ignored" in n for n in notes)

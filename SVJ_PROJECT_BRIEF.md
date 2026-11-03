@@ -117,6 +117,7 @@ Spec §23, all optional and backward-compatible:
 - **v0.102** Collision proxies (§28): `collision[]` on chassis and mass bodies, `collision_ignore`; interface `supply`/`demand`
 - **v0.103** Adjustments and setups (§29): `adjustments[]` (range or list of values on a path or linked paths), `setups[]` (`{path: value}`), `active_setup`; paths use `id` selectors, e.g. `constraints[spring_fl].preload`
 - Viewer v4.7 has a **Geometry** tab (bump camber, bump steer, track and wheel-recession change, kingpin geometry, roll centre) from a JS port of the loop solver; keep it in step with `tools/loop_solver.py`
+- Rule for USD assets (§22.10): poses, animation and solids may exist in an asset only as copies of data the JSON has first; JSON wins; only shapes and appearance live in the asset alone; converters write the JSON first
 - **v0.106** `assets.meshes[].preview`: a glTF copy of a USD asset that the viewer shows (`tools/usd2gltf.py`); the USD stays the source
 - **v0.105** OpenUSD assets for shapes and appearance (§22.10): `assets.meshes[].format`, binding name via `svj:node` or the prim name `SVJ__cat__id`, `metersPerUnit = 1`; glTF stays supported; the JSON stays the authority (assets carry shapes and appearance only); viewer shows glTF only
 - **v0.104** Tyre evaluation (§11.13): the MF-Tyre 6.1 equations written into the spec, `pacejka.reference_load_N` / `scaling`, friction-circle fallback; evaluator `tools/tire_model.py`. No evaluator yet for `tmeasy` and `brush`, nor `Mx`
