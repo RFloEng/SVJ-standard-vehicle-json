@@ -282,3 +282,27 @@ def test_usd_unreadable_and_skipped_without_library(tmp_path, monkeypatch):
     monkeypatch.setitem(sys.modules, "pxr", None)                               # simulates a missing usd-core
     _, w, notes = mc.check_meshes(doc, ic.collect_bindings(doc), str(tmp_path))
     assert w == [] and any("needs the usd-core library" in n for n in notes)
+
+
+def test_preview_copy_of_a_usd_asset(tmp_path):
+    """spec 22.10: the `preview` glTF of an OpenUSD asset exists and carries the bound nodes (needs no usd-core)."""
+    write_glb(tmp_path / "car.preview.glb", make_gltf())
+    doc = make_doc()
+    doc["assets"]["meshes"][0].update({"uri": "car.usdc", "format": "usd", "preview": "car.preview.glb"})
+    _, w, notes = mc.check_meshes(doc, ic.collect_bindings(doc), str(tmp_path))
+    assert w == [] or all("car.usdc" in x for x in w)                          # the USD itself may be missing / unreadable here, the preview is fine
+    assert not any("preview" in x for x in w)
+    g = make_gltf()
+    g["nodes"][1]["name"] = "SVJ::wheel::wheel_xx"
+    write_glb(tmp_path / "car.preview.glb", g)
+    _, w, _ = mc.check_meshes(doc, ic.collect_bindings(doc), str(tmp_path))
+    assert any("preview car.preview.glb does not contain the bound node 'SVJ::wheel::wheel_fl'" in x for x in w)
+    (tmp_path / "car.preview.glb").unlink()
+    _, w, _ = mc.check_meshes(doc, ic.collect_bindings(doc), str(tmp_path))
+    assert any("preview car.preview.glb: file not found" in x and "usd2gltf" in x for x in w)
+    doc["assets"]["meshes"][0]["preview"] = "car.preview.usd"
+    _, w, _ = mc.check_meshes(doc, ic.collect_bindings(doc), str(tmp_path))
+    assert any("is not a .glb or .gltf file" in x for x in w)
+    doc["assets"]["meshes"][0].update({"uri": "car.glb", "format": "gltf", "preview": "car.preview.glb"})
+    _, _, notes = mc.check_meshes(doc, ic.collect_bindings(doc), str(tmp_path))
+    assert any("only applies to OpenUSD assets" in n for n in notes)

@@ -116,7 +116,7 @@ The binding name `SVJ::<category>::<id>` is one logical name for both asset form
 | the string attribute `svj:node` on the prim | `custom string svj:node = "SVJ::suspension::upright_fl"` |
 | the prim **name**: the binding name with each `::` replaced by `__` | `/Car/SVJ__suspension__upright_fl` |
 
-The attribute wins when both exist and differ (the checker reports it). The binding covers the prim and its descendants. `tools/gltf2usd.py` writes both forms.
+The attribute wins when both exist and differ (the checker reports it). The binding covers the prim and its descendants. `tools/gltf2usd.py` writes both forms; `tools/usd2gltf.py` turns either form back into the glTF node name `SVJ::<category>::<id>` (and keeps it in `extras.svj_node`) for the preview copy.
 
 ## Canonical part names *(SVJ v0.99.2)*
 
