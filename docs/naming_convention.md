@@ -107,6 +107,17 @@ For `helper` nodes the binding is looser — the name should be descriptive but 
 
 ---
 
+## The same names in OpenUSD assets *(SVJ v0.105)*
+
+The binding name `SVJ::<category>::<id>` is one logical name for both asset formats (spec §22.10). A glTF asset carries it as the node name. Prim names in OpenUSD allow only letters, digits and underscore, so a USD asset carries it in one of two ways:
+
+| Way | Example |
+|---|---|
+| the string attribute `svj:node` on the prim | `custom string svj:node = "SVJ::suspension::upright_fl"` |
+| the prim **name**: the binding name with each `::` replaced by `__` | `/Car/SVJ__suspension__upright_fl` |
+
+The attribute wins when both exist and differ (the checker reports it). The binding covers the prim and its descendants. `tools/gltf2usd.py` writes both forms.
+
 ## Canonical part names *(SVJ v0.99.2)*
 
 The pattern alone does not stop two exporters calling the same part `wishbone_upper_fl` and `fl_upper_arm`. This table is the **recommended vocabulary**: use the canonical name as the SVJ part id (`links[].name`, `upright.id`, aero `id`…), and the node name then follows from the rules above. Converters should map the aliases they meet onto the canonical name; `tools/integrity_check.py` warns (never errors) when a link name is outside this list, so house names stay legal.

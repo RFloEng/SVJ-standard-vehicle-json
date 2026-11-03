@@ -1,16 +1,18 @@
 """
-SVJ mesh-side binding checker (spec §22.9).
+SVJ mesh-side binding checker (spec §22.9, §22.10).
 
-`integrity_check.py` checks the SVJ side of the visual bindings. This module opens the glTF / GLB files the bindings
-point at and checks the other side: do the bound nodes exist, are they unambiguous, and does the geometry sit where the
-SVJ part says it is. It reads only the JSON of the asset (node tree, transforms and the min / max of the POSITION
-accessors), never the binary buffers, and has no dependencies.
+`integrity_check.py` checks the SVJ side of the visual bindings. This module opens the glTF / GLB and OpenUSD files the
+bindings point at and checks the other side: do the bound nodes exist, are they unambiguous, and does the geometry sit
+where the SVJ part says it is. For glTF it reads only the JSON of the asset (node tree, transforms and the min / max of
+the POSITION accessors), never the binary buffers, and has no dependencies. OpenUSD assets (spec §22.10) are read with
+the optional `usd-core` library (`pip install usd-core`); without it they are skipped with a note. A USD node is a prim
+with the attribute `svj:node`, or named `SVJ__category__id`; the stage must author metersPerUnit = 1.
 
 Mesh problems are **appearance** problems: they are reported as warnings, never as errors, and never make the physics
 description invalid. (`integrity_check.py --strict` still fails on warnings.)
 
 Checks:
-  M1  the asset file exists and is readable glTF 2.0 / GLB (other formats are skipped with a note)
+  M1  the asset file exists and is readable glTF 2.0 / GLB or OpenUSD (other formats are skipped with a note)
   M2  every bound node exists (by name, or by the `extras.svj_node` of a node when the name was changed)
   M3  a bound node name is unique in the asset (otherwise the binding is ambiguous)
   M4  `extras.svj_node`, when present, agrees with the node name
@@ -237,8 +239,87 @@ def _median(v):
 
 
 # ── the checks ────────────────────────────────────────────────────────────────
+class _Index:
+    """What the checks need from an asset, whatever its format: names maps a binding name to the keys of the nodes (or
+    prims) that carry it, extras the fallback map (glTF `extras.svj_node`), boxes the world box of each key in metres,
+    present the (name, fallback name) of every SVJ node found, for the orphan check."""
+
+    def __init__(self):
+        self.names, self.extras, self.boxes, self.present = {}, {}, {}, []
+
+
+class MeshSkip(MeshError):
+    """The asset cannot be checked here (a missing optional library): a note, not a warning."""
+
+
+GLTF_EXT = (".glb", ".gltf")
+USD_EXT = (".usd", ".usda", ".usdc", ".usdz")
+_USD_NAME = re.compile(r"^SVJ__([a-z]+)__(.+)$")
+
+
+def _index_gltf(path, ref, uri, warnings):
+    gltf = read_gltf(path)
+    ix = _Index()
+    nodes = gltf.get("nodes") or []
+    for i, n in enumerate(nodes):
+        name = n.get("name") if isinstance(n.get("name"), str) else None
+        sv = (n.get("extras") or {}).get("svj_node") if isinstance(n.get("extras"), dict) else None
+        sv = sv if isinstance(sv, str) else None
+        if name:
+            ix.names.setdefault(name, []).append(i)
+        if sv:
+            ix.extras.setdefault(sv, []).append(i)
+            if name and name.startswith(NODE_PREFIX) and name != sv:
+                warnings.append(f"[mesh '{ref}'] node '{name}' has extras.svj_node '{sv}': name and extras disagree")
+        if name and name.startswith(NODE_PREFIX) or sv:
+            ix.present.append((name if name and name.startswith(NODE_PREFIX) else sv, sv))
+    ix.boxes = node_boxes(gltf)
+    return ix
+
+
+def _index_usd(path, ref, uri, warnings):
+    """Index of an OpenUSD asset (spec 22.10): prims found by `svj:node` or by the prim name SVJ__category__id."""
+    try:
+        from pxr import Usd, UsdGeom
+    except ImportError:
+        raise MeshSkip("an OpenUSD asset; reading it needs the usd-core library (pip install usd-core), so its nodes are not checked")
+    if not os.path.exists(path):
+        raise MeshError("file not found")
+    try:
+        stage = Usd.Stage.Open(path)
+    except Exception as e:                                           # pxr raises its own error types
+        raise MeshError(f"not readable as OpenUSD: {e}")
+    if stage is None:
+        raise MeshError("not readable as OpenUSD")
+    mpu = UsdGeom.GetStageMetersPerUnit(stage)
+    if not stage.HasAuthoredMetadata("metersPerUnit"):
+        warnings.append(f"[mesh '{ref}'] the stage {uri} does not author metersPerUnit (OpenUSD readers then assume 0.01 m); spec 22.10 requires 1")
+        mpu = 1.0
+    elif abs(mpu - 1.0) > 1e-9:
+        warnings.append(f"[mesh '{ref}'] the stage {uri} has metersPerUnit = {mpu:g}; spec 22.10 requires 1 (the geometry is checked in metres)")
+    cache = UsdGeom.BBoxCache(Usd.TimeCode.Default(), [UsdGeom.Tokens.default_, UsdGeom.Tokens.render])
+    ix = _Index()
+    for prim in stage.Traverse():
+        attr = prim.GetAttribute("svj:node")
+        logical = attr.Get() if attr and attr.HasAuthoredValue() else None
+        logical = logical if isinstance(logical, str) else None
+        m = _USD_NAME.match(prim.GetName())
+        by_name = f"SVJ::{m.group(1)}::{m.group(2)}" if m else None
+        if not (logical or by_name):
+            continue
+        key = str(prim.GetPath())
+        if logical and by_name and logical != by_name:
+            warnings.append(f"[mesh '{ref}'] prim {key} is named for '{by_name}' but its svj:node is '{logical}': name and attribute disagree")
+        for lg in {x for x in (logical, by_name) if x}:
+            ix.names.setdefault(lg, []).append(key)
+        ix.present.append((logical or by_name, None))
+        rng = cache.ComputeWorldBound(prim).ComputeAlignedRange()
+        ix.boxes[key] = None if rng.IsEmpty() else ([rng.GetMin()[k] * mpu for k in range(3)], [rng.GetMax()[k] * mpu for k in range(3)])
+    return ix
+
+
 def check_meshes(data, bindings, base_dir):
-    """(errors, warnings, notes) for the mesh side of `bindings` (the list of integrity_check.collect_bindings).
+    """(errors, warnings, notes) for the asset side of `bindings` (the list of integrity_check.collect_bindings).
     errors is always empty: mesh problems are appearance warnings (see module docstring)."""
     warnings, notes = [], []
     meshes = {m["id"]: m for m in (data.get("assets") or {}).get("meshes", []) if isinstance(m, dict) and "id" in m}
@@ -257,46 +338,37 @@ def check_meshes(data, bindings, base_dir):
     for ref, entry in meshes.items():
         uri = entry.get("uri", "")
         ext = os.path.splitext(uri)[1].lower()
-        if ext not in (".glb", ".gltf"):
-            notes.append(f"[mesh '{ref}'] '{uri}' is not a glTF asset; its nodes are not checked")
+        fmt = entry.get("format") or ("usd" if ext in USD_EXT else "gltf" if ext in GLTF_EXT else None)
+        if fmt not in ("gltf", "usd"):
+            notes.append(f"[mesh '{ref}'] '{uri}' is not a glTF or OpenUSD asset; its nodes are not checked")
             continue
         path = os.path.normpath(os.path.join(base_dir, uri))
         try:
-            gltf = read_gltf(path)
+            ix = (_index_usd if fmt == "usd" else _index_gltf)(path, ref, uri, warnings)
+        except MeshSkip as e:
+            notes.append(f"[mesh '{ref}'] {uri}: {e}")
+            continue
         except MeshError as e:
             warnings.append(f"[mesh '{ref}'] {uri}: {e}" + (" (a placeholder path?)" if not os.path.exists(path) else ""))
             continue
-        nodes = gltf.get("nodes") or []
-        names, extras = {}, {}
-        for i, n in enumerate(nodes):
-            if isinstance(n.get("name"), str):
-                names.setdefault(n["name"], []).append(i)
-            sv = (n.get("extras") or {}).get("svj_node") if isinstance(n.get("extras"), dict) else None
-            if isinstance(sv, str):
-                extras.setdefault(sv, []).append(i)
-                if isinstance(n.get("name"), str) and n["name"].startswith(NODE_PREFIX) and n["name"] != sv:
-                    warnings.append(f"[mesh '{ref}'] node '{n['name']}' has extras.svj_node '{sv}': name and extras disagree")
-        boxes = node_boxes(gltf)
         bound, items = set(), []
         for b in by_mesh.get(ref, []):
             node, loc = b["visual"]["node"], b["location"]
             bound.add(node)
-            idx = names.get(node)
-            if not idx and extras.get(node):
-                idx = extras[node]
+            idx = ix.names.get(node)
+            if not idx and ix.extras.get(node):
+                idx = ix.extras[node]
                 notes.append(f"[{loc}] node '{node}' found through extras.svj_node (the node was renamed in the asset)")
             if not idx:
                 warnings.append(f"[{loc}] node '{node}' does not exist in {uri}")
                 continue
             if len(idx) > 1:
                 warnings.append(f"[{loc}] node '{node}' occurs {len(idx)} times in {uri}: the binding is ambiguous")
-            box = boxes.get(idx[0])
+            box = ix.boxes.get(idx[0])
             if b.get("pos") is not None and box is not None and b["visual"].get("placement", "rigid") == "rigid":
                 items.append((loc, node, b["pos"], box))
-        for n in nodes:
-            name = n.get("name")
-            m = re.match(r"^SVJ::([a-z0-9_]+)::", name) if isinstance(name, str) else None
-            via = (n.get("extras") or {}).get("svj_node") if isinstance(n.get("extras"), dict) else None
+        for name, via in ix.present:
+            m = re.match(r"^SVJ::([a-z0-9_]+)::", name or "")
             if m and m.group(1) not in CATEGORY_SKIP_ORPHAN and name not in bound and via not in bound:
                 warnings.append(f"[mesh '{ref}'] node '{name}' in {uri} is not bound by any part of this file")
         _check_geometry(ref, uri, entry, items, declared_rows, warnings, notes)

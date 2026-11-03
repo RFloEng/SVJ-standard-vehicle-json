@@ -2573,6 +2573,7 @@ This section is **optional**. It provides a standard place to record performance
 
 | Version | Changes                                                                                    |
 |---------|--------------------------------------------------------------------------------------------|
+| 0.105   | **OpenUSD assets** (§22.10). Additive. `assets.meshes[].format` (`gltf` / `usd`) and `x_transform` in the manifest schema; the binding name `SVJ::category::id` stays the one logical name in both formats, found in a USD asset through the `svj:node` attribute or the prim name `SVJ__category__id`; stage `metersPerUnit` MUST be 1; the assets stay shapes and appearance, the JSON stays the authority. `tools/gltf2usd.py` converts a GLB; `mesh_check.py` and the viewer handle USD entries. `_metadata.version` gains `0.105` |
 | 0.104   | **Tyre evaluation** (§11.13). Additive. The Magic Formula equations an evaluator uses (MF-Tyre 6.1: Fx, Fy, Mz, My, combined slip, pressure and camber terms), the normalisation and scaling factors, `pacejka.reference_load_N` and `pacejka.scaling`, the friction-circle fallback without `combined` coefficients, coefficient names `rEx1-2`, `rEy1-2`, `rHy2`, `ssz1-4`, `pPz1-2`. `_metadata.version` gains `0.104` |
 | 0.103   | **Adjustments and setups** (§29). Additive. Top-level `adjustments[]` (what can be changed: a range `min`/`max`/`step` or a list of `values`, on one path or several linked `paths`), `setups[]` (named `{path: value}` assignments) and `active_setup`; paths address a value with `id` selectors (`constraints[spring_fl].preload`). `_metadata.version` gains `0.103` |
 | 0.102   | **Collision proxies** (§28). Additive. `collision[]` on `chassis` and on any `mass_bodies` entry (sphere, box, cylinder in vehicle coordinates, optional `margin`, `source_node`) and a top-level `collision_ignore`; pairs of relatively movable bodies are compared in the reference pose and every pose (`tools/collision_check.py`, `svj.collision`); the validator warns about overlaps and errors on malformed proxies. `_metadata.version` gains `0.102` |
@@ -2616,17 +2617,17 @@ This section is **optional**. It provides a standard place to record performance
 
 ---
 
-## 22. glTF Visual Binding Layer *(v0.97, extended in v0.99.2)*
+## 22. Visual Binding Layer: glTF and OpenUSD *(v0.97, extended in v0.99.2; OpenUSD v0.105)*
 
 This section is **optional**. A file that omits all `visual` fields and the `assets` block is fully valid SVJ. Parsers that do not handle visual bindings MUST ignore these fields.
 
 ### 22.1 Purpose
 
-SVJ physics bodies are pure data — mass, hardpoints, stiffness. The glTF Visual Binding Layer attaches each body to its 3D representation in a `.glb` or `.gltf` asset, enabling a single SVJ file to drive both the dynamics simulation and the visual renderer.
+SVJ physics bodies are pure data — mass, hardpoints, stiffness. The Visual Binding Layer attaches each body to its 3D representation in an asset file, enabling a single SVJ file to drive both the dynamics simulation and the visual renderer. The asset is a **glTF** file (`.glb`, `.gltf`) or, since v0.105, an **OpenUSD** file (`.usd`, `.usda`, `.usdc`, `.usdz`; §22.10). The asset holds **shapes, colours and appearance only**: the SVJ JSON is the authority for every physical fact, and nothing physical is read from an asset.
 
 ### 22.2 Asset Manifest
 
-Declare the glTF files used by the vehicle in the top-level `assets` object:
+Declare the asset files used by the vehicle in the top-level `assets` object:
 
 ```json
 "assets": {
@@ -2640,9 +2641,11 @@ Declare the glTF files used by the vehicle in the top-level `assets` object:
 | Field | Type   | Required | Description |
 |-------|--------|----------|-------------|
 | `id`  | string | YES      | Short identifier referenced by `mesh_ref` in `visual` blocks |
-| `uri` | string | YES      | Relative path from the SVJ file to the glTF asset |
+| `uri` | string | YES      | Relative path from the SVJ file to the asset |
+| `format` | string | no    | `"gltf"` or `"usd"` *(v0.105)*. Default: taken from the `uri` extension (`.glb` `.gltf` → glTF; `.usd` `.usda` `.usdc` `.usdz` → OpenUSD) |
+| `x_transform` | object | no | Whole-asset offset written by the viewer: `{position, rotation, scale}` (metres, XYZ Euler in radians) |
 
-The `uri` MUST be a relative path. Absolute paths and remote URLs are not permitted.
+The `uri` MUST be a relative path. Absolute paths and remote URLs are not permitted. One file may use both formats: each `visual` names its asset with `mesh_ref` (§22.3), so a vehicle can bind some parts to glTF assets and others to OpenUSD assets.
 
 ### 22.3 Visual Binding
 
@@ -2682,7 +2685,7 @@ Any part described in the file MAY carry an optional `visual` field. As of **v0.
 | Field             | Type    | Required | Description |
 |-------------------|---------|----------|-------------|
 | `mesh_ref`        | string  | YES¹     | Must match an `id` in `assets.meshes`. May be omitted when exactly one mesh is declared. |
-| `node`            | string  | YES      | glTF node name following the SVJ Naming Convention (§22.5) |
+| `node`            | string  | YES      | The binding name `SVJ::<category>::<id>` (§22.5): a glTF node name, or in an OpenUSD asset the value of a prim's `svj:node` attribute (§22.10) |
 | `placement`       | string  | no       | `"rigid"` (default) or `"link_between_points"` (§22.6) |
 | `mesh_axis`       | string  | no       | `link_between_points` only: `"+x"` (default), `"-x"`, `"+y"`, `"-y"`, `"+z"`, `"-z"` |
 | `from_point`      | integer | no       | `link_between_points` only: index into the link's `inboard_points` |
@@ -2851,7 +2854,7 @@ Rules 1–5 are errors. Rule 6, and a missing `mesh_ref` when several meshes are
 
 ### 22.9 Mesh-side checks *(tooling)*
 
-§22.7 checks the SVJ file. `tools/integrity_check.py --meshes` (module `tools/mesh_check.py`) also opens the glTF / GLB assets, relative to the SVJ file, and checks the other side of each binding. It reads only the JSON of the asset (node tree, transforms and the `min` / `max` of the `POSITION` accessors), never the binary buffers, and needs no library.
+§22.7 checks the SVJ file. `tools/integrity_check.py --meshes` (module `tools/mesh_check.py`) also opens the glTF / GLB assets (and the OpenUSD assets of §22.10, when the `usd-core` library is installed), relative to the SVJ file, and checks the other side of each binding. It reads only the JSON of the asset (node tree, transforms and the `min` / `max` of the `POSITION` accessors), never the binary buffers, and needs no library.
 
 1. **Asset** exists and is glTF 2.0 / GLB. Other formats are skipped with a note.
 2. **Node exists**: the bound node is in the asset, by name or by `extras.svj_node`.
@@ -2863,6 +2866,22 @@ Rules 1–5 are errors. Rule 6, and a missing `mesh_ref` when several meshes are
 8. **Placement**: for each `rigid` binding, the SVJ position of the part (the centre of gravity of the chassis or of a mass body) must lie inside the node's bounding box, within a tolerance of 0.10 m plus 15 % of the box diagonal. A common offset of all parts is reported once, as a shift of the asset against the SVJ origin, with the `x_transform.position` that would correct it; otherwise each part outside its box is named. The `x_transform` of the manifest entry (§22.2) is applied before the comparison.
 
 **Mesh problems are appearance problems.** Every one of these findings is a **warning**, never an error, and none of them makes the physics description invalid; `--strict` still fails on warnings. A file whose mesh files are missing (placeholder paths, a partial checkout) is valid SVJ.
+
+### 22.10 OpenUSD assets *(v0.105)*
+
+An OpenUSD file may serve as the shape-and-appearance asset in place of a glTF file. It does not change what an asset is: **shapes, colours and appearance**. Everything physical (mass, inertia, joints, stiffness, tyre data, collision proxies) comes from the SVJ JSON; a `UsdPhysics` prim, a physics attribute or a mass in the asset is ignored for physics. A missing, unreadable or unsupported asset never makes the physics description invalid (§22.9).
+
+1. **Files.** `.usd`, `.usda`, `.usdc` or `.usdz`, with a relative `uri` (§22.2). A stage may reference or sublayer other files by relative paths inside the same directory tree; remote paths are not permitted. `.usdz` packages are the simplest single-file form.
+2. **Units and axes.** The stage MUST author `metersPerUnit = 1` (the USD default, when it is not authored, is 0.01) and `upAxis`. The forward direction is not part of USD: the asset's convention is the `_metadata.coordinate_system` object of §22.4 (`up` must equal the stage's `upAxis`); without it SAE J670 axes are assumed, as for glTF.
+3. **Binding name.** `visual.node` stays the logical name `SVJ::<category>::<id>` (§22.5), the same string as for glTF. Prim names allow only letters, digits and underscore, so the name is found in the asset in this order:
+   1. a prim with the string attribute `svj:node` equal to the name (`custom string svj:node = "SVJ::suspension::upright_fl"`);
+   2. else a prim whose **name** is the binding name with each `::` replaced by `__` (`SVJ__suspension__upright_fl`).
+
+   The binding covers the prim and all its descendants, as a group node does in glTF. Exactly one prim may carry a given name; the id-match, uniqueness and category rules of §22.7 apply unchanged.
+4. **Geometry.** `Mesh` (including subdivision surfaces), `NurbsPatch`, `NurbsCurves`, `BasisCurves`, `Points` and instanceable prims are allowed, so a CAD surface need not be tessellated before it is bound. The reference pose is the world transform of the prim in the stage; `placement` (§22.6) is interpreted as for glTF.
+5. **Appearance.** `UsdPreviewSurface` and `displayColor` are the portable baseline that a conforming viewer shows; richer shading (MaterialX, vendor networks) may be present and may be ignored. Variant sets may carry appearance variants (paint, wheel design, level of detail); selecting a variant is not part of the SVJ file yet, and a variant MUST NOT change anything physical.
+6. **Conversion.** `tools/gltf2usd.py` converts a `.glb` into a `.usdc` / `.usda` that follows these rules (metres, binding names in `svj:node`, node hierarchy as `Xform` prims, base colours as `UsdPreviewSurface`).
+7. **Tooling.** Reading USD needs the `usd-core` library (`pip install usd-core`), which is optional: without it, the checks skip USD assets with a note. The viewer shows glTF directly and needs a converted GLB, or a USD loader, for OpenUSD assets (§22.9 checks do not depend on the viewer).
 
 ---
 

@@ -1,6 +1,6 @@
 # Study: glTF or OpenUSD as the appearance file of SVJ
 
-**Status:** feasibility study, revised. **Decision (project owner): a USD workflow around SVJ is only prospective, so option B stays a documented possibility and is not built.** Nothing implemented · **Question:** may the shape-and-appearance file bound to an SVJ vehicle (spec §22) be OpenUSD as well as glTF, one or the other per vehicle? · **Builds on:** spec §22, `proposals/svj_step_visual_binding_proposal.md`
+**Status:** feasibility study, revised. **Decision (project owner, later): a USD-based track format (STJ) is being created and CAD input is a goal, so USD becomes the target for shapes. Option B was started in v0.105 (spec §22.10, `tools/gltf2usd.py`, `tools/mesh_check.py`); glTF stays supported during the transition.** (The earlier decision, that USD was only prospective, is superseded.) · **Question:** may the shape-and-appearance file bound to an SVJ vehicle (spec §22) be OpenUSD as well as glTF, one or the other per vehicle? · **Builds on:** spec §22, `proposals/svj_step_visual_binding_proposal.md`
 
 **Ground rule (from the project owner).** SVJ is a format for **physics characteristics**. The **JSON is the authority and stays the main file**; every physical fact lives there. The mesh file only stores **shapes, colours and appearance**. This study judges the two formats on that job alone.
 
@@ -97,7 +97,7 @@ What remains: **geometry, materials, colours, textures, instancing, levels of de
 
 ## 8. Open questions
 
-- ~~Is a USD workflow already in use around SVJ?~~ Answered: prospective only. Revisit option B when a real USD user (a configurator, a digital twin) appears.
+- ~~Is a USD workflow already in use around SVJ?~~ Answered: the track format STJ is USD based and CAD input (NURBS) is wanted, so option B was built (v0.105).
 - Should appearance variants (paint, wheels) be part of the standard at all, or left to the asset?
 - Which USD materials may a conforming SVJ viewer be expected to show (`UsdPreviewSurface` only, or MaterialX)?
 - Who maintains the optional USD checks as the USD libraries and Python versions change?

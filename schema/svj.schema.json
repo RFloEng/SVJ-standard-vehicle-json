@@ -47,7 +47,8 @@
             "0.101",
             "0.102",
             "0.103",
-            "0.104"
+            "0.104",
+            "0.105"
           ],
           "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations). '0.99.1' adds axle_groups, plated masses and explicit wheelbase definitions. '0.99.2' extends the glTF visual binding layer: full category set, visual on links/steering/wheels/brakes/springs/dampers/aero, and the 'placement' field for parts defined by hardpoints. '0.99.3' adds differential control: lock_control (dynamic differential lock) and transfer_case.coupling (torque-limited centre coupling). '0.99.4' adds the strut_lower hardpoint convention for MacPherson/Chapman struts and damper.reference ('damper' or 'wheel'). '0.99.5' adds movable parts: constraints[] (joint, spring, actuator between mass bodies), poses[] and chassis.markers. '0.99.6' completes the constraint set: latch, coupling and joint.drive. '0.99.7' adds the optional display name on bodies, constraints and poses, and the naming vocabulary for movable parts. '0.99.8' adds the contact constraint (primitives at markers with a penalty law). '0.100' unifies the suspension: wheel stations are bodies, joints and elements (spring, damper; linear or torsional) with a thin wheel_stations[] list and anti_roll_bars[]; the corner-based suspension section is deprecated. '0.101' adds attachments: interfaces[] (named frames with a role and size), attachments[] (units fitted to this vehicle) and the svj-combination file. '0.102' adds collision proxies: collision[] on the chassis and on mass bodies, and collision_ignore."
         },
@@ -2416,13 +2417,13 @@
       }
     },
     "assets": {
-      "description": "External visual asset manifest listing glTF mesh files referenced by body visual bindings.",
+      "description": "External visual asset manifest listing the shape-and-appearance files (glTF or OpenUSD) referenced by visual bindings.",
       "type": "object",
       "additionalProperties": false,
       "properties": {
         "meshes": {
           "type": "array",
-          "description": "glTF mesh asset entries. Each entry has a stable id and a relative URI.",
+          "description": "Asset entries (glTF or OpenUSD). Each entry has a stable id and a relative URI.",
           "items": {
             "type": "object",
             "required": [
@@ -2438,7 +2439,22 @@
               },
               "uri": {
                 "type": "string",
-                "description": "Relative path to the .glb or .gltf file."
+                "description": "Relative path to the asset: .glb or .gltf (glTF), .usd, .usda, .usdc or .usdz (OpenUSD, v0.105)."
+              },
+              "format": {
+                "type": "string",
+                "enum": ["gltf", "usd"],
+                "description": "Asset format (v0.105, spec 22.2). Default: from the uri extension, glTF when it is unknown."
+              },
+              "x_transform": {
+                "type": "object",
+                "description": "Whole-asset offset applied by the viewer: position (m), rotation (XYZ Euler, rad), scale.",
+                "additionalProperties": false,
+                "properties": {
+                  "position": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
+                  "rotation": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
+                  "scale": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3}
+                }
               },
               "description": {
                 "type": "string"
