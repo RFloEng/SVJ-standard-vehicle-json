@@ -2882,7 +2882,7 @@ function svjBaseName(){
 }
 
 window.openSaveDialog = function(){
-  const dirty = dirtyAssets();
+  const dirtyAll = dirtyAssets(), dirty = dirtyAll.filter(d => !isUsdAsset(DATA?.assets?.meshes?.find(x => x.id === d.id))), previewEdits = dirtyAll.length - dirty.length;
   let dlg = document.getElementById('save-dlg'); if(dlg) dlg.remove();
   dlg = document.createElement('div'); dlg.id = 'save-dlg';
   dlg.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:100;display:flex;align-items:center;justify-content:center';
@@ -2896,6 +2896,7 @@ window.openSaveDialog = function(){
     <div style="margin:4px 0;display:flex;align-items:center;gap:6px"><span style="width:34px;color:var(--txD)">SVJ</span>
       <input type="text" id="save-svj-name" value="${escH(svjBaseName())}.svj.json" style="flex:1;background:var(--bg);color:var(--tx);border:1px solid var(--brd);padding:2px 4px;font-family:JetBrains Mono,monospace;font-size:10px"></div>
     ${rows ? `<div style="margin-top:6px;color:var(--txD)">GLB files with moved parts (only the glTF node transforms are rewritten; geometry, materials and textures are copied unchanged):</div>${rows}` : '<div style="margin-top:6px;color:var(--txD)">No mesh changes — only the SVJ is saved.</div>'}
+    ${previewEdits ? `<div style="margin-top:6px;color:var(--yl)">${previewEdits} preview(s) of OpenUSD assets were changed: those edits are not saved. The USD asset is the source and stays unchanged.</div>` : ''}
     <div style="margin-top:6px;color:var(--txD)">If a file name changes, the SVJ <code>assets.meshes[].uri</code> is updated to match; any whole-asset offset is baked into the GLB and removed from the SVJ. Your browser may ask to allow several downloads.</div>
     <div style="margin-top:10px;display:flex;gap:6px;justify-content:flex-end">
       <button class="btn" onclick="document.getElementById('save-dlg').remove()">Cancel</button>
@@ -3039,7 +3040,7 @@ function handleGLBFile(file) {
   let meshId = base;
   if (meshAssets.length) {
     const hit = meshAssets.find(a =>
-      (a.uri || '').split('/').pop().replace(/\.(glb|gltf)$/i, '') === base ||
+      [a.uri, a.preview].some(u => (u || '').split('/').pop().replace(/\.(glb|gltf)$/i, '') === base) ||       // a USD asset is shown through its glTF `preview`
       a.id === base
     );
     if (hit) meshId = hit.id;
@@ -3073,7 +3074,7 @@ function showMeshToast(msg, isError = false) {
   t._timer = setTimeout(() => { t.style.opacity = '0'; }, 2800);
 }
 
-const isUsdAsset = m => !!m && (m.format === 'usd' || /\.(usd|usda|usdc|usdz)$/i.test(m.uri || ''));      // spec 22.10: shown only as glTF for now
+const isUsdAsset = m => !!m && (m.format === 'usd' || /\.(usd|usda|usdc|usdz)$/i.test(m.uri || ''));      // spec 22.10: shown through its glTF `preview` (22.10, v0.106)
 function updateMeshBanner(data) {
   let banner = document.getElementById('mesh-banner');
   const meshList = data?.assets?.meshes;
@@ -3092,11 +3093,11 @@ function updateMeshBanner(data) {
     '</div>' +
     meshList.map(m => {
       const loaded = !!loadedMeshes[m.id], usd = isUsdAsset(m);
-      return '<div style="display:flex;align-items:center;gap:4px;padding:1px 0"' + (usd ? ' title="OpenUSD asset (spec 22.10): the viewer does not display it yet; the physics is unaffected. Keep a GLB copy of the asset to see it here."' : '') + '>' +
+      return '<div style="display:flex;align-items:center;gap:4px;padding:1px 0"' + (usd ? ' title="' + (m.preview ? 'OpenUSD asset (spec 22.10): shown through its glTF preview copy ' + m.preview + '; edits to the preview are not saved, the USD asset is the source.' : 'OpenUSD asset (spec 22.10) without a preview: the viewer shows glTF only. tools/usd2gltf.py writes a preview copy; the physics is unaffected.') + '"' : '') + '>' +
         '<div style="width:6px;height:6px;border-radius:50%;background:' + (loaded ? 'var(--gn)' : 'var(--txM)') + ';flex-shrink:0"></div>' +
         '<span style="color:' + (loaded ? 'var(--gn)' : 'var(--txD)') + ';font-weight:600">' + m.id + '</span>' +
         (m.uri ? '<span style="color:var(--txM);font-size:8px;overflow:hidden;text-overflow:ellipsis"> ' + m.uri.split('/').pop() + '</span>' : '') +
-        (usd ? '<span style="color:var(--yl);font-size:8px"> USD · not shown</span>' : '') +
+        (usd ? '<span style="color:' + (m.preview ? 'var(--pr)' : 'var(--yl)') + ';font-size:8px"> USD · ' + (m.preview ? 'preview ' + m.preview.split('/').pop() : 'not shown') + '</span>' : '') +
         '</div>';
     }).join('') +
     '<div style="margin-top:5px;display:flex;gap:4px;align-items:center">' +
@@ -3474,8 +3475,8 @@ function loadData(json) {
   updateMeshBanner(json);
   // Auto-hint: show "Find meshes" prominently if SVJ has assets but none loaded yet
   if (json?.assets?.meshes?.length && Object.keys(loadedMeshes).length === 0) {
-    const nUsd = json.assets.meshes.filter(isUsdAsset).length, nGltf = json.assets.meshes.length - nUsd;
-    showMeshToast((nGltf ? nGltf + ' glTF file(s) declared — drop .glb or use 📂 Find meshes' : 'OpenUSD asset(s) declared — the viewer does not display them yet') + (nGltf && nUsd ? '; ' + nUsd + ' OpenUSD asset(s) are not shown' : ''));
+    const usd = json.assets.meshes.filter(isUsdAsset), nPrev = usd.filter(m => m.preview).length, nBare = usd.length - nPrev, nGltf = json.assets.meshes.length - usd.length;
+    showMeshToast((nGltf + nPrev) ? (nGltf + nPrev) + ' mesh file(s) declared — drop .glb or use 📂 Find meshes' + (nPrev ? ' (' + nPrev + ' as preview of OpenUSD)' : '') + (nBare ? '; ' + nBare + ' OpenUSD asset(s) without preview are not shown' : '') : 'OpenUSD asset(s) without a glTF preview are not shown (tools/usd2gltf.py writes one)');
   }
 }
 

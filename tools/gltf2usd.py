@@ -163,20 +163,28 @@ def convert(src, dst, root_name="Root"):
             elif mode == 6:
                 idx = [t for i in range(1, len(idx) - 1) for t in (idx[0], idx[i], idx[i + 1])]
             ntri = len(idx) // 3
+            idx = [int(i) for i in idx[:ntri * 3]]
+            nrm = read_accessor(gltf, buffers, attrs["NORMAL"]) if "NORMAL" in attrs else None
+            uv = read_accessor(gltf, buffers, attrs["TEXCOORD_0"]) if "TEXCOORD_0" in attrs else None
+            used = sorted(set(idx))
+            if len(used) < len(pts):                      # primitives often share one vertex buffer: keep only the vertices this one uses
+                remap = {old: new for new, old in enumerate(used)}
+                pts = [pts[i] for i in used]
+                nrm = [nrm[i] for i in used] if nrm else None
+                uv = [uv[i] for i in used] if uv else None
+                idx = [remap[i] for i in idx]
             mesh = UsdGeom.Mesh.Define(stage, f"{parent_path}/mesh_{j}")
             mesh.CreatePointsAttr(Vt.Vec3fArray([Gf.Vec3f(*p) for p in pts]))
             mesh.CreateFaceVertexCountsAttr(Vt.IntArray([3] * ntri))
-            mesh.CreateFaceVertexIndicesAttr(Vt.IntArray([int(i) for i in idx[:ntri * 3]]))
+            mesh.CreateFaceVertexIndicesAttr(Vt.IntArray(idx))
             mesh.CreateSubdivisionSchemeAttr("none")
             lo = [min(p[k] for p in pts) for k in range(3)]
             hi = [max(p[k] for p in pts) for k in range(3)]
             mesh.CreateExtentAttr(Vt.Vec3fArray([Gf.Vec3f(*lo), Gf.Vec3f(*hi)]))
-            if "NORMAL" in attrs:
-                nrm = read_accessor(gltf, buffers, attrs["NORMAL"])
+            if nrm:
                 mesh.CreateNormalsAttr(Vt.Vec3fArray([Gf.Vec3f(*n) for n in nrm]))
                 mesh.SetNormalsInterpolation("vertex")
-            if "TEXCOORD_0" in attrs:
-                uv = read_accessor(gltf, buffers, attrs["TEXCOORD_0"])
+            if uv:
                 st = UsdGeom.PrimvarsAPI(mesh).CreatePrimvar("st", Sdf.ValueTypeNames.TexCoord2fArray, UsdGeom.Tokens.vertex)
                 st.Set(Vt.Vec2fArray([Gf.Vec2f(u, 1.0 - v) for u, v in uv]))          # glTF's V runs down, USD's up
             mat, col = material(prim.get("material"))

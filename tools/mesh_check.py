@@ -318,6 +318,22 @@ def _index_usd(path, ref, uri, warnings):
     return ix
 
 
+def _check_preview(ref, prev, base_dir, nodes, warnings):
+    """The glTF preview of a USD asset exists and carries every bound node (spec 22.10)."""
+    if os.path.splitext(prev)[1].lower() not in GLTF_EXT:
+        warnings.append(f"[mesh '{ref}'] preview '{prev}' is not a .glb or .gltf file")
+        return
+    ppath = os.path.normpath(os.path.join(base_dir, prev))
+    try:
+        pix = _index_gltf(ppath, ref, prev, warnings)
+    except MeshError as e:
+        warnings.append(f"[mesh '{ref}'] preview {prev}: {e}" + (" (not generated yet? tools/usd2gltf.py writes it)" if not os.path.exists(ppath) else ""))
+        return
+    for node in sorted(nodes):
+        if node not in pix.names and node not in pix.extras:
+            warnings.append(f"[mesh '{ref}'] preview {prev} does not contain the bound node '{node}' (regenerate it from the USD asset)")
+
+
 def check_meshes(data, bindings, base_dir):
     """(errors, warnings, notes) for the asset side of `bindings` (the list of integrity_check.collect_bindings).
     errors is always empty: mesh problems are appearance warnings (see module docstring)."""
@@ -343,6 +359,11 @@ def check_meshes(data, bindings, base_dir):
             notes.append(f"[mesh '{ref}'] '{uri}' is not a glTF or OpenUSD asset; its nodes are not checked")
             continue
         path = os.path.normpath(os.path.join(base_dir, uri))
+        prev = entry.get("preview")
+        if prev and fmt == "usd":
+            _check_preview(ref, prev, base_dir, {b["visual"]["node"] for b in by_mesh.get(ref, [])}, warnings)
+        elif prev:
+            notes.append(f"[mesh '{ref}'] `preview` only applies to OpenUSD assets; ignored for {uri}")
         try:
             ix = (_index_usd if fmt == "usd" else _index_gltf)(path, ref, uri, warnings)
         except MeshSkip as e:
