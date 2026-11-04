@@ -1219,6 +1219,7 @@ Defines how power flows from the engine/motor to the wheels.
 | `position`        | [x,y,z]| no      | Engine CG position in vehicle frame (m)         |
 | `mass`            | number | no       | Engine assembly mass (kg)                       |
 | `thermal`         | object | no       | Engine thermal model (§10.3.1)                  |
+| `kind`, `cycle`, `fuel`, `layout`, `aspiration`, `exhaust`, `intake`, `limiter` | | no | *(v0.107)* Engine declaration for sound simulation (§10.3.2) |
 
 #### 10.3.1 Engine Thermal Model
 
@@ -1238,6 +1239,50 @@ Describes how engine temperature affects performance. The engine is treated as a
 > **Cold start penalty:** At cold oil temperatures (below ~60°C), internal friction can increase engine losses by 15–30%. The `friction_vs_temperature` curve captures this. At nominal temperature (typically 90–100°C), the multiplier is 1.0.
 
 > **Overheating derating:** Most modern ECUs reduce ignition timing or fuel injection when coolant temperature exceeds a threshold (typically 110–115°C). `power_derating_vs_temperature` models this protection.
+
+#### 10.3.2 Engine Declaration for Sound Simulation *(v0.107)*
+
+The `torque_curve` remains the only source of torque. The keys below **describe** the engine so that a sound simulator can build its note from the file: the firing pattern, the aspiration and the exhaust decide the sound, and the torque curve says none of them. All keys are optional; a descriptor MUST NOT contradict the curve (§10.3.4).
+
+| Key | Values | Description |
+|-----|--------|-------------|
+| `kind` | `ice`, `rotary`, `electric`, `fuel_cell`, `turbine` | Prime mover. `electric`: the traction unit is in `electric.motors[]` (§14), and `engine` carries no combustion fields |
+| `cycle` | `four_stroke`, `two_stroke`, `wankel` | Sets the crank angle of one firing cycle: 720° (four-stroke, the default) or 360° (two-stroke) |
+| `fuel` | `petrol`, `diesel`, `e85`, `cng`, `lpg`, `hydrogen`, `methanol`, `jet_a` | Label; it changes the combustion character, not the curve |
+| `layout.cylinders` | integer | The structured form of the text `configuration`, which stays as a human label |
+| `layout.arrangement` | `I`, `V`, `flat`, `W`, `radial`, `rotary` | |
+| `layout.bank_angle_deg`, `layout.valves_per_cylinder` | number, integer | |
+| `layout.crank` | `flat_plane`, `cross_plane`, `single_plane`, or `{ "throw_angles_deg": [...] }` | Crankshaft type |
+| `layout.firing_order` | `[1, 8, 4, 3, ...]` | Cylinder numbers in firing order (a permutation of 1..cylinders) |
+| `layout.firing_angles_deg` | `[0, 90, 180, ...]` | **The key datum for the note.** Crank angle of each ignition within one cycle, in firing order and ascending. Uneven firing (a cross-plane V8 sounds even, a 90° V-twin fires at 0° and 270°) is what gives an engine its character |
+| `aspiration.type` | `na`, `turbo`, `supercharger`, `twin_charged`, `electric_compressor` | |
+| `aspiration.chargers[]` | `id`, `kind` (`turbo`, `roots`, `twin_screw`, `centrifugal`, `electric`), `bank`, `blades` (turbo compressor blade count), `lobes`, `pulley_ratio` (blower speed / crankshaft speed), `wastegate` (`none`, `internal`, `external`, `electronic`), `blow_off` (boolean) | One entry per charger; a twin-turbo V6 lists two |
+| `exhaust` | `headers` (`equal_length`, `unequal_length`, `log`, `4_1`, `4_2_1`), `merge` (`none`, `x_pipe`, `h_pipe`), `catalyst`, `resonators` (count), `muffler` (`none`, `straight_through`, `chambered`, `turbo_muffler`), `outlets`, `overrun` (`none`, `burble`, `pops`) | `overrun` is the exhaust sound on throttle lift |
+| `intake` | `type` (`plenum`, `itb`, `carburettor`, `airbox`), `airbox` | |
+| `limiter` | `type` (`hard_cut`, `soft`, `none`), `rpm` | |
+
+**Derived firing angles.** When `firing_angles_deg` is absent, a reader derives it: `cycle_degrees / cylinders * i` for inline, flat and radial engines, for a V8 or V12 with a flat- or cross-plane crank, and `[0, 360 - bank_angle_deg]` for a single-pin four-stroke V-twin. For any other layout (V6, V4, W, rotary) the pattern cannot be derived and the file SHOULD declare `firing_angles_deg`.
+
+Electric motors (§14.2) gain `pole_pairs` and `inverter_switching_hz`, the sources of the whine of an electric drive.
+
+#### 10.3.3 Sound Orders
+
+With `n` the crankshaft speed in rev/min and `cycle_degrees` 720 (four-stroke) or 360 (two-stroke):
+
+| Quantity | Formula |
+|----------|---------|
+| Firing frequency of the engine | `f_fire = (n / 60) * cylinders * 360 / cycle_degrees` (Hz) |
+| Engine order | `cylinders * 360 / cycle_degrees` (`cylinders / 2` for a four-stroke) |
+| Harmonic `k` of the crank rotation | `f_k = k * n / 60` |
+| Turbo blade-pass frequency | `f_blade = blades * n_turbo / 60`; the turbo shaft speed `n_turbo` is not in the file, it depends on boost |
+| Supercharger whine | `f = lobes * pulley_ratio * n / 60` |
+| Electric motor | `f_motor = pole_pairs * n_motor / 60`, with `n_motor = n_wheel * gear_ratio` |
+
+`tools/engine_check.py` (and `svj.engine`) implement these functions.
+
+#### 10.3.4 Declaration Checks
+
+`tools/validate.py` warns when: `firing_order` is not a permutation of 1..cylinders; `firing_angles_deg` does not have one entry per cylinder, leaves one cycle or is not ascending; the firing pattern of an `ice` engine with several cylinders can be neither derived nor read; `configuration` names a different cylinder count than `layout.cylinders`; `aspiration.type` and `chargers` disagree (`na` with chargers, a boosted type without, `twin_charged` without both kinds, a turbo with a `pulley_ratio`, a blower with `blades`); `limiter.rpm` is above `max_rpm`; the `torque_curve` reaches beyond `max_rpm`; `kind = "electric"` declares combustion fields; or an engine is declared although `electric.hybrid_type` is `bev`.
 
 ### 10.4 `clutch`
 
@@ -2229,6 +2274,8 @@ Each entry describes one electric motor/generator unit.
 | `gear_efficiency` | number  | no       | Reduction gear efficiency (0.0–1.0)                  |
 | `driven_axle`     | string  | no       | `"front"`, `"rear"`, `"left_front"`, `"right_rear"`, etc. |
 | `cooling`         | string  | no       | `"air"`, `"liquid"`, `"oil"`                         |
+| `pole_pairs`      | integer | no       | *(v0.107)* Pole pairs; electrical frequency is `pole_pairs * rev/s` (§10.3.3) |
+| `inverter_switching_hz` | number | no | *(v0.107)* Inverter switching frequency (Hz), the source of the high whine |
 
 > **Motor placement convention (P0–P4):**
 > - **P0**: Belt-driven, crankshaft accessory position (mild hybrid BSG)
@@ -2573,6 +2620,7 @@ This section is **optional**. It provides a standard place to record performance
 
 | Version | Changes                                                                                    |
 |---------|--------------------------------------------------------------------------------------------|
+| 0.107   | **Engine declaration for sound simulation** (§10.3.2–§10.3.4). Additive. `powertrain.engine` gains `kind`, `cycle`, `fuel`, `layout` (cylinders, arrangement, crank, `firing_order`, `firing_angles_deg`), `aspiration` (type, `chargers[]` with blade count, pulley ratio, wastegate, blow-off), `exhaust`, `intake` and `limiter`; electric motors gain `pole_pairs` and `inverter_switching_hz`. The torque curve stays the only source of torque; the keys describe the engine and are checked against it. §10.3.3 gives the sound-order formulas; `tools/engine_check.py` implements them and the checks. `_metadata.version` gains `0.107` |
 | 0.106   | **Preview copy of an OpenUSD asset** (§22.10). Additive. `assets.meshes[].preview`: a glTF copy that glTF-only viewers show; `tools/usd2gltf.py` writes it (meshes, Cube / Sphere / Cylinder, NURBS patches tessellated, colours, binding names kept); `mesh_check.py` checks that it carries the bound nodes. `_metadata.version` gains `0.106` |
 | 0.105   | **OpenUSD assets** (§22.10). Additive. `assets.meshes[].format` (`gltf` / `usd`) and `x_transform` in the manifest schema; the binding name `SVJ::category::id` stays the one logical name in both formats, found in a USD asset through the `svj:node` attribute or the prim name `SVJ__category__id`; stage `metersPerUnit` MUST be 1; the assets stay shapes and appearance, the JSON stays the authority. `tools/gltf2usd.py` converts a GLB; `mesh_check.py` and the viewer handle USD entries. `_metadata.version` gains `0.105` |
 | 0.104   | **Tyre evaluation** (§11.13). Additive. The Magic Formula equations an evaluator uses (MF-Tyre 6.1: Fx, Fy, Mz, My, combined slip, pressure and camber terms), the normalisation and scaling factors, `pacejka.reference_load_N` and `pacejka.scaling`, the friction-circle fallback without `combined` coefficients, coefficient names `rEx1-2`, `rEy1-2`, `rHy2`, `ssz1-4`, `pPz1-2`. `_metadata.version` gains `0.104` |

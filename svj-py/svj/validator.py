@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from svj.drivetrain import check as drivetrain_check
+from svj.engine import check as engine_check
 from svj.multiaxle import check as multiaxle_check
 from svj.constraints import check as constraints_check
 from svj.setups import check as setups_check
@@ -185,6 +186,10 @@ def _consistency_checks(data: dict) -> list[str]:
     # ── Multibody topology cross-references ──
     mb_errors, mb_warnings = multibody_check(data)
     warnings.extend(f"multibody: {e}" for e in mb_errors + mb_warnings)
+
+    # ── Engine declaration (spec §10.3.2) ──
+    en_errors, en_warnings = engine_check(data)
+    warnings.extend(f"engine: {e}" for e in en_errors + en_warnings)
 
     # ── Movable parts (spec §24) ──
     ct_errors, ct_warnings = constraints_check(data)
