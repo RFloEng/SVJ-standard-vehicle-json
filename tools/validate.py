@@ -28,6 +28,7 @@ from multiaxle_check import check as multiaxle_check  # noqa: E402
 from drivetrain_check import check as drivetrain_check  # noqa: E402
 from multibody_check import check as multibody_check  # noqa: E402
 from constraints_check import check as constraints_check  # noqa: E402
+from engine_check import check as engine_check  # noqa: E402
 import assemble as _asm  # noqa: E402
 import collision_check as _col  # noqa: E402
 import setup_check as _setup  # noqa: E402
@@ -104,6 +105,11 @@ def validate_file(svj_path: str, schema: dict, strict: bool) -> bool:
     errors.extend(mb_errors)
     warnings.extend(mb_warnings)
 
+    # Engine declaration for sound simulation (spec §10.3.2)
+    en_errors, en_warnings = engine_check(doc)
+    errors.extend(en_errors)
+    warnings.extend(en_warnings)
+
     # Movable parts: constraints, poses (spec §24)
     ct_errors, ct_warnings = constraints_check(doc)
     errors.extend(ct_errors)
@@ -156,10 +162,10 @@ def validate_file(svj_path: str, schema: dict, strict: bool) -> bool:
 
     # Version advisory
     version = doc.get("_metadata", {}).get("version", "unknown")
-    if version not in ("0.99", "0.99.1", "0.99.2", "0.99.3", "0.99.4", "0.99.5", "0.99.6", "0.99.7", "0.99.8", "0.100", "0.101", "0.102", "0.103", "0.104", "0.105", "0.106"):
+    if version not in ("0.99", "0.99.1", "0.99.2", "0.99.3", "0.99.4", "0.99.5", "0.99.6", "0.99.7", "0.99.8", "0.100", "0.101", "0.102", "0.103", "0.104", "0.105", "0.106", "0.107"):
         warnings.append(
-            f"_metadata.version is '{version}' — current spec is '0.106' "
-            "(OpenUSD preview copies)"
+            f"_metadata.version is '{version}' — current spec is '0.107' "
+            "(engine declaration for sound simulation)"
         )
 
     for w in warnings:

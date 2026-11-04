@@ -49,9 +49,10 @@
             "0.103",
             "0.104",
             "0.105",
-            "0.106"
+            "0.106",
+            "0.107"
           ],
-          "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations). '0.99.1' adds axle_groups, plated masses and explicit wheelbase definitions. '0.99.2' extends the glTF visual binding layer: full category set, visual on links/steering/wheels/brakes/springs/dampers/aero, and the 'placement' field for parts defined by hardpoints. '0.99.3' adds differential control: lock_control (dynamic differential lock) and transfer_case.coupling (torque-limited centre coupling). '0.99.4' adds the strut_lower hardpoint convention for MacPherson/Chapman struts and damper.reference ('damper' or 'wheel'). '0.99.5' adds movable parts: constraints[] (joint, spring, actuator between mass bodies), poses[] and chassis.markers. '0.99.6' completes the constraint set: latch, coupling and joint.drive. '0.99.7' adds the optional display name on bodies, constraints and poses, and the naming vocabulary for movable parts. '0.99.8' adds the contact constraint (primitives at markers with a penalty law). '0.100' unifies the suspension: wheel stations are bodies, joints and elements (spring, damper; linear or torsional) with a thin wheel_stations[] list and anti_roll_bars[]; the corner-based suspension section is deprecated. '0.101' adds attachments: interfaces[] (named frames with a role and size), attachments[] (units fitted to this vehicle) and the svj-combination file. '0.102' adds collision proxies: collision[] on the chassis and on mass bodies, and collision_ignore."
+          "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations). '0.99.1' adds axle_groups, plated masses and explicit wheelbase definitions. '0.99.2' extends the glTF visual binding layer: full category set, visual on links/steering/wheels/brakes/springs/dampers/aero, and the 'placement' field for parts defined by hardpoints. '0.99.3' adds differential control: lock_control (dynamic differential lock) and transfer_case.coupling (torque-limited centre coupling). '0.99.4' adds the strut_lower hardpoint convention for MacPherson/Chapman struts and damper.reference ('damper' or 'wheel'). '0.99.5' adds movable parts: constraints[] (joint, spring, actuator between mass bodies), poses[] and chassis.markers. '0.99.6' completes the constraint set: latch, coupling and joint.drive. '0.99.7' adds the optional display name on bodies, constraints and poses, and the naming vocabulary for movable parts. '0.99.8' adds the contact constraint (primitives at markers with a penalty law). '0.100' unifies the suspension: wheel stations are bodies, joints and elements (spring, damper; linear or torsional) with a thin wheel_stations[] list and anti_roll_bars[]; the corner-based suspension section is deprecated. '0.101' adds attachments: interfaces[] (named frames with a role and size), attachments[] (units fitted to this vehicle) and the svj-combination file. '0.102' adds collision proxies: collision[] on the chassis and on mass bodies, and collision_ignore. '0.103'-'0.106' add adjustments/setups, the tyre evaluator formulas and OpenUSD assets. '0.107' adds the engine declaration for sound simulation: kind, cycle, layout/firing angles, aspiration, exhaust, intake, limiter and motor pole pairs."
         },
         "description": {
           "type": "string"
@@ -847,6 +848,276 @@
             "compression_ratio": {
               "type": "number",
               "exclusiveMinimum": 0
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "ice",
+                "rotary",
+                "electric",
+                "fuel_cell",
+                "turbine"
+              ],
+              "description": "Kind of prime mover (v0.107, spec 10.3.2). 'electric' means the traction unit is in electric.motors[]."
+            },
+            "cycle": {
+              "type": "string",
+              "enum": [
+                "four_stroke",
+                "two_stroke",
+                "wankel"
+              ],
+              "description": "Engine cycle: sets the crank angle of one firing cycle (720 deg four-stroke, 360 deg two-stroke)."
+            },
+            "fuel": {
+              "type": "string",
+              "enum": [
+                "petrol",
+                "diesel",
+                "e85",
+                "cng",
+                "lpg",
+                "hydrogen",
+                "methanol",
+                "jet_a"
+              ],
+              "description": "Fuel label; it changes the combustion character, not the torque curve."
+            },
+            "layout": {
+              "type": "object",
+              "additionalProperties": true,
+              "description": "Cylinder layout and firing pattern (spec 10.3.2).",
+              "properties": {
+                "cylinders": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "arrangement": {
+                  "type": "string",
+                  "enum": [
+                    "I",
+                    "V",
+                    "flat",
+                    "W",
+                    "radial",
+                    "rotary"
+                  ]
+                },
+                "bank_angle_deg": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "maximum": 180
+                },
+                "valves_per_cylinder": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "crank": {
+                  "description": "'flat_plane', 'cross_plane', 'single_plane' or an object {throw_angles_deg: [...]}.",
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "flat_plane",
+                        "cross_plane",
+                        "single_plane"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "throw_angles_deg"
+                      ],
+                      "additionalProperties": true,
+                      "properties": {
+                        "throw_angles_deg": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          },
+                          "minItems": 1
+                        }
+                      }
+                    }
+                  ]
+                },
+                "firing_order": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "minItems": 1,
+                  "description": "Cylinder numbers in firing order (a permutation of 1..cylinders)."
+                },
+                "firing_angles_deg": {
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "minItems": 1,
+                  "description": "Crank angle of each ignition within one cycle, in firing order, ascending. Derived by tools when absent (spec 10.3.2)."
+                }
+              }
+            },
+            "aspiration": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "na",
+                    "turbo",
+                    "supercharger",
+                    "twin_charged",
+                    "electric_compressor"
+                  ]
+                },
+                "chargers": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true,
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "turbo",
+                          "roots",
+                          "twin_screw",
+                          "centrifugal",
+                          "electric"
+                        ]
+                      },
+                      "bank": {
+                        "type": "string"
+                      },
+                      "blades": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "Turbo compressor blade count (blade-pass frequency)."
+                      },
+                      "lobes": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "Supercharger rotor lobes (whine order)."
+                      },
+                      "pulley_ratio": {
+                        "type": "number",
+                        "exclusiveMinimum": 0,
+                        "description": "Supercharger speed / crankshaft speed."
+                      },
+                      "wastegate": {
+                        "type": "string",
+                        "enum": [
+                          "none",
+                          "internal",
+                          "external",
+                          "electronic"
+                        ]
+                      },
+                      "blow_off": {
+                        "type": "boolean",
+                        "description": "Blow-off / bypass valve that vents or recirculates on throttle lift."
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "exhaust": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "headers": {
+                  "type": "string",
+                  "enum": [
+                    "equal_length",
+                    "unequal_length",
+                    "log",
+                    "4_1",
+                    "4_2_1"
+                  ]
+                },
+                "merge": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "x_pipe",
+                    "h_pipe"
+                  ]
+                },
+                "catalyst": {
+                  "type": "boolean"
+                },
+                "resonators": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "muffler": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "straight_through",
+                    "chambered",
+                    "turbo_muffler"
+                  ]
+                },
+                "outlets": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "overrun": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "burble",
+                    "pops"
+                  ],
+                  "description": "Exhaust sound on throttle lift."
+                }
+              }
+            },
+            "intake": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "plenum",
+                    "itb",
+                    "carburettor",
+                    "airbox"
+                  ]
+                },
+                "airbox": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "limiter": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "hard_cut",
+                    "soft",
+                    "none"
+                  ]
+                },
+                "rpm": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                }
+              }
             },
             "position": {
               "$ref": "#/definitions/vec3"
@@ -1929,6 +2200,15 @@
                 "exclusiveMinimum": 0
               },
               "continuous_power": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "pole_pairs": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Motor pole pairs (electrical frequency = pole_pairs * rev/s), spec 14.2."
+              },
+              "inverter_switching_hz": {
                 "type": "number",
                 "exclusiveMinimum": 0
               },
