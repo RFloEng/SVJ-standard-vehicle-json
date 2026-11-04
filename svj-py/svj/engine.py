@@ -3,7 +3,8 @@ SVJ Engine Declaration Checker (v0.107)
 =======================================
 Cross-field rules for the engine declaration that JSON Schema cannot express (spec §10.3.2, §14.2): the firing pattern,
 the aspiration, the limiter and the consistency of the descriptors with the torque curve. It also holds the sound-order
-formulas of spec §10.3.3, so a sound simulator does not have to look them up.
+formulas of spec §10.3.3, so a sound simulator does not have to look them up, and `sound_sources()` (§10.3.5), the list of
+sources a game has to simulate.
 
 The declaration only describes the engine; the torque curve stays the only source of torque.
 
@@ -79,6 +80,64 @@ def firing_angles(engine):
     if arr == "V" and n == 2 and isinstance(lay.get("bank_angle_deg"), (int, float)):
         return [0.0, cyc / 2 - lay["bank_angle_deg"]] if engine.get("cycle", "four_stroke") == "four_stroke" else None
     return None
+
+
+def sound_sources(doc):
+    """What a game has to simulate for this vehicle, derived from the declaration (spec 10.3.5). No audio is stored in SVJ:
+    each entry names a source, the shaft that drives it and how its frequency follows that shaft.
+
+    Entries: {"id", "kind", "shaft", "ratio" or "hz", ...}. For a periodic source the frequency is
+    `ratio * rev/s of the shaft` (`crank`, `turbo`, `motor`); `hz` is a fixed frequency; event sources have a `trigger`."""
+    out = []
+    pt = doc.get("powertrain") if isinstance(doc, dict) else None
+    eng = pt.get("engine") if isinstance(pt, dict) else None
+    if isinstance(eng, dict) and eng.get("kind", "ice") in ("ice", "rotary"):
+        lay = eng.get("layout") if isinstance(eng.get("layout"), dict) else {}
+        n = lay.get("cylinders")
+        if isinstance(n, int) and n > 0:
+            out.append({"id": "engine_fire", "kind": "combustion", "shaft": "crank", "ratio": engine_order(n, eng.get("cycle")),
+                        "cylinders": n, "firing_angles_deg": firing_angles(eng), "cycle_deg": cycle_degrees(eng.get("cycle")),
+                        "fuel": eng.get("fuel")})
+        for c in ((eng.get("aspiration") or {}).get("chargers") or []):
+            if not isinstance(c, dict):
+                continue
+            cid = c.get("id") or c.get("kind", "charger")
+            if c.get("kind") == "turbo":
+                if isinstance(c.get("blades"), int):
+                    out.append({"id": f"{cid}_whistle", "kind": "turbo_whistle", "shaft": "turbo", "ratio": float(c["blades"]),
+                                "note": "turbo shaft speed follows boost and is not in the file"})
+                if c.get("wastegate") not in (None, "none"):
+                    out.append({"id": f"{cid}_wastegate", "kind": "wastegate", "trigger": "boost_limit", "wastegate": c["wastegate"]})
+            elif c.get("kind") in SUPERCHARGER_KINDS and isinstance(c.get("pulley_ratio"), (int, float)):
+                out.append({"id": f"{cid}_whine", "kind": "supercharger_whine", "shaft": "crank",
+                            "ratio": float(c.get("lobes", 1)) * c["pulley_ratio"]})
+            elif c.get("kind") == "electric":
+                out.append({"id": f"{cid}_whine", "kind": "electric_compressor", "shaft": "compressor",
+                            "note": "speed not in the file"})
+            if c.get("blow_off"):
+                out.append({"id": f"{cid}_blow_off", "kind": "blow_off", "trigger": "throttle_lift"})
+        ex = eng.get("exhaust")
+        if isinstance(ex, dict):
+            out.append({"id": "exhaust", "kind": "exhaust", **{k: ex[k] for k in ("headers", "merge", "catalyst", "resonators", "muffler", "outlets") if k in ex}})
+            if ex.get("overrun") in ("burble", "pops"):
+                out.append({"id": "overrun", "kind": "overrun", "trigger": "throttle_lift", "style": ex["overrun"]})
+        it = eng.get("intake")
+        if isinstance(it, dict):
+            out.append({"id": "intake", "kind": "intake", **{k: it[k] for k in ("type", "airbox") if k in it}})
+        lim = eng.get("limiter")
+        if isinstance(lim, dict) and lim.get("type") not in (None, "none"):
+            out.append({"id": "limiter", "kind": "limiter", "trigger": "rpm_limit", "style": lim["type"], "rpm": lim.get("rpm", eng.get("max_rpm"))})
+    el = doc.get("electric") if isinstance(doc, dict) else None
+    for m in ((el or {}).get("motors") or []):
+        if not isinstance(m, dict):
+            continue
+        mid = m.get("id", "motor")
+        if isinstance(m.get("pole_pairs"), int):
+            out.append({"id": f"{mid}_whine", "kind": "motor_whine", "shaft": "motor", "ratio": float(m["pole_pairs"]),
+                        "gear_ratio": m.get("gear_ratio"), "driven_axle": m.get("driven_axle")})
+        if isinstance(m.get("inverter_switching_hz"), (int, float)):
+            out.append({"id": f"{mid}_inverter", "kind": "inverter_whine", "hz": float(m["inverter_switching_hz"])})
+    return out
 
 
 # ── checks ────────────────────────────────────────────────────────────────────
