@@ -1284,6 +1284,26 @@ With `n` the crankshaft speed in rev/min and `cycle_degrees` 720 (four-stroke) o
 
 `tools/validate.py` warns when: `firing_order` is not a permutation of 1..cylinders; `firing_angles_deg` does not have one entry per cylinder, leaves one cycle or is not ascending; the firing pattern of an `ice` engine with several cylinders can be neither derived nor read; `configuration` names a different cylinder count than `layout.cylinders`; `aspiration.type` and `chargers` disagree (`na` with chargers, a boosted type without, `twin_charged` without both kinds, a turbo with a `pulley_ratio`, a blower with `blades`); `limiter.rpm` is above `max_rpm`; the `torque_curve` reaches beyond `max_rpm`; `kind = "electric"` declares combustion fields; or an engine is declared although `electric.hybrid_type` is `bev`.
 
+#### 10.3.5 What a Game Simulates
+
+SVJ stores **no audio**: no samples, no sound-model settings, and none will be added. The file only has to say **what to simulate**; the sound itself belongs to the game. A reader derives the list of sound sources from the declaration (`sound_sources()` in `tools/engine_check.py` and `svj.engine` is the reference), so every game builds the same set:
+
+| Source | Present when | Driven by | Frequency / trigger |
+|--------|--------------|-----------|---------------------|
+| Combustion (firing pattern) | `layout.cylinders` | crankshaft | `engine_order` per crank revolution, with `firing_angles_deg` |
+| Turbo whistle | charger `kind` `turbo` with `blades` | turbo shaft | `blades` per turbo revolution (speed follows boost) |
+| Wastegate | `wastegate` other than `none` | boost | when the boost limit is reached |
+| Blow-off / bypass | `blow_off` | throttle | on throttle lift |
+| Supercharger whine | blower with `pulley_ratio` | crankshaft | `lobes * pulley_ratio` per crank revolution |
+| Exhaust | `exhaust` | engine | resonance and filtering from `headers`, `merge`, `catalyst`, `resonators`, `muffler`, `outlets` |
+| Overrun | `exhaust.overrun` `burble` or `pops` | throttle | on throttle lift |
+| Intake | `intake` | engine | `type`, `airbox` |
+| Limiter | `limiter.type` other than `none` | engine speed | at `limiter.rpm`, `hard_cut` or `soft` |
+| Motor whine | motor `pole_pairs` | motor shaft | `pole_pairs` per motor revolution |
+| Inverter whine | motor `inverter_switching_hz` | fixed | that frequency |
+
+A source whose data are absent is not simulated. Gear-mesh whine is not declared (no tooth counts in the file).
+
 ### 10.4 `clutch`
 
 The interface between engine and gearbox input shaft.

@@ -141,3 +141,21 @@ def test_schema_accepts_the_declaration_and_rejects_bad_values():
     bad["powertrain"]["engine"]["layout"]["cylinders"] = 0
     errs = mine(bad)
     assert any("ram_air" in x for x in errs) and any("minimum of 1" in x or "less than the minimum" in x for x in errs)
+
+
+def test_sound_sources_tell_a_game_what_to_simulate():
+    from svj.engine import sound_sources
+    e = v8()
+    e["aspiration"] = {"type": "twin_charged", "chargers": [{"id": "tc", "kind": "turbo", "blades": 11, "wastegate": "external", "blow_off": True},
+                                                            {"id": "sc", "kind": "roots", "pulley_ratio": 2.0, "lobes": 3}]}
+    e["exhaust"] = {"muffler": "chambered", "outlets": 4, "overrun": "pops"}
+    e["intake"] = {"type": "plenum"}
+    doc = doc_with(e)
+    doc["electric"] = {"motors": [{"id": "front", "pole_pairs": 4, "inverter_switching_hz": 8000, "gear_ratio": 9.0}]}
+    by = {s["id"]: s for s in sound_sources(doc)}
+    assert by["engine_fire"]["ratio"] == 4.0 and by["engine_fire"]["firing_angles_deg"][:3] == [0, 90, 180]
+    assert by["tc_whistle"]["shaft"] == "turbo" and by["tc_whistle"]["ratio"] == 11.0
+    assert by["sc_whine"]["ratio"] == 6.0 and by["tc_wastegate"]["trigger"] == "boost_limit" and by["tc_blow_off"]["trigger"] == "throttle_lift"
+    assert by["overrun"]["style"] == "pops" and by["exhaust"]["outlets"] == 4 and by["limiter"]["rpm"] == 7200
+    assert by["front_whine"]["ratio"] == 4.0 and by["front_inverter"]["hz"] == 8000.0
+    assert sound_sources({"powertrain": {"engine": {"kind": "electric"}}}) == [] and sound_sources({}) == []

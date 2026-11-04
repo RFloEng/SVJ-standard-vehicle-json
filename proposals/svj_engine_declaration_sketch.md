@@ -92,7 +92,7 @@
 
 ## 6. What it does not do
 
-- No audio files and no sound model parameters (reverb, mic position, filters): those belong to the simulator. Audio samples might become `assets.audio[]` bound to `SVJ::powertrain::engine`, as meshes are for shapes, but that is a separate step (open question 1).
+- No audio files and no sound model parameters (reverb, mic position, filters): those belong to the game. **Decision (project owner): audio will not be added to SVJ**; the file only says what to simulate, via `sound_sources()` (spec §10.3.5).
 - No new physics: torque pulsation could be derived from the firing angles by a simulator, but the torque curve remains the only source of torque.
 
 ## 7. Compatibility
