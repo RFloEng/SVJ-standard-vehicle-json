@@ -307,8 +307,8 @@ The steering system defines how driver input translates to wheel angle. Tie rod 
 | Key                  | Type    | Required | Description                                                        |
 |----------------------|---------|----------|--------------------------------------------------------------------|
 | `type`               | string  | YES      | `"rack_and_pinion"`, `"recirculating_ball"`, `"worm_and_sector"`   |
-| `rack_position`      | [x,y,z] | YES     | Center of the steering rack in vehicle reference frame (m)         |
-| `rack_travel`        | number  | YES      | Total rack travel, end-to-end (m)                                  |
+| `rack_position`      | [x,y,z] | YES     | Center of the steering rack in vehicle reference frame (m); for `recirculating_ball` and `worm_and_sector`, the pivot of the sector shaft (§25.4) |
+| `rack_travel`        | number  | YES      | Total rack travel, end-to-end (m); for the box types, the end-to-end travel of the Pitman arm tip (chord, m) |
 | `overall_ratio`      | number  | YES      | Steering wheel angle (rad) per wheel steer angle (rad) at center   |
 | `lock_to_lock`       | number  | YES      | Total steering wheel rotation, stop to stop (rad)                  |
 | `ackermann`          | number  | no       | Ackermann percentage: 0.0 = parallel, 1.0 = 100% Ackermann       |
@@ -360,6 +360,12 @@ Physical properties of the steering wheel itself.
 |------------|--------|----------|----------------------------------------------|
 | `diameter` | number | no       | Steering wheel rim diameter (m)              |
 | `mass`     | number | no       | Steering wheel mass (kg)                     |
+| `position` | [x,y,z] | no      | Centre of the hub in the vehicle frame (m) *(v0.110)* |
+| `column_axis` | [x,y,z] | no   | Rotation axis: the column direction pointing **away from the driver** (forward and down), a unit vector *(v0.110)* |
+| `column_rake` | number | no    | Angle of the column below the horizontal (rad) *(v0.110)*; the axis in the vertical plane of the vehicle when `column_axis` is absent, and it must agree with it when both are given |
+| `inertia`  | number | no       | Rotational inertia about the axis (kg·m²) *(v0.110)* |
+
+**Sign.** The steering wheel angle is the rotation about `column_axis` by the right-hand rule. With the axis pointing away from the driver this is the clockwise sense as the driver sees it, so a positive angle steers **right** (the front wheels turn about +Z by a negative angle). Nothing else defines the sign: it follows from `column_axis` and the coupling ratio of §25.4, and §8.7 checks that a positive angle steers right.
 
 > **Derived fields:** `max_steer_angle` can be computed as `(lock_to_lock / 2) / overall_ratio`. `lock_to_lock_turns` = `lock_to_lock / (2 × π)`. These convenience fields avoid repeated calculations in parsers.
 
@@ -387,6 +393,21 @@ The rack/box in §8.1 steers `steering.axle_ref` (default `A1`). Every other ste
 | `command_steer`    | Linked to trailer articulation angle or a separate mechanism                   | Command-steer semi-trailers |
 | `hydraulic`        | Hydraulic master/slave cylinders                                               | Modular trailers, cranes |
 | `active`           | Electronically controlled; `ratio` and `phase` describe the nominal map        | Rear-wheel steering, rear-steer axles |
+
+### 8.7 Consistency of the steering data *(v0.110)*
+
+The `steering` section states the ratios and limits, the steering wheel and, in the multibody model, the steering wheel joint with the coupling that drives the gear (§25.4). They describe one mechanism and must agree. `tools/steering_check.py` (mirrored as `svj.steeringcheck`, run by both validators) checks:
+
+| Rule | Severity |
+|---|---|
+| `max_steer_angle` equals `(lock_to_lock / 2) / overall_ratio` and `lock_to_lock_turns` equals `lock_to_lock / 2π` (2 %) | warning |
+| `steering_wheel.column_axis` is a non-zero direction (unit length, 1 %); it points forward (+X) | error / warning |
+| `column_rake` agrees with `column_axis` (0.5°) | error |
+| the steering wheel joint sits at `steering_wheel.position` (5 mm), its Z axis is along `steering_wheel.column_axis` (parallel, same sense) | warning |
+| for a rack: the coupling ratio brings the rack to `rack_travel` at the lock, `|ratio| · lock_to_lock = rack_travel` (5 %) | warning |
+| the loop solver (§26) turns the road wheels by `1 / overall_ratio` radians per radian of steering wheel at the centre (10 %), and a positive steering wheel angle steers right | warning |
+
+A file without a steering wheel joint is checked only against the first rows. `overall_ratio` is the quantity the standard defines (steering wheel angle per road-wheel angle at the centre); the coupling ratio and the hardpoints give the same number a second time, and the check is what ties them together.
 
 ---
 
@@ -2675,6 +2696,7 @@ This section is **optional**. It provides a standard place to record performance
 
 | Version | Changes                                                                                    |
 |---------|--------------------------------------------------------------------------------------------|
+| 0.110   | **Steering wheel and gear chain** (§8.5, §8.7, §25.4). Additive. `steering.steering_wheel` gains `position`, `column_axis`, `column_rake` and `inertia`; the angle is the right-hand rotation about the axis pointing away from the driver (positive steers right). New consistency checks `tools/steering_check.py` (mirrored as `svj.steeringcheck`, run by both validators): ratio fields, steering wheel axis and rake, steering wheel joint against the placement, the coupling against `rack_travel`, and the solved geometry against `overall_ratio` and the steering direction. The steering box (`recirculating_ball`, `worm_and_sector`) is written with a sector shaft joint, a Pitman arm and a linkage of bodies and joints (§25.4); new example `skeleton_ff_recirculating_ball`. The loop solver compares a revolute coordinate modulo 2π, so a steering wheel can be turned several revolutions. The MX-5 template and the FF skeleton gain a steering wheel body, its joint and the coupling, and their `rack_travel` is now derived from the hardpoints and `overall_ratio` |
 | 0.109   | **ISO 8855 axes** (§2.1, §11.13, §22.4). The vehicle frame is X forward, Y left, Z up (it was SAE J670: Y right, Z down). Positions flip Y and Z, frame quaternions are left-multiplied by `(1,0,0,0)`, inertia products `Ixy`, `Ixz` change sign; quantities defined in words (camber top inward, toe-in, bump, `Cl`) keep their meaning. `_metadata.coordinate_system` accepts `"ISO_8855"` and `"SAE_J670"`; a file that does not declare one is SAE below 0.109 and ISO from it; `_metadata.physics_frame` declares the frame when `coordinate_system` is the glTF object. Tyre: `pacejka.axis_system` (default `"ISO_8855"`), positive `gamma` leans right. `tools/convert_frame.py` converts either way. `_metadata.version` gains `0.109` |
 | 0.108   | **Part-load engine torque, shift points and torque converter** (§10.3.6, §10.4.1, §10.5.2). Additive. `engine.torque_curve_closed` (engine braking), `part_throttle[]`, `inertia_block`; `gearbox.shift_latency`, `shift_points`, `shift_points_vs_throttle`; `clutch.torque_converter` (capacity-factor and torque-ratio curves against speed ratio, inertias, lockup). `torque_curve` is stated to be the full-throttle curve. The evaluation formulas are in the spec; `tools/powertrain_check.py` (`svj.powertrain`) implements them and the checks. Shaped after the Chrono::Vehicle powertrain models. `_metadata.version` gains `0.108` |
 | 0.107   | **Engine declaration for sound simulation** (§10.3.2–§10.3.4). Additive. `powertrain.engine` gains `kind`, `cycle`, `fuel`, `layout` (cylinders, arrangement, crank, `firing_order`, `firing_angles_deg`), `aspiration` (type, `chargers[]` with blade count, pulley ratio, wastegate, blow-off), `exhaust`, `intake` and `limiter`; electric motors gain `pole_pairs` and `inverter_switching_hz`. The torque curve stays the only source of torque; the keys describe the engine and are checked against it. §10.3.3 gives the sound-order formulas; `tools/engine_check.py` implements them and the checks. `_metadata.version` gains `0.107` |
@@ -3526,6 +3548,18 @@ A wheel rate becomes an element rate through the **motion ratio** MR (element le
 ### 25.4 Steering
 
 The rack is a body on a lateral `translational` joint to the chassis; each tie rod is a body with spherical joints to the rack and to the upright; the station's `steering_joint` names the rack joint. The steering wheel is a body on a `revolute` joint to the chassis (`hinge_steering_wheel`), and a `coupling` (§24.6.2) gives the rack its value, `q_rack = ratio · q_wheel`, with `ratio` in m per rad of wheel rotation (0.0063 m/rad is 39.6 mm of rack per turn): naming the wheel angle in a pose or in the solver's `joint_values` then steers the stations (§26). Power assist is `joint.drive` on the rack; the `steering` section still holds the lock-to-lock, assist and efficiency data.
+
+**The steering wheel in space.** The `hinge_steering_wheel` joint is placed at `steering.steering_wheel.position` with its Z axis along `steering.steering_wheel.column_axis` (pointing away from the driver, §8.5), so its positive angle steers right. The column rake and the hub position are therefore data of the joint frame, and §8.7 checks that the two descriptions agree.
+
+**Steering box (`recirculating_ball`, `worm_and_sector`).** The gear is the sector shaft, a `revolute` joint from the chassis to the **Pitman arm**; the station's `steering_joint` names that joint, and the coupling gives it its angle from the steering wheel, `q_sector = ratio · q_wheel` with `ratio` in rad per rad (the inverse of the box ratio, 1/17 for a 17:1 box). The arm drives the road wheels through the linkage the vehicle really has, written as bodies and joints like any other mechanism:
+
+| Layout | Bodies | Joints |
+|---|---|---|
+| Parallelogram (relay rod) | `pitman_arm`, `idler_arm`, `center_link`, tie rods | `revolute` sector shaft and idler pivot on the chassis; `spherical` at the arm tips on the centre link; tie rods `spherical` from the centre link to each upright |
+| Drag link | as above with a `drag_link` rod between the Pitman arm tip and the centre link | `spherical` at both ends of the drag link |
+| Single-sided (steering arm on the upright) | `pitman_arm`, `drag_link` | the drag link ends `spherical` on the arm tip and on the upright |
+
+For these types `steering.rack_position` is the pivot of the sector shaft and `steering.rack_travel` the chord of the Pitman arm tip over the full lock (§8.1). Example: `examples/skeleton_ff_recirculating_ball.svj.json` (recirculating-ball box with a parallelogram linkage, 3.5 turns lock to lock); `loop_solver` solves it like the rack version, and §8.7 checks its ratios.
 
 ### 25.5 Anti-roll bars
 

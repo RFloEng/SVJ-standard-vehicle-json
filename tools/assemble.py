@@ -584,7 +584,7 @@ def assemble(comb):
         del out["poses"]
     out["x_assembled"] = True
     md = out.setdefault("_metadata", {})
-    md["version"] = "0.109"
+    md["version"] = "0.110"
     md["coordinate_system"] = _ISO
     vi = out.setdefault("vehicle_info", {})
     if comb.get("name"):

@@ -257,6 +257,9 @@ def solve(doc, travel=None, joint_values=None, start=None, max_iter=60, tol=1e-9
             for c in pres:
                 want = want_all[c["id"]]
                 got = _coordinate(doc, c, X) or []
+                if got and c.get("joint_type") in ("revolute", "cylindrical") and want_all[c["id"]]:
+                    # the measured angle lies in (-pi, pi]; a steering wheel turns several times, so compare modulo 2*pi
+                    got = [got[0] + 2 * math.pi * round((want_all[c["id"]][0] - got[0]) / (2 * math.pi))] + list(got[1:])
                 # the angular residual is compared in the frame-A rotation vector; the slide in metres
                 r += [(got[k] - want[k]) if k < len(want) else 0.0 for k in range(len(got))]
             for sid in csts:

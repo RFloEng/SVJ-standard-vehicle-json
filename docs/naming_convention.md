@@ -138,7 +138,10 @@ The pattern alone does not stop two exporters calling the same part `wishbone_up
 | `tie_rod` | Steering tie rod / track rod | `track_rod`, `steering_rod`, `steering_link` |
 | `toe_link` | Non-steered toe control link | `toe_rod`, `toe_control_arm` |
 | `camber_link` | Camber control link | `camber_rod` |
-| `drag_link` | Steering drag link (beam axles) | `relay_rod`, `centre_link` |
+| `drag_link` | Steering drag link (beam axles, steering box) | — |
+| `center_link` | Centre link of a steering box linkage | `relay_rod`, `centre_link` |
+| `pitman_arm` | Steering box output arm on the sector shaft | `sector_arm` |
+| `idler_arm` | Idler arm of a steering box linkage | `idle_arm` |
 | `pushrod` / `pullrod` | Inboard-suspension actuation rod | `push_rod`, `pull_rod` |
 | `rocker` | Bellcrank | `bellcrank`, `rocker_arm` |
 | `strut` | MacPherson / Chapman strut body | `macpherson_strut`, `damper_strut` |

@@ -52,9 +52,10 @@
             "0.106",
             "0.107",
             "0.108",
-            "0.109"
+            "0.109",
+            "0.110"
           ],
-          "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations). '0.99.1' adds axle_groups, plated masses and explicit wheelbase definitions. '0.99.2' extends the glTF visual binding layer: full category set, visual on links/steering/wheels/brakes/springs/dampers/aero, and the 'placement' field for parts defined by hardpoints. '0.99.3' adds differential control: lock_control (dynamic differential lock) and transfer_case.coupling (torque-limited centre coupling). '0.99.4' adds the strut_lower hardpoint convention for MacPherson/Chapman struts and damper.reference ('damper' or 'wheel'). '0.99.5' adds movable parts: constraints[] (joint, spring, actuator between mass bodies), poses[] and chassis.markers. '0.99.6' completes the constraint set: latch, coupling and joint.drive. '0.99.7' adds the optional display name on bodies, constraints and poses, and the naming vocabulary for movable parts. '0.99.8' adds the contact constraint (primitives at markers with a penalty law). '0.100' unifies the suspension: wheel stations are bodies, joints and elements (spring, damper; linear or torsional) with a thin wheel_stations[] list and anti_roll_bars[]; the corner-based suspension section is deprecated. '0.101' adds attachments: interfaces[] (named frames with a role and size), attachments[] (units fitted to this vehicle) and the svj-combination file. '0.102' adds collision proxies: collision[] on the chassis and on mass bodies, and collision_ignore. '0.103'-'0.106' add adjustments/setups, the tyre evaluator formulas and OpenUSD assets. '0.107' adds the engine declaration for sound simulation: kind, cycle, layout/firing angles, aspiration, exhaust, intake, limiter and motor pole pairs. '0.108' adds part-load engine torque and engine braking (torque_curve_closed, part_throttle[]), gearbox shift points and latency, and the torque converter data. '0.109' moves the vehicle frame from SAE J670 to ISO 8855 (X forward, Y left, Z up); see spec 2.1."
+          "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations). '0.99.1' adds axle_groups, plated masses and explicit wheelbase definitions. '0.99.2' extends the glTF visual binding layer: full category set, visual on links/steering/wheels/brakes/springs/dampers/aero, and the 'placement' field for parts defined by hardpoints. '0.99.3' adds differential control: lock_control (dynamic differential lock) and transfer_case.coupling (torque-limited centre coupling). '0.99.4' adds the strut_lower hardpoint convention for MacPherson/Chapman struts and damper.reference ('damper' or 'wheel'). '0.99.5' adds movable parts: constraints[] (joint, spring, actuator between mass bodies), poses[] and chassis.markers. '0.99.6' completes the constraint set: latch, coupling and joint.drive. '0.99.7' adds the optional display name on bodies, constraints and poses, and the naming vocabulary for movable parts. '0.99.8' adds the contact constraint (primitives at markers with a penalty law). '0.100' unifies the suspension: wheel stations are bodies, joints and elements (spring, damper; linear or torsional) with a thin wheel_stations[] list and anti_roll_bars[]; the corner-based suspension section is deprecated. '0.101' adds attachments: interfaces[] (named frames with a role and size), attachments[] (units fitted to this vehicle) and the svj-combination file. '0.102' adds collision proxies: collision[] on the chassis and on mass bodies, and collision_ignore. '0.103'-'0.106' add adjustments/setups, the tyre evaluator formulas and OpenUSD assets. '0.107' adds the engine declaration for sound simulation: kind, cycle, layout/firing angles, aspiration, exhaust, intake, limiter and motor pole pairs. '0.108' adds part-load engine torque and engine braking (torque_curve_closed, part_throttle[]), gearbox shift points and latency, and the torque converter data. '0.109' moves the vehicle frame from SAE J670 to ISO 8855 (X forward, Y left, Z up); see spec 2.1. '0.110' adds the steering wheel placement (position, column_axis, column_rake) and the steering consistency checks (spec 8.7), and the steering box linkage of the multibody model (spec 25.4)."
         },
         "description": {
           "type": "string"
@@ -549,6 +550,18 @@
             "mass": {
               "type": "number",
               "exclusiveMinimum": 0
+            },
+            "position": {
+              "$ref": "#/definitions/vec3",
+              "description": "Centre of the steering wheel hub in the vehicle frame (m)."
+            },
+            "column_axis": {
+              "$ref": "#/definitions/vec3",
+              "description": "Rotation axis of the steering wheel, the direction of the column pointing away from the driver (forward and down). A positive wheel angle, by the right-hand rule about this axis, turns clockwise as the driver sees it and steers right."
+            },
+            "column_rake": {
+              "type": "number",
+              "description": "Angle of the column below the horizontal (rad); gives the axis in the vertical plane of the vehicle when `axis` is absent, and must agree with it when both are given."
             },
             "visual": {
               "$ref": "#/definitions/visual_binding",

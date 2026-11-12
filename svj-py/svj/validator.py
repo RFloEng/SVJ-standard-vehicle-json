@@ -14,6 +14,7 @@ from typing import Any
 from svj.drivetrain import check as drivetrain_check
 from svj.engine import check as engine_check
 from svj.powertrain import check as powertrain_check
+from svj.steeringcheck import check as steering_check
 from svj.frame import frame_findings
 from svj.multiaxle import check as multiaxle_check
 from svj.constraints import check as constraints_check
@@ -197,6 +198,10 @@ def _consistency_checks(data: dict) -> list[str]:
     warnings.extend(frame_findings(data))
     pw_errors, pw_warnings = powertrain_check(data)
     warnings.extend(f"powertrain: {e}" for e in pw_errors + pw_warnings)
+
+    # ── Steering: ratios, steering wheel placement, the wheel -> gear chain (spec §8.7) ──
+    sg_errors, sg_warnings = steering_check(data)
+    warnings.extend(sg_errors + sg_warnings)
 
     # ── Movable parts (spec §24) ──
     ct_errors, ct_warnings = constraints_check(data)
