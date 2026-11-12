@@ -89,7 +89,7 @@ body{background:var(--bg);color:var(--tx);font-family:'DM Sans',system-ui,sans-s
 <div id="topbar">
   <div style="display:flex;align-items:center">
     <span class="logo mono">SVJ</span>
-    <span class="subtitle mono">3D Inspector v4.8 — Editor · SVJ v0.109</span>
+    <span class="subtitle mono">3D Inspector v4.8 — Editor · SVJ v0.110</span>
     <span class="filename mono" id="file-name">MX-5 ND2 Club 6MT (v0.96 demo)</span>
   </div>
   <div style="display:flex;gap:4px;align-items:center">
@@ -188,7 +188,7 @@ const fmtN = (v,d=1) => v!=null ? v.toFixed(d) : '—';
 const rad2deg = r => ((r||0)*180/Math.PI).toFixed(2);
 /* Frame. The viewer works in ISO 8855 (X forward, Y left, Z up); a file in legacy SAE J670 is converted on load.
    Mirrors tools/convert_frame.py (spec 2.1). Three space: x right, y up, -z forward. */
-const FRAME_VECTOR_KEYS = new Set(['position','center_of_gravity','rack_position','end_points','end_seats','pivot_position','pendulum_pivot','pendulum_axis','attach_point','cg_position','beam_position','center_of_pressure','linkage_points','input_flange','output_flange','output_front','output_rear','output_left','output_right']);
+const FRAME_VECTOR_KEYS = new Set(['position','center_of_gravity','rack_position','end_points','end_seats','pivot_position','pendulum_pivot','pendulum_axis','attach_point','cg_position','beam_position','center_of_pressure','linkage_points','input_flange','output_flange','output_front','output_rear','output_left','output_right','column_axis']);
 const FRAME_SIDE_KEYS = new Set(['FL','FR','RL','RR','left','right']);
 const FRAME_QUAT_KEYS = new Set(['orientation','inertia_orientation']);
 function frameNamed(v){ if(typeof v!=='string') return null; const n=v.toUpperCase().replace(/[ -]/g,'_'); return (n.startsWith('ISO')||n==='OPENDRIVE')?'ISO_8855':n.startsWith('SAE')?'SAE_J670':null; }

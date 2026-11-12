@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.109",
+    "version": "0.110",
     "description": "Skeleton: FF hatchback — MacPherson strut front, torsion beam rear.",
     "coordinate_system": "ISO_8855",
     "units": "SI",
@@ -400,6 +400,27 @@
           0.31
         ],
         "x_derived": true
+      },
+      {
+        "id": "steering_wheel",
+        "name": "Steering wheel",
+        "description": "Steering wheel and column",
+        "category": "structural",
+        "mass": 3.0,
+        "position": [
+          -0.85,
+          0.37,
+          0.72
+        ],
+        "parent": "chassis",
+        "inertia": {
+          "Ixx": 0.03533,
+          "Iyy": 0.019,
+          "Izz": 0.02167,
+          "Ixy": 0.0,
+          "Ixz": -0.0066,
+          "Iyz": 0.0
+        }
       }
     ],
     "visual": {
@@ -414,9 +435,23 @@
       0.0,
       0.2
     ],
-    "rack_travel": 0.14,
+    "rack_travel": 0.1131,
     "overall_ratio": 14.0,
-    "lock_to_lock": 17.593
+    "lock_to_lock": 17.593,
+    "steering_wheel": {
+      "position": [
+        -0.85,
+        0.37,
+        0.72
+      ],
+      "column_axis": [
+        0.927184,
+        0.0,
+        -0.374607
+      ],
+      "column_rake": 0.383972,
+      "placement_note": "estimated: hub position and column rake of a typical installation"
+    }
   },
   "powertrain": {
     "layout": "FF",
@@ -1755,6 +1790,46 @@
       ],
       "x_damper_type": "twin_tube",
       "x_derived": true
+    },
+    {
+      "id": "hinge_steering_wheel",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.85,
+          0.37,
+          0.72
+        ],
+        "orientation": [
+          0.0,
+          0.8290376,
+          0.0,
+          0.5591929
+        ]
+      },
+      "body_b": "steering_wheel",
+      "frame_b": {
+        "position": [
+          -0.85,
+          0.37,
+          0.72
+        ],
+        "orientation": [
+          0.0,
+          0.8290376,
+          0.0,
+          0.5591929
+        ]
+      }
+    },
+    {
+      "id": "couple_steering",
+      "type": "coupling",
+      "joint_a": "hinge_steering_wheel",
+      "joint_b": "slide_rack",
+      "ratio": 0.006428
     }
   ],
   "wheel_stations": [

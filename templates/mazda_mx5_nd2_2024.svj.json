@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.109",
+    "version": "0.110",
     "description": "Mazda MX-5 ND2 (2019+) 2.0L Skyactiv-G 6MT Club — factory specs where available, engineering estimates marked.",
     "coordinate_system": "ISO_8855",
     "units": "SI",
@@ -1035,6 +1035,27 @@
           "Iyz": 0.0
         },
         "x_derived": true
+      },
+      {
+        "id": "steering_wheel",
+        "name": "Steering wheel",
+        "description": "Steering wheel and column",
+        "category": "structural",
+        "mass": 3.2,
+        "position": [
+          -0.95,
+          0.37,
+          0.74
+        ],
+        "parent": "chassis",
+        "inertia": {
+          "Ixx": 0.03486,
+          "Iyy": 0.019,
+          "Izz": 0.02214,
+          "Ixy": 0.0,
+          "Ixz": -0.00706,
+          "Iyz": 0.0
+        }
       }
     ],
     "center_of_gravity_x_note": "factory: 53/47 F/R distribution",
@@ -1055,8 +1076,8 @@
       0.18
     ],
     "rack_position_note": "estimated position",
-    "rack_travel": 0.132,
-    "rack_travel_note": "estimated from geometry",
+    "rack_travel": 0.0709,
+    "rack_travel_note": "derived: coupling ratio x lock_to_lock, consistent with overall_ratio and the (estimated) tie rod hardpoints",
     "overall_ratio": 15.5,
     "overall_ratio_source": "Mazda spec sheet",
     "lock_to_lock": 16.965,
@@ -1105,7 +1126,19 @@
       "mass": 3.2,
       "mass_note": "estimated",
       "inertia": 0.038,
-      "_est": true
+      "_est": true,
+      "position": [
+        -0.95,
+        0.37,
+        0.74
+      ],
+      "column_axis": [
+        0.913545,
+        0.0,
+        -0.406737
+      ],
+      "column_rake": 0.418879,
+      "placement_note": "estimated: hub position and column rake of a typical installation"
     },
     "tie_rod_inboard": {
       "left": [
@@ -4900,6 +4933,46 @@
       ],
       "_est": true,
       "x_derived": true
+    },
+    {
+      "id": "hinge_steering_wheel",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.95,
+          0.37,
+          0.74
+        ],
+        "orientation": [
+          0.0,
+          0.8386706,
+          0.0,
+          0.544639
+        ]
+      },
+      "body_b": "steering_wheel",
+      "frame_b": {
+        "position": [
+          -0.95,
+          0.37,
+          0.74
+        ],
+        "orientation": [
+          0.0,
+          0.8386706,
+          0.0,
+          0.544639
+        ]
+      }
+    },
+    {
+      "id": "couple_steering",
+      "type": "coupling",
+      "joint_a": "hinge_steering_wheel",
+      "joint_b": "slide_rack",
+      "ratio": 0.00418
     }
   ],
   "wheel_stations": [

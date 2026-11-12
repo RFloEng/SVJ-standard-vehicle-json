@@ -30,6 +30,7 @@ from multibody_check import check as multibody_check  # noqa: E402
 from constraints_check import check as constraints_check  # noqa: E402
 from engine_check import check as engine_check  # noqa: E402
 from powertrain_check import check as powertrain_check  # noqa: E402
+from steering_check import check as steering_check  # noqa: E402
 from convert_frame import frame_findings  # noqa: E402
 import assemble as _asm  # noqa: E402
 import collision_check as _col  # noqa: E402
@@ -125,6 +126,11 @@ def validate_file(svj_path: str, schema: dict, strict: bool) -> bool:
     errors.extend(ct_errors)
     warnings.extend(ct_warnings)
 
+    # Steering: ratios, steering wheel placement, the wheel -> gear chain (spec §8.7)
+    sg_errors, sg_warnings = steering_check(doc)
+    errors.extend(sg_errors)
+    warnings.extend(sg_warnings)
+
     # Collision proxies (spec §28)
     col_errors, col_warnings = _col.check(doc)
     errors.extend(col_errors)
@@ -172,10 +178,10 @@ def validate_file(svj_path: str, schema: dict, strict: bool) -> bool:
 
     # Version advisory
     version = doc.get("_metadata", {}).get("version", "unknown")
-    if version not in ("0.99", "0.99.1", "0.99.2", "0.99.3", "0.99.4", "0.99.5", "0.99.6", "0.99.7", "0.99.8", "0.100", "0.101", "0.102", "0.103", "0.104", "0.105", "0.106", "0.107", "0.108", "0.109"):
+    if version not in ("0.99", "0.99.1", "0.99.2", "0.99.3", "0.99.4", "0.99.5", "0.99.6", "0.99.7", "0.99.8", "0.100", "0.101", "0.102", "0.103", "0.104", "0.105", "0.106", "0.107", "0.108", "0.109", "0.110"):
         warnings.append(
-            f"_metadata.version is '{version}' — current spec is '0.109' "
-            "(ISO 8855 axes)"
+            f"_metadata.version is '{version}' — current spec is '0.110' "
+            "(steering wheel placement and gear chain)"
         )
 
     for w in warnings:
