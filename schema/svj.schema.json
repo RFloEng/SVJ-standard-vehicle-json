@@ -50,9 +50,10 @@
             "0.104",
             "0.105",
             "0.106",
-            "0.107"
+            "0.107",
+            "0.108"
           ],
-          "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations). '0.99.1' adds axle_groups, plated masses and explicit wheelbase definitions. '0.99.2' extends the glTF visual binding layer: full category set, visual on links/steering/wheels/brakes/springs/dampers/aero, and the 'placement' field for parts defined by hardpoints. '0.99.3' adds differential control: lock_control (dynamic differential lock) and transfer_case.coupling (torque-limited centre coupling). '0.99.4' adds the strut_lower hardpoint convention for MacPherson/Chapman struts and damper.reference ('damper' or 'wheel'). '0.99.5' adds movable parts: constraints[] (joint, spring, actuator between mass bodies), poses[] and chassis.markers. '0.99.6' completes the constraint set: latch, coupling and joint.drive. '0.99.7' adds the optional display name on bodies, constraints and poses, and the naming vocabulary for movable parts. '0.99.8' adds the contact constraint (primitives at markers with a penalty law). '0.100' unifies the suspension: wheel stations are bodies, joints and elements (spring, damper; linear or torsional) with a thin wheel_stations[] list and anti_roll_bars[]; the corner-based suspension section is deprecated. '0.101' adds attachments: interfaces[] (named frames with a role and size), attachments[] (units fitted to this vehicle) and the svj-combination file. '0.102' adds collision proxies: collision[] on the chassis and on mass bodies, and collision_ignore. '0.103'-'0.106' add adjustments/setups, the tyre evaluator formulas and OpenUSD assets. '0.107' adds the engine declaration for sound simulation: kind, cycle, layout/firing angles, aspiration, exhaust, intake, limiter and motor pole pairs."
+          "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations). '0.99.1' adds axle_groups, plated masses and explicit wheelbase definitions. '0.99.2' extends the glTF visual binding layer: full category set, visual on links/steering/wheels/brakes/springs/dampers/aero, and the 'placement' field for parts defined by hardpoints. '0.99.3' adds differential control: lock_control (dynamic differential lock) and transfer_case.coupling (torque-limited centre coupling). '0.99.4' adds the strut_lower hardpoint convention for MacPherson/Chapman struts and damper.reference ('damper' or 'wheel'). '0.99.5' adds movable parts: constraints[] (joint, spring, actuator between mass bodies), poses[] and chassis.markers. '0.99.6' completes the constraint set: latch, coupling and joint.drive. '0.99.7' adds the optional display name on bodies, constraints and poses, and the naming vocabulary for movable parts. '0.99.8' adds the contact constraint (primitives at markers with a penalty law). '0.100' unifies the suspension: wheel stations are bodies, joints and elements (spring, damper; linear or torsional) with a thin wheel_stations[] list and anti_roll_bars[]; the corner-based suspension section is deprecated. '0.101' adds attachments: interfaces[] (named frames with a role and size), attachments[] (units fitted to this vehicle) and the svj-combination file. '0.102' adds collision proxies: collision[] on the chassis and on mass bodies, and collision_ignore. '0.103'-'0.106' add adjustments/setups, the tyre evaluator formulas and OpenUSD assets. '0.107' adds the engine declaration for sound simulation: kind, cycle, layout/firing angles, aspiration, exhaust, intake, limiter and motor pole pairs. '0.108' adds part-load engine torque and engine braking (torque_curve_closed, part_throttle[]), gearbox shift points and latency, and the torque converter data."
         },
         "description": {
           "type": "string"
@@ -834,6 +835,37 @@
             "torque_curve": {
               "$ref": "#/definitions/curve2d"
             },
+            "torque_curve_closed": {
+              "$ref": "#/definitions/curve2d",
+              "description": "Net crankshaft torque at closed throttle against rpm (v0.108, spec 10.3.6): negative above idle, the engine braking. torque_curve is the full-throttle curve."
+            },
+            "part_throttle": {
+              "type": "array",
+              "description": "Measured torque curves at intermediate throttle (v0.108, spec 10.3.6), throttle strictly between 0 and 1, ascending.",
+              "items": {
+                "type": "object",
+                "required": [
+                  "throttle",
+                  "curve"
+                ],
+                "additionalProperties": true,
+                "properties": {
+                  "throttle": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "exclusiveMaximum": 1
+                  },
+                  "curve": {
+                    "$ref": "#/definitions/curve2d"
+                  }
+                }
+              }
+            },
+            "inertia_block": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Inertia of the engine block on its mounts (kg m^2); inertia stays the crank and flywheel."
+            },
             "inertia": {
               "type": "number",
               "minimum": 0
@@ -1193,6 +1225,44 @@
               "type": "number",
               "minimum": 0
             },
+            "torque_converter": {
+              "type": "object",
+              "additionalProperties": true,
+              "description": "Torque converter data (v0.108, spec 10.4.1) for clutch.type 'torque_converter'.",
+              "properties": {
+                "capacity_factor": {
+                  "$ref": "#/definitions/curve2d",
+                  "description": "[[speed_ratio, K]], K = n_in / sqrt(T_in) in rev/min per sqrt(Nm)."
+                },
+                "torque_ratio": {
+                  "$ref": "#/definitions/curve2d",
+                  "description": "[[speed_ratio, TR]], TR = T_out / T_in."
+                },
+                "inertia_pump": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "inertia_turbine": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "lockup": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "properties": {
+                    "min_gear": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "engage_speed_ratio": {
+                      "type": "number",
+                      "exclusiveMinimum": 0,
+                      "maximum": 1
+                    }
+                  }
+                }
+              }
+            },
             "engagement_point": {
               "type": "number",
               "minimum": 0,
@@ -1263,6 +1333,57 @@
             "shift_time": {
               "type": "number",
               "exclusiveMinimum": 0
+            },
+            "shift_latency": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Delay between the shift decision and the start of the shift (s), v0.108, spec 10.5.2."
+            },
+            "shift_points": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              },
+              "description": "One [up_rpm, down_rpm] pair per forward gear, in ratios order (v0.108, spec 10.5.2)."
+            },
+            "shift_points_vs_throttle": {
+              "type": "array",
+              "description": "shift_points at several throttle positions, interpolated linearly; replaces shift_points when both are given (v0.108).",
+              "items": {
+                "type": "object",
+                "required": [
+                  "throttle",
+                  "points"
+                ],
+                "additionalProperties": true,
+                "properties": {
+                  "throttle": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "points": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "items": {
+                        "type": "number",
+                        "minimum": 0
+                      }
+                    }
+                  }
+                }
+              }
             },
             "position": {
               "$ref": "#/definitions/vec3"

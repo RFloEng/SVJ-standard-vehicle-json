@@ -1211,7 +1211,10 @@ Defines how power flows from the engine/motor to the wheels.
 |-------------------|--------|----------|-------------------------------------------------|
 | `idle_rpm`        | number | no       | Idle speed (rev/min)                            |
 | `max_rpm`         | number | no       | Limiter / redline (rev/min)                     |
-| `torque_curve`    | array  | YES      | `[[rpm, torque_Nm], ...]` ordered by RPM         |
+| `torque_curve`    | array  | YES      | `[[rpm, torque_Nm], ...]` ordered by RPM: the **full (wide-open) throttle** net crankshaft torque |
+| `torque_curve_closed` | array | no   | *(v0.108)* Net torque at **closed throttle**, same shape: negative above idle, the engine braking (§10.3.6) |
+| `part_throttle`   | array  | no       | *(v0.108)* `[{ "throttle": 0.5, "curve": [[rpm, Nm], ...] }, ...]` measured curves between closed and full throttle (§10.3.6) |
+| `inertia_block`   | number | no       | *(v0.108)* Inertia of the engine block on its mounts (kg·m²); `inertia` stays the crank and flywheel |
 | `inertia`         | number | no       | Rotational inertia of crankshaft + flywheel (kg·m²) |
 | `displacement`    | number | no       | Engine displacement (L)                         |
 | `configuration`   | string | no       | e.g. `"V8"`, `"I4"`, `"flat6"`, `"electric"`   |
@@ -1304,6 +1307,14 @@ SVJ stores **no audio**: no samples, no sound-model settings, and none will be a
 
 A source whose data are absent is not simulated. Gear-mesh whine is not declared (no tooth counts in the file).
 
+#### 10.3.6 Part-Load Torque and Engine Braking *(v0.108)*
+
+`torque_curve` is the net torque at the crankshaft at **full throttle** (this section makes explicit what it always meant). `torque_curve_closed` is the net torque at **closed throttle**: it is the engine's friction and pumping loss, so it is negative above idle, and it is what brakes a car that lifts off or downshifts. Optional `part_throttle[]` curves add measured torque at intermediate throttle (`throttle` strictly between 0 and 1, ascending).
+
+**Evaluation.** For throttle `th` in 0 to 1 (clamped) and crank speed `n`: order the curves by throttle (`torque_curve_closed` at 0, the `part_throttle[]` curves, `torque_curve` at 1); read each curve by linear interpolation in `n`, held flat outside its range; `T(n, th)` is the linear interpolation **in torque** between the two curves that bracket `th`. Without `part_throttle[]` this is `T = Tc(n) + th * (Tw(n) - Tc(n))`. A reader that finds no curve at or below `th` has no engine braking declared and chooses its own. Above `max_rpm` the limiter decides (§10.3.2).
+
+There is no separate losses table: the closed-throttle curve is the net loss at zero throttle, and a second one would count it twice. Electric motors keep their own regeneration (§14.5). `tools/powertrain_check.py` (and `svj.powertrain`) implements `engine_torque(engine, rpm, throttle)`.
+
 ### 10.4 `clutch`
 
 The interface between engine and gearbox input shaft.
@@ -1319,6 +1330,19 @@ The interface between engine and gearbox input shaft.
 
 > **Dual-clutch:** For DCT gearboxes, two clutches are implicit. `max_torque` is the per-clutch value. Odd/even gear assignment is handled by the gearbox.
 
+#### 10.4.1 Torque Converter *(v0.108)*
+
+For `type = "torque_converter"`, the object `clutch.torque_converter`:
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `capacity_factor` | array | `[[speed_ratio, K], ...]`, `K = n_in / sqrt(T_in)` in rev/min per √Nm, against `speed_ratio = n_out / n_in`; starts at speed ratio 0 (stall) |
+| `torque_ratio` | array | `[[speed_ratio, TR], ...]`, `TR = T_out / T_in`; at least 1 at stall, 1 at the coupling point |
+| `inertia_pump`, `inertia_turbine` | number | Inertias (kg·m²) |
+| `lockup` | object | `min_gear` (integer) and `engage_speed_ratio` (0 to 1): the lockup clutch locks input to output in or above that gear and speed ratio |
+
+**Evaluation.** With `sr = n_out / n_in`, both curves read by linear interpolation in `sr`: `T_in = (n_in / K(sr))^2`, `T_out = TR(sr) * T_in`, efficiency `TR * sr`. The stall speed is not stored: it follows from `K(0)` and the engine torque, and a stored value could only contradict them. `converter(tc, n_in, n_out)` in `tools/powertrain_check.py` implements it.
+
 ### 10.5 `gearbox`
 
 | Key              | Type   | Required | Description                                            |
@@ -1330,6 +1354,9 @@ The interface between engine and gearbox input shaft.
 | `inertia_output` | number | no       | Output shaft inertia (kg·m²)                           |
 | `efficiency`     | number | no       | Mechanical efficiency per gear mesh (0.0–1.0, e.g. 0.97) |
 | `shift_time`     | number | no       | Typical shift duration (s) — for sequential/DCT/auto   |
+| `shift_latency`  | number | no       | *(v0.108)* Delay between the shift decision and the start of the shift (s) |
+| `shift_points`   | array  | no       | *(v0.108)* `[[up_rpm, down_rpm], ...]`, one pair per forward gear (§10.5.2) |
+| `shift_points_vs_throttle` | array | no | *(v0.108)* `[{ "throttle": 0.3, "points": [[up, down], ...] }, ...]` (§10.5.2) |
 | `position`       | [x,y,z]| no      | Gearbox CG position (m)                                |
 | `mass`           | number | no       | Gearbox assembly mass (kg)                             |
 | `output_flange`  | [x,y,z]| no      | Gearbox output flange position (m) — propshaft front joint connects here |
@@ -1346,6 +1373,12 @@ The interface between engine and gearbox input shaft.
 | `heat_generation_rate`       | number | no       | Heat generated at nominal load (W) — derived from (1 - efficiency) × input power |
 
 > **Transaxle:** For FF/MR/RR layouts where gearbox and final drive share a housing, the `final_drive` ratio is specified in the differential entry (§10.8), not here. The `output_flange` is then the differential output.
+
+#### 10.5.2 Shift Points *(v0.108)*
+
+For automatic, DCT and sequential gearboxes with an automatic mode. `shift_points[k]` is `[up_rpm, down_rpm]` for forward gear `k + 1`, in `ratios` order: the engine speed at which to shift up from that gear and the speed at which to shift down *from* it; the last `up_rpm` and the first `down_rpm` are unused (any value, 0 by convention). With `shift_points_vs_throttle` the table is given at several throttle positions and interpolated linearly in throttle; it replaces `shift_points` when both are present (`shift_points_at(gearbox, throttle)` in `tools/powertrain_check.py`).
+
+The pairs MUST leave hysteresis: after shifting up from gear `k` at `up_rpm`, the engine runs at `up_rpm * ratio[k+1] / ratio[k]`, which must stay above the down-shift speed of gear `k + 1`, otherwise the gearbox hunts. `validate.py` warns when it does not.
 
 ### 10.6 `transfer_case`
 
@@ -2640,6 +2673,7 @@ This section is **optional**. It provides a standard place to record performance
 
 | Version | Changes                                                                                    |
 |---------|--------------------------------------------------------------------------------------------|
+| 0.108   | **Part-load engine torque, shift points and torque converter** (§10.3.6, §10.4.1, §10.5.2). Additive. `engine.torque_curve_closed` (engine braking), `part_throttle[]`, `inertia_block`; `gearbox.shift_latency`, `shift_points`, `shift_points_vs_throttle`; `clutch.torque_converter` (capacity-factor and torque-ratio curves against speed ratio, inertias, lockup). `torque_curve` is stated to be the full-throttle curve. The evaluation formulas are in the spec; `tools/powertrain_check.py` (`svj.powertrain`) implements them and the checks. Shaped after the Chrono::Vehicle powertrain models. `_metadata.version` gains `0.108` |
 | 0.107   | **Engine declaration for sound simulation** (§10.3.2–§10.3.4). Additive. `powertrain.engine` gains `kind`, `cycle`, `fuel`, `layout` (cylinders, arrangement, crank, `firing_order`, `firing_angles_deg`), `aspiration` (type, `chargers[]` with blade count, pulley ratio, wastegate, blow-off), `exhaust`, `intake` and `limiter`; electric motors gain `pole_pairs` and `inverter_switching_hz`. The torque curve stays the only source of torque; the keys describe the engine and are checked against it. §10.3.3 gives the sound-order formulas; `tools/engine_check.py` implements them and the checks. `_metadata.version` gains `0.107` |
 | 0.106   | **Preview copy of an OpenUSD asset** (§22.10). Additive. `assets.meshes[].preview`: a glTF copy that glTF-only viewers show; `tools/usd2gltf.py` writes it (meshes, Cube / Sphere / Cylinder, NURBS patches tessellated, colours, binding names kept); `mesh_check.py` checks that it carries the bound nodes. `_metadata.version` gains `0.106` |
 | 0.105   | **OpenUSD assets** (§22.10). Additive. `assets.meshes[].format` (`gltf` / `usd`) and `x_transform` in the manifest schema; the binding name `SVJ::category::id` stays the one logical name in both formats, found in a USD asset through the `svj:node` attribute or the prim name `SVJ__category__id`; stage `metersPerUnit` MUST be 1; the assets stay shapes and appearance, the JSON stays the authority. `tools/gltf2usd.py` converts a GLB; `mesh_check.py` and the viewer handle USD entries. `_metadata.version` gains `0.105` |
