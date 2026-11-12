@@ -29,6 +29,7 @@ from drivetrain_check import check as drivetrain_check  # noqa: E402
 from multibody_check import check as multibody_check  # noqa: E402
 from constraints_check import check as constraints_check  # noqa: E402
 from engine_check import check as engine_check  # noqa: E402
+from powertrain_check import check as powertrain_check  # noqa: E402
 import assemble as _asm  # noqa: E402
 import collision_check as _col  # noqa: E402
 import setup_check as _setup  # noqa: E402
@@ -110,6 +111,11 @@ def validate_file(svj_path: str, schema: dict, strict: bool) -> bool:
     errors.extend(en_errors)
     warnings.extend(en_warnings)
 
+    # Part-load engine torque, shift points, torque converter (spec §10.3.6, §10.4.1, §10.5.2)
+    pw_errors, pw_warnings = powertrain_check(doc)
+    errors.extend(pw_errors)
+    warnings.extend(pw_warnings)
+
     # Movable parts: constraints, poses (spec §24)
     ct_errors, ct_warnings = constraints_check(doc)
     errors.extend(ct_errors)
@@ -162,10 +168,10 @@ def validate_file(svj_path: str, schema: dict, strict: bool) -> bool:
 
     # Version advisory
     version = doc.get("_metadata", {}).get("version", "unknown")
-    if version not in ("0.99", "0.99.1", "0.99.2", "0.99.3", "0.99.4", "0.99.5", "0.99.6", "0.99.7", "0.99.8", "0.100", "0.101", "0.102", "0.103", "0.104", "0.105", "0.106", "0.107"):
+    if version not in ("0.99", "0.99.1", "0.99.2", "0.99.3", "0.99.4", "0.99.5", "0.99.6", "0.99.7", "0.99.8", "0.100", "0.101", "0.102", "0.103", "0.104", "0.105", "0.106", "0.107", "0.108"):
         warnings.append(
-            f"_metadata.version is '{version}' — current spec is '0.107' "
-            "(engine declaration for sound simulation)"
+            f"_metadata.version is '{version}' — current spec is '0.108' "
+            "(part-load engine torque, shift points, torque converter)"
         )
 
     for w in warnings:

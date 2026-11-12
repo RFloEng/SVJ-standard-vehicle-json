@@ -13,6 +13,7 @@ from typing import Any
 
 from svj.drivetrain import check as drivetrain_check
 from svj.engine import check as engine_check
+from svj.powertrain import check as powertrain_check
 from svj.multiaxle import check as multiaxle_check
 from svj.constraints import check as constraints_check
 from svj.setups import check as setups_check
@@ -190,6 +191,10 @@ def _consistency_checks(data: dict) -> list[str]:
     # ── Engine declaration (spec §10.3.2) ──
     en_errors, en_warnings = engine_check(data)
     warnings.extend(f"engine: {e}" for e in en_errors + en_warnings)
+
+    # ── Part-load engine torque, shift points, torque converter (spec §10.3.6) ──
+    pw_errors, pw_warnings = powertrain_check(data)
+    warnings.extend(f"powertrain: {e}" for e in pw_errors + pw_warnings)
 
     # ── Movable parts (spec §24) ──
     ct_errors, ct_warnings = constraints_check(data)
