@@ -36,19 +36,21 @@ SVJ is a **modular, entity-based exchange format** for vehicle dynamics data. It
 | Stiffness (linear)   | N/m            |        |
 | Stiffness (angular)  | Nm/rad         |        |
 
-### 2.1 Coordinate System — SAE J670
+### 2.1 Coordinate System — ISO 8855 *(v0.109)*
 
-**Origin:** Center of the front axle at ground level.
+**Origin:** Midpoint of the front axle at ground level, projected onto the vehicle centerline.
 
 | Axis | Direction    | Positive Sense       |
 |------|-------------|----------------------|
 | X    | Longitudinal | Forward              |
-| Y    | Lateral      | Right (driver POV)   |
-| Z    | Vertical     | Down (toward ground) |
+| Y    | Lateral      | Left (driver POV)    |
+| Z    | Vertical     | Up (away from the ground) |
 
-**Origin:** Midpoint of the front axle at ground level, projected onto the vehicle centerline.
+The frame is right-handed and is the frame of OpenDRIVE, Blender, USD, STJ and Chrono::Vehicle. A positive rotation about X rolls the right side down, about Y pitches the nose down, about Z yaws to the left.
 
-> **Note:** All hardpoint coordinates are expressed in the **vehicle reference frame** (global body-fixed). Station-specific data (FL, FR, RL, RR, or `A{n}L`/`A{n}R`/`A{n}C`, §23.1) uses the appropriate Y sign for each side: negative Y = left, positive Y = right, Y ≈ 0 for a centreline station.
+**Legacy SAE J670.** Files before v0.109 use SAE J670 (X forward, Y right, Z down). The two frames differ by one fixed rotation of 180 degrees about X: a position `[x, y, z]` becomes `[x, -y, -z]`, a frame orientation quaternion is left-multiplied by `(1, 0, 0, 0)`, and the inertia products `Ixy` and `Ixz` change sign. Nothing mirrors: left stays left. `_metadata.coordinate_system` declares the frame (`"ISO_8855"` or `"SAE_J670"`); a file that does not declare one is SAE J670 when its `_metadata.version` is below 0.109 and ISO 8855 from 0.109. When `coordinate_system` is the glTF object of §22.4, the optional `_metadata.physics_frame` carries the same declaration. A reader MUST honour the declared frame; `tools/convert_frame.py` (`svj.frame`) converts a file either way, losslessly.
+
+> **Note:** All hardpoint coordinates are expressed in the **vehicle reference frame** (global body-fixed). Station-specific data (FL, FR, RL, RR, or `A{n}L`/`A{n}R`/`A{n}C`, §23.1) uses the appropriate Y sign for each side: positive Y = left, negative Y = right (ISO 8855; the legacy SAE J670 files are the other way round), Y ≈ 0 for a centreline station.
 
 ---
 
@@ -166,7 +168,7 @@ Every top-level key except `_metadata` is OPTIONAL. A file containing only `_met
 | `specification`      | string  | YES      | Always `"SVJ"`                              |
 | `version`            | string  | YES      | Spec version, e.g. `"0.3.1"`               |
 | `description`        | string  | no       | Human-readable file description              |
-| `coordinate_system`  | string  | YES      | Always `"SAE_J670"`                         |
+| `coordinate_system`  | string  | YES      | `"ISO_8855"` (default from v0.109) or `"SAE_J670"` (legacy), §2.1; an object for the glTF asset convention (§22.4) |
 | `units`              | string  | YES      | Always `"SI"`                               |
 | `created`            | string  | no       | ISO 8601 timestamp                          |
 | `author`             | string  | no       | Author or tool name                         |
@@ -218,7 +220,7 @@ Moments of inertia about the CG, in the principal axes.
 | `Ixy`   | number | kg·m² | Product of inertia X-Y (0 if left-right symmetric) |
 | `Iyz`   | number | kg·m² | Product of inertia Y-Z (0 if left-right symmetric) |
 
-> **Reference point:** All inertia tensors are expressed **about the component's own CG**, in the **vehicle reference frame axes** (SAE J670). To compute the composite vehicle inertia, apply the parallel-axis (Steiner) theorem to translate each body's inertia to the vehicle CG.
+> **Reference point:** All inertia tensors are expressed **about the component's own CG**, in the **vehicle reference frame axes** (§2.1). To compute the composite vehicle inertia, apply the parallel-axis (Steiner) theorem to translate each body's inertia to the vehicle CG.
 
 > **Rotating components:** Some components (engine crankshaft, gearbox shafts, driveshafts, half-shafts, brake discs) carry a **scalar** rotational inertia about their spin axis, not a full 3D tensor. These values are used in drivetrain dynamics (acceleration, deceleration, shift transients) and are separate from the 3D spatial inertia used for vehicle-level dynamics. The scalar spin inertia does not need parallel-axis translation — it is used directly in the drivetrain torque equations.
 
@@ -957,7 +959,7 @@ The actual as-installed state at rest on a flat surface, including corner weight
 
 > **Convention:** If `rate` is provided, it represents the **wheel rate** (force at the wheel per unit of wheel travel). If the spring rate at the coil is known instead, provide `motion_ratio` and the parser computes wheel rate as: `wheel_rate = coil_rate × motion_ratio²`.
 
-> **Non-linear springs:** When `rate_curve` is present, it takes precedence over `rate`. The curve is an ordered array of `[displacement, force]` pairs. Displacement is measured from free length (compression positive in SAE Z-down).
+> **Non-linear springs:** When `rate_curve` is present, it takes precedence over `rate`. The curve is an ordered array of `[displacement, force]` pairs. Displacement is measured from free length (compression positive).
 
 **Spring types added in v0.99:**
 
@@ -1001,7 +1003,7 @@ The actual as-installed state at rest on a flat surface, including corner weight
 
 > **Mount key names:** the keys are `inboard_mount` / `outboard_mount` (spring and damper). The look-alikes `inboard_point` / `outboard_point` (used by link `inboard_points`) are not part of the schema and are ignored by readers; `tools/validate.py` warns when it sees them.
 
-> **Convention:** Velocities are always positive in both curves. Force is positive (resisting motion). Bump = compression (wheel moving up in SAE Z-down = Z decreasing). Rebound = extension (wheel moving down = Z increasing).
+> **Convention:** Velocities are always positive in both curves. Force is positive (resisting motion). Bump = compression (the wheel moves up relative to the body). Rebound = extension (the wheel moves down).
 
 > **Minimum data:** At least two points per curve. The first point SHOULD be `[0.0, 0.0]`. Interpolation between points is linear. Extrapolation beyond the last point is linear from the last two points.
 
@@ -1030,9 +1032,9 @@ The ARB is defined **per corner** as that corner's connection to the bar. The ba
 > - **Camber:** Negative = top of wheel leans **inward** (toward vehicle centerline) on **both** left and right sides.
 > - **Toe:** Positive = front of wheel points **inward** (toe-in) on **both** left and right sides.
 >
-> This means the same numeric values can be used for FL and FR on a symmetric setup. A parser using absolute SAE rotations must flip the sign for the right-side wheels.
+> This means the same numeric values can be used for FL and FR on a symmetric setup. A parser using absolute rotations about the vehicle axes must flip the sign for the right-side wheels.
 >
-> When `alignment_convention` is `"absolute"`, values are pure SAE J670 rotations about the vehicle-frame axes. In this case, FL and FR camber will have opposite signs for a symmetric setup.
+> When `alignment_convention` is `"absolute"`, values are pure rotations about the vehicle-frame axes of the declared frame (§2.1); toe and any rotation about Y or Z change sign between ISO 8855 and SAE J670, camber (about X) does not. In this case, FL and FR camber will have opposite signs for a symmetric setup.
 
 Static alignment values at design ride height.
 
@@ -1877,7 +1879,7 @@ Each entry in the `external_models` array:
 
 This section gives the equations an evaluator uses to turn a `pacejka` block into forces, so that nobody has to look them up elsewhere. They are the equations of **TNO MF-Tyre 6.1** (I.J.M. Besselink, A.J.C. Schmeitz, H.B. Pacejka, *An improved Magic Formula/Swift tyre model that can handle inflation pressure changes*, Vehicle System Dynamics 48, 2010, Appendix, equations 31–90). A MF 5.2 coefficient set is evaluated by the same equations: the pressure terms (`pPx*`, `pPy*`, `pPz*`) are absent and read as zero. Reference implementation: `tools/tire_model.py` (mirror `svj-py/svj/tiremodel.py`).
 
-**Sign convention.** The equations are used as written; the signs of the results follow the coefficients of the file. A file with a positive `pKy1` gives a positive `Fy` for a positive slip angle, one with a negative `pKy1` (the usual SAE-style `.tir`) a negative one. A writer MUST keep one convention per file.
+**Sign convention** *(v0.109)*. The equations are used as written; the signs of the results follow the coefficients, and `pacejka.axis_system` says which convention they are in. The default and the target is `"ISO_8855"` (tyre axes X forward, Y left, Z up): a slip angle is positive when the velocity points to the right of the wheel heading and then `Fy` is positive (to the left, restoring) and `Mz` negative; `kappa` positive drives and `Fx` is positive; an inclination angle `gamma` is positive when the top of the wheel leans to the right, and the camber thrust then points right, so `Fy` is negative (`pKy1` is positive; the camber coefficients follow from that). `"SAE_J670"` marks a legacy set in the Pacejka/TYDEX signs (usually `pKy1` negative): an evaluator converts at the interface (`Fy`, `Mz`, `My` change sign for the same physical situation) or `tools/convert_frame.py` rewrites the coefficients. A set without `axis_system` is ISO 8855 from v0.109; before that the convention was unspecified (the sign of `pKy1` is the only hint). The physical test cases are in `svj-py/tests/test_tyre_sign_oracle.py`.
 
 **Not covered:** overturning moment `Mx` (the `qsx*` group), turn slip, transient behaviour (§11.7), thermal and wear effects (§11.8, §11.9), and the `tmeasy` and `brush` models (§11.10, §11.11), which have no evaluator yet. `pacejka.model` `"MF62"` selects the MF-Tyre 6.1 equations of this section; the turn-slip extension and the `tan α`, `sin γ` substitution of later MF-Tyre releases are not part of it.
 
@@ -2194,7 +2196,7 @@ Static aerodynamic coefficients at zero yaw, reference ride height, and referenc
 | `Cym`     | number | no       | Yaw moment coefficient (positive = nose right)                |
 | `Crm`     | number | no       | Roll moment coefficient                                       |
 
-> **Sign convention:** Aerodynamic forces are computed as `F = 0.5 × ρ × V² × C × A_frontal`. Positive `Cl` produces lift (upward, opposing SAE Z-down gravity). A car with net downforce has negative `Cl`. Drag always acts rearward regardless of `Cd` sign (convention: `Cd` is positive, applied in −X).
+> **Sign convention:** Aerodynamic forces are computed as `F = 0.5 × ρ × V² × C × A_frontal`. Positive `Cl` produces lift (upward, opposing gravity). A car with net downforce has negative `Cl`. Drag always acts rearward regardless of `Cd` sign (convention: `Cd` is positive, applied in −X).
 
 > **Front/rear split:** `Cl_front + Cl_rear` SHOULD equal `Cl`. If only `Cl` is given, parsers MAY assume 50/50 distribution. Aero balance is `Cl_front / Cl` (fraction of total lift/downforce on front axle).
 
@@ -2673,6 +2675,7 @@ This section is **optional**. It provides a standard place to record performance
 
 | Version | Changes                                                                                    |
 |---------|--------------------------------------------------------------------------------------------|
+| 0.109   | **ISO 8855 axes** (§2.1, §11.13, §22.4). The vehicle frame is X forward, Y left, Z up (it was SAE J670: Y right, Z down). Positions flip Y and Z, frame quaternions are left-multiplied by `(1,0,0,0)`, inertia products `Ixy`, `Ixz` change sign; quantities defined in words (camber top inward, toe-in, bump, `Cl`) keep their meaning. `_metadata.coordinate_system` accepts `"ISO_8855"` and `"SAE_J670"`; a file that does not declare one is SAE below 0.109 and ISO from it; `_metadata.physics_frame` declares the frame when `coordinate_system` is the glTF object. Tyre: `pacejka.axis_system` (default `"ISO_8855"`), positive `gamma` leans right. `tools/convert_frame.py` converts either way. `_metadata.version` gains `0.109` |
 | 0.108   | **Part-load engine torque, shift points and torque converter** (§10.3.6, §10.4.1, §10.5.2). Additive. `engine.torque_curve_closed` (engine braking), `part_throttle[]`, `inertia_block`; `gearbox.shift_latency`, `shift_points`, `shift_points_vs_throttle`; `clutch.torque_converter` (capacity-factor and torque-ratio curves against speed ratio, inertias, lockup). `torque_curve` is stated to be the full-throttle curve. The evaluation formulas are in the spec; `tools/powertrain_check.py` (`svj.powertrain`) implements them and the checks. Shaped after the Chrono::Vehicle powertrain models. `_metadata.version` gains `0.108` |
 | 0.107   | **Engine declaration for sound simulation** (§10.3.2–§10.3.4). Additive. `powertrain.engine` gains `kind`, `cycle`, `fuel`, `layout` (cylinders, arrangement, crank, `firing_order`, `firing_angles_deg`), `aspiration` (type, `chargers[]` with blade count, pulley ratio, wastegate, blow-off), `exhaust`, `intake` and `limiter`; electric motors gain `pole_pairs` and `inverter_switching_hz`. The torque curve stays the only source of torque; the keys describe the engine and are checked against it. §10.3.3 gives the sound-order formulas; `tools/engine_check.py` implements them and the checks. `_metadata.version` gains `0.107` |
 | 0.106   | **Preview copy of an OpenUSD asset** (§22.10). Additive. `assets.meshes[].preview`: a glTF copy that glTF-only viewers show; `tools/usd2gltf.py` writes it (meshes, Cube / Sphere / Cylinder, NURBS patches tessellated, colours, binding names kept); `mesh_check.py` checks that it carries the bound nodes. `_metadata.version` gains `0.106` |
@@ -2807,7 +2810,7 @@ The rows that start with `suspension.<station>` are the **legacy corner form** (
 
 ### 22.4 Coordinate System Declaration
 
-Physics data uses SAE J670 (§2.1) by default. The glTF asset may use a different convention (Blender exports Y-up, -Z-forward by default). Both can be declared in the same file:
+Physics data uses ISO 8855 (§2.1) by default (SAE J670 for files that declare it). The glTF asset may use a different convention (Blender exports Y-up, -Z-forward by default). Both can be declared in the same file:
 
 ```json
 "_metadata": {
@@ -2816,15 +2819,15 @@ Physics data uses SAE J670 (§2.1) by default. The glTF asset may use a differen
 }
 ```
 
-When `coordinate_system` is an **object** (rather than the string `"SAE_J670"`), it specifies the glTF asset convention. The physics data coordinate system is always SAE J670 unless explicitly overridden.
+When `coordinate_system` is an **object** (rather than a frame string), it specifies the glTF asset convention. The physics frame is then given by `_metadata.physics_frame` (`"ISO_8855"` or `"SAE_J670"`), or by the rule of §2.1 when that is absent.
 
-**SAE J670 → Blender (Y-up) transform:**
+**ISO 8855 → Blender (Y-up) transform** (for the SAE J670 files of earlier versions the same table holds with the signs of the Y and Z rows swapped):
 
 | SVJ axis | Blender axis |
 |----------|-------------|
 | +X (forward) | −Z |
-| +Y (right)   | +X |
-| +Z (down)    | −Y |
+| +Y (left)    | −X |
+| +Z (up)      | +Y |
 
 Converters reading glTF assets from Blender should apply this mapping when positioning visual nodes relative to physics hardpoints.
 
@@ -2972,7 +2975,7 @@ Rules 1–5 are errors. Rule 6, and a missing `mesh_ref` when several meshes are
 4. **Name and extras agree** when both are present.
 5. **Orphans** (advisory): `SVJ::…` nodes in the asset that no part of the file is bound to (`helper` and `lod` excepted).
 6. **Units**: the spread of the nodes' bounding-box centres against the spread of the SVJ positions of the same parts; a factor of 10, 100 or 1000 is reported as centimetres, millimetres or a wrong size.
-7. **Axes**: the geometry is compared with the declared `coordinate_system` (§22.4) and with the common conventions (SAE axes, Y-up with −Z or +Z forward, Z-up with +X forward); when another convention fits clearly better, the report says which.
+7. **Axes**: the geometry is compared with the declared `coordinate_system` (§22.4) and with the common conventions (the file's physics frame, Y-up with −Z or +Z forward, Z-up with +X forward); when another convention fits clearly better, the report says which.
 8. **Placement**: for each `rigid` binding, the SVJ position of the part (the centre of gravity of the chassis or of a mass body) must lie inside the node's bounding box, within a tolerance of 0.10 m plus 15 % of the box diagonal. A common offset of all parts is reported once, as a shift of the asset against the SVJ origin, with the `x_transform.position` that would correct it; otherwise each part outside its box is named. The `x_transform` of the manifest entry (§22.2) is applied before the comparison.
 
 9. **Animation and physics data belong to the nearest bound node.** A binding covers the node and its descendants (§22.10, rule 3), but a descendant that is itself bound to a part of the file belongs to that part: an animated door under the body node is checked against `door_fl` and its joint, not against the chassis. A descendant bound to nothing counts for its nearest bound ancestor. This holds for glTF animation (nodes targeted by an animation channel) and for USD time samples, masses and collision shapes alike (§22.10, rule 8).
@@ -2984,7 +2987,7 @@ Rules 1–5 are errors. Rule 6, and a missing `mesh_ref` when several meshes are
 An OpenUSD file may serve as the shape-and-appearance asset in place of a glTF file. It does not change what an asset is: **shapes, colours and appearance**. Everything physical (mass, inertia, joints, stiffness, tyre data, collision proxies) comes from the SVJ JSON; a `UsdPhysics` prim, a physics attribute or a mass in the asset is ignored for physics. A missing, unreadable or unsupported asset never makes the physics description invalid (§22.9).
 
 1. **Files.** `.usd`, `.usda`, `.usdc` or `.usdz`, with a relative `uri` (§22.2). A stage may reference or sublayer other files by relative paths inside the same directory tree; remote paths are not permitted. `.usdz` packages are the simplest single-file form.
-2. **Units and axes.** The stage MUST author `metersPerUnit = 1` (the USD default, when it is not authored, is 0.01) and `upAxis`. The forward direction is not part of USD: the asset's convention is the `_metadata.coordinate_system` object of §22.4 (`up` must equal the stage's `upAxis`); without it SAE J670 axes are assumed, as for glTF.
+2. **Units and axes.** The stage MUST author `metersPerUnit = 1` (the USD default, when it is not authored, is 0.01) and `upAxis`. The forward direction is not part of USD: the asset's convention is the `_metadata.coordinate_system` object of §22.4 (`up` must equal the stage's `upAxis`); without it the file's physics frame (§2.1) is assumed, as for glTF.
 3. **Binding name.** `visual.node` stays the logical name `SVJ::<category>::<id>` (§22.5), the same string as for glTF. Prim names allow only letters, digits and underscore, so the name is found in the asset in this order:
    1. a prim with the string attribute `svj:node` equal to the name (`custom string svj:node = "SVJ::suspension::upright_fl"`);
    2. else a prim whose **name** is the binding name with each `::` replaced by `__` (`SVJ__suspension__upright_fl`).
@@ -3015,8 +3018,8 @@ Corner keys follow the pattern **`A{n}{side}`**:
 | Part    | Meaning                                                                 |
 |---------|-------------------------------------------------------------------------|
 | `A{n}`  | Axle index, 1-based, counted from the front (`A1`, `A2`, … `A99`)       |
-| `L`     | Left station (negative Y)                                               |
-| `R`     | Right station (positive Y)                                              |
+| `L`     | Left station (positive Y in ISO 8855, negative Y in legacy SAE J670)   |
+| `R`     | Right station (negative Y in ISO 8855, positive Y in legacy SAE J670)  |
 | `C`     | Single wheel on the centreline (reverse trikes, three-wheelers, special rigs) |
 
 ```json
@@ -3636,7 +3639,7 @@ The loop-closure solver exists (§26); still open: the bending of the bar's leve
 python tools/loop_solver.py file.svj.json --station FL --range 0.05 --steps 5 [--steer 0.02]
 ```
 
-Axes are SAE J670 (x forward, y right, z down): a bump lowers z; camber is positive with the top of the wheel leaning outwards, toe positive for toe-in, caster positive with the axis leaning back at the top, kingpin inclination positive leaning inwards (the `alignment` table's conventions for `alignment_convention: relative_to_centerline`). `check_alignment()` (`--check-alignment`) compares the `alignment` a station declares with what the geometry gives and reports differences above 0.5 deg or 10 mm.
+Axes are those of the file's declared frame (§2.1; ISO 8855: x forward, y left, z up, so a bump raises z; the legacy SAE J670 frame is y right, z down and a bump lowers z), and the solver reads either; camber is positive with the top of the wheel leaning outwards, toe positive for toe-in, caster positive with the axis leaning back at the top, kingpin inclination positive leaning inwards (the `alignment` table's conventions for `alignment_convention: relative_to_centerline`). `check_alignment()` (`--check-alignment`) compares the `alignment` a station declares with what the geometry gives and reports differences above 0.5 deg or 10 mm.
 
 svj-py: `Vehicle.solve_pose(travel, joint_values)`, `.wheel_sweep(station, travels, steer)`, `.suspension_gains(station)`.
 

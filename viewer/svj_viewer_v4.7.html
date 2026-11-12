@@ -186,7 +186,41 @@ const panelDefs = [{id:'overview',label:'Overview'},{id:'suspension',label:'Susp
    ═══════════════════════════════════════════════════ */
 const fmtN = (v,d=1) => v!=null ? v.toFixed(d) : '—';
 const rad2deg = r => ((r||0)*180/Math.PI).toFixed(2);
-const sae2three = p => {if(!p||p.length<3)return new THREE.Vector3();return new THREE.Vector3(p[1],-p[2],-p[0]);};
+/* Frame. The viewer works in ISO 8855 (X forward, Y left, Z up); a file in legacy SAE J670 is converted on load.
+   Mirrors tools/convert_frame.py (spec 2.1). Three space: x right, y up, -z forward. */
+const FRAME_VECTOR_KEYS = new Set(['position','center_of_gravity','rack_position','end_points','end_seats','pivot_position','pendulum_pivot','pendulum_axis','attach_point','cg_position','beam_position','center_of_pressure','linkage_points','input_flange','output_flange','output_front','output_rear','output_left','output_right']);
+const FRAME_SIDE_KEYS = new Set(['FL','FR','RL','RR','left','right']);
+const FRAME_QUAT_KEYS = new Set(['orientation','inertia_orientation']);
+function frameNamed(v){ if(typeof v!=='string') return null; const n=v.toUpperCase().replace(/[ -]/g,'_'); return (n.startsWith('ISO')||n==='OPENDRIVE')?'ISO_8855':n.startsWith('SAE')?'SAE_J670':null; }
+function frameOfDoc(doc){
+  const md = doc?._metadata || {};
+  const named = frameNamed(md.physics_frame) || frameNamed(md.coordinate_system); if(named) return named;
+  const v = String(md.version||'').split('.').map(Number); if(v.some(isNaN)) return 'SAE_J670';
+  return (v[0]>0 || (v[0]===0 && v[1]>=109)) ? 'ISO_8855' : 'SAE_J670';
+}
+function svjToISO(doc){
+  if(!doc || frameOfDoc(doc)==='ISO_8855') return doc;
+  const out = JSON.parse(JSON.stringify(doc));
+  const isVec = (v,n) => Array.isArray(v) && v.length===n && v.every(x => typeof x==='number');
+  const neg = v => v===0 ? v : -v, flip = v => [v[0], neg(v[1]), neg(v[2])];
+  const groups = v => isVec(v,3) || (Array.isArray(v) && v.length>0 && v.every(x => isVec(x,3)));
+  (function walk(node){
+    if(Array.isArray(node)){ node.forEach(walk); return; }
+    if(!node || typeof node!=='object') return;
+    const bodyFrame = 'inertia_orientation' in node;
+    for(const k of Object.keys(node)){
+      const v = node[k];
+      if(FRAME_QUAT_KEYS.has(k) && isVec(v,4)) node[k] = [v[3], neg(v[2]), v[1], neg(v[0])];
+      else if(k==='inertia' && v && typeof v==='object' && !Array.isArray(v)){ if(!bodyFrame) ['Ixy','Ixz'].forEach(p => { if(typeof v[p]==='number') v[p] = neg(v[p]); }); }
+      else if((FRAME_VECTOR_KEYS.has(k) || (FRAME_SIDE_KEYS.has(k) && isVec(v,3))) && groups(v)) node[k] = isVec(v,3) ? flip(v) : v.map(flip);
+      else walk(v);
+    }
+  })(out);
+  out._metadata = out._metadata || {};
+  if(out._metadata.coordinate_system && typeof out._metadata.coordinate_system==='object') out._metadata.physics_frame = 'ISO_8855'; else out._metadata.coordinate_system = 'ISO_8855';
+  return out;
+}
+const vec2three = p => {if(!p||p.length<3)return new THREE.Vector3();return new THREE.Vector3(-p[1],p[2],-p[0]);};
 
 // Resolve tire dimensions from tires.sets via set_ref, fallback to wheel fields
 function resolveTireDims(corn, data) {
@@ -484,13 +518,13 @@ function buildScene() {
   grid.position.set(0, 0, _fit.tz); groups.grid.add(grid);
 
   // Axes
-  const ao = sae2three([0,0,0]);
+  const ao = vec2three([0,0,0]);
   [[0.4,0,0,0xff3333],[0,0.4,0,0x33ff33],[0,0,0.4,0x3377ff]].forEach(([x,y,z,c]) => {
-    const t = mkT(ao, sae2three([x,y,z]), 0.004, c); if(t)groups.axes.add(t);
+    const t = mkT(ao, vec2three([x,y,z]), 0.004, c); if(t)groups.axes.add(t);
   });
 
   // CG
-  const cgP = sae2three(ch.center_of_gravity||[wb/2,0,-0.4]);
+  const cgP = vec2three(ch.center_of_gravity||[wb/2,0,0.4]);
   const cgS = mkS(cgP, 0.035, 0xff5131);
   addP(cgS, `CG: [${(ch.center_of_gravity||[]).map(v=>v.toFixed(3)).join(', ')}]`);
   groups.chassis.add(cgS);
@@ -503,7 +537,7 @@ function buildScene() {
     if(!Array.isArray(pos) || pos.length < 3) return;
     [[1,0,0,0xff3333],[0,1,0,0x33ff33],[0,0,1,0x3377ff]].forEach(([x,y,z,col]) => {
       const dv = quatRotate(q, [x,y,z]);
-      const t = mkT(sae2three(pos), sae2three([pos[0]+dv[0]*0.05, pos[1]+dv[1]*0.05, pos[2]+dv[2]*0.05]), 0.0015, col);
+      const t = mkT(vec2three(pos), vec2three([pos[0]+dv[0]*0.05, pos[1]+dv[1]*0.05, pos[2]+dv[2]*0.05]), 0.0015, col);
       if(t){ t.userData = {corner: st}; groups.suspension.add(t); }
     });
   });
@@ -511,11 +545,11 @@ function buildScene() {
   const axX=(data.axles||[]).map(a=>a.position_x).filter(v=>typeof v==='number');
   const xF=axX.length?Math.max(...axX):0, xR=axX.length?Math.min(...axX):-wb;
   const trMax=Math.max(tf,tr,...(data.axles||[]).map(a=>a.track||0));
-  groups.chassis.add(mkBox(sae2three([(xF+xR)/2,0,-0.35]), trMax+0.1, 0.45, (xF-xR)+0.5, 0x2a3550));
+  groups.chassis.add(mkBox(vec2three([(xF+xR)/2,0,0.35]), trMax+0.1, 0.45, (xF-xR)+0.5, 0x2a3550));
 
   // Aero CoP
   if (data.aerodynamics?.center_of_pressure) {
-    const cop = sae2three(data.aerodynamics.center_of_pressure);
+    const cop = vec2three(data.aerodynamics.center_of_pressure);
     const copS = mkS(cop, 0.02, 0x2dd4bf);
     addP(copS, `Aero CoP: [${data.aerodynamics.center_of_pressure.map(v=>v.toFixed(3)).join(', ')}]`);
     groups.chassis.add(copS);
@@ -525,7 +559,7 @@ function buildScene() {
   const catC = {structural:0x4d9fff,powertrain:0xff8c42,fluid:0x2dd4bf,payload:0xf0b429,electrical:0xb06aff};
   (ch.mass_bodies||[]).forEach(mb => {
     if(!mb.position) return;
-    const p = sae2three(mb.position);
+    const p = vec2three(mb.position);
     const r = Math.max(0.015, Math.min(0.06, Math.cbrt(mb.mass/400)*0.04));
     const s = mkS(p, r, catC[mb.category]||0x6e7a96);
     if(mb.x_derived){ s.material.transparent = true; s.material.opacity = 0.4; }          // generated item (x_derived): drawn faint
@@ -539,7 +573,7 @@ function buildScene() {
   // Suspension
   stationKeys(data.suspension).forEach(cn => {
     const corn = data.suspension?.[cn]; if(!corn?.topology) return;
-    const _ax=(data.axles||[]).find(x=>x.id===axleIdOf(cn)); const _lift=(liftRaised&&_ax?.liftable)?(_ax.lift?.travel||0.15):0; const S3=c=>{const v=sae2three(c); v.y+=_lift; return v;};
+    const _ax=(data.axles||[]).find(x=>x.id===axleIdOf(cn)); const _lift=(liftRaised&&_ax?.liftable)?(_ax.lift?.travel||0.15):0; const S3=c=>{const v=vec2three(c); v.y+=_lift; return v;};
     const col = stationColorHex(cn); const hp = corn.topology.upright?.hardpoints||{}; const links = corn.topology.links||[];
 
     Object.entries(hp).forEach(([name,coord]) => {
@@ -596,7 +630,7 @@ function buildScene() {
       const tireDia = rimDia + 2 * sidewall;
       const tireR = tireDia / 2;
       const rimR = rimDia / 2;
-      const isLeft = wc[1] < 0;
+      const isLeft = wc[1] > 0;
 
       wheelPositions(w).forEach(wp => {
       const P = wcP.clone(); P.x += wp.off * (isLeft ? -1 : 1);
@@ -607,7 +641,7 @@ function buildScene() {
       const tireMat = new THREE.MeshPhongMaterial({color:0x1a1a1a, transparent:true, opacity:0.55, shininess:5});
       const tireMesh = new THREE.Mesh(tireGeo, tireMat);
       tireMesh.position.copy(P);
-      tireMesh.rotation.z = Math.PI/2; // cylinder axis along Three.X = SAE Y (lateral)
+      tireMesh.rotation.z = Math.PI/2; // cylinder axis along Three.X = vehicle Y (lateral)
       tireMesh.userData = {label: cn + (wp.label?' '+wp.label:'') + ' tire: ' + (secW*1000).toFixed(0) + '/' + (aspect*100).toFixed(0) + 'R' + Math.round(rimDia/0.0254) + '\nOD: ' + (tireDia*1000).toFixed(0) + 'mm  W: ' + (secW*1000).toFixed(0) + 'mm', corner: cn};
       pickables.push(tireMesh);
       groups.wheels.add(tireMesh);
@@ -680,10 +714,10 @@ function buildScene() {
   // Suspension couplings (SVJ v0.99): pivots and beam/rocker/trunnion ends
   (data.suspension_couplings||[]).forEach(cp => {
     const cpCol = 0xff9f1c;
-    const piv = cp.pivot_position ? sae2three(cp.pivot_position) : null;
+    const piv = cp.pivot_position ? vec2three(cp.pivot_position) : null;
     if(piv){ const ps=mkS(piv,0.02,cpCol); addP(ps, `${cp.id} (${cp.type}) pivot\n[${cp.pivot_position.map(v=>v.toFixed(3)).join(', ')}]`); groups.suspension.add(ps); }
     const ends=(cp.end_points||cp.end_seats||[]).concat((cp.connections||[]).map(c=>c.attach_point).filter(Boolean));
-    ends.forEach(e => { const p=sae2three(e); const es=mkS(p,0.012,cpCol); addP(es, `${cp.id} end\n[${e.map(v=>v.toFixed(3)).join(', ')}]`); groups.suspension.add(es); if(piv){ const t=mkT(piv,p,0.008,cpCol); if(t) groups.suspension.add(t); } });
+    ends.forEach(e => { const p=vec2three(e); const es=mkS(p,0.012,cpCol); addP(es, `${cp.id} end\n[${e.map(v=>v.toFixed(3)).join(', ')}]`); groups.suspension.add(es); if(piv){ const t=mkT(piv,p,0.008,cpCol); if(t) groups.suspension.add(t); } });
   });
 
   // ── v4.1: axle beams, frame rails / backbone, axle labels, coupling circuits ──
@@ -691,14 +725,14 @@ function buildScene() {
     const AXL = axleList(data);
     const beamCol = 0x8a94ad;
     const wcOf = (k, lifted=true) => { const c=data.suspension?.[k]?.topology?.upright?.hardpoints?.wheel_center; if(!c) return null;
-      const ax=(data.axles||[]).find(x=>x.id===axleIdOf(k)); const v=sae2three(c); if(lifted && liftRaised && ax?.liftable) v.y += (ax.lift?.travel||0.15); return v; };
+      const ax=(data.axles||[]).find(x=>x.id===axleIdOf(k)); const v=vec2three(c); if(lifted && liftRaised && ax?.liftable) v.y += (ax.lift?.travel||0.15); return v; };
     const BEAM_TYPES = ['solid_axle','de_dion','pendulum_axle','torsion_beam'];
     let maxR = 0.3, wcZ = 0.3, anySwing = false;
     AXL.forEach(ax => {
       const sts = ax.stations; if(!sts.length) return;
       const corn0 = data.suspension[sts[0]];
       maxR = Math.max(maxR, stationTireR(corn0, data));
-      const wc0 = corn0?.topology?.upright?.hardpoints?.wheel_center; if(wc0) wcZ = Math.max(wcZ, -wc0[2]);
+      const wc0 = corn0?.topology?.upright?.hardpoints?.wheel_center; if(wc0) wcZ = Math.max(wcZ, wc0[2]);
       const types = sts.map(k=>data.suspension[k]?.topology?.system_type);
       if(types.includes('swing_axle')) anySwing = true;
       const L = sts.find(k=>sideOf(k)==='L'), R = sts.find(k=>sideOf(k)==='R');
@@ -713,12 +747,12 @@ function buildScene() {
       // Swing half-axles: tube from wheel centre to the centreline pivot
       if(types.includes('swing_axle')) [pL,pR].forEach(pw=>{ if(!pw) return; const pv=new THREE.Vector3(0,pw.y+0.02,pw.z); const t=mkT(pw,pv,0.035,beamCol); if(t) groups.frame.add(t); });
       // Axle label
-      const P = sae2three([ax.position_x??0, 0, -(maxR*2+0.35)]);
+      const P = vec2three([ax.position_x??0, 0, (maxR*2+0.35)]);
       const flags = [ax.steered?'steer':'', ax.driven?'drive':'', ax.liftable?(liftRaised?'lifted':'lift'):''].filter(Boolean).join(' · ');
       const lw = (ax.label||'').split(/[ (,]/)[0].toLowerCase(); const showLw = lw && !['steer','drive','lift','trailer','steer-drive','front','rear'].includes(lw) && !/^\d/.test(lw);
       const lab = mkLabel(`${ax.id}${showLw?' '+lw:''}${ax.wheelsPerStation>1?' · '+ax.wheelsPerStation+'×':''}${flags?' · '+flags:''}`, ax.driven?'#ff8c42':(ax.steered?'#2dd4bf':'#dfe3ed'));
       lab.position.copy(P); groups.labels.add(lab);
-      const tick = mkL(sae2three([ax.position_x??0,0,-(maxR*2+0.25)]), sae2three([ax.position_x??0,0,-(maxR*2+0.05)]), 0x6e7a96); groups.labels.add(tick);
+      const tick = mkL(vec2three([ax.position_x??0,0,(maxR*2+0.25)]), vec2three([ax.position_x??0,0,(maxR*2+0.05)]), 0x6e7a96); groups.labels.add(tick);
     });
     const xs = AXL.map(a=>a.position_x).filter(v=>typeof v==='number');
     if(isTruckLike(data) && xs.length>=2) {
@@ -728,19 +762,19 @@ function buildScene() {
       let front = xF + 1.2, rear = xR - 1.1;
       if(cls==='semi_trailer') front = Math.max(xF+2, typeof cgx==='number' ? 2*cgx-(xR-1.1) : xF+8);
       if(trailer && cls!=='semi_trailer') front = xF + 2.5;
-      const zc = -(wcZ + maxR*0.55 + 0.12);
+      const zc = (wcZ + maxR*0.55 + 0.12);
       if(anySwing) {
-        const t = mkT(sae2three([front,0,zc+0.05]), sae2three([rear,0,zc+0.05]), 0.09, beamCol);
+        const t = mkT(vec2three([front,0,zc+0.05]), vec2three([rear,0,zc+0.05]), 0.09, beamCol);
         if(t){ t.userData={label:'Central backbone tube (schematic)'}; pickables.push(t); groups.frame.add(t); }
       } else {
         const half = trailer ? 0.5 : 0.43;
         [-half, half].forEach(y => {
-          const c = sae2three([(front+rear)/2, y, zc]);
+          const c = vec2three([(front+rear)/2, y, zc]);
           const m = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.27, front-rear), new THREE.MeshPhongMaterial({color:beamCol, transparent:true, opacity:0.35}));
           m.position.copy(c); m.userData={label:`Frame rail (schematic)\nx ${front.toFixed(2)} → ${rear.toFixed(2)} m`}; pickables.push(m); groups.frame.add(m);
         });
         for(let x=front; x>rear; x-=Math.max(1.0,(front-rear)/6)) {
-          const t = mkT(sae2three([x,-half,zc]), sae2three([x,half,zc]), 0.02, beamCol); if(t) groups.frame.add(t);
+          const t = mkT(vec2three([x,-half,zc]), vec2three([x,half,zc]), 0.02, beamCol); if(t) groups.frame.add(t);
         }
       }
     }
@@ -763,14 +797,14 @@ function buildScene() {
   // Steering
   const st = data.steering;
   if(st?.rack_position) {
-    const rP = sae2three(st.rack_position);
-    const rL = sae2three([st.rack_position[0], -tf/2*0.3, st.rack_position[2]]);
-    const rR = sae2three([st.rack_position[0], tf/2*0.3, st.rack_position[2]]);
+    const rP = vec2three(st.rack_position);
+    const rL = vec2three([st.rack_position[0], tf/2*0.3, st.rack_position[2]]);
+    const rR = vec2three([st.rack_position[0], -tf/2*0.3, st.rack_position[2]]);
     const rt = mkT(rL, rR, 0.007, 0x2dd4bf); if(rt)groups.steering.add(rt);
     const rs = mkS(rP, 0.01, 0x2dd4bf); addP(rs, `Rack: [${st.rack_position.map(v=>v.toFixed(3)).join(', ')}]`); groups.steering.add(rs);
     if(st.tie_rod_inboard) ['left','right'].forEach(side => {
       const c = st.tie_rod_inboard[side]; if(!c)return;
-      const s = mkS(sae2three(c), 0.007, 0x2dd4bf); addP(s, `Tie rod ${side}\n[${c.map(v=>v.toFixed(3)).join(', ')}]`); groups.steering.add(s);
+      const s = mkS(vec2three(c), 0.007, 0x2dd4bf); addP(s, `Tie rod ${side}\n[${c.map(v=>v.toFixed(3)).join(', ')}]`); groups.steering.add(s);
     });
   }
 
@@ -779,27 +813,27 @@ function buildScene() {
   if(pt) {
     const dc = 0xff8c42;
     [['engine',pt.engine,0.05],['clutch',pt.clutch,0.025],['gearbox',pt.gearbox,0.03]].forEach(([n,c,r]) => {
-      if(!c?.position)return; const p = sae2three(c.position);
+      if(!c?.position)return; const p = vec2three(c.position);
       groups.drivetrain.add(mkBox(p,r*2,r*1.5,r*2,dc));
       const s = mkS(p, 0.012, dc); addP(s, `${n}: ${c.mass||'?'} kg\n[${c.position.map(v=>v.toFixed(3)).join(', ')}]`); groups.drivetrain.add(s);
     });
     (pt.driveshafts||[]).forEach(ds => {
       const fj=ds.joint_front?.position, rj=ds.joint_rear?.position;
-      if(fj&&rj){const t=mkT(sae2three(fj),sae2three(rj),0.006,dc);if(t)groups.drivetrain.add(t);
-      [fj,rj].forEach((j,i)=>{const s=mkS(sae2three(j),0.007,dc);addP(s,`${ds.id} ${i?'rear':'front'} joint`);groups.drivetrain.add(s);});}
+      if(fj&&rj){const t=mkT(vec2three(fj),vec2three(rj),0.006,dc);if(t)groups.drivetrain.add(t);
+      [fj,rj].forEach((j,i)=>{const s=mkS(vec2three(j),0.007,dc);addP(s,`${ds.id} ${i?'rear':'front'} joint`);groups.drivetrain.add(s);});}
     });
     (pt.differentials||[]).forEach(df => {
-      if(!df.position)return;const p=sae2three(df.position);
+      if(!df.position)return;const p=vec2three(df.position);
       groups.drivetrain.add(mkBox(p,0.08,0.05,0.05,0xf0524f));
       const s=mkS(p,0.014,0xf0524f);addP(s,`${df.id} (${df.type})\nFD=${df.final_drive}`);groups.drivetrain.add(s);
       [['outL',df.output_left],['outR',df.output_right]].forEach(([n,pos])=>{
-        if(!pos)return;const pp=sae2three(pos);groups.drivetrain.add(mkL(p,pp,0xf0524f));
+        if(!pos)return;const pp=vec2three(pos);groups.drivetrain.add(mkL(p,pp,0xf0524f));
         const ss=mkS(pp,0.007,0xf0524f);addP(ss,`${df.id}.${n}`);groups.drivetrain.add(ss);
       });
     });
     if(pt.half_shafts)Object.entries(pt.half_shafts).forEach(([side,hs])=>{
       const ci=hs.cv_inner?.position,co=hs.cv_outer?.position;
-      if(ci&&co){const t=mkT(sae2three(ci),sae2three(co),0.005,0xf0b429);if(t)groups.drivetrain.add(t);}
+      if(ci&&co){const t=mkT(vec2three(ci),vec2three(co),0.005,0xf0b429);if(t)groups.drivetrain.add(t);}
     });
   }
 
@@ -1011,9 +1045,9 @@ function runValidation(data) {
     if((cg[0] > 0.5 && !semiTrailer) || cg[0] < -(wb+0.5)) {
       warnings.push('CG X='+cg[0].toFixed(3)+' is outside wheelbase [0, -'+wb.toFixed(2)+']. Check X sign convention.');
     }
-    // CG Z should be negative (above ground in SAE Z-down)
-    if(cg[2] > 0) {
-      warnings.push('CG Z='+cg[2].toFixed(3)+' is positive (below ground in SAE Z-down). Should be negative.');
+    // CG Z should be positive (above ground, ISO 8855 Z up)
+    if(cg[2] < 0) {
+      warnings.push('CG Z='+cg[2].toFixed(3)+' is negative (below ground in ISO 8855, Z up). Should be positive.');
     }
   }
   // Check mass_bodies X range
@@ -1220,7 +1254,7 @@ function geoSolve(model, travel={}, jointValues={}, start=null){
       const w = want[c.id]; terms.push({bodies:[c.body_a,c.body_b].filter(b=>b in index), len:c.joint_type==='cylindrical'?2:1,
         ev:(X,out)=>{ const got = geoCoordinate(model,c,X); got.forEach((g,k) => out.push(k<w.length?g-w[k]:0)); }}); });
     csts.forEach(sid => { const st = model.stations[sid]; if(refC[sid]) terms.push({bodies:[st.upright_body], len:1,
-      ev:(X,out)=>{ const p = geoWheelCentre(model,st,X); out.push(p[2]-refC[sid][2]+(travel[sid]||0)); }}); });
+      ev:(X,out)=>{ const p = geoWheelCentre(model,st,X); out.push(p[2]-refC[sid][2]-(travel[sid]||0)); }}); });
     terms.forEach(t => { t.bodies = t.bodies.filter(b => b in index); });
     const byBody = comp.map(() => []); terms.forEach((t,ti) => t.bodies.forEach(b => byBody[index[b]].push(ti)));
     const offs = []; let m = 0; terms.forEach(t => { offs.push(m); m += t.len; });
@@ -1265,7 +1299,7 @@ function geoWheelAxis(model, sid, X){
 function geoAlignment(model, sid, X){
   const a = geoWheelAxis(model,sid,X); if(!a) return null;
   const c = geoWheelCentre(model,model.stations[sid],X), s = (c&&c[1]>=0)?1:-1;
-  return {camber:Math.asin(Math.max(-1,Math.min(1,a[2])))*180/Math.PI, toe:Math.atan2(a[0],s*a[1])*180/Math.PI};
+  return {camber:Math.asin(Math.max(-1,Math.min(1,-a[2])))*180/Math.PI, toe:Math.atan2(a[0],s*a[1])*180/Math.PI};
 }
 function geoTyreRadius(st){
   const w = st.wheel||{}, t = st.tire||{};
@@ -1280,12 +1314,12 @@ function geoSteeringAxis(model, sid, travel=0, delta=0.002){
   if(!lo.converged||!hi.converged) return null;
   const ub = st.upright_body, rel = geoCompose(hi.transforms[ub], geoInv(lo.transforms[ub])), w = geoRotvec(rel.R), nn = Math.hypot(...w);
   if(nn < 1e-9) return null;
-  let u = w.map(v=>v/nn); if(u[2] > 0) u = u.map(v=>-v);
+  let u = w.map(v=>v/nn); if(u[2] < 0) u = u.map(v=>-v);
   const mid = geoSolve(model,{[sid]:travel},{[sj]:0}), centre = geoWheelCentre(model,st,mid.transforms), side = centre[1]>=0?1:-1;
   const A = [0,1,2].map(i => [0,1,2].map(j => (i===j?1:0)-rel.R[i][j]+u[i]*u[j])), q = geoSolveLinear(A, rel.t.slice());
   const d = geoSub(centre,q), k = d[0]*u[0]+d[1]*u[1]+d[2]*u[2], foot = q.map((v,i)=>v+k*u[i]);
-  const zg = centre[2]+geoTyreRadius(st), sc = Math.abs(u[2])>1e-9?(zg-foot[2])/u[2]:0, ground = foot.map((v,i)=>v+sc*u[i]);
-  return {caster:Math.atan2(-u[0],-u[2])*180/Math.PI, kpi:Math.atan2(-u[1]*side,-u[2])*180/Math.PI, scrub:side*(centre[1]-ground[1]), trail:ground[0]-centre[0]};
+  const zg = centre[2]-geoTyreRadius(st), sc = Math.abs(u[2])>1e-9?(zg-foot[2])/u[2]:0, ground = foot.map((v,i)=>v+sc*u[i]);
+  return {caster:Math.atan2(-u[0],u[2])*180/Math.PI, kpi:Math.atan2(-u[1]*side,u[2])*180/Math.PI, scrub:side*(centre[1]-ground[1]), trail:ground[0]-centre[0]};
 }
 /* Front-view roll centre from the instant centre of the upright between wheel travel -delta and +delta. */
 function geoRollCentre(model, sid, delta=0.005){
@@ -1294,10 +1328,10 @@ function geoRollCentre(model, sid, delta=0.005){
   const ub = st.upright_body, mid = geoSolve(model), rel = geoCompose(hi.transforms[ub], geoInv(lo.transforms[ub])), R = rel.R, t = rel.t;
   const th = Math.atan2(R[2][1],R[1][1]); if(Math.abs(th)<1e-9) return null;
   const c = Math.cos(th), sn = Math.sin(th), det = (1-c)**2+sn**2, icy = ((1-c)*t[1]-sn*t[2])/det, icz = (sn*t[1]+(1-c)*t[2])/det;
-  const centre = geoWheelCentre(model,st,mid.transforms), contact = [centre[1], centre[2]+geoTyreRadius(st)];
+  const centre = geoWheelCentre(model,st,mid.transforms), contact = [centre[1], centre[2]-geoTyreRadius(st)];
   const dy = icy-contact[0], dz = icz-contact[1]; if(Math.abs(dy)<1e-9) return null;
   const k = -contact[0]/dy, zrc = contact[1]+k*dz;
-  return {height:contact[1]-zrc};
+  return {height:zrc-contact[1]};
 }
 /* The wheel-travel analysis of one station: sweep over -range..+range (m), gains by central difference around the reference. */
 function geoAnalyseStation(model, sid, range, steps){
@@ -1480,7 +1514,7 @@ function renderOverview(el, data) {
       ${stat('CG Height',fmtN(cg[2]?Math.abs(cg[2]):null,3),'m')}
     </div>
     ${axleDiagram(data)}
-    ${section('CG Position (editable)','<div class="grid3">'+editStat('X (fwd)','chassis.center_of_gravity.0','m',3)+editStat('Y (right)','chassis.center_of_gravity.1','m',3)+editStat('Z (down)','chassis.center_of_gravity.2','m',3)+'</div>')}
+    ${section('CG Position (editable)','<div class="grid3">'+editStat('X (fwd)','chassis.center_of_gravity.0','m',3)+editStat('Y (left)','chassis.center_of_gravity.1','m',3)+editStat('Z (up)','chassis.center_of_gravity.2','m',3)+'</div>')}
     ${ch.inertia?section('Inertia (kg·m²)',`<div class="grid2">${['Ixx','Iyy','Izz','Ixz'].filter(k=>ch.inertia[k]!=null).map(k=>stat(k,fmtN(ch.inertia[k],0))).join('')}</div>`):''}
     ${ch.mass_unsprung_per_corner?section('Unsprung Mass (kg)',`<div class="grid4">${stationKeys(ch.mass_unsprung_per_corner).map(c=>stat(c,fmtN(ch.mass_unsprung_per_corner[c],1),'kg')).join('')}</div>`):''}
     ${stationKeys(data.suspension).length?section('Axles & Wheels (editable)'+(data.axles?.length?' · '+data.axles.length:''), axleEditorHtml(data)):''}
@@ -1699,7 +1733,7 @@ function mfParams(s){
   const lam={}; MF_SCALING.forEach(k=>lam[k]=1); Object.entries(pj.scaling||{}).forEach(([k,v])=>{ if(k in lam&&typeof v==='number') lam[k]=v; });
   const comb=mfNums(pj.combined);
   return {model:pj.model||'MF52', lat:mfNums(pj.lateral), lon:mfNums(pj.longitudinal), alg:mfNums(pj.aligning), comb, roll:mfNums(pj.rolling_resistance),
-          lam, Fz0, p0, R0, V0:(ref.speed>0?ref.speed:16.7), hasComb:!!((comb.rCx1||0)!==0||(comb.rCy1||0)!==0)};
+          lam, Fz0, p0, R0, V0:(ref.speed>0?ref.speed:16.7), axis:(pj.axis_system==='SAE_J670'?'SAE_J670':'ISO_8855'), hasComb:!!((comb.rCx1||0)!==0||(comb.rCy1||0)!==0)};
 }
 function mfForces(p,Fz,kappa=0,alpha=0,gamma=0,pressure=null,combined=true,Vx=null){
   const out={Fx:0,Fy:0,Mz:0,My:0,Fx0:0,Fy0:0,Gxa:1,Gyk:1,SVyk:0,Kya:0,Kxk:0,mu_x:0,mu_y:0,t:0,Mzr:0,s:0};
@@ -1768,7 +1802,9 @@ function mfForces(p,Fz,kappa=0,alpha=0,gamma=0,pressure=null,combined=true,Vx=nu
   let My=0;
   if(Object.keys(p.roll).length&&Vx!=null&&R0){ const q=k=>p.roll[k]||0, pr=(p.p0&&pi)?pi/p.p0:1;
     My=-Fz*R0*(q('qsy1')+q('qsy2')*Fx/p.Fz0+q('qsy3')*Math.abs(Vx/p.V0)+q('qsy4')*Math.pow(Vx/p.V0,4)+(q('qsy5')+q('qsy6')*Fz/p.Fz0)*gm*gm)*Math.pow(Fz/p.Fz0,q('qsy7'))*Math.pow(pr,q('qsy8'))*L.LMY; }
-  return Object.assign(out,{Fx,Fy,Mz,My,Fx0,Fy0,Gxa,Gyk,SVyk,Kya,Kxk,mu_x,mu_y:ly.mu_y,t,Mzr,s});
+  Object.assign(out,{Fx,Fy,Mz,My,Fx0,Fy0,Gxa,Gyk,SVyk,Kya,Kxk,mu_x,mu_y:ly.mu_y,t,Mzr,s});
+  if(p.axis==='SAE_J670') ['Fy','Fy0','Mz','Mzr','SVyk','Kya','s'].forEach(k => { out[k] = out[k] ? -out[k] : 0; });   // legacy signs -> ISO 8855 (spec 11.13)
+  return out;
 }
 
 function mfCharacteristics(p, Fz){
@@ -2100,7 +2136,7 @@ function applyStoredTransform(obj, meshId) {
    ═══════════════════════════════════════════════════ */
 const POSE_DOF = {revolute:1, translational:1, cylindrical:2, spherical:3, universal:2, planar:3, fixed:0};
 const POSE_ROOTS = ['chassis', 'ground'];
-const SAE_TO_THREE = [[0,1,0],[0,0,-1],[-1,0,0]];     // three = (y, -z, -x)
+const VEHICLE_TO_THREE = [[0,-1,0],[0,0,1],[-1,0,0]];     // ISO 8855 vehicle axes -> three = (-y, z, -x)
 
 let poseState = {id: null, values: {}};     // values: jointId -> [coordinates]
 let posedObjects = [];                      // {obj, bodyId, base:Matrix4}: procedural objects that follow a body
@@ -2238,9 +2274,9 @@ function poseInertia(d, X){
   return madd(acc, steiner(r.mass, r.delta), -1);
 }
 
-// SAE rigid transform -> THREE.Matrix4 (acting on Three-space world coordinates)
+// Vehicle-frame rigid transform -> THREE.Matrix4 (acting on Three-space world coordinates)
 function threeMatrix(x){
-  const P = SAE_TO_THREE, R = mm3(mm3(P, x.R), tr3(P)), t = mv3(P, x.t), m = new THREE.Matrix4();
+  const P = VEHICLE_TO_THREE, R = mm3(mm3(P, x.R), tr3(P)), t = mv3(P, x.t), m = new THREE.Matrix4();
   m.set(R[0][0],R[0][1],R[0][2],t[0], R[1][0],R[1][1],R[1][2],t[1], R[2][0],R[2][1],R[2][2],t[2], 0,0,0,1);
   return m;
 }
@@ -2299,7 +2335,7 @@ function applyPose(){
     const L = poseElementLengths(d, X);
     artic.elems.forEach(el => {
       const c = el.c, fa = poseFrame(d, c, 'a'), fb = poseFrame(d, c, 'b'); if(!fa || !fb) return;
-      const pa = sae2three(xApply(X[c.body_a] || xId(), fa.p)), pb = sae2three(xApply(X[c.body_b] || xId(), fb.p));
+      const pa = vec2three(xApply(X[c.body_a] || xId(), fa.p)), pb = vec2three(xApply(X[c.body_b] || xId(), fb.p));
       const pos = el.line.geometry.attributes.position; pos.setXYZ(0, pa.x, pa.y, pa.z); pos.setXYZ(1, pb.x, pb.y, pb.z); pos.needsUpdate = true;
       el.line.geometry.computeBoundingSphere();
       el.ends[0].position.copy(pa); el.ends[1].position.copy(pb);
@@ -2308,7 +2344,7 @@ function applyPose(){
         el.line.material.color.set(ok ? 0xffb347 : 0xff3b3b);
       }
     });
-    if(artic.cg){ const r = poseCG(d, X); artic.cg.position.copy(sae2three(r.cg)); artic.cg.visible = !poseIsReference(); }
+    if(artic.cg){ const r = poseCG(d, X); artic.cg.position.copy(vec2three(r.cg)); artic.cg.visible = !poseIsReference(); }
   }
   updateCollision(X);
   updatePoseReadouts(X);
@@ -2325,23 +2361,23 @@ function buildArticulation(data, h){
     if(c.type === 'joint'){
       const fr = poseFrame(data, c, 'a'); if(!fr || c.joint_type === 'fixed' || c.joint_type === 'spherical') return;
       const ax = mv3(quatMat(fr.q), [0,0,1]), len = c.joint_type === 'planar' ? 0.12 : 0.22;
-      const p1 = sae2three(add3(fr.p, ax.map(v => -v*len))), p2 = sae2three(add3(fr.p, ax.map(v => v*len)));
+      const p1 = vec2three(add3(fr.p, ax.map(v => -v*len))), p2 = vec2three(add3(fr.p, ax.map(v => v*len)));
       const t = h.mkT(p1, p2, c.joint_type === 'translational' ? 0.006 : 0.004, jColor[c.joint_type] || 0xffffff);
       if(t){ h.addP(t, `${c.id}: ${c.joint_type}\n${c.body_a} → ${c.body_b}` + (c.range ? `\nrange ${JSON.stringify(c.range)}` : '')); t.updateMatrix(); posedObjects.push({obj:t, bodyId:c.body_a, base:t.matrix.clone()}); groups.articulation.add(t); }
-      const s = h.mkS(sae2three(fr.p), 0.014, jColor[c.joint_type] || 0xffffff);
+      const s = h.mkS(vec2three(fr.p), 0.014, jColor[c.joint_type] || 0xffffff);
       if(s){ s.updateMatrix(); posedObjects.push({obj:s, bodyId:c.body_a, base:s.matrix.clone()}); groups.articulation.add(s); }
     } else if(c.type === 'spring' || c.type === 'actuator'){
       const fa = poseFrame(data, c, 'a'), fb = poseFrame(data, c, 'b'); if(!fa || !fb) return;
       const col = c.type === 'actuator' ? 0xffb347 : 0x3dd68c;
-      const g = new THREE.BufferGeometry().setFromPoints([sae2three(fa.p), sae2three(fb.p)]);
+      const g = new THREE.BufferGeometry().setFromPoints([vec2three(fa.p), vec2three(fb.p)]);
       const line = new THREE.Line(g, new THREE.LineBasicMaterial({color: col})); line.frustumCulled = false;
       line.userData = {label: `${c.id}: ${c.type}`, corner: null}; groups.articulation.add(line);
-      const ends = [h.mkS(sae2three(fa.p), 0.012, col), h.mkS(sae2three(fb.p), 0.012, col)];
+      const ends = [h.mkS(vec2three(fa.p), 0.012, col), h.mkS(vec2three(fb.p), 0.012, col)];
       ends.forEach(e => groups.articulation.add(e));
       artic.elems.push({c, line, ends});
     }
   });
-  artic.cg = h.mkS(sae2three(data?.chassis?.center_of_gravity || [0,0,0]), 0.03, 0xffe14d);
+  artic.cg = h.mkS(vec2three(data?.chassis?.center_of_gravity || [0,0,0]), 0.03, 0xffe14d);
   if(artic.cg){ h.addP(artic.cg, 'CG (this pose)'); artic.cg.visible = false; groups.articulation.add(artic.cg); }
 }
 
@@ -2613,8 +2649,8 @@ window.meshPartSet = function(kind, axis, value){
 };
 window.meshSetStep = function(v){ meshStepMm = parseFloat(v) || 1; };
 
-// SAE axes in Three space: fwd(+X) = -Z, right(+Y) = +X, down(+Z) = -Y
-const SAE_AXIS = { x:new THREE.Vector3(0,0,-1), y:new THREE.Vector3(1,0,0), z:new THREE.Vector3(0,-1,0) };
+// ISO 8855 axes in Three space: fwd(+X) = -Z, left(+Y) = -X, up(+Z) = +Y
+const VEHICLE_AXIS = { x:new THREE.Vector3(0,0,-1), y:new THREE.Vector3(-1,0,0), z:new THREE.Vector3(0,1,0) };
 function moveWorld(o, vWorld){
   o.updateWorldMatrix(true, false);   // parents may not have been rendered yet
   const p = o.getWorldPosition(new THREE.Vector3()).add(vWorld);
@@ -2622,7 +2658,7 @@ function moveWorld(o, vWorld){
   o.position.copy(p);
 }
 window.meshNudge = function(axis, sign, rotate){
-  const dir = SAE_AXIS[axis];
+  const dir = VEHICLE_AXIS[axis];
   editSelected(rotate ? 'Rotate part' : 'Move part', o => {
     if(rotate) o.rotateOnWorldAxis(dir, sign * (meshStepMm / 10) * Math.PI / 180);
     else moveWorld(o, dir.clone().multiplyScalar(sign * meshStepMm / 1000));
@@ -2644,7 +2680,7 @@ function svjPoints(){
 window.meshSnap = function(kind){
   const sel = document.getElementById('mesh-snap-pt'); if(!sel || sel.value === '') return;
   const pt = svjPoints()[parseInt(sel.value, 10)]; if(!pt) return;
-  const target = sae2three(pt.pos);
+  const target = vec2three(pt.pos);
   editSelected('Snap ' + kind + ' → ' + pt.label, o => {
     o.updateWorldMatrix(true, true);
     const from = kind === 'origin' ? o.getWorldPosition(new THREE.Vector3()) : new THREE.Box3().setFromObject(o).getCenter(new THREE.Vector3());
@@ -2653,10 +2689,10 @@ window.meshSnap = function(kind){
 };
 
 // ── HUD + toolbar ───────────────────────────────────────────────────────────
-function bboxCentreSAE(o){
+function bboxCentre(o){
   o.updateWorldMatrix(true, true);
   const c = new THREE.Box3().setFromObject(o).getCenter(new THREE.Vector3());
-  return [-c.z, c.x, -c.y];   // inverse of sae2three
+  return [-c.z, -c.x, c.y];   // inverse of vec2three
 }
 function showMeshTransformToolbar(meshId) {
   let tb = document.getElementById('mesh-tb');
@@ -2710,13 +2746,13 @@ function updateMeshTransformHUD() {
   }
   const lab = document.getElementById('mesh-tb-label');
   if (lab) lab.textContent = selectedMeshId + ' › ' + nodeLabel(e, selectedObj);
-  const p = selectedObj.position, r = selectedObj.rotation, s = selectedObj.scale, c = bboxCentreSAE(selectedObj);
+  const p = selectedObj.position, r = selectedObj.rotation, s = selectedObj.scale, c = bboxCentre(selectedObj);
   hud.innerHTML =
     `<div style="color:var(--ac);font-weight:700;margin-bottom:2px">${escH(nodeLabel(e, selectedObj))}</div>` +
     `<div><span style="color:var(--rd)">P</span> ${p.x.toFixed(4)} / ${p.y.toFixed(4)} / ${p.z.toFixed(4)}</div>` +
     `<div><span style="color:var(--gn)">R</span> ${(r.x*57.2958).toFixed(2)} / ${(r.y*57.2958).toFixed(2)} / ${(r.z*57.2958).toFixed(2)}°</div>` +
     `<div><span style="color:var(--bl)">S</span> ${s.x.toFixed(4)} / ${s.y.toFixed(4)} / ${s.z.toFixed(4)}</div>` +
-    `<div style="color:var(--txD)">centre SAE ${c.map(v=>v.toFixed(3)).join(' / ')}</div>`;
+    `<div style="color:var(--txD)">centre ${c.map(v=>v.toFixed(3)).join(' / ')}</div>`;
   hud.style.display = 'block';
 }
 
@@ -2760,7 +2796,7 @@ function refreshMeshFields(){
   [p.x,p.y,p.z].forEach((v,i) => set('mp-p'+i, v.toFixed(4)));
   [r.x,r.y,r.z].forEach((v,i) => set('mp-r'+i, (v*57.2958).toFixed(3)));
   [s.x,s.y,s.z].forEach((v,i) => set('mp-s'+i, v.toFixed(4)));
-  const c = document.getElementById('mp-centre'); if(c) c.textContent = bboxCentreSAE(selectedObj).map(v=>v.toFixed(3)).join(' / ');
+  const c = document.getElementById('mp-centre'); if(c) c.textContent = bboxCentre(selectedObj).map(v=>v.toFixed(3)).join(' / ');
 }
 
 function renderMeshes(el){
@@ -2787,7 +2823,7 @@ function renderMeshes(el){
     e.group.children.forEach(c => walk(c, 0));
     return rows.join('');
   };
-  let h = `<div class="flex-wrap mb6" style="font-size:10px;color:var(--txD)">Click a part here or in 3D. Arrow keys nudge the part (SAE X/Y), PgUp/PgDn = Z; Alt rotates; Shift ×10.</div>`;
+  let h = `<div class="flex-wrap mb6" style="font-size:10px;color:var(--txD)">Click a part here or in 3D. Arrow keys nudge the part (vehicle X/Y), PgUp/PgDn = Z (up); Alt rotates; Shift ×10.</div>`;
   ids.forEach(id => {
     const e = loadedMeshes[id];
     const nd = dirty.find(x => x.id === id);
@@ -2805,7 +2841,7 @@ function renderMeshes(el){
       row('pos m','p',[p.x,p.y,p.z],0.001,v=>v.toFixed(4)) +
       row('rot °','r',[r.x,r.y,r.z],0.1,v=>(v*57.2958).toFixed(3)) +
       row('scale','s',[s.x,s.y,s.z],0.01,v=>v.toFixed(4)) +
-      `<div style="font-size:10px;color:var(--txD);margin:3px 0">local to parent (glTF axes: X right, Y up, −Z forward) · centre in SAE: <span id="mp-centre" style="color:var(--tx)">${bboxCentreSAE(selectedObj).map(v=>v.toFixed(3)).join(' / ')}</span></div>
+      `<div style="font-size:10px;color:var(--txD);margin:3px 0">local to parent (glTF axes: X right, Y up, −Z forward) · centre in vehicle axes: <span id="mp-centre" style="color:var(--tx)">${bboxCentre(selectedObj).map(v=>v.toFixed(3)).join(' / ')}</span></div>
        <div style="display:flex;align-items:center;gap:4px;margin:4px 0;font-size:10px">Step <select onchange="meshSetStep(this.value)" style="background:var(--bg);color:var(--tx);border:1px solid var(--brd);font-size:10px">${[0.1,1,5,10,50,100].map(v=>`<option value="${v}" ${v===meshStepMm?'selected':''}>${v} mm</option>`).join('')}</select>
        ${['x','y','z'].map(a=>`<span style="color:var(--txD)">${a.toUpperCase()}</span><button class="btn" style="padding:0 6px" onclick="meshNudge('${a}',-1)">−</button><button class="btn" style="padding:0 6px" onclick="meshNudge('${a}',1)">+</button>`).join('')}</div>
        <div style="display:flex;align-items:center;gap:4px;margin:4px 0;font-size:10px">Snap to
@@ -2818,12 +2854,12 @@ function renderMeshes(el){
   el.innerHTML = h;
 }
 
-// Arrow-key nudging for the selected part (SAE axes; Shift ×10; Alt rotates by step/10 degrees)
+// Arrow-key nudging for the selected part (vehicle axes, ISO 8855: right arrow = towards the right; Shift ×10; Alt rotates by step/10 degrees)
 document.addEventListener('keydown', ev => {
   if(!selectedObj || ev.ctrlKey || ev.metaKey) return;
   const t = ev.target && ev.target.tagName;
   if(t === 'INPUT' || t === 'SELECT' || t === 'TEXTAREA') return;
-  const keys = {ArrowUp:['x',1], ArrowDown:['x',-1], ArrowRight:['y',1], ArrowLeft:['y',-1], PageUp:['z',-1], PageDown:['z',1]};
+  const keys = {ArrowUp:['x',1], ArrowDown:['x',-1], ArrowRight:['y',-1], ArrowLeft:['y',1], PageUp:['z',1], PageDown:['z',-1]};
   const k = keys[ev.key]; if(!k) return;
   ev.preventDefault();
   const saved = meshStepMm;
@@ -2968,7 +3004,7 @@ window.setMeshOpacity = function(val) {
 const _gltfLoader = new GLTFLoader();
 
 // glTF default (Y-up, -Z-forward) is native Three.js space, so no extra
-// rotation is needed. Physics data was converted by sae2three(), so the
+// rotation is needed. Physics data was converted by vec2three(), so the
 // procedural geometry and loaded meshes share the same Three.js space.
 
 function loadGLTFBuffer(meshId, data, fileName, isGlb) {
@@ -3266,7 +3302,7 @@ function buildCollision(data, h){
   props.forEach(p => {
     const s = p.shape; let geo;
     if(s.type === 'sphere') geo = new THREE.SphereGeometry(s.radius, 14, 10);
-    else if(s.type === 'cylinder') geo = new THREE.CylinderGeometry(s.radius, s.radius, s.length, 16);           // SAE z -> three y
+    else if(s.type === 'cylinder') geo = new THREE.CylinderGeometry(s.radius, s.radius, s.length, 16);           // vehicle z -> three y
     else geo = new THREE.BoxGeometry(s.size[1], s.size[2], s.size[0]);                                           // three = (y, -z, -x)
     const mat = new THREE.MeshBasicMaterial({color: 0xff6ad5, wireframe: true, transparent: true, opacity: 0.55, depthTest: false});
     const m = new THREE.Mesh(geo, mat); m.renderOrder = 5;
@@ -3341,13 +3377,13 @@ function asmMates(a, b){
 const asmBase = n => String(n || '').split(/[\\/]/).pop().toLowerCase();
 // the combination model from a combination file or a vehicle file with attachments[]; `files` maps base names to parsed documents
 function asmModel(doc, files){
-  const missing = [], find = f => { const d = files[asmBase(f)]; if(!d) missing.push(f); return d; };
+  const missing = [], find = f => { const d = files[asmBase(f)]; if(!d) missing.push(f); return d && svjToISO(d); };
   if(Array.isArray(doc.units)){
     const units = doc.units.map(u => ({id: u.id, doc: find(u.file), root: !!u.root}));
     if(units.length && !units.some(u => u.root)) units[0].root = true;
     return {missing, comb: {units, connections: doc.connections || [], poses: doc.poses || [], name: doc.name}};
   }
-  const units = [{id: 'host', doc, root: true}], conns = [];
+  const units = [{id: 'host', doc: svjToISO(doc), root: true}], conns = [];
   (doc.attachments || []).forEach(a => {
     units.push({id: a.id, doc: find(a.file)});
     (a.connections || []).forEach((c, k) => conns.push({id: c.id || (a.id + '_mount' + (k ? '_' + (k + 1) : '')), a: `${c.to_unit || 'host'}.${c.interface}`, b: `${a.id}.${c.attachment_interface}`, joint: c.joint || {joint_type: 'fixed'}}));
@@ -3453,6 +3489,7 @@ function asmAssemble(comb){
 }
 
 function loadData(json) {
+  json = svjToISO(json);                      // legacy SAE J670 files are converted to the viewer's ISO 8855 frame
   resetPoseState();
   adoptUnified(json);
   normalizeMarkers(json);
@@ -4461,7 +4498,7 @@ function hardpointEditor(corner) {
   const hp = getDeep(DATA, 'suspension.' + corner + '.topology.upright.hardpoints') || {};
   const links = getDeep(DATA, 'suspension.' + corner + '.topology.links') || [];
   let h = '<div class="hp-editor">';
-  h += '<div class="hp-row" style="border:none"><div class="hp-name" style="font-weight:700;color:var(--ac)">Point</div><div class="axis-label" style="color:var(--rd)">X (fwd)</div><div class="axis-label" style="color:var(--gn)">Y (right)</div><div class="axis-label" style="color:var(--bl)">Z (down)</div></div>';
+  h += '<div class="hp-row" style="border:none"><div class="hp-name" style="font-weight:700;color:var(--ac)">Point</div><div class="axis-label" style="color:var(--rd)">X (fwd)</div><div class="axis-label" style="color:var(--gn)">Y (left)</div><div class="axis-label" style="color:var(--bl)">Z (up)</div></div>';
   
   // Outboard hardpoints
   Object.keys(hp).forEach(name => {
@@ -4583,7 +4620,7 @@ const _origRenderPanel = renderPanel;
 /* ═══════════════════════════════════════════════════
    STEP EXPORTER  (ISO 10303-21 / AP203 wireframe)
    Extracts suspension geometry as points + lines
-   Coordinates in mm, SAE J670 axis convention
+   Coordinates in mm, ISO 8855 axis convention (the viewer converts legacy SAE files on load)
    ═══════════════════════════════════════════════════ */
 window.exportSTEP = function() {
   const data = DATA;

@@ -1,9 +1,9 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.100",
+    "version": "0.109",
     "description": "Skeleton: 6x4 dump truck with a forward-tilting cab, a tipper body on two rams and a tailgate that opens through a linkage as the body tips. Demonstrates latches, couplings and actuators with poses. The cab, tipper and tailgate are part of the stated mass_total; geometry and masses are illustrative.",
-    "coordinate_system": "SAE_J670",
+    "coordinate_system": "ISO_8855",
     "units": "SI",
     "author": "RFloEng",
     "data_origin": {
@@ -28,7 +28,7 @@
     "center_of_gravity": [
       -3.1,
       0,
-      -1.25
+      1.25
     ],
     "mass_unsprung_per_corner": {
       "A1L": 520,
@@ -52,30 +52,30 @@
         "position": [
           0.55,
           0.0,
-          -1.1
+          1.1
         ],
         "orientation": [
           0.7071068,
           0,
           0,
-          0.7071068
+          -0.7071068
         ]
       },
       "cab_cylinder_base": {
         "position": [
           0.15,
           0.0,
-          -0.8
+          0.8
         ]
       },
       "tipper_body_hinge": {
         "position": [
           -6.3,
           0.0,
-          -1.15
+          1.15
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0,
           0,
           0.7071068
@@ -85,7 +85,7 @@
         "position": [
           -4.3,
           0.0,
-          -0.95
+          0.95
         ]
       }
     },
@@ -98,7 +98,7 @@
         "position": [
           -0.35,
           0.0,
-          -1.95
+          1.95
         ],
         "parent": "chassis",
         "inertia": {
@@ -114,20 +114,20 @@
             "position": [
               0.55,
               0.0,
-              -1.1
+              1.1
             ],
             "orientation": [
               0.7071068,
               0,
               0,
-              0.7071068
+              -0.7071068
             ]
           },
           "cab_cylinder_rod": {
             "position": [
               -0.6,
               0.0,
-              -1.6
+              1.6
             ]
           }
         },
@@ -141,7 +141,7 @@
         "position": [
           -4.35,
           0.0,
-          -1.95
+          1.95
         ],
         "parent": "chassis",
         "inertia": {
@@ -157,10 +157,10 @@
             "position": [
               -6.3,
               0.0,
-              -1.15
+              1.15
             ],
             "orientation": [
-              -0.7071068,
+              0.7071068,
               0,
               0,
               0.7071068
@@ -170,20 +170,20 @@
             "position": [
               -3.05,
               0.0,
-              -1.5
+              1.5
             ]
           },
           "tailgate_hinge": {
             "position": [
               -6.32,
               0.0,
-              -2.45
+              2.45
             ],
             "orientation": [
               0.7071068,
               0,
               0,
-              0.7071068
+              -0.7071068
             ]
           }
         },
@@ -197,7 +197,7 @@
         "position": [
           -6.35,
           0.0,
-          -1.85
+          1.85
         ],
         "parent": "tipper_body",
         "inertia": {
@@ -213,13 +213,13 @@
             "position": [
               -6.32,
               0.0,
-              -2.45
+              2.45
             ],
             "orientation": [
               0.7071068,
               0,
               0,
-              0.7071068
+              -0.7071068
             ]
           }
         },
@@ -234,63 +234,63 @@
         "position": [
           0.0,
           0,
-          -0.51
+          0.51
         ],
         "markers": {
           "wheel_center_a1l": {
             "position": [
               0.0,
-              -1.025,
-              -0.51
+              1.025,
+              0.51
             ]
           },
           "spring_pad_a1l": {
             "position": [
               0.0,
-              -0.45,
-              -0.63
+              0.45,
+              0.63
             ]
           },
           "damper_outboard_a1l": {
             "position": [
               0.0,
-              -0.4,
-              -0.51
+              0.4,
+              0.51
             ]
           },
           "steering_tie_rod_end_a1l": {
             "position": [
               -0.18,
-              -0.905,
-              -0.46
+              0.905,
+              0.46
             ]
           },
           "wheel_center_a1r": {
             "position": [
               0.0,
-              1.025,
-              -0.51
+              -1.025,
+              0.51
             ]
           },
           "spring_pad_a1r": {
             "position": [
               0.0,
-              0.45,
-              -0.63
+              -0.45,
+              0.63
             ]
           },
           "damper_outboard_a1r": {
             "position": [
               0.0,
-              0.4,
-              -0.51
+              -0.4,
+              0.51
             ]
           },
           "steering_tie_rod_end_a1r": {
             "position": [
               -0.18,
-              0.905,
-              -0.46
+              -0.905,
+              0.46
             ]
           }
         },
@@ -304,8 +304,8 @@
         "mass": 110,
         "position": [
           0.0,
-          -1.025,
-          -0.51
+          1.025,
+          0.51
         ],
         "x_derived": true
       },
@@ -316,8 +316,8 @@
         "mass": 0.0,
         "position": [
           0.0,
-          -0.45,
-          -0.6799999999999999
+          0.45,
+          0.6799999999999999
         ],
         "description": "Leaf spring pack",
         "x_derived": true,
@@ -334,8 +334,8 @@
         "mass": 110,
         "position": [
           0.0,
-          1.025,
-          -0.51
+          -1.025,
+          0.51
         ],
         "x_derived": true
       },
@@ -346,8 +346,8 @@
         "mass": 0.0,
         "position": [
           0.0,
-          0.45,
-          -0.6799999999999999
+          -0.45,
+          0.6799999999999999
         ],
         "description": "Leaf spring pack",
         "x_derived": true,
@@ -365,49 +365,49 @@
         "position": [
           -3.835,
           0,
-          -0.51
+          0.51
         ],
         "markers": {
           "wheel_center_a2l": {
             "position": [
               -3.835,
-              -0.93,
-              -0.51
+              0.93,
+              0.51
             ]
           },
           "lower_rod_end_a2l": {
             "position": [
               -3.835,
-              -0.45,
-              -0.39
+              0.45,
+              0.39
             ]
           },
           "upper_rod_end_a2l": {
             "position": [
               -3.835,
-              -0.25,
-              -0.76
+              0.25,
+              0.76
             ]
           },
           "wheel_center_a2r": {
             "position": [
               -3.835,
-              0.93,
-              -0.51
+              -0.93,
+              0.51
             ]
           },
           "lower_rod_end_a2r": {
             "position": [
               -3.835,
-              0.45,
-              -0.39
+              -0.45,
+              0.39
             ]
           },
           "upper_rod_end_a2r": {
             "position": [
               -3.835,
-              0.25,
-              -0.76
+              -0.25,
+              0.76
             ]
           }
         },
@@ -421,8 +421,8 @@
         "mass": 180,
         "position": [
           -3.835,
-          -0.93,
-          -0.51
+          0.93,
+          0.51
         ],
         "x_derived": true
       },
@@ -433,8 +433,8 @@
         "mass": 0.0,
         "position": [
           -3.525,
-          -0.45,
-          -0.42500000000000004
+          0.45,
+          0.42500000000000004
         ],
         "x_derived": true,
         "x_legacy_link": {
@@ -449,8 +449,8 @@
         "mass": 0.0,
         "position": [
           -3.56,
-          -0.185,
-          -0.81
+          0.185,
+          0.81
         ],
         "x_derived": true,
         "x_legacy_link": {
@@ -466,8 +466,8 @@
         "mass": 180,
         "position": [
           -3.835,
-          0.93,
-          -0.51
+          -0.93,
+          0.51
         ],
         "x_derived": true
       },
@@ -478,8 +478,8 @@
         "mass": 0.0,
         "position": [
           -3.525,
-          0.45,
-          -0.42500000000000004
+          -0.45,
+          0.42500000000000004
         ],
         "x_derived": true,
         "x_legacy_link": {
@@ -494,8 +494,8 @@
         "mass": 0.0,
         "position": [
           -3.56,
-          0.185,
-          -0.81
+          -0.185,
+          0.81
         ],
         "x_derived": true,
         "x_legacy_link": {
@@ -512,49 +512,49 @@
         "position": [
           -5.205,
           0,
-          -0.51
+          0.51
         ],
         "markers": {
           "wheel_center_a3l": {
             "position": [
               -5.205,
-              -0.93,
-              -0.51
+              0.93,
+              0.51
             ]
           },
           "lower_rod_end_a3l": {
             "position": [
               -5.205,
-              -0.45,
-              -0.39
+              0.45,
+              0.39
             ]
           },
           "upper_rod_end_a3l": {
             "position": [
               -5.205,
-              -0.25,
-              -0.76
+              0.25,
+              0.76
             ]
           },
           "wheel_center_a3r": {
             "position": [
               -5.205,
-              0.93,
-              -0.51
+              -0.93,
+              0.51
             ]
           },
           "lower_rod_end_a3r": {
             "position": [
               -5.205,
-              0.45,
-              -0.39
+              -0.45,
+              0.39
             ]
           },
           "upper_rod_end_a3r": {
             "position": [
               -5.205,
-              0.25,
-              -0.76
+              -0.25,
+              0.76
             ]
           }
         },
@@ -568,8 +568,8 @@
         "mass": 180,
         "position": [
           -5.205,
-          -0.93,
-          -0.51
+          0.93,
+          0.51
         ],
         "x_derived": true
       },
@@ -580,8 +580,8 @@
         "mass": 0.0,
         "position": [
           -4.895,
-          -0.45,
-          -0.42500000000000004
+          0.45,
+          0.42500000000000004
         ],
         "x_derived": true,
         "x_legacy_link": {
@@ -596,8 +596,8 @@
         "mass": 0.0,
         "position": [
           -4.93,
-          -0.185,
-          -0.81
+          0.185,
+          0.81
         ],
         "x_derived": true,
         "x_legacy_link": {
@@ -613,8 +613,8 @@
         "mass": 180,
         "position": [
           -5.205,
-          0.93,
-          -0.51
+          -0.93,
+          0.51
         ],
         "x_derived": true
       },
@@ -625,8 +625,8 @@
         "mass": 0.0,
         "position": [
           -4.895,
-          0.45,
-          -0.42500000000000004
+          -0.45,
+          0.42500000000000004
         ],
         "x_derived": true,
         "x_legacy_link": {
@@ -641,8 +641,8 @@
         "mass": 0.0,
         "position": [
           -4.93,
-          0.185,
-          -0.81
+          -0.185,
+          0.81
         ],
         "x_derived": true,
         "x_legacy_link": {
@@ -656,8 +656,8 @@
     "type": "recirculating_ball",
     "rack_position": [
       0.35,
-      -0.55,
-      -0.95
+      0.55,
+      0.95
     ],
     "rack_travel": 0.12,
     "overall_ratio": 22.0,
@@ -708,8 +708,8 @@
       "description": "Floating walking beam on rubber bolster spring; torque rods react drive/brake torque.",
       "pivot_position": [
         -4.52,
-        -0.55,
-        -0.63
+        0.55,
+        0.63
       ],
       "beam_length": 1.37,
       "pivot_type": "floating",
@@ -720,13 +720,13 @@
       "end_points": [
         [
           -3.835,
-          -0.55,
-          -0.51
+          0.55,
+          0.51
         ],
         [
           -5.205,
-          -0.55,
-          -0.51
+          0.55,
+          0.51
         ]
       ],
       "end_bushings": {
@@ -771,8 +771,8 @@
       "description": "Floating walking beam on rubber bolster spring; torque rods react drive/brake torque.",
       "pivot_position": [
         -4.52,
-        0.55,
-        -0.63
+        -0.55,
+        0.63
       ],
       "beam_length": 1.37,
       "pivot_type": "floating",
@@ -783,13 +783,13 @@
       "end_points": [
         [
           -3.835,
-          0.55,
-          -0.51
+          -0.55,
+          0.51
         ],
         [
           -5.205,
-          0.55,
-          -0.51
+          -0.55,
+          0.51
         ]
       ],
       "end_bushings": {
@@ -1043,11 +1043,11 @@
       "frame_a": {
         "position": [
           0.0,
-          -1.025,
-          -0.51
+          1.025,
+          0.51
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1057,11 +1057,11 @@
       "frame_b": {
         "position": [
           0.0,
-          -1.025,
-          -0.51
+          1.025,
+          0.51
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1077,11 +1077,11 @@
       "frame_a": {
         "position": [
           0.75,
-          -0.45,
-          -0.73
+          0.45,
+          0.73
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1091,11 +1091,11 @@
       "frame_b": {
         "position": [
           0.75,
-          -0.45,
-          -0.73
+          0.45,
+          0.73
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1111,28 +1111,28 @@
       "frame_a": {
         "position": [
           -0.75,
-          -0.45,
-          -0.73
+          0.45,
+          0.73
         ],
         "orientation": [
-          -0.0,
-          -0.7071068,
+          0.7071068,
           0.0,
-          0.7071068
+          -0.7071068,
+          -0.0
         ]
       },
       "body_b": "leaf_spring_a1l",
       "frame_b": {
         "position": [
           -0.75,
-          -0.45,
-          -0.73
+          0.45,
+          0.73
         ],
         "orientation": [
-          -0.0,
-          -0.7071068,
+          0.7071068,
           0.0,
-          0.7071068
+          -0.7071068,
+          -0.0
         ]
       },
       "x_derived": true
@@ -1145,28 +1145,28 @@
       "frame_a": {
         "position": [
           0.0,
-          -0.45,
-          -0.63
+          0.45,
+          0.63
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a1_beam",
       "frame_b": {
         "position": [
           0.0,
-          -0.45,
-          -0.63
+          0.45,
+          0.63
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1178,28 +1178,28 @@
       "frame_a": {
         "position": [
           0.0,
-          -1.025,
-          -0.81
+          1.025,
+          0.81
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a1_beam",
       "frame_b": {
         "position": [
           0.0,
-          -1.025,
-          -0.51
+          1.025,
+          0.51
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -1218,28 +1218,28 @@
       "frame_a": {
         "position": [
           0.0,
-          -1.025,
-          -0.81
+          1.025,
+          0.81
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a1_beam",
       "frame_b": {
         "position": [
           0.0,
-          -1.025,
-          -0.51
+          1.025,
+          0.51
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -1282,11 +1282,11 @@
       "frame_a": {
         "position": [
           0.0,
-          1.025,
-          -0.51
+          -1.025,
+          0.51
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1296,11 +1296,11 @@
       "frame_b": {
         "position": [
           0.0,
-          1.025,
-          -0.51
+          -1.025,
+          0.51
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1316,11 +1316,11 @@
       "frame_a": {
         "position": [
           0.75,
-          0.45,
-          -0.73
+          -0.45,
+          0.73
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1330,11 +1330,11 @@
       "frame_b": {
         "position": [
           0.75,
-          0.45,
-          -0.73
+          -0.45,
+          0.73
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1350,28 +1350,28 @@
       "frame_a": {
         "position": [
           -0.75,
-          0.45,
-          -0.73
+          -0.45,
+          0.73
         ],
         "orientation": [
-          -0.0,
-          -0.7071068,
+          0.7071068,
           0.0,
-          0.7071068
+          -0.7071068,
+          -0.0
         ]
       },
       "body_b": "leaf_spring_a1r",
       "frame_b": {
         "position": [
           -0.75,
-          0.45,
-          -0.73
+          -0.45,
+          0.73
         ],
         "orientation": [
-          -0.0,
-          -0.7071068,
+          0.7071068,
           0.0,
-          0.7071068
+          -0.7071068,
+          -0.0
         ]
       },
       "x_derived": true
@@ -1384,28 +1384,28 @@
       "frame_a": {
         "position": [
           0.0,
-          0.45,
-          -0.63
+          -0.45,
+          0.63
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a1_beam",
       "frame_b": {
         "position": [
           0.0,
-          0.45,
-          -0.63
+          -0.45,
+          0.63
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1417,28 +1417,28 @@
       "frame_a": {
         "position": [
           0.0,
-          1.025,
-          -0.81
+          -1.025,
+          0.81
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a1_beam",
       "frame_b": {
         "position": [
           0.0,
-          1.025,
-          -0.51
+          -1.025,
+          0.51
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -1457,28 +1457,28 @@
       "frame_a": {
         "position": [
           0.0,
-          1.025,
-          -0.81
+          -1.025,
+          0.81
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a1_beam",
       "frame_b": {
         "position": [
           0.0,
-          1.025,
-          -0.51
+          -1.025,
+          0.51
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -1521,11 +1521,11 @@
       "frame_a": {
         "position": [
           -3.835,
-          -0.93,
-          -0.51
+          0.93,
+          0.51
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1535,11 +1535,11 @@
       "frame_b": {
         "position": [
           -3.835,
-          -0.93,
-          -0.51
+          0.93,
+          0.51
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1555,28 +1555,28 @@
       "frame_a": {
         "position": [
           -3.215,
-          -0.45,
-          -0.46
+          0.45,
+          0.46
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "lower_torque_rod_a2l",
       "frame_b": {
         "position": [
           -3.215,
-          -0.45,
-          -0.46
+          0.45,
+          0.46
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1589,28 +1589,28 @@
       "frame_a": {
         "position": [
           -3.835,
-          -0.45,
-          -0.39
+          0.45,
+          0.39
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a2_housing",
       "frame_b": {
         "position": [
           -3.835,
-          -0.45,
-          -0.39
+          0.45,
+          0.39
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1623,28 +1623,28 @@
       "frame_a": {
         "position": [
           -3.285,
-          -0.12,
-          -0.86
+          0.12,
+          0.86
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upper_torque_rod_a2l",
       "frame_b": {
         "position": [
           -3.285,
-          -0.12,
-          -0.86
+          0.12,
+          0.86
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1657,28 +1657,28 @@
       "frame_a": {
         "position": [
           -3.835,
-          -0.25,
-          -0.76
+          0.25,
+          0.76
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a2_housing",
       "frame_b": {
         "position": [
           -3.835,
-          -0.25,
-          -0.76
+          0.25,
+          0.76
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1691,11 +1691,11 @@
       "frame_a": {
         "position": [
           -3.835,
-          0.93,
-          -0.51
+          -0.93,
+          0.51
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1705,11 +1705,11 @@
       "frame_b": {
         "position": [
           -3.835,
-          0.93,
-          -0.51
+          -0.93,
+          0.51
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1725,28 +1725,28 @@
       "frame_a": {
         "position": [
           -3.215,
-          0.45,
-          -0.46
+          -0.45,
+          0.46
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "lower_torque_rod_a2r",
       "frame_b": {
         "position": [
           -3.215,
-          0.45,
-          -0.46
+          -0.45,
+          0.46
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1759,28 +1759,28 @@
       "frame_a": {
         "position": [
           -3.835,
-          0.45,
-          -0.39
+          -0.45,
+          0.39
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a2_housing",
       "frame_b": {
         "position": [
           -3.835,
-          0.45,
-          -0.39
+          -0.45,
+          0.39
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1793,28 +1793,28 @@
       "frame_a": {
         "position": [
           -3.285,
-          0.12,
-          -0.86
+          -0.12,
+          0.86
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upper_torque_rod_a2r",
       "frame_b": {
         "position": [
           -3.285,
-          0.12,
-          -0.86
+          -0.12,
+          0.86
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1827,28 +1827,28 @@
       "frame_a": {
         "position": [
           -3.835,
-          0.25,
-          -0.76
+          -0.25,
+          0.76
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a2_housing",
       "frame_b": {
         "position": [
           -3.835,
-          0.25,
-          -0.76
+          -0.25,
+          0.76
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1861,11 +1861,11 @@
       "frame_a": {
         "position": [
           -5.205,
-          -0.93,
-          -0.51
+          0.93,
+          0.51
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1875,11 +1875,11 @@
       "frame_b": {
         "position": [
           -5.205,
-          -0.93,
-          -0.51
+          0.93,
+          0.51
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1895,28 +1895,28 @@
       "frame_a": {
         "position": [
           -4.585,
-          -0.45,
-          -0.46
+          0.45,
+          0.46
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "lower_torque_rod_a3l",
       "frame_b": {
         "position": [
           -4.585,
-          -0.45,
-          -0.46
+          0.45,
+          0.46
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1929,28 +1929,28 @@
       "frame_a": {
         "position": [
           -5.205,
-          -0.45,
-          -0.39
+          0.45,
+          0.39
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a3_housing",
       "frame_b": {
         "position": [
           -5.205,
-          -0.45,
-          -0.39
+          0.45,
+          0.39
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1963,28 +1963,28 @@
       "frame_a": {
         "position": [
           -4.655,
-          -0.12,
-          -0.86
+          0.12,
+          0.86
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upper_torque_rod_a3l",
       "frame_b": {
         "position": [
           -4.655,
-          -0.12,
-          -0.86
+          0.12,
+          0.86
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1997,28 +1997,28 @@
       "frame_a": {
         "position": [
           -5.205,
-          -0.25,
-          -0.76
+          0.25,
+          0.76
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a3_housing",
       "frame_b": {
         "position": [
           -5.205,
-          -0.25,
-          -0.76
+          0.25,
+          0.76
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -2031,11 +2031,11 @@
       "frame_a": {
         "position": [
           -5.205,
-          0.93,
-          -0.51
+          -0.93,
+          0.51
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -2045,11 +2045,11 @@
       "frame_b": {
         "position": [
           -5.205,
-          0.93,
-          -0.51
+          -0.93,
+          0.51
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -2065,28 +2065,28 @@
       "frame_a": {
         "position": [
           -4.585,
-          0.45,
-          -0.46
+          -0.45,
+          0.46
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "lower_torque_rod_a3r",
       "frame_b": {
         "position": [
           -4.585,
-          0.45,
-          -0.46
+          -0.45,
+          0.46
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -2099,28 +2099,28 @@
       "frame_a": {
         "position": [
           -5.205,
-          0.45,
-          -0.39
+          -0.45,
+          0.39
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a3_housing",
       "frame_b": {
         "position": [
           -5.205,
-          0.45,
-          -0.39
+          -0.45,
+          0.39
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -2133,28 +2133,28 @@
       "frame_a": {
         "position": [
           -4.655,
-          0.12,
-          -0.86
+          -0.12,
+          0.86
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upper_torque_rod_a3r",
       "frame_b": {
         "position": [
           -4.655,
-          0.12,
-          -0.86
+          -0.12,
+          0.86
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -2167,28 +2167,28 @@
       "frame_a": {
         "position": [
           -5.205,
-          0.25,
-          -0.76
+          -0.25,
+          0.76
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a3_housing",
       "frame_b": {
         "position": [
           -5.205,
-          0.25,
-          -0.76
+          -0.25,
+          0.76
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true

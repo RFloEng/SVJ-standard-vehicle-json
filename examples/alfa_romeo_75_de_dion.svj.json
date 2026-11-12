@@ -1,9 +1,9 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.100",
+    "version": "0.109",
     "description": "Alfa Romeo 75 2.0 Twin Spark — double wishbone front (torsion bar), De Dion tube rear with Watts link. Transaxle layout.",
-    "coordinate_system": "SAE_J670",
+    "coordinate_system": "ISO_8855",
     "units": "SI",
     "data_origin": {
       "type": "calculated",
@@ -27,7 +27,7 @@
     "center_of_gravity": [
       -1.18,
       0.0,
-      -0.47
+      0.47
     ],
     "_est": true,
     "_est_note": "Near 50/50 due to transaxle",
@@ -39,37 +39,37 @@
         "mass": 9.5,
         "position": [
           0.02,
-          -0.5927,
-          -0.255
+          0.5927,
+          0.255
         ],
         "parent": "chassis",
         "markers": {
           "upper_ball_joint": {
             "position": [
               0.0,
-              -0.54,
-              -0.42
+              0.54,
+              0.42
             ]
           },
           "lower_ball_joint": {
             "position": [
               0.0,
-              -0.58,
-              -0.12
+              0.58,
+              0.12
             ]
           },
           "steering_tie_rod_end": {
             "position": [
               0.08,
-              -0.56,
-              -0.18
+              0.56,
+              0.18
             ]
           },
           "wheel_center": {
             "position": [
               0.0,
-              -0.691,
-              -0.3
+              0.691,
+              0.3
             ]
           }
         }
@@ -81,8 +81,8 @@
         "mass": 2.5,
         "position": [
           0.0,
-          -0.3533,
-          -0.42
+          0.3533,
+          0.42
         ],
         "parent": "chassis",
         "x_legacy_link": {
@@ -97,8 +97,8 @@
         "mass": 3.2,
         "position": [
           0.01,
-          -0.34,
-          -0.12
+          0.34,
+          0.12
         ],
         "parent": "chassis",
         "x_legacy_link": {
@@ -113,8 +113,8 @@
         "mass": 0.8,
         "position": [
           0.08,
-          -0.355,
-          -0.18
+          0.355,
+          0.18
         ],
         "parent": "chassis",
         "x_legacy_link": {
@@ -129,37 +129,37 @@
         "mass": 9.5,
         "position": [
           0.02,
-          0.5927,
-          -0.255
+          -0.5927,
+          0.255
         ],
         "parent": "chassis",
         "markers": {
           "upper_ball_joint": {
             "position": [
               0.0,
-              0.54,
-              -0.42
+              -0.54,
+              0.42
             ]
           },
           "lower_ball_joint": {
             "position": [
               0.0,
-              0.58,
-              -0.12
+              -0.58,
+              0.12
             ]
           },
           "steering_tie_rod_end": {
             "position": [
               0.08,
-              0.56,
-              -0.18
+              -0.56,
+              0.18
             ]
           },
           "wheel_center": {
             "position": [
               0.0,
-              0.691,
-              -0.3
+              -0.691,
+              0.3
             ]
           }
         }
@@ -171,8 +171,8 @@
         "mass": 2.5,
         "position": [
           0.0,
-          0.3533,
-          -0.42
+          -0.3533,
+          0.42
         ],
         "parent": "chassis",
         "x_legacy_link": {
@@ -187,8 +187,8 @@
         "mass": 3.2,
         "position": [
           0.01,
-          0.34,
-          -0.12
+          -0.34,
+          0.12
         ],
         "parent": "chassis",
         "x_legacy_link": {
@@ -203,8 +203,8 @@
         "mass": 0.8,
         "position": [
           0.08,
-          0.355,
-          -0.18
+          -0.355,
+          0.18
         ],
         "parent": "chassis",
         "x_legacy_link": {
@@ -219,8 +219,8 @@
         "mass": 7.0,
         "position": [
           -2.51,
-          -0.575,
-          -0.2175
+          0.575,
+          0.2175
         ],
         "parent": "chassis"
       },
@@ -231,8 +231,8 @@
         "mass": 2.0,
         "position": [
           -2.305,
-          -0.4,
-          -0.18
+          0.4,
+          0.18
         ],
         "parent": "chassis",
         "x_legacy_link": {
@@ -247,8 +247,8 @@
         "mass": 2.5,
         "position": [
           -2.51,
-          -0.325,
-          -0.255
+          0.325,
+          0.255
         ],
         "parent": "chassis",
         "_note": "Watts linkage: two lateral links + central pivot. Simplified here as one link per side.",
@@ -264,8 +264,8 @@
         "mass": 7.0,
         "position": [
           -2.51,
-          0.575,
-          -0.2175
+          -0.575,
+          0.2175
         ],
         "parent": "chassis"
       },
@@ -276,8 +276,8 @@
         "mass": 2.0,
         "position": [
           -2.305,
-          0.4,
-          -0.18
+          -0.4,
+          0.18
         ],
         "parent": "chassis",
         "x_legacy_link": {
@@ -292,8 +292,8 @@
         "mass": 2.5,
         "position": [
           -2.51,
-          0.325,
-          -0.255
+          -0.325,
+          0.255
         ],
         "parent": "chassis",
         "_note": "Watts linkage: two lateral links + central pivot. Simplified here as one link per side.",
@@ -310,8 +310,8 @@
         "mass": 17.0,
         "position": [
           0.0,
-          -0.691,
-          -0.3
+          0.691,
+          0.3
         ],
         "inertia": {
           "Ixx": 0.375,
@@ -332,7 +332,7 @@
         "position": [
           0.08,
           0.0,
-          -0.18
+          0.18
         ],
         "x_derived": true
       },
@@ -344,8 +344,8 @@
         "mass": 17.0,
         "position": [
           0.0,
-          0.691,
-          -0.3
+          -0.691,
+          0.3
         ],
         "inertia": {
           "Ixx": 0.375,
@@ -366,63 +366,63 @@
         "position": [
           -2.51,
           0.0,
-          -0.28
+          0.28
         ],
         "markers": {
           "trailing_link_end_rl": {
             "position": [
               -2.51,
-              -0.55,
-              -0.18
+              0.55,
+              0.18
             ]
           },
           "wheel_center_rl": {
             "position": [
               -2.51,
-              -0.67,
-              -0.3
+              0.67,
+              0.3
             ]
           },
           "damper_outboard_rl": {
             "position": [
               -2.51,
-              -0.48,
-              -0.14
+              0.48,
+              0.14
             ]
           },
           "watts_axle_end_rl": {
             "position": [
               -2.51,
-              -0.6,
-              -0.25
+              0.6,
+              0.25
             ]
           },
           "trailing_link_end_rr": {
             "position": [
               -2.51,
-              0.55,
-              -0.18
+              -0.55,
+              0.18
             ]
           },
           "wheel_center_rr": {
             "position": [
               -2.51,
-              0.67,
-              -0.3
+              -0.67,
+              0.3
             ]
           },
           "damper_outboard_rr": {
             "position": [
               -2.51,
-              0.48,
-              -0.14
+              -0.48,
+              0.14
             ]
           },
           "watts_axle_end_rr": {
             "position": [
               -2.51,
-              0.6,
-              -0.25
+              -0.6,
+              0.25
             ]
           }
         },
@@ -443,8 +443,8 @@
         "mass": 17.0,
         "position": [
           -2.51,
-          -0.67,
-          -0.3
+          0.67,
+          0.3
         ],
         "inertia": {
           "Ixx": 0.375,
@@ -464,8 +464,8 @@
         "mass": 17.0,
         "position": [
           -2.51,
-          0.67,
-          -0.3
+          -0.67,
+          0.3
         ],
         "inertia": {
           "Ixx": 0.375,
@@ -488,7 +488,7 @@
     "rack_position": [
       -0.05,
       0.0,
-      -0.2
+      0.2
     ],
     "rack_travel": 0.14,
     "overall_ratio": 16.7,
@@ -558,11 +558,11 @@
       "frame_a": {
         "position": [
           0.0,
-          -0.691,
-          -0.3
+          0.691,
+          0.3
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -572,11 +572,11 @@
       "frame_b": {
         "position": [
           0.0,
-          -0.691,
-          -0.3
+          0.691,
+          0.3
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -592,28 +592,28 @@
       "frame_a": {
         "position": [
           0.12,
-          -0.26,
-          -0.42
+          0.26,
+          0.42
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upper_wishbone_fl",
       "frame_b": {
         "position": [
           0.12,
-          -0.26,
-          -0.42
+          0.26,
+          0.42
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -626,28 +626,28 @@
       "frame_a": {
         "position": [
           -0.12,
-          -0.26,
-          -0.42
+          0.26,
+          0.42
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upper_wishbone_fl",
       "frame_b": {
         "position": [
           -0.12,
-          -0.26,
-          -0.42
+          0.26,
+          0.42
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -660,28 +660,28 @@
       "frame_a": {
         "position": [
           0.0,
-          -0.54,
-          -0.42
+          0.54,
+          0.42
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upright_fl",
       "frame_b": {
         "position": [
           0.0,
-          -0.54,
-          -0.42
+          0.54,
+          0.42
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -694,28 +694,28 @@
       "frame_a": {
         "position": [
           0.18,
-          -0.22,
-          -0.12
+          0.22,
+          0.12
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "lower_wishbone_fl",
       "frame_b": {
         "position": [
           0.18,
-          -0.22,
-          -0.12
+          0.22,
+          0.12
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -728,28 +728,28 @@
       "frame_a": {
         "position": [
           -0.15,
-          -0.22,
-          -0.12
+          0.22,
+          0.12
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "lower_wishbone_fl",
       "frame_b": {
         "position": [
           -0.15,
-          -0.22,
-          -0.12
+          0.22,
+          0.12
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -762,28 +762,28 @@
       "frame_a": {
         "position": [
           0.0,
-          -0.58,
-          -0.12
+          0.58,
+          0.12
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upright_fl",
       "frame_b": {
         "position": [
           0.0,
-          -0.58,
-          -0.12
+          0.58,
+          0.12
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -797,10 +797,10 @@
         "position": [
           0.08,
           0.0,
-          -0.18
+          0.18
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -811,10 +811,10 @@
         "position": [
           0.08,
           0.0,
-          -0.18
+          0.18
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -830,28 +830,28 @@
       "frame_a": {
         "position": [
           0.08,
-          -0.15,
-          -0.18
+          0.15,
+          0.18
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "steering_tie_rod_fl",
       "frame_b": {
         "position": [
           0.08,
-          -0.15,
-          -0.18
+          0.15,
+          0.18
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -864,28 +864,28 @@
       "frame_a": {
         "position": [
           0.08,
-          -0.56,
-          -0.18
+          0.56,
+          0.18
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upright_fl",
       "frame_b": {
         "position": [
           0.08,
-          -0.56,
-          -0.18
+          0.56,
+          0.18
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -897,28 +897,28 @@
       "frame_a": {
         "position": [
           0.0,
-          -0.691,
-          -0.6
+          0.691,
+          0.6
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upright_fl",
       "frame_b": {
         "position": [
           0.0,
-          -0.691,
-          -0.3
+          0.691,
+          0.3
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -934,28 +934,28 @@
       "frame_a": {
         "position": [
           0.0,
-          -0.691,
-          -0.6
+          0.691,
+          0.6
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upright_fl",
       "frame_b": {
         "position": [
           0.0,
-          -0.691,
-          -0.3
+          0.691,
+          0.3
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -998,11 +998,11 @@
       "frame_a": {
         "position": [
           0.0,
-          0.691,
-          -0.3
+          -0.691,
+          0.3
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1012,11 +1012,11 @@
       "frame_b": {
         "position": [
           0.0,
-          0.691,
-          -0.3
+          -0.691,
+          0.3
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1032,28 +1032,28 @@
       "frame_a": {
         "position": [
           0.12,
-          0.26,
-          -0.42
+          -0.26,
+          0.42
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upper_wishbone_fr",
       "frame_b": {
         "position": [
           0.12,
-          0.26,
-          -0.42
+          -0.26,
+          0.42
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1066,28 +1066,28 @@
       "frame_a": {
         "position": [
           -0.12,
-          0.26,
-          -0.42
+          -0.26,
+          0.42
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upper_wishbone_fr",
       "frame_b": {
         "position": [
           -0.12,
-          0.26,
-          -0.42
+          -0.26,
+          0.42
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1100,28 +1100,28 @@
       "frame_a": {
         "position": [
           0.0,
-          0.54,
-          -0.42
+          -0.54,
+          0.42
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upright_fr",
       "frame_b": {
         "position": [
           0.0,
-          0.54,
-          -0.42
+          -0.54,
+          0.42
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1134,28 +1134,28 @@
       "frame_a": {
         "position": [
           0.18,
-          0.22,
-          -0.12
+          -0.22,
+          0.12
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "lower_wishbone_fr",
       "frame_b": {
         "position": [
           0.18,
-          0.22,
-          -0.12
+          -0.22,
+          0.12
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1168,28 +1168,28 @@
       "frame_a": {
         "position": [
           -0.15,
-          0.22,
-          -0.12
+          -0.22,
+          0.12
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "lower_wishbone_fr",
       "frame_b": {
         "position": [
           -0.15,
-          0.22,
-          -0.12
+          -0.22,
+          0.12
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1202,28 +1202,28 @@
       "frame_a": {
         "position": [
           0.0,
-          0.58,
-          -0.12
+          -0.58,
+          0.12
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upright_fr",
       "frame_b": {
         "position": [
           0.0,
-          0.58,
-          -0.12
+          -0.58,
+          0.12
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1236,28 +1236,28 @@
       "frame_a": {
         "position": [
           0.08,
-          0.15,
-          -0.18
+          -0.15,
+          0.18
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "steering_tie_rod_fr",
       "frame_b": {
         "position": [
           0.08,
-          0.15,
-          -0.18
+          -0.15,
+          0.18
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1270,28 +1270,28 @@
       "frame_a": {
         "position": [
           0.08,
-          0.56,
-          -0.18
+          -0.56,
+          0.18
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upright_fr",
       "frame_b": {
         "position": [
           0.08,
-          0.56,
-          -0.18
+          -0.56,
+          0.18
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1303,28 +1303,28 @@
       "frame_a": {
         "position": [
           0.0,
-          0.691,
-          -0.6
+          -0.691,
+          0.6
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upright_fr",
       "frame_b": {
         "position": [
           0.0,
-          0.691,
-          -0.3
+          -0.691,
+          0.3
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -1340,28 +1340,28 @@
       "frame_a": {
         "position": [
           0.0,
-          0.691,
-          -0.6
+          -0.691,
+          0.6
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upright_fr",
       "frame_b": {
         "position": [
           0.0,
-          0.691,
-          -0.3
+          -0.691,
+          0.3
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -1404,11 +1404,11 @@
       "frame_a": {
         "position": [
           -2.51,
-          -0.67,
-          -0.3
+          0.67,
+          0.3
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1418,11 +1418,11 @@
       "frame_b": {
         "position": [
           -2.51,
-          -0.67,
-          -0.3
+          0.67,
+          0.3
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1438,28 +1438,28 @@
       "frame_a": {
         "position": [
           -2.1,
-          -0.25,
-          -0.18
+          0.25,
+          0.18
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "trailing_link_rl",
       "frame_b": {
         "position": [
           -2.1,
-          -0.25,
-          -0.18
+          0.25,
+          0.18
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1472,28 +1472,28 @@
       "frame_a": {
         "position": [
           -2.51,
-          -0.55,
-          -0.18
+          0.55,
+          0.18
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "axle_body",
       "frame_b": {
         "position": [
           -2.51,
-          -0.55,
-          -0.18
+          0.55,
+          0.18
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1506,28 +1506,28 @@
       "frame_a": {
         "position": [
           -2.51,
-          -0.05,
-          -0.26
+          0.05,
+          0.26
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "watts_link_rl",
       "frame_b": {
         "position": [
           -2.51,
-          -0.05,
-          -0.26
+          0.05,
+          0.26
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1540,28 +1540,28 @@
       "frame_a": {
         "position": [
           -2.51,
-          -0.6,
-          -0.25
+          0.6,
+          0.25
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "axle_body",
       "frame_b": {
         "position": [
           -2.51,
-          -0.6,
-          -0.25
+          0.6,
+          0.25
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1573,28 +1573,28 @@
       "frame_a": {
         "position": [
           -2.51,
-          -0.67,
-          -0.6
+          0.67,
+          0.6
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "axle_body",
       "frame_b": {
         "position": [
           -2.51,
-          -0.67,
-          -0.3
+          0.67,
+          0.3
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -1609,28 +1609,28 @@
       "frame_a": {
         "position": [
           -2.51,
-          -0.67,
-          -0.6
+          0.67,
+          0.6
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "axle_body",
       "frame_b": {
         "position": [
           -2.51,
-          -0.67,
-          -0.3
+          0.67,
+          0.3
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -1673,11 +1673,11 @@
       "frame_a": {
         "position": [
           -2.51,
-          0.67,
-          -0.3
+          -0.67,
+          0.3
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1687,11 +1687,11 @@
       "frame_b": {
         "position": [
           -2.51,
-          0.67,
-          -0.3
+          -0.67,
+          0.3
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1707,28 +1707,28 @@
       "frame_a": {
         "position": [
           -2.1,
-          0.25,
-          -0.18
+          -0.25,
+          0.18
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "trailing_link_rr",
       "frame_b": {
         "position": [
           -2.1,
-          0.25,
-          -0.18
+          -0.25,
+          0.18
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1741,28 +1741,28 @@
       "frame_a": {
         "position": [
           -2.51,
-          0.55,
-          -0.18
+          -0.55,
+          0.18
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "axle_body",
       "frame_b": {
         "position": [
           -2.51,
-          0.55,
-          -0.18
+          -0.55,
+          0.18
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1775,28 +1775,28 @@
       "frame_a": {
         "position": [
           -2.51,
-          0.05,
-          -0.26
+          -0.05,
+          0.26
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "watts_link_rr",
       "frame_b": {
         "position": [
           -2.51,
-          0.05,
-          -0.26
+          -0.05,
+          0.26
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1809,28 +1809,28 @@
       "frame_a": {
         "position": [
           -2.51,
-          0.6,
-          -0.25
+          -0.6,
+          0.25
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "axle_body",
       "frame_b": {
         "position": [
           -2.51,
-          0.6,
-          -0.25
+          -0.6,
+          0.25
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1842,28 +1842,28 @@
       "frame_a": {
         "position": [
           -2.51,
-          0.67,
-          -0.6
+          -0.67,
+          0.6
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "axle_body",
       "frame_b": {
         "position": [
           -2.51,
-          0.67,
-          -0.3
+          -0.67,
+          0.3
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -1878,28 +1878,28 @@
       "frame_a": {
         "position": [
           -2.51,
-          0.67,
-          -0.6
+          -0.67,
+          0.6
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "axle_body",
       "frame_b": {
         "position": [
           -2.51,
-          0.67,
-          -0.3
+          -0.67,
+          0.3
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",

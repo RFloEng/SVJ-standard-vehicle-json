@@ -1,9 +1,9 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.99.4",
-    "description": "MF6.2 tire example \u2014 ultra-high performance summer 245/40R18 with full Pacejka coefficients.",
-    "coordinate_system": "SAE_J670",
+    "version": "0.109",
+    "description": "MF6.2 tire example — ultra-high performance summer 245/40R18 with full Pacejka coefficients.",
+    "coordinate_system": "ISO_8855",
     "units": "SI",
     "data_origin": {
       "type": "calculated",
@@ -15,7 +15,7 @@
   "tires": {
     "sets": {
       "sport_245_40r18_mf62": {
-        "description": "Ultra-high performance summer tire \u2014 MF6.2 coefficients with pressure dependency",
+        "description": "Ultra-high performance summer tire — MF6.2 coefficients with pressure dependency",
         "size_code": "245/40R18",
         "source": "estimated",
         "dimensions": {
@@ -72,9 +72,9 @@
             "pEy1": -0.68,
             "pEy2": -0.415,
             "pEy3": 0.085,
-            "pEy4": -6.8,
+            "pEy4": 6.8,
             "pEy5": 0.0,
-            "pKy1": -18.5,
+            "pKy1": 18.5,
             "pKy2": 2.25,
             "pKy3": 0.45,
             "pKy4": 2.8,
@@ -83,9 +83,9 @@
             "pKy7": -0.28,
             "pHy1": 0.0045,
             "pHy2": 0.0009,
-            "pHy3": 0.052,
-            "pVy1": 0.058,
-            "pVy2": -0.018,
+            "pHy3": -0.052,
+            "pVy1": -0.058,
+            "pVy2": 0.018,
             "pVy3": -0.285,
             "pVy4": -0.195,
             "pPy1": 2.85,
@@ -95,7 +95,7 @@
             "qBz1": 10.25,
             "qBz2": -1.35,
             "qBz3": -0.98,
-            "qBz4": 0.85,
+            "qBz4": -0.85,
             "qBz5": -0.285,
             "qBz9": 22.0,
             "qBz10": 0.0,
@@ -104,19 +104,19 @@
             "qDz2": -0.0045,
             "qDz3": 0.0,
             "qDz4": 6.5,
-            "qDz6": -0.0045,
-            "qDz7": 0.0032,
+            "qDz6": 0.0045,
+            "qDz7": -0.0032,
             "qDz8": -0.72,
             "qDz9": 0.185,
             "qEz1": -1.85,
             "qEz2": -0.58,
             "qEz3": 0.0,
             "qEz4": 0.225,
-            "qEz5": -0.895,
+            "qEz5": 0.895,
             "qHz1": 0.0075,
             "qHz2": 0.0042,
-            "qHz3": 0.142,
-            "qHz4": -0.062
+            "qHz3": -0.142,
+            "qHz4": 0.062
           },
           "overturning": {
             "qsx1": 0.0,

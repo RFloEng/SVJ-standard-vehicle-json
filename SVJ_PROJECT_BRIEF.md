@@ -20,6 +20,7 @@ tools/multibody_check.py                Mass-body / marker / joint-type rules (v
 tools/drivetrain_check.py               Differential lock_control / coupling rules (v0.99.3)
 tools/engine_check.py                    Engine declaration checks and sound-order formulas (v0.107)
 tools/powertrain_check.py                Part-load torque, shift points, torque converter: evaluators and checks (v0.108)
+tools/convert_frame.py                   SAE J670 <-> ISO 8855 conversion, frame detection and checks (v0.109)
 tools/constraints_check.py              Joints, springs, actuators, latches, couplings, contacts, poses (§24)
 tools/loop_solver.py                    Loop-closure solver, suspension gains and alignment (§26)
 tools/assemble.py                       Interfaces, attachments, combination assembly (§27)
@@ -39,7 +40,7 @@ proposals/                              Historical design proposals (read-only)
 
 ## Key Conventions
 
-- **Coordinates:** SAE J670 — X forward, Y right, Z down. Origin at front axle (A1) center, ground level. CG.x is NEGATIVE (behind front axle) — except trailers/semi-trailers, whose CG sits ahead of A1.
+- **Coordinates:** ISO 8855 (v0.109) — X forward, Y left, Z up (legacy files: SAE J670, declared; `tools/convert_frame.py` converts). Origin at front axle (A1) center, ground level. CG.x is NEGATIVE (behind front axle) — except trailers/semi-trailers, whose CG sits ahead of A1.
 - **Units:** SI everywhere (m, kg, N, rad, Pa, s). No exceptions.
 - **Alignment:** `alignment_convention: "relative_to_centerline"` — negative camber = inward on BOTH sides.
 - **Tire data:** Tire dimensions live ONLY in `tires.sets`. Corner `wheel` has rim + `set_ref`, NO tire dimensions.
@@ -163,7 +164,7 @@ Spec §23, all optional and backward-compatible:
 These are load-bearing architectural choices. Changing them would break everything:
 
 1. **Station model** — FL/FR/RL/RR for standard two-axle vehicles, `A{n}{L|R|C}` for everything else (§23). Multi-axle is an addendum, not a replacement; inter-axle links live in `suspension_couplings`, never in merged corners.
-2. **SAE J670 coordinates** with origin at front axle center.
+2. **ISO 8855 coordinates** (X forward, Y left, Z up) with origin at front axle center.
 3. **`$ref` for modular files** — JSON Pointer or relative file paths.
 4. **`x_` prefix** for extensions — never in the core spec.
 5. **`additionalProperties: true`** on all objects — extensibility over strictness.

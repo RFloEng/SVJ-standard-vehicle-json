@@ -11,7 +11,7 @@ pose cannot be read off joint values; it has to be solved. This module does that
   * every `joint` constraint contributes residuals for the motions it forbids (e.g. a revolute joint:
     the two frame origins coincide and the z axes stay parallel); its free coordinates stay free;
   * prescribed inputs add residuals: joint coordinates (`joint_values`: the steering rack position,
-    a door angle) and wheel travel (`travel`: the height a station's wheel centre rises, bump positive; z points down in SAE J670);
+    a door angle) and wheel travel (`travel`: the height a station's wheel centre rises, bump positive; the file's own frame is read, ISO 8855 z up or legacy SAE J670 z down);
   * Gauss-Newton iterations with Levenberg-Marquardt damping and a finite-difference Jacobian, so
     a mechanism with spare freedoms (an unmodelled bushing, an `x_derived` joint without a stated
     type) still has a minimum-motion solution, and the residual tells whether the loops closed.
@@ -36,8 +36,15 @@ import sys
 
 try:                                           # inside svj-py
     from svj import constraints as cc
+    from svj.frame import frame_of, ISO
 except ImportError:                            # running from tools/
     import constraints_check as cc
+    from convert_frame import frame_of, ISO
+
+
+def _up(doc):
+    """+1 when z points up (ISO 8855), -1 when it points down (legacy SAE J670): the one sign this solver depends on."""
+    return 1.0 if frame_of(doc) == ISO else -1.0
 
 ROOTS = cc.ROOTS
 _TOL = 1e-10
@@ -207,6 +214,7 @@ def solve(doc, travel=None, joint_values=None, start=None, max_iter=60, tol=1e-9
         if jid not in joints:
             raise SolveError(f"unknown joint '{jid}'")
     ref_centre = {sid: _wheel_centre(doc, st, {}) for sid, st in stations.items()}
+    up = _up(doc)
     X_all = {r: cc.IDENT for r in ROOTS}
     max_res, iters, ok = 0.0, 0, True
     wheels = _station_wheel_bodies(doc)
@@ -254,7 +262,7 @@ def solve(doc, travel=None, joint_values=None, start=None, max_iter=60, tol=1e-9
             for sid in csts:
                 p = _wheel_centre(doc, stations[sid], X)
                 if p is not None and ref_centre[sid] is not None:
-                    r.append(p[2] - ref_centre[sid][2] + travel.get(sid, 0.0))     # z points down (SAE J670): bump lowers z
+                    r.append(p[2] - ref_centre[sid][2] - up * travel.get(sid, 0.0))     # bump raises the wheel: +z in ISO, -z in SAE
             return r
 
         lam, r0 = 1e-6, resid(x)
@@ -337,14 +345,14 @@ def wheel_axis(doc, sid, X):
 
 
 def alignment(doc, sid, X):
-    """{'camber_deg', 'toe_deg'} of a station in pose X (SAE J670 axes: x forward, y right, z down).
+    """{'camber_deg', 'toe_deg'} of a station in pose X (in the file's frame; the angles do not depend on it).
     Camber is positive with the top of the wheel leaning outwards, toe positive for toe-in."""
     a = wheel_axis(doc, sid, X)
     if a is None:
         return None
     centre = _wheel_centre(doc, _station_map(doc)[sid], X)
     s = 1.0 if (centre and centre[1] >= 0) else -1.0
-    return {"camber_deg": math.degrees(math.asin(max(-1.0, min(1.0, a[2])))),
+    return {"camber_deg": math.degrees(math.asin(max(-1.0, min(1.0, -_up(doc) * a[2])))),
             "toe_deg": math.degrees(math.atan2(a[0], s * a[1]))}
 
 
@@ -387,7 +395,7 @@ def _lengths(doc, X):
 def steering_axis(doc, station, travel=0.0, delta=0.002):
     """Kingpin geometry of a steered station: the screw axis of the upright for a small rack movement.
 
-    Returns {'caster_deg', 'kpi_deg', 'scrub_radius', 'caster_trail'} (SAE J670 axes; caster positive = axis leaning back at the top,
+    Returns {'caster_deg', 'kpi_deg', 'scrub_radius', 'caster_trail'} (either frame; caster positive = axis leaning back at the top,
     kpi positive = leaning inwards at the top; scrub radius positive = ground point inboard of the axis) or None."""
     st = _station_map(doc).get(station)
     sj = st.get("steering_joint") if st else None
@@ -404,7 +412,8 @@ def steering_axis(doc, station, travel=0.0, delta=0.002):
     if n < 1e-9:
         return None
     u = tuple(v / n for v in w)
-    if u[2] > 0:                                   # z points down: the axis is oriented upwards
+    up = _up(doc)
+    if u[2] * up < 0:                              # orient the axis upwards
         u = tuple(-v for v in u)
     mid = solve(doc, travel={station: travel}, joint_values={sj: 0.0})
     centre = _wheel_centre(doc, st, mid["transforms"])
@@ -416,11 +425,11 @@ def steering_axis(doc, station, travel=0.0, delta=0.002):
     d = cc._sub(centre, tuple(q))
     k = sum(d[i] * u[i] for i in range(3))
     foot = tuple(q[i] + k * u[i] for i in range(3))                    # point of the axis level with the wheel centre
-    z_ground = centre[2] + _tyre_radius(st)
+    z_ground = centre[2] - up * _tyre_radius(st)
     sc = (z_ground - foot[2]) / u[2] if abs(u[2]) > 1e-9 else 0.0
     ground = tuple(foot[i] + sc * u[i] for i in range(3))              # where the axis meets the ground
-    return {"caster_deg": math.degrees(math.atan2(-u[0], -u[2])),
-            "kpi_deg": math.degrees(math.atan2(-u[1] * side, -u[2])),
+    return {"caster_deg": math.degrees(math.atan2(-u[0], up * u[2])),
+            "kpi_deg": math.degrees(math.atan2(-u[1] * side, up * u[2])),
             "scrub_radius": side * (centre[1] - ground[1]),
             "caster_trail": ground[0] - centre[0]}
 
@@ -451,13 +460,14 @@ def roll_center(doc, station, delta=0.005):
     icy = ((1 - c) * ty - sn * tz) / det * 1.0
     icz = (sn * ty + (1 - c) * tz) / det * 1.0
     centre = _wheel_centre(doc, st, mid["transforms"])
-    contact = (centre[1], centre[2] + _tyre_radius(st))
+    up = _up(doc)
+    contact = (centre[1], centre[2] - up * _tyre_radius(st))
     dy, dz = icy - contact[0], icz - contact[1]
     if abs(dy) < 1e-9:
         return None
     k = -contact[0] / dy
     z_rc = contact[1] + k * dz
-    return {"height": contact[1] - z_rc, "instant_centre": [icy, icz], "contact": list(contact)}
+    return {"height": up * (z_rc - contact[1]), "instant_centre": [icy, icz], "contact": list(contact)}
 
 
 def _inv(t):

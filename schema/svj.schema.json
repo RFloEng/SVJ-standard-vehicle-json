@@ -51,15 +51,24 @@
             "0.105",
             "0.106",
             "0.107",
-            "0.108"
+            "0.108",
+            "0.109"
           ],
-          "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations). '0.99.1' adds axle_groups, plated masses and explicit wheelbase definitions. '0.99.2' extends the glTF visual binding layer: full category set, visual on links/steering/wheels/brakes/springs/dampers/aero, and the 'placement' field for parts defined by hardpoints. '0.99.3' adds differential control: lock_control (dynamic differential lock) and transfer_case.coupling (torque-limited centre coupling). '0.99.4' adds the strut_lower hardpoint convention for MacPherson/Chapman struts and damper.reference ('damper' or 'wheel'). '0.99.5' adds movable parts: constraints[] (joint, spring, actuator between mass bodies), poses[] and chassis.markers. '0.99.6' completes the constraint set: latch, coupling and joint.drive. '0.99.7' adds the optional display name on bodies, constraints and poses, and the naming vocabulary for movable parts. '0.99.8' adds the contact constraint (primitives at markers with a penalty law). '0.100' unifies the suspension: wheel stations are bodies, joints and elements (spring, damper; linear or torsional) with a thin wheel_stations[] list and anti_roll_bars[]; the corner-based suspension section is deprecated. '0.101' adds attachments: interfaces[] (named frames with a role and size), attachments[] (units fitted to this vehicle) and the svj-combination file. '0.102' adds collision proxies: collision[] on the chassis and on mass bodies, and collision_ignore. '0.103'-'0.106' add adjustments/setups, the tyre evaluator formulas and OpenUSD assets. '0.107' adds the engine declaration for sound simulation: kind, cycle, layout/firing angles, aspiration, exhaust, intake, limiter and motor pole pairs. '0.108' adds part-load engine torque and engine braking (torque_curve_closed, part_throttle[]), gearbox shift points and latency, and the torque converter data."
+          "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations). '0.99.1' adds axle_groups, plated masses and explicit wheelbase definitions. '0.99.2' extends the glTF visual binding layer: full category set, visual on links/steering/wheels/brakes/springs/dampers/aero, and the 'placement' field for parts defined by hardpoints. '0.99.3' adds differential control: lock_control (dynamic differential lock) and transfer_case.coupling (torque-limited centre coupling). '0.99.4' adds the strut_lower hardpoint convention for MacPherson/Chapman struts and damper.reference ('damper' or 'wheel'). '0.99.5' adds movable parts: constraints[] (joint, spring, actuator between mass bodies), poses[] and chassis.markers. '0.99.6' completes the constraint set: latch, coupling and joint.drive. '0.99.7' adds the optional display name on bodies, constraints and poses, and the naming vocabulary for movable parts. '0.99.8' adds the contact constraint (primitives at markers with a penalty law). '0.100' unifies the suspension: wheel stations are bodies, joints and elements (spring, damper; linear or torsional) with a thin wheel_stations[] list and anti_roll_bars[]; the corner-based suspension section is deprecated. '0.101' adds attachments: interfaces[] (named frames with a role and size), attachments[] (units fitted to this vehicle) and the svj-combination file. '0.102' adds collision proxies: collision[] on the chassis and on mass bodies, and collision_ignore. '0.103'-'0.106' add adjustments/setups, the tyre evaluator formulas and OpenUSD assets. '0.107' adds the engine declaration for sound simulation: kind, cycle, layout/firing angles, aspiration, exhaust, intake, limiter and motor pole pairs. '0.108' adds part-load engine torque and engine braking (torque_curve_closed, part_throttle[]), gearbox shift points and latency, and the torque converter data. '0.109' moves the vehicle frame from SAE J670 to ISO 8855 (X forward, Y left, Z up); see spec 2.1."
         },
         "description": {
           "type": "string"
         },
+        "physics_frame": {
+          "type": "string",
+          "enum": [
+            "ISO_8855",
+            "SAE_J670"
+          ],
+          "description": "Frame of the vehicle data when coordinate_system is the glTF object. Without any declaration a file is SAE_J670 below 0.109 and ISO_8855 from it (spec 2.1)."
+        },
         "coordinate_system": {
-          "description": "Coordinate system. Named standard string OR explicit axis object for glTF/DCC compatibility.",
+          "description": "Frame of the vehicle data: 'ISO_8855' (default from 0.109) or 'SAE_J670' (legacy); or an explicit axis object for the glTF asset convention, in which case physics_frame declares the vehicle frame.",
           "oneOf": [
             {
               "type": "string",
@@ -3907,6 +3916,14 @@
           ],
           "additionalProperties": true,
           "properties": {
+            "axis_system": {
+              "type": "string",
+              "enum": [
+                "ISO_8855",
+                "SAE_J670"
+              ],
+              "description": "Sign convention of the coefficients (spec 11.13): ISO_8855 (default from 0.109) or SAE_J670 for a legacy set."
+            },
             "model": {
               "type": "string",
               "enum": [
