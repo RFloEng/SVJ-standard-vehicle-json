@@ -53,9 +53,10 @@
             "0.107",
             "0.108",
             "0.109",
-            "0.110"
+            "0.110",
+            "0.111"
           ],
-          "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations). '0.99.1' adds axle_groups, plated masses and explicit wheelbase definitions. '0.99.2' extends the glTF visual binding layer: full category set, visual on links/steering/wheels/brakes/springs/dampers/aero, and the 'placement' field for parts defined by hardpoints. '0.99.3' adds differential control: lock_control (dynamic differential lock) and transfer_case.coupling (torque-limited centre coupling). '0.99.4' adds the strut_lower hardpoint convention for MacPherson/Chapman struts and damper.reference ('damper' or 'wheel'). '0.99.5' adds movable parts: constraints[] (joint, spring, actuator between mass bodies), poses[] and chassis.markers. '0.99.6' completes the constraint set: latch, coupling and joint.drive. '0.99.7' adds the optional display name on bodies, constraints and poses, and the naming vocabulary for movable parts. '0.99.8' adds the contact constraint (primitives at markers with a penalty law). '0.100' unifies the suspension: wheel stations are bodies, joints and elements (spring, damper; linear or torsional) with a thin wheel_stations[] list and anti_roll_bars[]; the corner-based suspension section is deprecated. '0.101' adds attachments: interfaces[] (named frames with a role and size), attachments[] (units fitted to this vehicle) and the svj-combination file. '0.102' adds collision proxies: collision[] on the chassis and on mass bodies, and collision_ignore. '0.103'-'0.106' add adjustments/setups, the tyre evaluator formulas and OpenUSD assets. '0.107' adds the engine declaration for sound simulation: kind, cycle, layout/firing angles, aspiration, exhaust, intake, limiter and motor pole pairs. '0.108' adds part-load engine torque and engine braking (torque_curve_closed, part_throttle[]), gearbox shift points and latency, and the torque converter data. '0.109' moves the vehicle frame from SAE J670 to ISO 8855 (X forward, Y left, Z up); see spec 2.1. '0.110' adds the steering wheel placement (position, column_axis, column_rake) and the steering consistency checks (spec 8.7), and the steering box linkage of the multibody model (spec 25.4)."
+          "description": "SVJ specification version. '0.97' adds glTF visual binding, '0.98' validation/benchmarks, '0.99' multi-axle vehicles (A{n}{L|R|C} corners, axles, suspension_couplings, multi-wheel stations). '0.99.1' adds axle_groups, plated masses and explicit wheelbase definitions. '0.99.2' extends the glTF visual binding layer: full category set, visual on links/steering/wheels/brakes/springs/dampers/aero, and the 'placement' field for parts defined by hardpoints. '0.99.3' adds differential control: lock_control (dynamic differential lock) and transfer_case.coupling (torque-limited centre coupling). '0.99.4' adds the strut_lower hardpoint convention for MacPherson/Chapman struts and damper.reference ('damper' or 'wheel'). '0.99.5' adds movable parts: constraints[] (joint, spring, actuator between mass bodies), poses[] and chassis.markers. '0.99.6' completes the constraint set: latch, coupling and joint.drive. '0.99.7' adds the optional display name on bodies, constraints and poses, and the naming vocabulary for movable parts. '0.99.8' adds the contact constraint (primitives at markers with a penalty law). '0.100' unifies the suspension: wheel stations are bodies, joints and elements (spring, damper; linear or torsional) with a thin wheel_stations[] list and anti_roll_bars[]; the corner-based suspension section is deprecated. '0.101' adds attachments: interfaces[] (named frames with a role and size), attachments[] (units fitted to this vehicle) and the svj-combination file. '0.102' adds collision proxies: collision[] on the chassis and on mass bodies, and collision_ignore. '0.103'-'0.106' add adjustments/setups, the tyre evaluator formulas and OpenUSD assets. '0.107' adds the engine declaration for sound simulation: kind, cycle, layout/firing angles, aspiration, exhaust, intake, limiter and motor pole pairs. '0.108' adds part-load engine torque and engine braking (torque_curve_closed, part_throttle[]), gearbox shift points and latency, and the torque converter data. '0.109' moves the vehicle frame from SAE J670 to ISO 8855 (X forward, Y left, Z up); see spec 2.1. '0.110' adds the steering wheel placement (position, column_axis, column_rake) and the steering consistency checks (spec 8.7), and the steering box linkage of the multibody model (spec 25.4). '0.111' adds reference_pose, the spring force law (preload at the reference pose), the chassis remainder and inertia rule, brakes.proportioning, aerodynamics.coefficients.cpm_reference and the bushing, wheel spin, damper and LSD conventions (spec 7.2.3, 7.4, 12.6, 13.3, 24.4, 24.5)."
         },
         "description": {
           "type": "string"
@@ -412,6 +413,34 @@
           }
         }
       }
+    },
+    "reference_pose": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "condition": {
+          "type": "string",
+          "enum": [
+            "static_equilibrium",
+            "unloaded",
+            "other"
+          ],
+          "default": "static_equilibrium"
+        },
+        "load_case": {
+          "type": "string",
+          "enum": [
+            "kerb",
+            "kerb_plus_driver",
+            "gvw"
+          ],
+          "default": "kerb"
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "description": "The pose of the hardpoints and joint frames, and the load case of mass_total (spec 7.4)."
     },
     "steering": {
       "type": "object",
@@ -1715,6 +1744,30 @@
           "type": "number",
           "exclusiveMinimum": 0
         },
+        "proportioning": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "none",
+                "fixed_ratio",
+                "knee"
+              ]
+            },
+            "knee_pressure": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "ratio": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "description": "Pressure limiting to the rear circuit (spec 12.6.1)."
+        },
         "abs": {
           "type": "object",
           "additionalProperties": true,
@@ -1834,6 +1887,16 @@
             },
             "Cpm": {
               "type": "number"
+            },
+            "cpm_reference": {
+              "type": "string",
+              "enum": [
+                "wheelbase_midpoint",
+                "front_axle",
+                "center_of_gravity"
+              ],
+              "default": "wheelbase_midpoint",
+              "description": "Point Cpm is about (spec 13.3)."
             },
             "Cym": {
               "type": "number"
@@ -6103,11 +6166,16 @@
         "free_length": {
           "type": "number",
           "exclusiveMinimum": 0,
-          "description": "linear spring: length at zero force (m)."
+          "description": "linear spring: length of the coil with no force on it (m). Informative; not used by the force law (spec 24.5)."
+        },
+        "installed_length": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "linear spring: distance between the two frames in the reference pose (m). Derived, informative."
         },
         "preload": {
           "type": "number",
-          "description": "Spring preload force at free_length (N)."
+          "description": "Spring force at the reference pose (N), positive = pushing the frames apart: F = preload + rate*(L_ref - L) (spec 24.5)."
         },
         "retracted_length": {
           "type": "number",

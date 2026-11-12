@@ -282,6 +282,16 @@ When `mass_bodies` is present:
 
 > **Note on unsprung mass:** In a file with the corner-based `suspension` section the bodies in `mass_bodies` represent the **sprung** portion; unsprung masses are captured per-corner in `mass_unsprung_per_corner` (wheel assemblies, upright, lower link). Do not double-count. In a unified file (`wheel_stations[]`, §25) the uprights, arms and wheels are themselves bodies of `mass_bodies`, so the sum above is taken over the bodies alone and `mass_unsprung_per_corner` is only a per-corner summary of the same masses.
 
+#### 7.2.3 The Chassis Remainder and the Inertia Rule *(v0.111)*
+
+The chassis body's own properties are **the composite minus every listed body**: the remainder mass `m₀ = mass_total − Σ mᵢ`, its position `p₀ = (mass_total · center_of_gravity − Σ mᵢ pᵢ) / m₀`, and its inertia about the CG `I₀ = inertia − Σ (Iᵢ + mᵢ (|dᵢ|²·1 − dᵢ dᵢᵀ)) − m₀ (|d₀|²·1 − d₀ d₀ᵀ)` with `dᵢ = pᵢ − center_of_gravity`. The remainder MUST be physical:
+
+- `m₀ ≥ 0` (and `m₀ = 0` when `mass_bodies_complete` is `true`);
+- `p₀` lies inside the vehicle (a remainder of 27 kg 12 m ahead of the front axle says that the CG and the bodies disagree);
+- `I₀` is positive definite and its principal values satisfy the triangle inequality (`a + b ≥ c`).
+
+Every body with `mass > 0` MUST give an `inertia`; from v0.111 a validator reports its absence as an error (a file of an earlier version is not asked). A reader that needs a number for a body without one uses `m · (0.02 m)²` about the body's own point. `mass_unsprung_per_corner` is **derived**: when it disagrees with the corner bodies (wheel, upright and the unsprung part of the links) by more than 15 %, the bodies win. `tools/reference_check.py` computes all of this.
+
 ### 7.3 `chassis_stiffness` — Structural Flexibility
 
 The vehicle body/frame is not infinitely rigid. Chassis torsional stiffness directly affects load transfer distribution, handling balance, and suspension effectiveness.
@@ -295,6 +305,18 @@ The vehicle body/frame is not infinitely rigid. Chassis torsional stiffness dire
 > **Typical values:** Open-top roadster (MX-5, S2000): 4,000–10,000 Nm/deg. Modern coupe: 25,000–40,000 Nm/deg. Race car with cage: 15,000–30,000 Nm/deg. Full monocoque (F1, LMP): 40,000+ Nm/deg.
 
 > **Why it matters:** A chassis with low torsional stiffness effectively has a "third spring" between front and rear axles. This changes the effective roll stiffness distribution, making anti-roll bar tuning less predictable. Most simple sims assume infinite stiffness; advanced tools (Adams Flex, rFactor2) model chassis flex explicitly.
+
+### 7.4 `reference_pose` *(v0.111)*
+
+The pose in which the hardpoints, marker positions and joint frames are given, and in which every joint coordinate is zero (§24.4).
+
+| Key | Type | Required | Description |
+|---|---|---|---|
+| `condition` | string | no | `"static_equilibrium"` (default): the vehicle rests under its own weight and the spring forces balance the corner loads; `"unloaded"`: the springs are at their installed length with the wheels unloaded; `"other"` |
+| `load_case` | string | no | `"kerb"` (default), `"kerb_plus_driver"`, `"gvw"`: the mass `mass_total` and the CG describe this case |
+| `note` | string | no | Free text |
+
+A simulator sets the spring and damper positions from this pose, so a file that does not say assumes `static_equilibrium` at `kerb`. For `static_equilibrium` the validator checks, by virtual work through the loop solver (§26), that each axle's springs carry its share of the sprung weight (20 %). A bump-stop gap, a ride height or a static setup is measured from here.
 
 ---
 
@@ -1500,6 +1522,8 @@ The differential thermal model uses the same schema as §10.5.1 (`oil_capacity`,
 
 > **`final_drive` moved here:** In v0.5.x, `final_drive` was in `transmission`. From v0.6.0 it belongs to the differential, because in AWD systems front and rear diffs may have different final drive ratios. For backward compatibility, parsers SHOULD also check `gearbox.final_drive` as a fallback.
 
+> **Locking torque** *(v0.111)*. The locking torque of a limited-slip differential is `T_lock = preload + lock · |T_in|`, with `lock` equal to `lock_power` when the input torque drives (`T_in > 0`) and `lock_coast` on overrun, `|T_in|` the torque into the differential; the torque transferred toward the slower output is at most `T_lock` and never reverses the speed difference. `ramp_angle_power` and `ramp_angle_coast` are the mechanical origin of `lock_power` and `lock_coast` and are **informative**: when both are present the `lock_*` values win, and an evaluator uses no formula of the angles.
+
 > **Asymmetric LSD:** The 2024 MX-5 ND3 uses a conical clutch LSD with different ramp angles for power and coast. `ramp_angle_power` and `ramp_angle_coast` capture this asymmetry. Lower angle = more aggressive locking.
 
 #### 10.8.1 `lock_control` — Dynamic Differential Lock *(v0.99.3)*
@@ -2078,8 +2102,9 @@ The top-level `brakes` object describes the complete braking system: pedal, boos
 | `booster`         | object | no       | Brake booster / servo (§12.2)                |
 | `master_cylinder` | object | no       | Tandem master cylinder (§12.3)               |
 | `circuit_type`    | string | no       | `"dual_diagonal"`, `"front_rear_split"`      |
-| `bias`            | number | no       | Front brake bias (0.0–1.0). 0.62 = 62% front |
+| `bias`            | number | no       | Front brake bias (0.0–1.0), **informative** (§12.6): 0.62 = 62% front |
 | `bias_type`       | string | no       | `"fixed"`, `"adjustable"`, `"electronic"`    |
+| `proportioning`   | object | no       | Pressure limiting to the rear circuit (§12.6) *(v0.111)* |
 | `line_pressure_max`| number| no       | Maximum hydraulic line pressure (Pa)         |
 | `abs`             | object | no       | Anti-lock braking system (§12.4)             |
 | `esc`             | object | no       | Electronic stability control (§12.5)         |
@@ -2170,7 +2195,15 @@ T_brake = F_friction × R_eff    Brake torque at wheel (Nm)
 
 > **Total system ratio** from pedal force to clamping force = `pedal.ratio × boost_ratio × hydraulic_ratio`. For a road car: ~4.5 × 3.5 × 3.0 ≈ 47×.
 
-> **Bias distribution:** Line pressure is split between front and rear circuits by the `bias` ratio. Each front corner receives `P_line × bias / 2`, each rear receives `P_line × (1 − bias) / 2`.
+> **The chain decides** *(v0.111)*. One master cylinder gives every caliper of a circuit the same pressure, so the front share of the brake torque follows from the hardware: caliper piston area, disc effective radius and pad friction of every corner, the bores of the two circuits (`bore_primary` front, `bore_secondary` rear, for a front/rear split; `dual_diagonal` pairs front-left with rear-right on the primary) and the `proportioning` block. A simulator computes the torque of each corner from the pressure of its circuit. `bias` is the designer's target and is **informative**: the validator warns when the share the hardware gives differs from it by more than 0.02. A file that wants a bias the hardware does not give changes the hardware (areas, radii, bores or `proportioning`).
+
+#### 12.6.1 `proportioning` *(v0.111)*
+
+| Key | Type | Description |
+|---|---|---|
+| `type` | string | `"none"` (default), `"fixed_ratio"` (rear pressure = `ratio` · front pressure), `"knee"` (rear pressure follows the front up to `knee_pressure`, then rises by `ratio` per unit of front pressure) |
+| `knee_pressure` | number | Pa, for `knee` |
+| `ratio` | number | 0–1 |
 
 ---
 
@@ -2218,6 +2251,10 @@ Static aerodynamic coefficients at zero yaw, reference ride height, and referenc
 | `Crm`     | number | no       | Roll moment coefficient                                       |
 
 > **Sign convention:** Aerodynamic forces are computed as `F = 0.5 × ρ × V² × C × A_frontal`. Positive `Cl` produces lift (upward, opposing gravity). A car with net downforce has negative `Cl`. Drag always acts rearward regardless of `Cd` sign (convention: `Cd` is positive, applied in −X).
+
+| `cpm_reference` | string | no | Point the pitch moment is about: `"wheelbase_midpoint"` (default), `"front_axle"`, `"center_of_gravity"` *(v0.111)* |
+
+> **One description of the pitch** *(v0.111)*. Give either `Cl_front` and `Cl_rear` (the lift at the axles), or `Cl` with `Cpm` and `cpm_reference`; not both with different content. If both are given, `Cl_front` and `Cl_rear` win and `Cpm` is derived: `Cpm = (Cl_front · x_front + Cl_rear · x_rear) / wheelbase` with the axle positions measured from `cpm_reference` (nose up positive), which is `(Cl_front − Cl_rear) / 2` about the wheelbase midpoint. The validator warns when a stated `Cpm` differs by more than 0.01.
 
 > **Front/rear split:** `Cl_front + Cl_rear` SHOULD equal `Cl`. If only `Cl` is given, parsers MAY assume 50/50 distribution. Aero balance is `Cl_front / Cl` (fraction of total lift/downforce on front axle).
 
@@ -2696,6 +2733,7 @@ This section is **optional**. It provides a standard place to record performance
 
 | Version | Changes                                                                                    |
 |---------|--------------------------------------------------------------------------------------------|
+| 0.111   | **Physical consistency of the reference pose, springs, mass, brakes, bushings and aero** (§7.2.3, §7.4, §10.8, §12.6, §13.3, §24.4, §24.5). Decisions, additive; new `tools/reference_check.py` (`svj.referencecheck`, run by both validators). `reference_pose` (`condition`, `load_case`; springs must balance the sprung weight under `static_equilibrium`); the spring law `F = preload + rate (L_ref − L)` with `preload` the force at the reference pose, `free_length` informative and `installed_length` derived; the chassis remainder rule (composite minus the listed bodies is physical, inertia required on every body with mass from this version, `mass_unsprung_per_corner` derived); the hydraulic chain decides the brake bias (`proportioning`, `bias` informative); bushing defaults (axes, absent rate) and a static-sag warning; wheel spin positive forward (hinge +Z to the left) and damper signs; the LSD locking torque `preload + lock · |T_in|`; one description of aero pitch (`cpm_reference`). |
 | 0.110   | **Steering wheel and gear chain** (§8.5, §8.7, §25.4). Additive. `steering.steering_wheel` gains `position`, `column_axis`, `column_rake` and `inertia`; the angle is the right-hand rotation about the axis pointing away from the driver (positive steers right). New consistency checks `tools/steering_check.py` (mirrored as `svj.steeringcheck`, run by both validators): ratio fields, steering wheel axis and rake, steering wheel joint against the placement, the coupling against `rack_travel`, and the solved geometry against `overall_ratio` and the steering direction. The steering box (`recirculating_ball`, `worm_and_sector`) is written with a sector shaft joint, a Pitman arm and a linkage of bodies and joints (§25.4); new example `skeleton_ff_recirculating_ball`. The loop solver compares a revolute coordinate modulo 2π, so a steering wheel can be turned several revolutions. The MX-5 template and the FF skeleton gain a steering wheel body, its joint and the coupling, and their `rack_travel` is now derived from the hardpoints and `overall_ratio` |
 | 0.109   | **ISO 8855 axes** (§2.1, §11.13, §22.4). The vehicle frame is X forward, Y left, Z up (it was SAE J670: Y right, Z down). Positions flip Y and Z, frame quaternions are left-multiplied by `(1,0,0,0)`, inertia products `Ixy`, `Ixz` change sign; quantities defined in words (camber top inward, toe-in, bump, `Cl`) keep their meaning. `_metadata.coordinate_system` accepts `"ISO_8855"` and `"SAE_J670"`; a file that does not declare one is SAE below 0.109 and ISO from it; `_metadata.physics_frame` declares the frame when `coordinate_system` is the glTF object. Tyre: `pacejka.axis_system` (default `"ISO_8855"`), positive `gamma` leans right. `tools/convert_frame.py` converts either way. `_metadata.version` gains `0.109` |
 | 0.108   | **Part-load engine torque, shift points and torque converter** (§10.3.6, §10.4.1, §10.5.2). Additive. `engine.torque_curve_closed` (engine braking), `part_throttle[]`, `inertia_block`; `gearbox.shift_latency`, `shift_points`, `shift_points_vs_throttle`; `clutch.torque_converter` (capacity-factor and torque-ratio curves against speed ratio, inertias, lockup). `torque_curve` is stated to be the full-throttle curve. The evaluation formulas are in the spec; `tools/powertrain_check.py` (`svj.powertrain`) implements them and the checks. Shaped after the Chrono::Vehicle powertrain models. `_metadata.version` gains `0.108` |
@@ -3356,6 +3394,10 @@ Optional top-level array. Common fields:
 | `bushing` | Compliance instead of a perfect joint: a `bushing_obj` (§9.2.5) in the frame |
 | `drive` | Optional actuation of a one-coordinate joint (a motor, a powered hinge): `{mode, target, max_force, max_rate, stiffness, damping}` with `mode` `free` (unpowered), `position` (holds / seeks `target`), `velocity` (runs at `target`) or `force` (applies `target` as a constant torque / force); `max_force` is N·m or N, `max_rate` rad/s or m/s |
 
+**Wheel spin.** A positive coordinate of a wheel hinge (the revolute joint between an upright and its wheel) is **forward rolling**, whatever the frame orientation: the +Z axis of its frame points to the vehicle's left, the +Y axis of ISO 8855. *(v0.111; the validator warns for a hinge pointing right.)*
+
+**Bushings.** A `bushing` replaces the perfect joint by a six-coordinate elastic coupling at the joint frame. Its axes are those of `bushing.orientation` if given, else the joint's frame, else the vehicle frame. A rate that is **absent** is **rigid** in the directions the joint type constrains and **free** in the directions it leaves free (a revolute joint's rotation about Z has no rate, so it stays free); a rate that is given is a spring there. The bushings of a suspension carry the car: the static load of a corner over the lowest rate of a pivot is the displacement it asks for, and a validator warns when that exceeds a few millimetres (a bushing of 2.5·10⁴ N/m under a 2.6 kN corner load would move 100 mm). *(v0.111)*
+
 ### 24.5 `spring`
 
 A passive force element between the two markers.
@@ -3363,9 +3405,12 @@ A passive force element between the two markers.
 | Key | Description |
 |---|---|
 | `rate` / `rate_curve` | Linear rate (N/m) or force–length curve (`curve2d`, strictly increasing x); exactly one |
-| `free_length` | Length at zero force (m) |
-| `preload` | Force at `free_length` (N) |
+| `preload` | Force in the spring at the **reference pose** (N, positive = pushing the two frames apart, a compressed coil) *(v0.111)* |
+| `installed_length` | Distance between the two frames in the reference pose (m): derived, informative *(v0.111)* |
+| `free_length` | Length of the coil with no force on it (m): informative, not used by the force law *(v0.111)* |
 | `damping` | Viscous damping along the element (N·s/m) |
+
+**Force law** *(v0.111)*. With `rate`, the force on the two frames is `F = preload + rate · (L_ref − L)`, `L` the distance between them and `L_ref` its value in the reference pose (§7.4, `installed_length`); a torsional spring uses the angle in place of the length. With `rate_curve` the force is the curve at `L` and `preload` is not used. `free_length` plays no part: a coil 0.23 m long with its mounts 0.4565 m apart is not stretched, it is a coil whose installed length is set by the mounts. A compression spring (`rate > 0`) does not pull in the reference pose: a negative `preload` is reported. Under `static_equilibrium` the preloads, through the motion ratio, support the sprung weight.
 
 | `kind` | `"linear"` (default) or `"torsional"` (a torsion bar, an anti-roll bar half, a twist beam): a torsional spring acts about the +Z axis shared by its two frames, with `rate` in N·m/rad and `free_angle` in rad *(v0.100)* |
 | `reference` | `"element"` (default) or `"wheel"`: whether `rate` / `rate_curve` are those of the element or quoted at the wheel (§25.3) *(v0.100)* |
@@ -3382,6 +3427,9 @@ A passive damping element between two frames.
 | `bump_curve`, `rebound_curve` | `curve2d` of velocity along the element (m/s; rad/s if torsional) against force (N; N·m): compression and extension. Both are given, or a linear `damping` instead |
 | `damping` | Linear damping (N·s/m, or N·m·s/rad) |
 | `kind`, `reference` | As for `spring` (§25.3) |
+
+**Signs** *(v0.111)*. The velocity is the rate of change of the length (positive in extension, negative in compression). `rebound_curve` applies for `v > 0` and `bump_curve` for `v < 0`; both curves give force **magnitudes** (positive), and the damper force always opposes the velocity.
+
 | `mass` | Informational |
 
 ### 24.6 `actuator`
