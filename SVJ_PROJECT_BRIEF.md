@@ -32,7 +32,7 @@ tools/tire_model.py                     Magic Formula evaluator: Fx, Fy, Mz, My,
 tools/migrate_suspension.py, suspension_view.py, anti_roll_bar.py, leaf_pack.py, torsion_beam.py   Unified-suspension migration and component builders (§25)
 tools/validate_override.py              Override resolution + validation (v0.98)
 tools/integrity_check.py                glTF visual binding checks (v0.99.2)
-viewer/svj_viewer_v4.8.html             Interactive viewer/editor: multi-axle layout, performance tab, mesh fitting, poses panel, unified-suspension reader, combinations, collision proxies
+viewer/svj_viewer_v4.9.html             Interactive viewer/editor: multi-axle layout, performance tab, mesh fitting, poses panel, unified-suspension reader, combinations, collision proxies
 svj-py/                                 Python library with CLI (0.2.0); mirrors of the tools/ checkers in svj-py/svj/ (sync enforced by tests)
 templates/mazda_mx5_nd2_2024.svj.json   Full vehicle template (unified suspension)
 proposals/                              Historical design proposals (read-only)

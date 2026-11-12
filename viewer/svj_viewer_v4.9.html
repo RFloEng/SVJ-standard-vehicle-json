@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SVJ 3D Vehicle Inspector v4.8</title>
+<title>SVJ 3D Vehicle Inspector v4.9</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
 :root{--bg:#08090c;--s1:#0f1117;--s2:#161a24;--s3:#1c2130;--brd:#252b3a;--brdL:#333b50;--tx:#dfe3ed;--txD:#6e7a96;--txM:#404c66;--ac:#ff5131;--acD:#ff513130;--bl:#4d9fff;--gn:#34d27b;--yl:#f0b429;--pr:#b06aff;--cy:#2dd4bf;--rd:#f0524f;--og:#ff8c42}
@@ -89,7 +89,7 @@ body{background:var(--bg);color:var(--tx);font-family:'DM Sans',system-ui,sans-s
 <div id="topbar">
   <div style="display:flex;align-items:center">
     <span class="logo mono">SVJ</span>
-    <span class="subtitle mono">3D Inspector v4.8 — Editor · SVJ v0.110</span>
+    <span class="subtitle mono">3D Inspector v4.9 — Editor · SVJ v0.110</span>
     <span class="filename mono" id="file-name">MX-5 ND2 Club 6MT (v0.96 demo)</span>
   </div>
   <div style="display:flex;gap:4px;align-items:center">
@@ -808,6 +808,40 @@ function buildScene() {
     });
   }
 
+  // Steering wheel (v0.110): rim, spokes, hub and column at steering.steering_wheel.position along column_axis / column_rake
+  const sw = st?.steering_wheel;
+  if(sw && Array.isArray(sw.position) && sw.position.length===3){
+    const axis = Array.isArray(sw.column_axis) && sw.column_axis.length===3 ? sw.column_axis
+               : typeof sw.column_rake==='number' ? [Math.cos(sw.column_rake), 0, -Math.sin(sw.column_rake)] : null;   // ISO 8855: forward and down, away from the driver
+    if(axis){
+      const R = (sw.diameter>0 ? sw.diameter : 0.37)/2, colLen = 0.45, col = 0x2dd4bf;
+      const g = new THREE.Group();
+      g.position.copy(vec2three(sw.position));
+      g.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1), vec2three(axis).normalize());   // local +Z along the column, away from the driver
+      const mat = (c,o=1) => new THREE.MeshPhongMaterial({color:c, emissive:c, emissiveIntensity:0.2, transparent:o<1, opacity:o});
+      const rim = new THREE.Mesh(new THREE.TorusGeometry(R, 0.011, 8, 48), mat(col));
+      g.add(rim);
+      [Math.PI, 0, -Math.PI/2].forEach(th => {                                                  // spokes: left, right, bottom
+        const sp = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.005, R, 6), mat(col, 0.85));
+        sp.position.set(Math.cos(th)*R/2, Math.sin(th)*R/2, 0); sp.rotation.z = th - Math.PI/2; g.add(sp);
+      });
+      const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.04, 16).rotateX(Math.PI/2), mat(col)); g.add(hub);
+      const colm = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, colLen, 10).rotateX(Math.PI/2).translate(0, 0, colLen/2), mat(col, 0.7)); g.add(colm);
+      const top = new THREE.Mesh(new THREE.SphereGeometry(0.014, 10, 10), mat(0xffffff)); top.position.set(0, R, 0); g.add(top);   // 12 o'clock mark: shows the rotation
+      const rakeDeg = typeof sw.column_rake==='number' ? sw.column_rake*180/Math.PI : Math.asin(Math.max(-1, Math.min(1, -axis[2]/Math.hypot(...axis))))*180/Math.PI;
+      addP(rim, `Steering wheel: Ø${(R*2*1000).toFixed(0)} mm
+[${sw.position.map(v=>v.toFixed(3)).join(', ')}]
+column rake ${rakeDeg.toFixed(1)}°`);
+      groups.steering.add(g);
+      // follows its body when the file has the steering wheel joint: the pose slider of that joint turns it
+      const gears = new Set((data.wheel_stations||[]).map(s => s.steering_joint).filter(Boolean)), cons = data.constraints||[];
+      const rev = id => cons.find(c => c.id===id && c.type==='joint' && c.joint_type==='revolute');
+      const cp = cons.find(c => c.type==='coupling' && ((gears.has(c.joint_b) && rev(c.joint_a)) || (gears.has(c.joint_a) && rev(c.joint_b))));
+      const wj = cp ? (gears.has(cp.joint_b) ? rev(cp.joint_a) : rev(cp.joint_b)) : null;
+      if(wj?.body_b){ g.updateMatrix(); posedObjects.push({obj:g, bodyId:wj.body_b, base:g.matrix.clone()}); }
+    }
+  }
+
   // Drivetrain
   const pt = data.powertrain;
   if(pt) {
@@ -1523,7 +1557,7 @@ function renderOverview(el, data) {
     ${setupsCardHtml(data)}
     ${ch.mass_bodies?.length?section('Mass Bodies ('+ch.mass_bodies.length+')',`<div style="max-height:200px;overflow:auto">${ch.mass_bodies.map(mb=>`<div class="kv-row"><span class="kv-key">${mb.id}</span><span class="kv-val">${mb.mass} kg</span></div>`).join('')}</div>`):''}
   
-    ${data.steering?section('Steering',`<div class="grid2">${stat('Type',(data.steering.type||'').replace(/_/g,' '))}${stat('Ratio',fmtN(data.steering.overall_ratio,1))}${data.steering.lock_to_lock_turns?stat('Lock-Lock',fmtN(data.steering.lock_to_lock_turns,1),'turns'):data.steering.lock_to_lock?stat('Lock-Lock',fmtN(data.steering.lock_to_lock,2),'rad'):''}${data.steering.turning_circle?stat('Turn Circle',fmtN(data.steering.turning_circle,1),'m'):''}${data.steering.power_assist?.type?stat('Assist',data.steering.power_assist.type):''}${data.steering.ackermann!=null?stat('Ackermann',fmtN(data.steering.ackermann*100,0),'%'):''}</div>`):''}
+    ${data.steering?section('Steering',`<div class="grid2">${stat('Type',(data.steering.type||'').replace(/_/g,' '))}${stat('Ratio',fmtN(data.steering.overall_ratio,1))}${data.steering.lock_to_lock_turns?stat('Lock-Lock',fmtN(data.steering.lock_to_lock_turns,1),'turns'):data.steering.lock_to_lock?stat('Lock-Lock',fmtN(data.steering.lock_to_lock,2),'rad'):''}${data.steering.turning_circle?stat('Turn Circle',fmtN(data.steering.turning_circle,1),'m'):''}${data.steering.power_assist?.type?stat('Assist',data.steering.power_assist.type):''}${typeof data.steering.steering_wheel?.column_rake==='number'?stat('Column rake',fmtN(data.steering.steering_wheel.column_rake*180/Math.PI,1),'°'):''}${data.steering.steering_wheel?.diameter?stat('Wheel Ø',fmtN(data.steering.steering_wheel.diameter*1000,0),'mm'):''}${data.steering.ackermann!=null?stat('Ackermann',fmtN(data.steering.ackermann*100,0),'%'):''}</div>`):''}
     ${ch.chassis_stiffness?section('Chassis Stiffness',`<div class="grid2">${ch.chassis_stiffness.torsional_stiffness?stat('Torsional',fmtN(ch.chassis_stiffness.torsional_stiffness,0),'Nm/deg'):''}${ch.chassis_stiffness.bending_stiffness?stat('Bending',fmtN(ch.chassis_stiffness.bending_stiffness,0),'N/mm'):''}</div>`):''}
   `;
 }
