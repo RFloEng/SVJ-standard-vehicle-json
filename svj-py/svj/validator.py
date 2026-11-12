@@ -15,6 +15,7 @@ from svj.drivetrain import check as drivetrain_check
 from svj.engine import check as engine_check
 from svj.powertrain import check as powertrain_check
 from svj.steeringcheck import check as steering_check
+from svj.referencecheck import check as reference_check
 from svj.frame import frame_findings
 from svj.multiaxle import check as multiaxle_check
 from svj.constraints import check as constraints_check
@@ -202,6 +203,10 @@ def _consistency_checks(data: dict) -> list[str]:
     # ── Steering: ratios, steering wheel placement, the wheel -> gear chain (spec §8.7) ──
     sg_errors, sg_warnings = steering_check(data)
     warnings.extend(sg_errors + sg_warnings)
+
+    # ── Reference pose, springs, mass properties, brakes, bushings, aero ──
+    rf_errors, _rf_warnings = reference_check(data)          # the findings of the warning kind are in tools/validate.py; a library load stops on errors only
+    warnings.extend(rf_errors)
 
     # ── Movable parts (spec §24) ──
     ct_errors, ct_warnings = constraints_check(data)
