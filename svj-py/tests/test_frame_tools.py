@@ -70,7 +70,7 @@ def test_viewer_js_port_matches_the_python_conversion(tmp_path):
     node = shutil.which("node")
     if not node:
         pytest.skip("node is not installed")
-    html = (REPO_ROOT / "viewer" / "svj_viewer_v4.7.html").read_text(encoding="utf-8")
+    html = (REPO_ROOT / "viewer" / "svj_viewer_v4.8.html").read_text(encoding="utf-8")
     port = html[html.index("const FRAME_VECTOR_KEYS"):html.index("const vec2three")]
     (tmp_path / "port.js").write_text(port + "\nmodule.exports={svjToISO};\n", encoding="utf-8")
     names = NAMES + ["skeleton_4wd_solid_axle", "man_tgs_36_430_8x4_4_tridem_lift_tag"]
