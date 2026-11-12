@@ -67,7 +67,7 @@ The evaluator is then written to satisfy these in each declared convention, and 
 - `validate.py` / `validator.py`: the CG sign check; side checks.
 - `engine_check.py`, `powertrain_check.py`, `tire_model.py`: no dependence on the vehicle frame (the tyre one is section 3).
 
-**Viewer (`viewer/svj_viewer_v4.7.html`, 61 references)**
+**Viewer (`viewer/svj_viewer_v4.8.html`, 61 references)**
 - `sae2three = p => (p[1], -p[2], -p[0])` and the matrix `SAE_TO_THREE`; for ISO the map is `(-y, z, -x)`. About 40 call sites use it unchanged once the function changes.
 - The JavaScript ports of the loop solver and the tyre evaluator, the CG sanity warning (line 1014), the wheel-travel text and the "SAE axes" captions.
 - Anything that adds lift or travel to Y/Z directly (the `liftRaised` code adds to three's Y, which stays up).
