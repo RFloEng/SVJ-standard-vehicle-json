@@ -1,9 +1,9 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.100",
+    "version": "0.109",
     "description": "Formula F1 2025 — aero example with glTF visual bindings (v0.97 feature).",
-    "coordinate_system": "SAE_J670",
+    "coordinate_system": "ISO_8855",
     "units": "SI",
     "created": "2025-01-01T00:00:00Z",
     "author": "RFloEng",
@@ -47,7 +47,7 @@
     "track_front": 1.6,
     "track_rear": 1.55,
     "center_of_gravity": [
-      1.8,
+      -1.8,
       0.0,
       0.28
     ],

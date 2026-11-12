@@ -295,7 +295,7 @@ The `_metadata.coordinate_system` field now accepts an explicit axis object for 
 }
 ```
 
-The physics data coordinate system (SAE_J670 by default) is separate from the glTF asset convention and both can be documented in the same file.
+The physics data coordinate system (ISO_8855 by default from v0.109; legacy files declare SAE_J670) is separate from the glTF asset convention and both can be documented in the same file.
 
 ### Integrity Checker
 

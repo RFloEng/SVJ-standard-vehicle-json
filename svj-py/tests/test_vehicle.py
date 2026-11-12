@@ -564,10 +564,10 @@ class TestConstraints:
         d = _doc(PANELS)
         pos = {b["id"]: b["position"] for b in d["chassis"]["mass_bodies"]}
         moved = lambda body, pose: apply(body_transforms(d, pose)[body], pos[body])
-        assert moved("door_fl", "door_fl_open")[1] < pos["door_fl"][1] - 0.3       # left door swings out (-Y)
-        assert moved("door_fr", "doors_open")[1] > pos["door_fr"][1] + 0.3         # right door swings out (+Y)
-        assert moved("hood", "hood_up")[2] < pos["hood"][2] - 0.3                  # hood rises (Z is down)
-        assert moved("tailgate", "tailgate_up")[2] < pos["tailgate"][2] - 0.2               # hatch rises
+        assert moved("door_fl", "door_fl_open")[1] > pos["door_fl"][1] + 0.3       # left door swings out (+Y, ISO 8855)
+        assert moved("door_fr", "doors_open")[1] < pos["door_fr"][1] - 0.3         # right door swings out (-Y)
+        assert moved("hood", "hood_up")[2] > pos["hood"][2] + 0.3                  # hood rises (Z up)
+        assert moved("tailgate", "tailgate_up")[2] > pos["tailgate"][2] + 0.2               # hatch rises
 
     def test_rotation_keeps_distances(self):
         import math
@@ -597,7 +597,7 @@ class TestConstraints:
         assert ref["delta"] == [0.0, 0.0, 0.0]
         assert ref["cg"] == pytest.approx(d["chassis"]["center_of_gravity"])
         up = pose_cg(d, "loader_dump")
-        assert up["cg"][2] < ref["cg"][2]                                           # CG rises
+        assert up["cg"][2] > ref["cg"][2]                                           # CG rises (z up)
         i0, i1 = pose_inertia(d), pose_inertia(d, "loader_dump")
         assert i0["Ixx"] == pytest.approx(d["chassis"]["inertia"]["Ixx"], rel=1e-6)
         assert i1 != i0 and all(i1[k] > 0 for k in ("Ixx", "Iyy", "Izz"))
@@ -705,7 +705,7 @@ class TestConstraints:
     def test_vehicle_api(self):
         v = load(TRACTOR, validate_on_load=False)
         assert len([c for c in v.constraints if not c.get("x_derived")]) == 7 and {p["id"] for p in v.poses} >= {"transport", "loader_dump"}
-        assert v.pose_cg("loader_dump")["cg"][2] < v.pose_cg()["cg"][2]
+        assert v.pose_cg("loader_dump")["cg"][2] > v.pose_cg()["cg"][2]
         assert {k for k in v.element_lengths("loader_dump") if k.endswith("_cylinder")} == {"loader_boom_cylinder", "loader_bucket_cylinder", "hitch_lower_link_cylinder"}
         assert v.pose_inertia("hitch_up")["Iyy"] > 0
         assert v.body_transforms()["implement"][1] == (0.0, 0.0, 0.0)
@@ -906,7 +906,7 @@ class TestLatchCouplingDrive:
         from svj.constraints import check, element_lengths, pose_cg
         d = _doc(TRUCK)
         ref, full = pose_cg(d), pose_cg(d, "tip_full")
-        assert full["cg"][0] < ref["cg"][0] and full["cg"][2] < ref["cg"][2]        # CG moves back and up when tipping
+        assert full["cg"][0] < ref["cg"][0] and full["cg"][2] > ref["cg"][2]        # CG moves back and up when tipping
         assert pose_cg(d, "cab_tilted")["cg"][0] > ref["cg"][0]                     # cab tilts forward
         ram = next(c for c in d["constraints"] if c["id"] == "tipper_body_cylinder")
         length = element_lengths(d, "tip_full")["tipper_body_cylinder"]
@@ -1503,7 +1503,7 @@ class TestLoopSolver:
         rows = v.wheel_sweep("FL", [-0.04, 0.0, 0.04])
         assert all(r["converged"] for r in rows)
         assert abs(rows[1]["camber_deg"] + 0.7) < 1e-3 and abs(rows[1]["toe_deg"]) < 1e-6          # the declared static camber
-        assert abs(rows[2]["wheel_centre"][2] - rows[1]["wheel_centre"][2] + 0.04) < 1e-6      # z points down
+        assert abs(rows[2]["wheel_centre"][2] - rows[1]["wheel_centre"][2] - 0.04) < 1e-6      # bump raises the wheel (z up)
         g = v.suspension_gains("FL")
         assert g is not None and abs(g["bump_steer_deg_per_m"]) < 5.0
 
@@ -1617,7 +1617,7 @@ class TestAttachments:
         from svj.assemble import assemble
         doc, _ = assemble(self._comb())
         boom = next(b for b in doc["chassis"]["mass_bodies"] if b["id"] == "loader.loader_boom")
-        assert boom["position"] == pytest.approx([1.0, 0.0, -1.0], abs=1e-6)        # where the single-file tractor has it
+        assert boom["position"] == pytest.approx([1.0, 0.0, 1.0], abs=1e-6)        # where the single-file tractor has it
 
     def test_mismatched_roles_and_sizes_are_errors(self):
         from svj.assemble import check_combination

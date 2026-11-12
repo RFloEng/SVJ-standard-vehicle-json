@@ -14,6 +14,7 @@ from typing import Any
 from svj.drivetrain import check as drivetrain_check
 from svj.engine import check as engine_check
 from svj.powertrain import check as powertrain_check
+from svj.frame import frame_findings
 from svj.multiaxle import check as multiaxle_check
 from svj.constraints import check as constraints_check
 from svj.setups import check as setups_check
@@ -122,7 +123,7 @@ def _consistency_checks(data: dict) -> list[str]:
         if cg_x > 0 and not trailer:
             warnings.append(
                 f"consistency: CG.x={cg_x} is positive — should be negative "
-                f"(behind front axle) per SAE J670"
+                f"(behind front axle, X forward from the front axle, spec 2.1)"
             )
         if cg_x < -wheelbase:
             warnings.append(
@@ -193,6 +194,7 @@ def _consistency_checks(data: dict) -> list[str]:
     warnings.extend(f"engine: {e}" for e in en_errors + en_warnings)
 
     # ── Part-load engine torque, shift points, torque converter (spec §10.3.6) ──
+    warnings.extend(frame_findings(data))
     pw_errors, pw_warnings = powertrain_check(data)
     warnings.extend(f"powertrain: {e}" for e in pw_errors + pw_warnings)
 

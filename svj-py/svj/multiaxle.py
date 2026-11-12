@@ -101,7 +101,7 @@ def check(doc):
         warnings.append("vehicle has more than 2 axles but no axles[] metadata (§23.2)")
     xs = [a["position_x"] for a in sorted(axles, key=lambda a: int(a["id"][1:])) if "position_x" in a]
     if any(b >= a for a, b in zip(xs, xs[1:])):
-        warnings.append("axles[].position_x should decrease from A1 rearwards (SAE X forward) (§23.2)")
+        warnings.append("axles[].position_x should decrease from A1 rearwards (X forward) (§23.2)")
     for a in axles:
         if a.get("lift") and not a.get("liftable"):
             warnings.append(f"{a['id']} has a lift block but liftable is not true")

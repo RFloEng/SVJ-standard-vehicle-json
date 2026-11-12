@@ -33,8 +33,10 @@ import sys
 
 try:                                           # inside svj-py
     from svj import constraints as cc
+    from svj.frame import convert as _convert_frame, ISO as _ISO
 except ImportError:                            # running from tools/
     import constraints_check as cc
+    from convert_frame import convert as _convert_frame, ISO as _ISO
 
 # ── interface vocabulary ──────────────────────────────────────────────────────
 # role -> the role it mates with. A symmetric role mates with itself.
@@ -195,8 +197,13 @@ def check_interfaces(doc, where="interfaces"):
 
 # ── combination model ─────────────────────────────────────────────────────────
 def _load(path):
+    """Read a unit or a combination file. A unit in the legacy SAE J670 frame is converted to ISO 8855, so every unit
+    of an assembly shares one frame and the interface frames can be joined."""
     with open(path, encoding="utf-8") as f:
-        return json.load(f)
+        doc = json.load(f)
+    if (doc.get("_metadata") or {}).get("format") == "svj-combination":
+        return doc
+    return _convert_frame(doc, _ISO)[0]
 
 
 def _split(ref):
@@ -577,7 +584,8 @@ def assemble(comb):
         del out["poses"]
     out["x_assembled"] = True
     md = out.setdefault("_metadata", {})
-    md["version"] = "0.101"
+    md["version"] = "0.109"
+    md["coordinate_system"] = _ISO
     vi = out.setdefault("vehicle_info", {})
     if comb.get("name"):
         vi["model"] = comb["name"]

@@ -1,8 +1,8 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.100",
-    "coordinate_system": "SAE_J670",
+    "version": "0.109",
+    "coordinate_system": "ISO_8855",
     "units": "SI",
     "description": "Oshkosh HEMTT A4 M977A4 8x8 cargo truck (2015 product sheet). Air-sprung beam axles on all four axles, steered front tandem, bogie-centre wheelbase. Headline dimensions, weights, tyres, suspension models and powertrain are published; individual axle spacings are measured from the sheet's to-scale drawing; everything else is estimated.",
     "author": "RFloEng",
@@ -46,7 +46,7 @@
     "center_of_gravity": [
       -3.1,
       0.0,
-      -1.35
+      1.35
     ],
     "_cg_note": "Estimated (unladen, crane stowed)",
     "mass_unsprung_per_corner": {
@@ -77,77 +77,77 @@
         "position": [
           0.0,
           0,
-          -0.585
+          0.585
         ],
         "markers": {
           "wheel_center_a1l": {
             "position": [
               0.0,
-              -1.0035,
-              -0.585
+              1.0035,
+              0.585
             ]
           },
           "arm_axle_seat_a1l": {
             "position": [
               0.0,
-              -0.46,
-              -0.535
+              0.46,
+              0.535
             ]
           },
           "upper_rod_end_a1l": {
             "position": [
               0.0,
-              -0.22,
-              -0.835
+              0.22,
+              0.835
             ]
           },
           "damper_outboard_a1l": {
             "position": [
               -0.08,
-              -0.5,
-              -0.585
+              0.5,
+              0.585
             ]
           },
           "steering_tie_rod_end_a1l": {
             "position": [
               -0.25,
-              -0.8035,
-              -0.535
+              0.8035,
+              0.535
             ]
           },
           "wheel_center_a1r": {
             "position": [
               0.0,
-              1.0035,
-              -0.585
+              -1.0035,
+              0.585
             ]
           },
           "arm_axle_seat_a1r": {
             "position": [
               0.0,
-              0.46,
-              -0.535
+              -0.46,
+              0.535
             ]
           },
           "upper_rod_end_a1r": {
             "position": [
               0.0,
-              0.22,
-              -0.835
+              -0.22,
+              0.835
             ]
           },
           "damper_outboard_a1r": {
             "position": [
               -0.08,
-              0.5,
-              -0.585
+              -0.5,
+              0.585
             ]
           },
           "steering_tie_rod_end_a1r": {
             "position": [
               -0.25,
-              0.8035,
-              -0.535
+              -0.8035,
+              0.535
             ]
           }
         },
@@ -165,8 +165,8 @@
         "mass": 0.0,
         "position": [
           0.0,
-          -1.0035,
-          -0.585
+          1.0035,
+          0.585
         ],
         "x_derived": true
       },
@@ -177,8 +177,8 @@
         "mass": 0.0,
         "position": [
           0.375,
-          -0.46,
-          -0.71
+          0.46,
+          0.71
         ],
         "description": "Trailing arm",
         "x_derived": true,
@@ -195,8 +195,8 @@
         "mass": 0.0,
         "position": [
           0.3,
-          -0.16,
-          -0.9099999999999999
+          0.16,
+          0.9099999999999999
         ],
         "x_derived": true,
         "_est": true,
@@ -213,8 +213,8 @@
         "mass": 0.0,
         "position": [
           0.0,
-          1.0035,
-          -0.585
+          -1.0035,
+          0.585
         ],
         "x_derived": true
       },
@@ -225,8 +225,8 @@
         "mass": 0.0,
         "position": [
           0.375,
-          0.46,
-          -0.71
+          -0.46,
+          0.71
         ],
         "description": "Trailing arm",
         "x_derived": true,
@@ -243,8 +243,8 @@
         "mass": 0.0,
         "position": [
           0.3,
-          0.16,
-          -0.9099999999999999
+          -0.16,
+          0.9099999999999999
         ],
         "x_derived": true,
         "_est": true,
@@ -262,77 +262,77 @@
         "position": [
           -1.525,
           0,
-          -0.585
+          0.585
         ],
         "markers": {
           "wheel_center_a2l": {
             "position": [
               -1.525,
-              -1.0035,
-              -0.585
+              1.0035,
+              0.585
             ]
           },
           "arm_axle_seat_a2l": {
             "position": [
               -1.525,
-              -0.46,
-              -0.535
+              0.46,
+              0.535
             ]
           },
           "upper_rod_end_a2l": {
             "position": [
               -1.525,
-              -0.22,
-              -0.835
+              0.22,
+              0.835
             ]
           },
           "damper_outboard_a2l": {
             "position": [
               -1.605,
-              -0.5,
-              -0.585
+              0.5,
+              0.585
             ]
           },
           "steering_tie_rod_end_a2l": {
             "position": [
               -1.775,
-              -0.8035,
-              -0.535
+              0.8035,
+              0.535
             ]
           },
           "wheel_center_a2r": {
             "position": [
               -1.525,
-              1.0035,
-              -0.585
+              -1.0035,
+              0.585
             ]
           },
           "arm_axle_seat_a2r": {
             "position": [
               -1.525,
-              0.46,
-              -0.535
+              -0.46,
+              0.535
             ]
           },
           "upper_rod_end_a2r": {
             "position": [
               -1.525,
-              0.22,
-              -0.835
+              -0.22,
+              0.835
             ]
           },
           "damper_outboard_a2r": {
             "position": [
               -1.605,
-              0.5,
-              -0.585
+              -0.5,
+              0.585
             ]
           },
           "steering_tie_rod_end_a2r": {
             "position": [
               -1.775,
-              0.8035,
-              -0.535
+              -0.8035,
+              0.535
             ]
           }
         },
@@ -350,8 +350,8 @@
         "mass": 0.0,
         "position": [
           -1.525,
-          -1.0035,
-          -0.585
+          1.0035,
+          0.585
         ],
         "x_derived": true
       },
@@ -362,8 +362,8 @@
         "mass": 0.0,
         "position": [
           -1.15,
-          -0.46,
-          -0.71
+          0.46,
+          0.71
         ],
         "description": "Trailing arm",
         "x_derived": true,
@@ -380,8 +380,8 @@
         "mass": 0.0,
         "position": [
           -1.225,
-          -0.16,
-          -0.9099999999999999
+          0.16,
+          0.9099999999999999
         ],
         "x_derived": true,
         "_est": true,
@@ -398,8 +398,8 @@
         "mass": 0.0,
         "position": [
           -1.525,
-          1.0035,
-          -0.585
+          -1.0035,
+          0.585
         ],
         "x_derived": true
       },
@@ -410,8 +410,8 @@
         "mass": 0.0,
         "position": [
           -1.15,
-          0.46,
-          -0.71
+          -0.46,
+          0.71
         ],
         "description": "Trailing arm",
         "x_derived": true,
@@ -428,8 +428,8 @@
         "mass": 0.0,
         "position": [
           -1.225,
-          0.16,
-          -0.9099999999999999
+          -0.16,
+          0.9099999999999999
         ],
         "x_derived": true,
         "_est": true,
@@ -447,63 +447,63 @@
         "position": [
           -5.3515,
           0,
-          -0.585
+          0.585
         ],
         "markers": {
           "wheel_center_a3l": {
             "position": [
               -5.3515,
-              -1.0035,
-              -0.585
+              1.0035,
+              0.585
             ]
           },
           "arm_axle_seat_a3l": {
             "position": [
               -5.3515,
-              -0.46,
-              -0.535
+              0.46,
+              0.535
             ]
           },
           "upper_rod_end_a3l": {
             "position": [
               -5.3515,
-              -0.22,
-              -0.835
+              0.22,
+              0.835
             ]
           },
           "damper_outboard_a3l": {
             "position": [
               -5.4315,
-              -0.5,
-              -0.585
+              0.5,
+              0.585
             ]
           },
           "wheel_center_a3r": {
             "position": [
               -5.3515,
-              1.0035,
-              -0.585
+              -1.0035,
+              0.585
             ]
           },
           "arm_axle_seat_a3r": {
             "position": [
               -5.3515,
-              0.46,
-              -0.535
+              -0.46,
+              0.535
             ]
           },
           "upper_rod_end_a3r": {
             "position": [
               -5.3515,
-              0.22,
-              -0.835
+              -0.22,
+              0.835
             ]
           },
           "damper_outboard_a3r": {
             "position": [
               -5.4315,
-              0.5,
-              -0.585
+              -0.5,
+              0.585
             ]
           }
         },
@@ -521,8 +521,8 @@
         "mass": 0.0,
         "position": [
           -5.3515,
-          -1.0035,
-          -0.585
+          1.0035,
+          0.585
         ],
         "x_derived": true
       },
@@ -533,8 +533,8 @@
         "mass": 0.0,
         "position": [
           -4.9765,
-          -0.46,
-          -0.71
+          0.46,
+          0.71
         ],
         "description": "Trailing arm",
         "x_derived": true,
@@ -551,8 +551,8 @@
         "mass": 0.0,
         "position": [
           -5.0515,
-          -0.16,
-          -0.9099999999999999
+          0.16,
+          0.9099999999999999
         ],
         "x_derived": true,
         "_est": true,
@@ -569,8 +569,8 @@
         "mass": 0.0,
         "position": [
           -5.3515,
-          1.0035,
-          -0.585
+          -1.0035,
+          0.585
         ],
         "x_derived": true
       },
@@ -581,8 +581,8 @@
         "mass": 0.0,
         "position": [
           -4.9765,
-          0.46,
-          -0.71
+          -0.46,
+          0.71
         ],
         "description": "Trailing arm",
         "x_derived": true,
@@ -599,8 +599,8 @@
         "mass": 0.0,
         "position": [
           -5.0515,
-          0.16,
-          -0.9099999999999999
+          -0.16,
+          0.9099999999999999
         ],
         "x_derived": true,
         "_est": true,
@@ -618,63 +618,63 @@
         "position": [
           -6.8415,
           0,
-          -0.585
+          0.585
         ],
         "markers": {
           "wheel_center_a4l": {
             "position": [
               -6.8415,
-              -1.0035,
-              -0.585
+              1.0035,
+              0.585
             ]
           },
           "arm_axle_seat_a4l": {
             "position": [
               -6.8415,
-              -0.46,
-              -0.535
+              0.46,
+              0.535
             ]
           },
           "upper_rod_end_a4l": {
             "position": [
               -6.8415,
-              -0.22,
-              -0.835
+              0.22,
+              0.835
             ]
           },
           "damper_outboard_a4l": {
             "position": [
               -6.9215,
-              -0.5,
-              -0.585
+              0.5,
+              0.585
             ]
           },
           "wheel_center_a4r": {
             "position": [
               -6.8415,
-              1.0035,
-              -0.585
+              -1.0035,
+              0.585
             ]
           },
           "arm_axle_seat_a4r": {
             "position": [
               -6.8415,
-              0.46,
-              -0.535
+              -0.46,
+              0.535
             ]
           },
           "upper_rod_end_a4r": {
             "position": [
               -6.8415,
-              0.22,
-              -0.835
+              -0.22,
+              0.835
             ]
           },
           "damper_outboard_a4r": {
             "position": [
               -6.9215,
-              0.5,
-              -0.585
+              -0.5,
+              0.585
             ]
           }
         },
@@ -692,8 +692,8 @@
         "mass": 0.0,
         "position": [
           -6.8415,
-          -1.0035,
-          -0.585
+          1.0035,
+          0.585
         ],
         "x_derived": true
       },
@@ -704,8 +704,8 @@
         "mass": 0.0,
         "position": [
           -6.4665,
-          -0.46,
-          -0.71
+          0.46,
+          0.71
         ],
         "description": "Trailing arm",
         "x_derived": true,
@@ -722,8 +722,8 @@
         "mass": 0.0,
         "position": [
           -6.5415,
-          -0.16,
-          -0.9099999999999999
+          0.16,
+          0.9099999999999999
         ],
         "x_derived": true,
         "_est": true,
@@ -740,8 +740,8 @@
         "mass": 0.0,
         "position": [
           -6.8415,
-          1.0035,
-          -0.585
+          -1.0035,
+          0.585
         ],
         "x_derived": true
       },
@@ -752,8 +752,8 @@
         "mass": 0.0,
         "position": [
           -6.4665,
-          0.46,
-          -0.71
+          -0.46,
+          0.71
         ],
         "description": "Trailing arm",
         "x_derived": true,
@@ -770,8 +770,8 @@
         "mass": 0.0,
         "position": [
           -6.5415,
-          0.16,
-          -0.9099999999999999
+          -0.16,
+          0.9099999999999999
         ],
         "x_derived": true,
         "_est": true,
@@ -786,8 +786,8 @@
     "type": "recirculating_ball",
     "rack_position": [
       0.45,
-      -0.5,
-      -1.15
+      0.5,
+      1.15
     ],
     "rack_travel": 0.12,
     "overall_ratio": 24.0,
@@ -1080,11 +1080,11 @@
       "frame_a": {
         "position": [
           0.0,
-          -1.0035,
-          -0.585
+          1.0035,
+          0.585
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1094,11 +1094,11 @@
       "frame_b": {
         "position": [
           0.0,
-          -1.0035,
-          -0.585
+          1.0035,
+          0.585
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1114,28 +1114,28 @@
       "frame_a": {
         "position": [
           0.6,
-          -0.1,
-          -0.985
+          0.1,
+          0.985
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upper_torque_rod_a1l",
       "frame_b": {
         "position": [
           0.6,
-          -0.1,
-          -0.985
+          0.1,
+          0.985
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1148,28 +1148,28 @@
       "frame_a": {
         "position": [
           0.0,
-          -0.22,
-          -0.835
+          0.22,
+          0.835
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a1_steer_drive_axle",
       "frame_b": {
         "position": [
           0.0,
-          -0.22,
-          -0.835
+          0.22,
+          0.835
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1181,28 +1181,28 @@
       "frame_a": {
         "position": [
           0.0,
-          -1.0035,
-          -0.885
+          1.0035,
+          0.885
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a1_steer_drive_axle",
       "frame_b": {
         "position": [
           0.0,
-          -1.0035,
-          -0.585
+          1.0035,
+          0.585
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -1219,28 +1219,28 @@
       "frame_a": {
         "position": [
           0.0,
-          -1.0035,
-          -0.885
+          1.0035,
+          0.885
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a1_steer_drive_axle",
       "frame_b": {
         "position": [
           0.0,
-          -1.0035,
-          -0.585
+          1.0035,
+          0.585
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -1284,11 +1284,11 @@
       "frame_a": {
         "position": [
           0.0,
-          1.0035,
-          -0.585
+          -1.0035,
+          0.585
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1298,11 +1298,11 @@
       "frame_b": {
         "position": [
           0.0,
-          1.0035,
-          -0.585
+          -1.0035,
+          0.585
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1318,28 +1318,28 @@
       "frame_a": {
         "position": [
           0.6,
-          0.1,
-          -0.985
+          -0.1,
+          0.985
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upper_torque_rod_a1r",
       "frame_b": {
         "position": [
           0.6,
-          0.1,
-          -0.985
+          -0.1,
+          0.985
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1352,28 +1352,28 @@
       "frame_a": {
         "position": [
           0.0,
-          0.22,
-          -0.835
+          -0.22,
+          0.835
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a1_steer_drive_axle",
       "frame_b": {
         "position": [
           0.0,
-          0.22,
-          -0.835
+          -0.22,
+          0.835
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1385,28 +1385,28 @@
       "frame_a": {
         "position": [
           0.0,
-          1.0035,
-          -0.885
+          -1.0035,
+          0.885
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a1_steer_drive_axle",
       "frame_b": {
         "position": [
           0.0,
-          1.0035,
-          -0.585
+          -1.0035,
+          0.585
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -1423,28 +1423,28 @@
       "frame_a": {
         "position": [
           0.0,
-          1.0035,
-          -0.885
+          -1.0035,
+          0.885
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a1_steer_drive_axle",
       "frame_b": {
         "position": [
           0.0,
-          1.0035,
-          -0.585
+          -1.0035,
+          0.585
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -1488,11 +1488,11 @@
       "frame_a": {
         "position": [
           -1.525,
-          -1.0035,
-          -0.585
+          1.0035,
+          0.585
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1502,11 +1502,11 @@
       "frame_b": {
         "position": [
           -1.525,
-          -1.0035,
-          -0.585
+          1.0035,
+          0.585
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1522,28 +1522,28 @@
       "frame_a": {
         "position": [
           -0.925,
-          -0.1,
-          -0.985
+          0.1,
+          0.985
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upper_torque_rod_a2l",
       "frame_b": {
         "position": [
           -0.925,
-          -0.1,
-          -0.985
+          0.1,
+          0.985
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1556,28 +1556,28 @@
       "frame_a": {
         "position": [
           -1.525,
-          -0.22,
-          -0.835
+          0.22,
+          0.835
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a2_steer_drive_axle",
       "frame_b": {
         "position": [
           -1.525,
-          -0.22,
-          -0.835
+          0.22,
+          0.835
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1589,28 +1589,28 @@
       "frame_a": {
         "position": [
           -1.525,
-          -1.0035,
-          -0.885
+          1.0035,
+          0.885
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a2_steer_drive_axle",
       "frame_b": {
         "position": [
           -1.525,
-          -1.0035,
-          -0.585
+          1.0035,
+          0.585
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -1627,28 +1627,28 @@
       "frame_a": {
         "position": [
           -1.525,
-          -1.0035,
-          -0.885
+          1.0035,
+          0.885
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a2_steer_drive_axle",
       "frame_b": {
         "position": [
           -1.525,
-          -1.0035,
-          -0.585
+          1.0035,
+          0.585
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -1692,11 +1692,11 @@
       "frame_a": {
         "position": [
           -1.525,
-          1.0035,
-          -0.585
+          -1.0035,
+          0.585
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1706,11 +1706,11 @@
       "frame_b": {
         "position": [
           -1.525,
-          1.0035,
-          -0.585
+          -1.0035,
+          0.585
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1726,28 +1726,28 @@
       "frame_a": {
         "position": [
           -0.925,
-          0.1,
-          -0.985
+          -0.1,
+          0.985
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upper_torque_rod_a2r",
       "frame_b": {
         "position": [
           -0.925,
-          0.1,
-          -0.985
+          -0.1,
+          0.985
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1760,28 +1760,28 @@
       "frame_a": {
         "position": [
           -1.525,
-          0.22,
-          -0.835
+          -0.22,
+          0.835
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a2_steer_drive_axle",
       "frame_b": {
         "position": [
           -1.525,
-          0.22,
-          -0.835
+          -0.22,
+          0.835
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1793,28 +1793,28 @@
       "frame_a": {
         "position": [
           -1.525,
-          1.0035,
-          -0.885
+          -1.0035,
+          0.885
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a2_steer_drive_axle",
       "frame_b": {
         "position": [
           -1.525,
-          1.0035,
-          -0.585
+          -1.0035,
+          0.585
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -1831,28 +1831,28 @@
       "frame_a": {
         "position": [
           -1.525,
-          1.0035,
-          -0.885
+          -1.0035,
+          0.885
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a2_steer_drive_axle",
       "frame_b": {
         "position": [
           -1.525,
-          1.0035,
-          -0.585
+          -1.0035,
+          0.585
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -1896,11 +1896,11 @@
       "frame_a": {
         "position": [
           -5.3515,
-          -1.0035,
-          -0.585
+          1.0035,
+          0.585
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1910,11 +1910,11 @@
       "frame_b": {
         "position": [
           -5.3515,
-          -1.0035,
-          -0.585
+          1.0035,
+          0.585
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1930,28 +1930,28 @@
       "frame_a": {
         "position": [
           -4.7515,
-          -0.1,
-          -0.985
+          0.1,
+          0.985
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upper_torque_rod_a3l",
       "frame_b": {
         "position": [
           -4.7515,
-          -0.1,
-          -0.985
+          0.1,
+          0.985
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1964,28 +1964,28 @@
       "frame_a": {
         "position": [
           -5.3515,
-          -0.22,
-          -0.835
+          0.22,
+          0.835
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a3_drive_axle",
       "frame_b": {
         "position": [
           -5.3515,
-          -0.22,
-          -0.835
+          0.22,
+          0.835
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1997,28 +1997,28 @@
       "frame_a": {
         "position": [
           -5.3515,
-          -1.0035,
-          -0.885
+          1.0035,
+          0.885
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a3_drive_axle",
       "frame_b": {
         "position": [
           -5.3515,
-          -1.0035,
-          -0.585
+          1.0035,
+          0.585
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -2035,28 +2035,28 @@
       "frame_a": {
         "position": [
           -5.3515,
-          -1.0035,
-          -0.885
+          1.0035,
+          0.885
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a3_drive_axle",
       "frame_b": {
         "position": [
           -5.3515,
-          -1.0035,
-          -0.585
+          1.0035,
+          0.585
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -2100,11 +2100,11 @@
       "frame_a": {
         "position": [
           -5.3515,
-          1.0035,
-          -0.585
+          -1.0035,
+          0.585
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -2114,11 +2114,11 @@
       "frame_b": {
         "position": [
           -5.3515,
-          1.0035,
-          -0.585
+          -1.0035,
+          0.585
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -2134,28 +2134,28 @@
       "frame_a": {
         "position": [
           -4.7515,
-          0.1,
-          -0.985
+          -0.1,
+          0.985
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upper_torque_rod_a3r",
       "frame_b": {
         "position": [
           -4.7515,
-          0.1,
-          -0.985
+          -0.1,
+          0.985
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -2168,28 +2168,28 @@
       "frame_a": {
         "position": [
           -5.3515,
-          0.22,
-          -0.835
+          -0.22,
+          0.835
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a3_drive_axle",
       "frame_b": {
         "position": [
           -5.3515,
-          0.22,
-          -0.835
+          -0.22,
+          0.835
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -2201,28 +2201,28 @@
       "frame_a": {
         "position": [
           -5.3515,
-          1.0035,
-          -0.885
+          -1.0035,
+          0.885
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a3_drive_axle",
       "frame_b": {
         "position": [
           -5.3515,
-          1.0035,
-          -0.585
+          -1.0035,
+          0.585
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -2239,28 +2239,28 @@
       "frame_a": {
         "position": [
           -5.3515,
-          1.0035,
-          -0.885
+          -1.0035,
+          0.885
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a3_drive_axle",
       "frame_b": {
         "position": [
           -5.3515,
-          1.0035,
-          -0.585
+          -1.0035,
+          0.585
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -2304,11 +2304,11 @@
       "frame_a": {
         "position": [
           -6.8415,
-          -1.0035,
-          -0.585
+          1.0035,
+          0.585
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -2318,11 +2318,11 @@
       "frame_b": {
         "position": [
           -6.8415,
-          -1.0035,
-          -0.585
+          1.0035,
+          0.585
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -2338,28 +2338,28 @@
       "frame_a": {
         "position": [
           -6.2415,
-          -0.1,
-          -0.985
+          0.1,
+          0.985
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upper_torque_rod_a4l",
       "frame_b": {
         "position": [
           -6.2415,
-          -0.1,
-          -0.985
+          0.1,
+          0.985
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -2372,28 +2372,28 @@
       "frame_a": {
         "position": [
           -6.8415,
-          -0.22,
-          -0.835
+          0.22,
+          0.835
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a4_drive_axle",
       "frame_b": {
         "position": [
           -6.8415,
-          -0.22,
-          -0.835
+          0.22,
+          0.835
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -2405,28 +2405,28 @@
       "frame_a": {
         "position": [
           -6.8415,
-          -1.0035,
-          -0.885
+          1.0035,
+          0.885
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a4_drive_axle",
       "frame_b": {
         "position": [
           -6.8415,
-          -1.0035,
-          -0.585
+          1.0035,
+          0.585
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -2443,28 +2443,28 @@
       "frame_a": {
         "position": [
           -6.8415,
-          -1.0035,
-          -0.885
+          1.0035,
+          0.885
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a4_drive_axle",
       "frame_b": {
         "position": [
           -6.8415,
-          -1.0035,
-          -0.585
+          1.0035,
+          0.585
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -2508,11 +2508,11 @@
       "frame_a": {
         "position": [
           -6.8415,
-          1.0035,
-          -0.585
+          -1.0035,
+          0.585
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -2522,11 +2522,11 @@
       "frame_b": {
         "position": [
           -6.8415,
-          1.0035,
-          -0.585
+          -1.0035,
+          0.585
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -2542,28 +2542,28 @@
       "frame_a": {
         "position": [
           -6.2415,
-          0.1,
-          -0.985
+          -0.1,
+          0.985
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upper_torque_rod_a4r",
       "frame_b": {
         "position": [
           -6.2415,
-          0.1,
-          -0.985
+          -0.1,
+          0.985
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -2576,28 +2576,28 @@
       "frame_a": {
         "position": [
           -6.8415,
-          0.22,
-          -0.835
+          -0.22,
+          0.835
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a4_drive_axle",
       "frame_b": {
         "position": [
           -6.8415,
-          0.22,
-          -0.835
+          -0.22,
+          0.835
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -2609,28 +2609,28 @@
       "frame_a": {
         "position": [
           -6.8415,
-          1.0035,
-          -0.885
+          -1.0035,
+          0.885
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a4_drive_axle",
       "frame_b": {
         "position": [
           -6.8415,
-          1.0035,
-          -0.585
+          -1.0035,
+          0.585
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -2647,28 +2647,28 @@
       "frame_a": {
         "position": [
           -6.8415,
-          1.0035,
-          -0.885
+          -1.0035,
+          0.885
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "a4_drive_axle",
       "frame_b": {
         "position": [
           -6.8415,
-          1.0035,
-          -0.585
+          -1.0035,
+          0.585
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",

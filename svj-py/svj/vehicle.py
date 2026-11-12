@@ -127,7 +127,7 @@ class Vehicle:
 
     @property
     def cg(self) -> list[float]:
-        """Center of gravity [x, y, z] in SAE J670 coordinates."""
+        """Center of gravity [x, y, z] in the file's vehicle frame (ISO 8855, or legacy SAE J670 when declared)."""
         return self.chassis.get("center_of_gravity", [0.0, 0.0, 0.0])
 
     @property
@@ -613,7 +613,7 @@ class Vehicle:
                 return (cg_x - xr) / (xf - xr)
         wb = self.wheelbase
         if wb > 0:
-            # CG.x is negative (behind front axle) in SAE J670
+            # CG.x is negative (behind the front axle) in both frames
             return 1.0 + (cg_x / wb)
         return None
 

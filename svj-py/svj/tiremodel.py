@@ -9,8 +9,14 @@ inflation pressure changes", Vehicle System Dynamics 48 (2010), Appendix, equati
 MF 5.2 coefficient sets run through the same equations (pressure and the 6.1 camber terms default to zero); the
 `model` value picks the one place where they differ: the horizontal shift of Fy with camber (§11.13.3).
 
-Sign convention: the equations are used as written, so the sign of the result follows the coefficients of the file
-(a file whose pKy1 is positive gives a positive Fy for a positive slip angle). Units are SI: N, m, rad, Pa, m/s.
+Sign convention (spec 11.13, v0.109): the equations are used as written and `pacejka.axis_system` says which signs the
+coefficients are in. The results of `forces` are always in ISO 8855 tyre axes: a positive slip angle (velocity to the
+right of the wheel heading) gives a positive Fy (to the left) and a negative Mz; a positive inclination angle gamma
+(top of the wheel leaning right) gives a camber thrust to the right, so a negative Fy; kappa > 0 gives Fx > 0; My is
+negative for a wheel rolling forward. A set declared `SAE_J670` (the Pacejka/TYDEX signs of earlier versions) is
+converted at the interface: Fy, Mz and what follows their sign change. `to_iso_set` rewrites such a set to ISO
+coefficients exactly; `mirror_camber` flips the camber coefficients of a set whose camber thrust points the wrong way.
+Units are SI: N, m, rad, Pa, m/s.
 
 Not evaluated: overturning moment Mx (qsx coefficients), turn slip, transient behaviour (relaxation), thermal and wear
 effects, and the TMeasy and brush models.
@@ -42,8 +48,8 @@ SCALING_KEYS = ("LFZO", "LCX", "LMUX", "LEX", "LKX", "LHX", "LVX", "LXAL", "LCY"
 class Params:
     """Coefficients and reference values of one tyre set."""
 
-    def __init__(self, model, lat, lon, alg, comb, roll, scaling, Fz0, p0, R0, name="", V0=16.7):
-        self.model, self.name = model, name
+    def __init__(self, model, lat, lon, alg, comb, roll, scaling, Fz0, p0, R0, name="", V0=16.7, axis="ISO_8855"):
+        self.model, self.name, self.axis = model, name, axis
         self.lat, self.lon, self.alg, self.comb, self.roll = lat, lon, alg, comb, roll
         self.lam = {k: 1.0 for k in SCALING_KEYS}
         self.lam.update({k: float(v) for k, v in (scaling or {}).items() if k in SCALING_KEYS and isinstance(v, (int, float))})
@@ -82,10 +88,61 @@ def params(tire_set, name=""):
         raise ValueError("no reference load (pacejka.reference_load_N or reference.load)")
     p0 = ref.get("pressure", tire_set.get("pressure"))
     R0 = unloaded_radius(tire_set)
+    axis = pj.get("axis_system", "ISO_8855")
+    if axis not in AXIS_SYSTEMS:
+        raise ValueError("pacejka.axis_system must be one of %s" % (AXIS_SYSTEMS,))
     return Params(pj.get("model", "MF52"), _group(pj.get("lateral")), _group(pj.get("longitudinal")), _group(pj.get("aligning")),
                   _group(pj.get("combined")), _group(pj.get("rolling_resistance")), pj.get("scaling"), float(Fz0),
                   float(p0) if isinstance(p0, (int, float)) and p0 > 0 else None, R0, name,
-                  float(ref["speed"]) if isinstance(ref.get("speed"), (int, float)) and ref["speed"] > 0 else 16.7)
+                  float(ref["speed"]) if isinstance(ref.get("speed"), (int, float)) and ref["speed"] > 0 else 16.7, axis)
+
+
+AXIS_SYSTEMS = ("ISO_8855", "SAE_J670")
+# Quantities that change sign between the SAE/Pacejka tyre axes and ISO 8855 for the same physical situation.
+_AXIS_FLIPPED = ("Fy", "Fy0", "Mz", "Mzr", "SVyk", "Kya", "s")
+# Coefficients that change sign to rewrite a set from SAE signs to ISO signs (and back): Fy and Mz negate exactly,
+# Fx and My are unchanged. The horizontal shifts (pHy1, pHy2, pHy3, qHz*) stay: they are in slip angle, not in force.
+_SAE_ISO_FLIP = {
+    "lateral": ("pKy1", "pVy1", "pVy2", "pVy3", "pVy4", "pKy6", "pKy7"),
+    "aligning": ("qDz6", "qDz7", "qDz8", "qDz9", "qDz10", "qDz11"),
+    "combined": ("rVy1", "rVy2", "rVy3"),
+}
+# Coefficients that multiply an odd power of the inclination angle: flipping them is the same as gamma -> -gamma.
+_CAMBER_ODD = {
+    "lateral": ("pKy6", "pKy7", "pVy3", "pVy4", "pHy3", "pEy4"),
+    "aligning": ("qHz3", "qHz4", "qBz4", "qDz3", "qDz8", "qDz9", "qDz10", "qDz11", "qEz5", "ssz3", "ssz4"),
+    "combined": ("rVy3",),
+}
+
+
+def _flipped(pj, table):
+    out = json.loads(json.dumps(pj))
+    for group, keys in table.items():
+        g = out.get(group)
+        if isinstance(g, dict):
+            for k in keys:
+                if isinstance(g.get(k), (int, float)) and not isinstance(g.get(k), bool) and g[k] != 0:
+                    g[k] = -g[k]
+    return out
+
+
+def to_iso_set(pj):
+    """Rewrite a `pacejka` block with SAE/Pacejka signs to ISO 8855 signs (and an ISO one to SAE: the map is its own
+    inverse). The result drops `axis_system` when it is ISO and declares SAE_J670 otherwise."""
+    was = pj.get("axis_system", "ISO_8855")
+    out = _flipped(pj, _SAE_ISO_FLIP)
+    now = "ISO_8855" if was == "SAE_J670" else "SAE_J670"
+    if now == "ISO_8855":
+        out.pop("axis_system", None)
+    else:
+        out["axis_system"] = now
+    return out
+
+
+def mirror_camber(pj):
+    """Flip the camber coefficients of a `pacejka` block, i.e. evaluate it as if gamma changed sign. Used once, to
+    correct sets whose camber thrust pointed the wrong way (spec 11.13: lean right pushes the tyre right)."""
+    return _flipped(pj, _CAMBER_ODD)
 
 
 # ── helpers ────────────────────────────────────────────────────────────────────
@@ -233,6 +290,9 @@ def forces(p, Fz, kappa=0.0, alpha=0.0, gamma=0.0, pressure=None, Vx=None, combi
 
     out.update(Fx=Fx, Fy=Fy, Mz=Mz, My=My, Fx0=Fx0, Fy0=Fy0, Gxa=Gxa, Gyk=Gyk, SVyk=SVyk, Kya=Kya, Kxk=Kxk,
                mu_x=mu_x, mu_y=mu_y, t=t, Mzr=Mzr, s=s)
+    if p.axis == "SAE_J670":                       # legacy signs: convert to the ISO result at the interface
+        for k in _AXIS_FLIPPED:
+            out[k] = -out[k] if out[k] else 0.0
     return out
 
 

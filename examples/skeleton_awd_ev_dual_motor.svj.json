@@ -1,9 +1,9 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.100",
+    "version": "0.109",
     "description": "Skeleton: AWD BEV with dual motors — double wishbone all corners.",
-    "coordinate_system": "SAE_J670",
+    "coordinate_system": "ISO_8855",
     "units": "SI",
     "data_origin": {
       "type": "calculated",
@@ -27,7 +27,7 @@
     "center_of_gravity": [
       -1.5,
       0.0,
-      -0.42
+      0.42
     ],
     "mass_bodies": [
       {
@@ -37,30 +37,30 @@
         "mass": 8.0,
         "position": [
           0.0,
-          -0.7133,
-          -0.3033
+          0.7133,
+          0.3033
         ],
         "parent": "chassis",
         "markers": {
           "upper_ball_joint": {
             "position": [
               0.0,
-              -0.65,
-              -0.44
+              0.65,
+              0.44
             ]
           },
           "lower_ball_joint": {
             "position": [
               0.0,
-              -0.68,
-              -0.14
+              0.68,
+              0.14
             ]
           },
           "wheel_center": {
             "position": [
               0.0,
-              -0.81,
-              -0.33
+              0.81,
+              0.33
             ]
           }
         }
@@ -72,8 +72,8 @@
         "mass": 2.5,
         "position": [
           0.0,
-          -0.4167,
-          -0.44
+          0.4167,
+          0.44
         ],
         "parent": "chassis",
         "x_legacy_link": {
@@ -88,8 +88,8 @@
         "mass": 3.2,
         "position": [
           0.0067,
-          -0.4,
-          -0.14
+          0.4,
+          0.14
         ],
         "parent": "chassis",
         "x_legacy_link": {
@@ -104,30 +104,30 @@
         "mass": 8.0,
         "position": [
           0.0,
-          0.7133,
-          -0.3033
+          -0.7133,
+          0.3033
         ],
         "parent": "chassis",
         "markers": {
           "upper_ball_joint": {
             "position": [
               0.0,
-              0.65,
-              -0.44
+              -0.65,
+              0.44
             ]
           },
           "lower_ball_joint": {
             "position": [
               0.0,
-              0.68,
-              -0.14
+              -0.68,
+              0.14
             ]
           },
           "wheel_center": {
             "position": [
               0.0,
-              0.81,
-              -0.33
+              -0.81,
+              0.33
             ]
           }
         }
@@ -139,8 +139,8 @@
         "mass": 2.5,
         "position": [
           0.0,
-          0.4167,
-          -0.44
+          -0.4167,
+          0.44
         ],
         "parent": "chassis",
         "x_legacy_link": {
@@ -155,8 +155,8 @@
         "mass": 3.2,
         "position": [
           0.0067,
-          0.4,
-          -0.14
+          -0.4,
+          0.14
         ],
         "parent": "chassis",
         "x_legacy_link": {
@@ -171,30 +171,30 @@
         "mass": 8.0,
         "position": [
           -2.96,
-          -0.7233,
-          -0.3033
+          0.7233,
+          0.3033
         ],
         "parent": "chassis",
         "markers": {
           "upper_ball_joint": {
             "position": [
               -2.96,
-              -0.66,
-              -0.44
+              0.66,
+              0.44
             ]
           },
           "lower_ball_joint": {
             "position": [
               -2.96,
-              -0.69,
-              -0.14
+              0.69,
+              0.14
             ]
           },
           "wheel_center": {
             "position": [
               -2.96,
-              -0.82,
-              -0.33
+              0.82,
+              0.33
             ]
           }
         }
@@ -206,8 +206,8 @@
         "mass": 2.5,
         "position": [
           -2.96,
-          -0.42,
-          -0.44
+          0.42,
+          0.44
         ],
         "parent": "chassis",
         "x_legacy_link": {
@@ -222,8 +222,8 @@
         "mass": 3.2,
         "position": [
           -2.9533,
-          -0.4033,
-          -0.14
+          0.4033,
+          0.14
         ],
         "parent": "chassis",
         "x_legacy_link": {
@@ -238,30 +238,30 @@
         "mass": 8.0,
         "position": [
           -2.96,
-          0.7233,
-          -0.3033
+          -0.7233,
+          0.3033
         ],
         "parent": "chassis",
         "markers": {
           "upper_ball_joint": {
             "position": [
               -2.96,
-              0.66,
-              -0.44
+              -0.66,
+              0.44
             ]
           },
           "lower_ball_joint": {
             "position": [
               -2.96,
-              0.69,
-              -0.14
+              -0.69,
+              0.14
             ]
           },
           "wheel_center": {
             "position": [
               -2.96,
-              0.82,
-              -0.33
+              -0.82,
+              0.33
             ]
           }
         }
@@ -273,8 +273,8 @@
         "mass": 2.5,
         "position": [
           -2.96,
-          0.42,
-          -0.44
+          -0.42,
+          0.44
         ],
         "parent": "chassis",
         "x_legacy_link": {
@@ -289,8 +289,8 @@
         "mass": 3.2,
         "position": [
           -2.9533,
-          0.4033,
-          -0.14
+          -0.4033,
+          0.14
         ],
         "parent": "chassis",
         "x_legacy_link": {
@@ -306,8 +306,8 @@
         "mass": 0.0,
         "position": [
           0.0,
-          -0.81,
-          -0.33
+          0.81,
+          0.33
         ],
         "x_derived": true
       },
@@ -319,8 +319,8 @@
         "mass": 0.0,
         "position": [
           0.0,
-          0.81,
-          -0.33
+          -0.81,
+          0.33
         ],
         "x_derived": true
       },
@@ -332,8 +332,8 @@
         "mass": 0.0,
         "position": [
           -2.96,
-          -0.82,
-          -0.33
+          0.82,
+          0.33
         ],
         "x_derived": true
       },
@@ -345,8 +345,8 @@
         "mass": 0.0,
         "position": [
           -2.96,
-          0.82,
-          -0.33
+          -0.82,
+          0.33
         ],
         "x_derived": true
       }
@@ -379,8 +379,8 @@
           "type": "rzeppa",
           "position": [
             0.0,
-            -0.81,
-            -0.33
+            0.81,
+            0.33
           ]
         }
       },
@@ -390,8 +390,8 @@
           "type": "rzeppa",
           "position": [
             0.0,
-            0.81,
-            -0.33
+            -0.81,
+            0.33
           ]
         }
       },
@@ -401,8 +401,8 @@
           "type": "rzeppa",
           "position": [
             -2.96,
-            -0.82,
-            -0.33
+            0.82,
+            0.33
           ]
         }
       },
@@ -412,8 +412,8 @@
           "type": "rzeppa",
           "position": [
             -2.96,
-            0.82,
-            -0.33
+            -0.82,
+            0.33
           ]
         }
       }
@@ -435,7 +435,7 @@
         "position": [
           -0.2,
           0.0,
-          -0.3
+          0.3
         ]
       },
       {
@@ -451,7 +451,7 @@
         "position": [
           -2.7,
           0.0,
-          -0.3
+          0.3
         ]
       }
     ],
@@ -464,7 +464,7 @@
       "position": [
         -1.5,
         0.0,
-        -0.18
+        0.18
       ]
     },
     "regen": {
@@ -492,11 +492,11 @@
       "frame_a": {
         "position": [
           0.0,
-          -0.81,
-          -0.33
+          0.81,
+          0.33
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -506,11 +506,11 @@
       "frame_b": {
         "position": [
           0.0,
-          -0.81,
-          -0.33
+          0.81,
+          0.33
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -526,28 +526,28 @@
       "frame_a": {
         "position": [
           0.14,
-          -0.3,
-          -0.44
+          0.3,
+          0.44
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upper_wishbone_fl",
       "frame_b": {
         "position": [
           0.14,
-          -0.3,
-          -0.44
+          0.3,
+          0.44
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -560,28 +560,28 @@
       "frame_a": {
         "position": [
           -0.14,
-          -0.3,
-          -0.44
+          0.3,
+          0.44
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upper_wishbone_fl",
       "frame_b": {
         "position": [
           -0.14,
-          -0.3,
-          -0.44
+          0.3,
+          0.44
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -594,28 +594,28 @@
       "frame_a": {
         "position": [
           0.0,
-          -0.65,
-          -0.44
+          0.65,
+          0.44
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upright_fl",
       "frame_b": {
         "position": [
           0.0,
-          -0.65,
-          -0.44
+          0.65,
+          0.44
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -628,28 +628,28 @@
       "frame_a": {
         "position": [
           0.2,
-          -0.26,
-          -0.14
+          0.26,
+          0.14
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "lower_wishbone_fl",
       "frame_b": {
         "position": [
           0.2,
-          -0.26,
-          -0.14
+          0.26,
+          0.14
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -662,28 +662,28 @@
       "frame_a": {
         "position": [
           -0.18,
-          -0.26,
-          -0.14
+          0.26,
+          0.14
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "lower_wishbone_fl",
       "frame_b": {
         "position": [
           -0.18,
-          -0.26,
-          -0.14
+          0.26,
+          0.14
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -696,28 +696,28 @@
       "frame_a": {
         "position": [
           0.0,
-          -0.68,
-          -0.14
+          0.68,
+          0.14
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upright_fl",
       "frame_b": {
         "position": [
           0.0,
-          -0.68,
-          -0.14
+          0.68,
+          0.14
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -729,28 +729,28 @@
       "frame_a": {
         "position": [
           0.0,
-          -0.81,
-          -0.63
+          0.81,
+          0.63
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upright_fl",
       "frame_b": {
         "position": [
           0.0,
-          -0.81,
-          -0.33
+          0.81,
+          0.33
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -765,28 +765,28 @@
       "frame_a": {
         "position": [
           0.0,
-          -0.81,
-          -0.63
+          0.81,
+          0.63
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upright_fl",
       "frame_b": {
         "position": [
           0.0,
-          -0.81,
-          -0.33
+          0.81,
+          0.33
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -829,11 +829,11 @@
       "frame_a": {
         "position": [
           0.0,
-          0.81,
-          -0.33
+          -0.81,
+          0.33
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -843,11 +843,11 @@
       "frame_b": {
         "position": [
           0.0,
-          0.81,
-          -0.33
+          -0.81,
+          0.33
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -863,28 +863,28 @@
       "frame_a": {
         "position": [
           0.14,
-          0.3,
-          -0.44
+          -0.3,
+          0.44
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upper_wishbone_fr",
       "frame_b": {
         "position": [
           0.14,
-          0.3,
-          -0.44
+          -0.3,
+          0.44
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -897,28 +897,28 @@
       "frame_a": {
         "position": [
           -0.14,
-          0.3,
-          -0.44
+          -0.3,
+          0.44
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upper_wishbone_fr",
       "frame_b": {
         "position": [
           -0.14,
-          0.3,
-          -0.44
+          -0.3,
+          0.44
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -931,28 +931,28 @@
       "frame_a": {
         "position": [
           0.0,
-          0.65,
-          -0.44
+          -0.65,
+          0.44
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upright_fr",
       "frame_b": {
         "position": [
           0.0,
-          0.65,
-          -0.44
+          -0.65,
+          0.44
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -965,28 +965,28 @@
       "frame_a": {
         "position": [
           0.2,
-          0.26,
-          -0.14
+          -0.26,
+          0.14
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "lower_wishbone_fr",
       "frame_b": {
         "position": [
           0.2,
-          0.26,
-          -0.14
+          -0.26,
+          0.14
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -999,28 +999,28 @@
       "frame_a": {
         "position": [
           -0.18,
-          0.26,
-          -0.14
+          -0.26,
+          0.14
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "lower_wishbone_fr",
       "frame_b": {
         "position": [
           -0.18,
-          0.26,
-          -0.14
+          -0.26,
+          0.14
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1033,28 +1033,28 @@
       "frame_a": {
         "position": [
           0.0,
-          0.68,
-          -0.14
+          -0.68,
+          0.14
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upright_fr",
       "frame_b": {
         "position": [
           0.0,
-          0.68,
-          -0.14
+          -0.68,
+          0.14
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1066,28 +1066,28 @@
       "frame_a": {
         "position": [
           0.0,
-          0.81,
-          -0.63
+          -0.81,
+          0.63
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upright_fr",
       "frame_b": {
         "position": [
           0.0,
-          0.81,
-          -0.33
+          -0.81,
+          0.33
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -1102,28 +1102,28 @@
       "frame_a": {
         "position": [
           0.0,
-          0.81,
-          -0.63
+          -0.81,
+          0.63
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upright_fr",
       "frame_b": {
         "position": [
           0.0,
-          0.81,
-          -0.33
+          -0.81,
+          0.33
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -1166,11 +1166,11 @@
       "frame_a": {
         "position": [
           -2.96,
-          -0.82,
-          -0.33
+          0.82,
+          0.33
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1180,11 +1180,11 @@
       "frame_b": {
         "position": [
           -2.96,
-          -0.82,
-          -0.33
+          0.82,
+          0.33
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1200,28 +1200,28 @@
       "frame_a": {
         "position": [
           -2.82,
-          -0.3,
-          -0.44
+          0.3,
+          0.44
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upper_wishbone_rl",
       "frame_b": {
         "position": [
           -2.82,
-          -0.3,
-          -0.44
+          0.3,
+          0.44
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1234,28 +1234,28 @@
       "frame_a": {
         "position": [
           -3.1,
-          -0.3,
-          -0.44
+          0.3,
+          0.44
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upper_wishbone_rl",
       "frame_b": {
         "position": [
           -3.1,
-          -0.3,
-          -0.44
+          0.3,
+          0.44
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1268,28 +1268,28 @@
       "frame_a": {
         "position": [
           -2.96,
-          -0.66,
-          -0.44
+          0.66,
+          0.44
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upright_rl",
       "frame_b": {
         "position": [
           -2.96,
-          -0.66,
-          -0.44
+          0.66,
+          0.44
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1302,28 +1302,28 @@
       "frame_a": {
         "position": [
           -2.76,
-          -0.26,
-          -0.14
+          0.26,
+          0.14
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "lower_wishbone_rl",
       "frame_b": {
         "position": [
           -2.76,
-          -0.26,
-          -0.14
+          0.26,
+          0.14
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1336,28 +1336,28 @@
       "frame_a": {
         "position": [
           -3.14,
-          -0.26,
-          -0.14
+          0.26,
+          0.14
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "lower_wishbone_rl",
       "frame_b": {
         "position": [
           -3.14,
-          -0.26,
-          -0.14
+          0.26,
+          0.14
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1370,28 +1370,28 @@
       "frame_a": {
         "position": [
           -2.96,
-          -0.69,
-          -0.14
+          0.69,
+          0.14
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upright_rl",
       "frame_b": {
         "position": [
           -2.96,
-          -0.69,
-          -0.14
+          0.69,
+          0.14
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1403,28 +1403,28 @@
       "frame_a": {
         "position": [
           -2.96,
-          -0.82,
-          -0.63
+          0.82,
+          0.63
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upright_rl",
       "frame_b": {
         "position": [
           -2.96,
-          -0.82,
-          -0.33
+          0.82,
+          0.33
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -1439,28 +1439,28 @@
       "frame_a": {
         "position": [
           -2.96,
-          -0.82,
-          -0.63
+          0.82,
+          0.63
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upright_rl",
       "frame_b": {
         "position": [
           -2.96,
-          -0.82,
-          -0.33
+          0.82,
+          0.33
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -1503,11 +1503,11 @@
       "frame_a": {
         "position": [
           -2.96,
-          0.82,
-          -0.33
+          -0.82,
+          0.33
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1517,11 +1517,11 @@
       "frame_b": {
         "position": [
           -2.96,
-          0.82,
-          -0.33
+          -0.82,
+          0.33
         ],
         "orientation": [
-          -0.7071068,
+          0.7071068,
           0.0,
           0.0,
           0.7071068
@@ -1537,28 +1537,28 @@
       "frame_a": {
         "position": [
           -2.82,
-          0.3,
-          -0.44
+          -0.3,
+          0.44
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upper_wishbone_rr",
       "frame_b": {
         "position": [
           -2.82,
-          0.3,
-          -0.44
+          -0.3,
+          0.44
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1571,28 +1571,28 @@
       "frame_a": {
         "position": [
           -3.1,
-          0.3,
-          -0.44
+          -0.3,
+          0.44
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upper_wishbone_rr",
       "frame_b": {
         "position": [
           -3.1,
-          0.3,
-          -0.44
+          -0.3,
+          0.44
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1605,28 +1605,28 @@
       "frame_a": {
         "position": [
           -2.96,
-          0.66,
-          -0.44
+          -0.66,
+          0.44
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upright_rr",
       "frame_b": {
         "position": [
           -2.96,
-          0.66,
-          -0.44
+          -0.66,
+          0.44
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1639,28 +1639,28 @@
       "frame_a": {
         "position": [
           -2.76,
-          0.26,
-          -0.14
+          -0.26,
+          0.14
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "lower_wishbone_rr",
       "frame_b": {
         "position": [
           -2.76,
-          0.26,
-          -0.14
+          -0.26,
+          0.14
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1673,28 +1673,28 @@
       "frame_a": {
         "position": [
           -3.14,
-          0.26,
-          -0.14
+          -0.26,
+          0.14
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "lower_wishbone_rr",
       "frame_b": {
         "position": [
           -3.14,
-          0.26,
-          -0.14
+          -0.26,
+          0.14
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1707,28 +1707,28 @@
       "frame_a": {
         "position": [
           -2.96,
-          0.69,
-          -0.14
+          -0.69,
+          0.14
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upright_rr",
       "frame_b": {
         "position": [
           -2.96,
-          0.69,
-          -0.14
+          -0.69,
+          0.14
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "x_derived": true
@@ -1740,28 +1740,28 @@
       "frame_a": {
         "position": [
           -2.96,
-          0.82,
-          -0.63
+          -0.82,
+          0.63
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upright_rr",
       "frame_b": {
         "position": [
           -2.96,
-          0.82,
-          -0.33
+          -0.82,
+          0.33
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
@@ -1776,28 +1776,28 @@
       "frame_a": {
         "position": [
           -2.96,
-          0.82,
-          -0.63
+          -0.82,
+          0.63
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "body_b": "upright_rr",
       "frame_b": {
         "position": [
           -2.96,
-          0.82,
-          -0.33
+          -0.82,
+          0.33
         ],
         "orientation": [
+          1.0,
           0.0,
           0.0,
-          0.0,
-          1.0
+          0.0
         ]
       },
       "reference": "wheel",
