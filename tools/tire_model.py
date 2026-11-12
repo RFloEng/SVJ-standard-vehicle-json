@@ -11,8 +11,8 @@ MF 5.2 coefficient sets run through the same equations (pressure and the 6.1 cam
 
 Sign convention (spec 11.13, v0.109): the equations are used as written and `pacejka.axis_system` says which signs the
 coefficients are in. The results of `forces` are always in ISO 8855 tyre axes: a positive slip angle (velocity to the
-right of the wheel heading) gives a positive Fy (to the left) and a negative Mz; a positive inclination angle gamma
-(top of the wheel leaning right) gives a camber thrust to the right, so a negative Fy; kappa > 0 gives Fx > 0; My is
+right of the wheel heading) gives a positive Fy (to the left) and a negative Mz; the inclination angle gamma is a
+rotation about +X (right-hand rule) and a positive gamma gives a negative Fy; kappa > 0 gives Fx > 0; My is
 negative for a wheel rolling forward. A set declared `SAE_J670` (the Pacejka/TYDEX signs of earlier versions) is
 converted at the interface: Fy, Mz and what follows their sign change. `to_iso_set` rewrites such a set to ISO
 coefficients exactly; `mirror_camber` flips the camber coefficients of a set whose camber thrust points the wrong way.
@@ -141,7 +141,7 @@ def to_iso_set(pj):
 
 def mirror_camber(pj):
     """Flip the camber coefficients of a `pacejka` block, i.e. evaluate it as if gamma changed sign. Used once, to
-    correct sets whose camber thrust pointed the wrong way (spec 11.13: lean right pushes the tyre right)."""
+    correct sets whose camber thrust pointed the wrong way (spec 11.13: gamma is a rotation about +X, right-hand rule)."""
     return _flipped(pj, _CAMBER_ODD)
 
 
