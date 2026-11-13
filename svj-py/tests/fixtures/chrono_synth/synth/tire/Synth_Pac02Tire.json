@@ -1,0 +1,17 @@
+{
+  "Name": "Synthetic Pac02 tire",
+  "Type": "Tire",
+  "Template": "Pac02Tire",
+  "Mass": 9.0,
+  "Inertia": [
+    0.5,
+    0.7,
+    0.5
+  ],
+  "TIR Specification File": "synth/tire/Synth_Pac02.tir",
+  "Coefficient of Friction": 0.9,
+  "Visualization": {
+    "Mesh Filename Left": "synth/meshes/synth_tire_left.obj",
+    "Mesh Filename Right": "synth/meshes/synth_tire_right.obj"
+  }
+}

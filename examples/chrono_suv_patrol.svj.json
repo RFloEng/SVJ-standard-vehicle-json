@@ -1,0 +1,3393 @@
+{
+  "_metadata": {
+    "specification": "SVJ",
+    "version": "0.111",
+    "coordinate_system": {
+      "up": "Y",
+      "forward": "-Z",
+      "handedness": "right"
+    },
+    "units": "SI",
+    "description": "suv bodies converted from a Project Chrono::Vehicle JSON model",
+    "created": "2026-11-13T18:48:40Z",
+    "author": "chrono_convert.py",
+    "source_format": "Chrono::Vehicle",
+    "alignment_convention": "relative_to_centerline",
+    "data_origin": {
+      "type": "simulation",
+      "confidence": "high",
+      "detail": "Converted from Project Chrono::Vehicle JSON files. Geometry, masses, inertias, spring and damper laws are the Chrono values; the SVJ origin and the ground plane are derived (see x_chrono.frame). Estimated values keep their Chrono origin and are not marked _est."
+    },
+    "license": "BSD-3-Clause",
+    "copyright": "Copyright (c) 2016, Project Chrono Development Team. All rights reserved.",
+    "source_url": "https://projectchrono.org",
+    "source_files": [
+      "Nissan_Patrol/json/suv_Vehicle.json",
+      "Nissan_Patrol/json/suv_Chassis.json",
+      "Nissan_Patrol/json/suv_PitmanArm.json",
+      "Nissan_Patrol/json/suv_TMeasyTire.json",
+      "Nissan_Patrol/json/suv_DoubleWishboneFront.json",
+      "Nissan_Patrol/json/suv_DoubleWishboneRear.json",
+      "Nissan_Patrol/json/suv_Wheel.json",
+      "Nissan_Patrol/json/suv_BrakeSimple_Front.json",
+      "Nissan_Patrol/json/suv_BrakeSimple_Rear.json"
+    ],
+    "attribution": "Vehicle data from the Project Chrono distribution (data/vehicle), BSD-3-Clause; see NOTICE.",
+    "physics_frame": "ISO_8855"
+  },
+  "vehicle_info": {
+    "model": "suv bodies",
+    "vehicle_class": "special",
+    "drive_type": "FWD"
+  },
+  "chassis": {
+    "mass_total": 2581.297,
+    "wheelbase": 3.26945,
+    "track_front": 1.92,
+    "track_rear": 2.02,
+    "center_of_gravity": [
+      -1.525322,
+      0.000218,
+      0.554448
+    ],
+    "inertia": {
+      "Ixx": 1506.461784641,
+      "Iyy": 4347.671819962,
+      "Izz": 5311.177286321,
+      "Ixy": 0.664880853,
+      "Ixz": 20.727618905,
+      "Iyz": -0.054986438
+    },
+    "mass_bodies": [
+      {
+        "id": "center_link",
+        "mass": 9.072,
+        "position": [
+          -0.281651,
+          0.0,
+          0.436068
+        ],
+        "category": "structural",
+        "inertia": {
+          "Ixx": 1.0,
+          "Iyy": 1.0,
+          "Izz": 1.0,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        },
+        "parent": "pitman_arm"
+      },
+      {
+        "id": "pitman_arm",
+        "mass": 2.259,
+        "position": [
+          -0.343292,
+          0.249,
+          0.456693
+        ],
+        "category": "structural",
+        "inertia": {
+          "Ixx": 1.0,
+          "Iyy": 1.0,
+          "Izz": 1.0,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        },
+        "parent": "chassis"
+      },
+      {
+        "id": "idler_arm",
+        "mass": 0.0,
+        "position": [
+          -0.342818,
+          -0.325,
+          0.456534
+        ],
+        "category": "structural",
+        "parent": "chassis",
+        "x_derived": true
+      },
+      {
+        "id": "upright_fl",
+        "mass": 19.45,
+        "position": [
+          0.0,
+          0.801,
+          0.461
+        ],
+        "category": "structural",
+        "parent": "upper_wishbone_fl",
+        "inertia": {
+          "Ixx": 0.1656,
+          "Iyy": 0.1934,
+          "Izz": 0.04367,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        },
+        "markers": {
+          "wheel_center": {
+            "position": [
+              0.0,
+              0.96,
+              0.461
+            ]
+          }
+        }
+      },
+      {
+        "id": "upper_wishbone_fl",
+        "mass": 5.813,
+        "position": [
+          -0.066,
+          0.639,
+          0.705
+        ],
+        "category": "structural",
+        "parent": "chassis",
+        "inertia": {
+          "Ixx": 0.031332889,
+          "Iyy": 0.030357549,
+          "Izz": 0.061069561,
+          "Ixy": 0.000690343,
+          "Ixz": 0.006435238,
+          "Iyz": -0.003333002
+        }
+      },
+      {
+        "id": "lower_wishbone_fl",
+        "mass": 23.965,
+        "position": [
+          0.04,
+          0.597,
+          0.428
+        ],
+        "category": "structural",
+        "parent": "chassis",
+        "inertia": {
+          "Ixx": 0.4,
+          "Iyy": 0.428141612,
+          "Izz": 0.865658388,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": -0.114474354
+        }
+      },
+      {
+        "id": "tie_rod_fl",
+        "mass": 0.0,
+        "position": [
+          -0.173,
+          0.6845,
+          0.506
+        ],
+        "category": "structural",
+        "parent": "center_link",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_fl",
+        "name": "Wheel FL",
+        "description": "Spindle + rim + tyre (rotating mass)",
+        "category": "structural",
+        "mass": 71.105,
+        "position": [
+          0.0,
+          0.96,
+          0.461
+        ],
+        "inertia": {
+          "Ixx": 4.34117,
+          "Iyy": 7.78352,
+          "Izz": 4.34117,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        },
+        "x_derived": true,
+        "parent": "upright_fl"
+      },
+      {
+        "id": "upright_fr",
+        "mass": 19.45,
+        "position": [
+          0.0,
+          -0.801,
+          0.461
+        ],
+        "category": "structural",
+        "parent": "upper_wishbone_fr",
+        "inertia": {
+          "Ixx": 0.1656,
+          "Iyy": 0.1934,
+          "Izz": 0.04367,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        },
+        "markers": {
+          "wheel_center": {
+            "position": [
+              0.0,
+              -0.96,
+              0.461
+            ]
+          }
+        }
+      },
+      {
+        "id": "upper_wishbone_fr",
+        "mass": 5.813,
+        "position": [
+          -0.066,
+          -0.639,
+          0.705
+        ],
+        "category": "structural",
+        "parent": "chassis",
+        "inertia": {
+          "Ixx": 0.031332889,
+          "Iyy": 0.030357549,
+          "Izz": 0.061069561,
+          "Ixy": -0.000690343,
+          "Ixz": 0.006435238,
+          "Iyz": 0.003333002
+        }
+      },
+      {
+        "id": "lower_wishbone_fr",
+        "mass": 23.965,
+        "position": [
+          0.04,
+          -0.597,
+          0.428
+        ],
+        "category": "structural",
+        "parent": "chassis",
+        "inertia": {
+          "Ixx": 0.4,
+          "Iyy": 0.428141612,
+          "Izz": 0.865658388,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.114474354
+        }
+      },
+      {
+        "id": "tie_rod_fr",
+        "mass": 0.0,
+        "position": [
+          -0.173,
+          -0.6845,
+          0.506
+        ],
+        "category": "structural",
+        "parent": "center_link",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_fr",
+        "name": "Wheel FR",
+        "description": "Spindle + rim + tyre (rotating mass)",
+        "category": "structural",
+        "mass": 71.105,
+        "position": [
+          0.0,
+          -0.96,
+          0.461
+        ],
+        "inertia": {
+          "Ixx": 4.34117,
+          "Iyy": 7.78352,
+          "Izz": 4.34117,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        },
+        "x_derived": true,
+        "parent": "upright_fr"
+      },
+      {
+        "id": "upright_rl",
+        "mass": 27.27,
+        "position": [
+          -3.26945,
+          0.801,
+          0.421
+        ],
+        "category": "structural",
+        "parent": "upper_wishbone_rl",
+        "inertia": {
+          "Ixx": 5.0,
+          "Iyy": 5.0,
+          "Izz": 5.0,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        },
+        "markers": {
+          "wheel_center": {
+            "position": [
+              -3.26945,
+              1.01,
+              0.421
+            ]
+          }
+        }
+      },
+      {
+        "id": "upper_wishbone_rl",
+        "mass": 5.45,
+        "position": [
+          -3.18145,
+          0.639,
+          0.668
+        ],
+        "category": "structural",
+        "parent": "chassis",
+        "inertia": {
+          "Ixx": 2.0,
+          "Iyy": 2.0,
+          "Izz": 2.0,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        }
+      },
+      {
+        "id": "lower_wishbone_rl",
+        "mass": 16.36,
+        "position": [
+          -3.30545,
+          0.547,
+          0.388
+        ],
+        "category": "structural",
+        "parent": "chassis",
+        "inertia": {
+          "Ixx": 3.0,
+          "Iyy": 3.0,
+          "Izz": 3.0,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        }
+      },
+      {
+        "id": "tie_rod_rl",
+        "mass": 0.0,
+        "position": [
+          -3.10895,
+          0.6685,
+          0.472
+        ],
+        "category": "structural",
+        "parent": "chassis",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_rl",
+        "name": "Wheel RL",
+        "description": "Spindle + rim + tyre (rotating mass)",
+        "category": "structural",
+        "mass": 72.31,
+        "position": [
+          -3.26945,
+          1.01,
+          0.421
+        ],
+        "inertia": {
+          "Ixx": 6.3,
+          "Iyy": 11.71,
+          "Izz": 6.3,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        },
+        "x_derived": true,
+        "parent": "upright_rl"
+      },
+      {
+        "id": "upright_rr",
+        "mass": 27.27,
+        "position": [
+          -3.26945,
+          -0.801,
+          0.421
+        ],
+        "category": "structural",
+        "parent": "upper_wishbone_rr",
+        "inertia": {
+          "Ixx": 5.0,
+          "Iyy": 5.0,
+          "Izz": 5.0,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        },
+        "markers": {
+          "wheel_center": {
+            "position": [
+              -3.26945,
+              -1.01,
+              0.421
+            ]
+          }
+        }
+      },
+      {
+        "id": "upper_wishbone_rr",
+        "mass": 5.45,
+        "position": [
+          -3.18145,
+          -0.639,
+          0.668
+        ],
+        "category": "structural",
+        "parent": "chassis",
+        "inertia": {
+          "Ixx": 2.0,
+          "Iyy": 2.0,
+          "Izz": 2.0,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        }
+      },
+      {
+        "id": "lower_wishbone_rr",
+        "mass": 16.36,
+        "position": [
+          -3.30545,
+          -0.547,
+          0.388
+        ],
+        "category": "structural",
+        "parent": "chassis",
+        "inertia": {
+          "Ixx": 3.0,
+          "Iyy": 3.0,
+          "Izz": 3.0,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        }
+      },
+      {
+        "id": "tie_rod_rr",
+        "mass": 0.0,
+        "position": [
+          -3.10895,
+          -0.6685,
+          0.472
+        ],
+        "category": "structural",
+        "parent": "chassis",
+        "x_derived": true
+      },
+      {
+        "id": "wheel_rr",
+        "name": "Wheel RR",
+        "description": "Spindle + rim + tyre (rotating mass)",
+        "category": "structural",
+        "mass": 72.31,
+        "position": [
+          -3.26945,
+          -1.01,
+          0.421
+        ],
+        "inertia": {
+          "Ixx": 6.3,
+          "Iyy": 11.71,
+          "Izz": 6.3,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        },
+        "x_derived": true,
+        "parent": "upright_rr"
+      }
+    ],
+    "mass_unsprung_per_corner": {
+      "FL": 120.333,
+      "FR": 120.333,
+      "RL": 121.39,
+      "RR": 121.39
+    },
+    "visual": {
+      "mesh_ref": "chrono_nissan_patrol",
+      "node": "SVJ::body::chassis"
+    }
+  },
+  "reference_pose": {
+    "condition": "other",
+    "load_case": "kerb",
+    "note": "Chrono design configuration: hardpoints as given, springs at their installed length; Chrono states no load case"
+  },
+  "wheel_stations": [
+    {
+      "id": "FL",
+      "wheel_body": "wheel_fl",
+      "upright_body": "upright_fl",
+      "wheel_center_marker": "wheel_center",
+      "axle": "A1",
+      "side": "L",
+      "topology_hint": "doublewishbone",
+      "wheel": {
+        "rim_diameter": 0.536,
+        "rim_width": 0.22,
+        "tire_section_width": 0.3175,
+        "tire_aspect_ratio": 0.729134,
+        "mass": 56.4,
+        "rotational_inertia": 7.78352,
+        "loaded_radius": 0.441,
+        "set_ref": "tire",
+        "visual": {
+          "mesh_ref": "chrono_nissan_patrol",
+          "node": "SVJ::wheel::wheel_fl"
+        }
+      },
+      "tire": {
+        "set_ref": "tire"
+      },
+      "steering_joint": "hinge_sector",
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0
+      },
+      "brake": {
+        "model": "simple",
+        "max_torque": 4000
+      }
+    },
+    {
+      "id": "FR",
+      "wheel_body": "wheel_fr",
+      "upright_body": "upright_fr",
+      "wheel_center_marker": "wheel_center",
+      "axle": "A1",
+      "side": "R",
+      "topology_hint": "doublewishbone",
+      "wheel": {
+        "rim_diameter": 0.536,
+        "rim_width": 0.22,
+        "tire_section_width": 0.3175,
+        "tire_aspect_ratio": 0.729134,
+        "mass": 56.4,
+        "rotational_inertia": 7.78352,
+        "loaded_radius": 0.441,
+        "set_ref": "tire",
+        "visual": {
+          "mesh_ref": "chrono_nissan_patrol",
+          "node": "SVJ::wheel::wheel_fr"
+        }
+      },
+      "tire": {
+        "set_ref": "tire"
+      },
+      "steering_joint": "hinge_sector",
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0
+      },
+      "brake": {
+        "model": "simple",
+        "max_torque": 4000
+      }
+    },
+    {
+      "id": "RL",
+      "wheel_body": "wheel_rl",
+      "upright_body": "upright_rl",
+      "wheel_center_marker": "wheel_center",
+      "axle": "A2",
+      "side": "L",
+      "topology_hint": "doublewishbone",
+      "wheel": {
+        "rim_diameter": 0.536,
+        "rim_width": 0.22,
+        "tire_section_width": 0.3175,
+        "tire_aspect_ratio": 0.729134,
+        "mass": 56.4,
+        "rotational_inertia": 11.71,
+        "loaded_radius": 0.441,
+        "set_ref": "tire",
+        "visual": {
+          "mesh_ref": "chrono_nissan_patrol",
+          "node": "SVJ::wheel::wheel_rl"
+        }
+      },
+      "tire": {
+        "set_ref": "tire"
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0
+      },
+      "brake": {
+        "model": "simple",
+        "max_torque": 4000
+      }
+    },
+    {
+      "id": "RR",
+      "wheel_body": "wheel_rr",
+      "upright_body": "upright_rr",
+      "wheel_center_marker": "wheel_center",
+      "axle": "A2",
+      "side": "R",
+      "topology_hint": "doublewishbone",
+      "wheel": {
+        "rim_diameter": 0.536,
+        "rim_width": 0.22,
+        "tire_section_width": 0.3175,
+        "tire_aspect_ratio": 0.729134,
+        "mass": 56.4,
+        "rotational_inertia": 11.71,
+        "loaded_radius": 0.441,
+        "set_ref": "tire",
+        "visual": {
+          "mesh_ref": "chrono_nissan_patrol",
+          "node": "SVJ::wheel::wheel_rr"
+        }
+      },
+      "tire": {
+        "set_ref": "tire"
+      },
+      "alignment": {
+        "camber": 0.0,
+        "toe": 0.0
+      },
+      "brake": {
+        "model": "simple",
+        "max_torque": 4000
+      }
+    }
+  ],
+  "constraints": [
+    {
+      "id": "hinge_sector",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.403985,
+          0.249,
+          0.477
+        ],
+        "orientation": [
+          0.0,
+          0.16074256,
+          0.0,
+          0.986996368
+        ]
+      },
+      "body_b": "pitman_arm",
+      "frame_b": {
+        "position": [
+          -0.403985,
+          0.249,
+          0.477
+        ],
+        "orientation": [
+          0.0,
+          0.16074256,
+          0.0,
+          0.986996368
+        ]
+      }
+    },
+    {
+      "id": "universal_pitman_tip",
+      "type": "joint",
+      "joint_type": "universal",
+      "body_a": "pitman_arm",
+      "frame_a": {
+        "position": [
+          -0.281651,
+          0.249,
+          0.436068
+        ],
+        "orientation": [
+          -0.573869464,
+          -0.413126904,
+          -0.413126904,
+          0.573869464
+        ]
+      },
+      "body_b": "center_link",
+      "frame_b": {
+        "position": [
+          -0.281651,
+          0.249,
+          0.436068
+        ],
+        "orientation": [
+          -0.573869464,
+          -0.413126904,
+          -0.413126904,
+          0.573869464
+        ]
+      }
+    },
+    {
+      "id": "hinge_idler",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.403985,
+          -0.325,
+          0.477
+        ],
+        "orientation": [
+          0.0,
+          0.16074256,
+          0.0,
+          0.986996368
+        ]
+      },
+      "body_b": "idler_arm",
+      "frame_b": {
+        "position": [
+          -0.403985,
+          -0.325,
+          0.477
+        ],
+        "orientation": [
+          0.0,
+          0.16074256,
+          0.0,
+          0.986996368
+        ]
+      }
+    },
+    {
+      "id": "ball_idler_link",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "idler_arm",
+      "frame_a": {
+        "position": [
+          -0.281651,
+          -0.325,
+          0.436068
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "center_link",
+      "frame_b": {
+        "position": [
+          -0.281651,
+          -0.325,
+          0.436068
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_wishbone_inboard_1_fl",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.008,
+          0.496,
+          0.732
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upper_wishbone_fl",
+      "frame_b": {
+        "position": [
+          -0.008,
+          0.496,
+          0.732
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": "ball_upper_wishbone_inboard_2_fl",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.228,
+          0.528,
+          0.683
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upper_wishbone_fl",
+      "frame_b": {
+        "position": [
+          -0.228,
+          0.528,
+          0.683
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_wishbone_outboard_fl",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "upper_wishbone_fl",
+      "frame_a": {
+        "position": [
+          -0.013,
+          0.766,
+          0.702
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fl",
+      "frame_b": {
+        "position": [
+          -0.013,
+          0.766,
+          0.702
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": "ball_lower_wishbone_inboard_1_fl",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.263,
+          0.357,
+          0.487
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "lower_wishbone_fl",
+      "frame_b": {
+        "position": [
+          0.263,
+          0.357,
+          0.487
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": "ball_lower_wishbone_inboard_2_fl",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.183,
+          0.357,
+          0.487
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "lower_wishbone_fl",
+      "frame_b": {
+        "position": [
+          -0.183,
+          0.357,
+          0.487
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_wishbone_outboard_fl",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "lower_wishbone_fl",
+      "frame_a": {
+        "position": [
+          0.004,
+          0.837,
+          0.369
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fl",
+      "frame_b": {
+        "position": [
+          0.004,
+          0.837,
+          0.369
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_tie_rod_inboard_fl",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "center_link",
+      "frame_a": {
+        "position": [
+          -0.21,
+          0.498,
+          0.541
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "tie_rod_fl",
+      "frame_b": {
+        "position": [
+          -0.21,
+          0.498,
+          0.541
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": "ball_tie_rod_outboard_fl",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "tie_rod_fl",
+      "frame_a": {
+        "position": [
+          -0.136,
+          0.871,
+          0.471
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fl",
+      "frame_b": {
+        "position": [
+          -0.136,
+          0.871,
+          0.471
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_fl",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "upright_fl",
+      "frame_a": {
+        "position": [
+          0.0,
+          0.96,
+          0.461
+        ],
+        "orientation": [
+          -0.707106781,
+          0.0,
+          0.0,
+          0.707106781
+        ]
+      },
+      "body_b": "wheel_fl",
+      "frame_b": {
+        "position": [
+          0.0,
+          0.96,
+          0.461
+        ],
+        "orientation": [
+          -0.707106781,
+          0.0,
+          0.0,
+          0.707106781
+        ]
+      }
+    },
+    {
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.144,
+          0.56,
+          0.684
+        ],
+        "orientation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "body_b": "lower_wishbone_fl",
+      "frame_b": {
+        "position": [
+          0.137,
+          0.593,
+          0.44
+        ],
+        "orientation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "id": "spring_fl",
+      "spring_type": "coil",
+      "rate_curve": [
+        [
+          0.139,
+          322095.536
+        ],
+        [
+          0.159,
+          240521.166
+        ],
+        [
+          0.179,
+          174535.686
+        ],
+        [
+          0.199,
+          122406.996
+        ],
+        [
+          0.219,
+          82402.997
+        ],
+        [
+          0.239,
+          52791.592
+        ],
+        [
+          0.259,
+          31840.681
+        ],
+        [
+          0.279,
+          17818.165
+        ],
+        [
+          0.299,
+          8991.945
+        ],
+        [
+          0.319,
+          3629.923
+        ],
+        [
+          0.339,
+          0.0
+        ],
+        [
+          0.359,
+          -3629.923
+        ],
+        [
+          0.379,
+          -8991.945
+        ],
+        [
+          0.399,
+          -17818.165
+        ],
+        [
+          0.419,
+          -31840.681
+        ],
+        [
+          0.439,
+          -52791.592
+        ],
+        [
+          0.459,
+          -82402.997
+        ],
+        [
+          0.479,
+          -122406.996
+        ],
+        [
+          0.499,
+          -174535.686
+        ],
+        [
+          0.519,
+          -240521.166
+        ],
+        [
+          0.539,
+          -322095.536
+        ]
+      ],
+      "free_length": 0.339,
+      "installed_length": 0.246321
+    },
+    {
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.144,
+          0.56,
+          0.684
+        ],
+        "orientation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "body_b": "lower_wishbone_fl",
+      "frame_b": {
+        "position": [
+          0.137,
+          0.593,
+          0.44
+        ],
+        "orientation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "id": "stop_spring_fl",
+      "spring_type": "rubber",
+      "rate_curve": [
+        [
+          0.06,
+          125000.0
+        ],
+        [
+          0.07,
+          12500.0
+        ],
+        [
+          0.08,
+          7500.0
+        ],
+        [
+          0.09,
+          4500.0
+        ],
+        [
+          0.1,
+          2500.0
+        ],
+        [
+          0.11,
+          1000.0
+        ],
+        [
+          0.112,
+          800.0
+        ],
+        [
+          0.114,
+          600.0
+        ],
+        [
+          0.116,
+          400.0
+        ],
+        [
+          0.118,
+          200.0
+        ],
+        [
+          0.12,
+          0.0
+        ],
+        [
+          0.2,
+          0.0
+        ],
+        [
+          0.202,
+          -200.0
+        ],
+        [
+          0.204,
+          -400.0
+        ],
+        [
+          0.206,
+          -600.0
+        ],
+        [
+          0.208,
+          -800.0
+        ],
+        [
+          0.21,
+          -1000.0
+        ],
+        [
+          0.22,
+          -2500.0
+        ],
+        [
+          0.23,
+          -4500.0
+        ],
+        [
+          0.24,
+          -7500.0
+        ],
+        [
+          0.25,
+          -12500.0
+        ],
+        [
+          0.26,
+          -125000.0
+        ]
+      ],
+      "free_length": 0.16
+    },
+    {
+      "id": "damper_fl",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.144,
+          0.548,
+          0.81
+        ],
+        "orientation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "body_b": "lower_wishbone_fl",
+      "frame_b": {
+        "position": [
+          0.137,
+          0.593,
+          0.44
+        ],
+        "orientation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "damping": 15000
+    },
+    {
+      "id": "ball_upper_wishbone_inboard_1_fr",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.008,
+          -0.496,
+          0.732
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upper_wishbone_fr",
+      "frame_b": {
+        "position": [
+          -0.008,
+          -0.496,
+          0.732
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": "ball_upper_wishbone_inboard_2_fr",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.228,
+          -0.528,
+          0.683
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upper_wishbone_fr",
+      "frame_b": {
+        "position": [
+          -0.228,
+          -0.528,
+          0.683
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_wishbone_outboard_fr",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "upper_wishbone_fr",
+      "frame_a": {
+        "position": [
+          -0.013,
+          -0.766,
+          0.702
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fr",
+      "frame_b": {
+        "position": [
+          -0.013,
+          -0.766,
+          0.702
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": "ball_lower_wishbone_inboard_1_fr",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.263,
+          -0.357,
+          0.487
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "lower_wishbone_fr",
+      "frame_b": {
+        "position": [
+          0.263,
+          -0.357,
+          0.487
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": "ball_lower_wishbone_inboard_2_fr",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -0.183,
+          -0.357,
+          0.487
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "lower_wishbone_fr",
+      "frame_b": {
+        "position": [
+          -0.183,
+          -0.357,
+          0.487
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_wishbone_outboard_fr",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "lower_wishbone_fr",
+      "frame_a": {
+        "position": [
+          0.004,
+          -0.837,
+          0.369
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fr",
+      "frame_b": {
+        "position": [
+          0.004,
+          -0.837,
+          0.369
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_tie_rod_inboard_fr",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "center_link",
+      "frame_a": {
+        "position": [
+          -0.21,
+          -0.498,
+          0.541
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "tie_rod_fr",
+      "frame_b": {
+        "position": [
+          -0.21,
+          -0.498,
+          0.541
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": "ball_tie_rod_outboard_fr",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "tie_rod_fr",
+      "frame_a": {
+        "position": [
+          -0.136,
+          -0.871,
+          0.471
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_fr",
+      "frame_b": {
+        "position": [
+          -0.136,
+          -0.871,
+          0.471
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_fr",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "upright_fr",
+      "frame_a": {
+        "position": [
+          0.0,
+          -0.96,
+          0.461
+        ],
+        "orientation": [
+          -0.707106781,
+          0.0,
+          0.0,
+          0.707106781
+        ]
+      },
+      "body_b": "wheel_fr",
+      "frame_b": {
+        "position": [
+          0.0,
+          -0.96,
+          0.461
+        ],
+        "orientation": [
+          -0.707106781,
+          0.0,
+          0.0,
+          0.707106781
+        ]
+      }
+    },
+    {
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.144,
+          -0.56,
+          0.684
+        ],
+        "orientation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "body_b": "lower_wishbone_fr",
+      "frame_b": {
+        "position": [
+          0.137,
+          -0.593,
+          0.44
+        ],
+        "orientation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "id": "spring_fr",
+      "spring_type": "coil",
+      "rate_curve": [
+        [
+          0.139,
+          322095.536
+        ],
+        [
+          0.159,
+          240521.166
+        ],
+        [
+          0.179,
+          174535.686
+        ],
+        [
+          0.199,
+          122406.996
+        ],
+        [
+          0.219,
+          82402.997
+        ],
+        [
+          0.239,
+          52791.592
+        ],
+        [
+          0.259,
+          31840.681
+        ],
+        [
+          0.279,
+          17818.165
+        ],
+        [
+          0.299,
+          8991.945
+        ],
+        [
+          0.319,
+          3629.923
+        ],
+        [
+          0.339,
+          0.0
+        ],
+        [
+          0.359,
+          -3629.923
+        ],
+        [
+          0.379,
+          -8991.945
+        ],
+        [
+          0.399,
+          -17818.165
+        ],
+        [
+          0.419,
+          -31840.681
+        ],
+        [
+          0.439,
+          -52791.592
+        ],
+        [
+          0.459,
+          -82402.997
+        ],
+        [
+          0.479,
+          -122406.996
+        ],
+        [
+          0.499,
+          -174535.686
+        ],
+        [
+          0.519,
+          -240521.166
+        ],
+        [
+          0.539,
+          -322095.536
+        ]
+      ],
+      "free_length": 0.339,
+      "installed_length": 0.246321
+    },
+    {
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.144,
+          -0.56,
+          0.684
+        ],
+        "orientation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "body_b": "lower_wishbone_fr",
+      "frame_b": {
+        "position": [
+          0.137,
+          -0.593,
+          0.44
+        ],
+        "orientation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "id": "stop_spring_fr",
+      "spring_type": "rubber",
+      "rate_curve": [
+        [
+          0.06,
+          125000.0
+        ],
+        [
+          0.07,
+          12500.0
+        ],
+        [
+          0.08,
+          7500.0
+        ],
+        [
+          0.09,
+          4500.0
+        ],
+        [
+          0.1,
+          2500.0
+        ],
+        [
+          0.11,
+          1000.0
+        ],
+        [
+          0.112,
+          800.0
+        ],
+        [
+          0.114,
+          600.0
+        ],
+        [
+          0.116,
+          400.0
+        ],
+        [
+          0.118,
+          200.0
+        ],
+        [
+          0.12,
+          0.0
+        ],
+        [
+          0.2,
+          0.0
+        ],
+        [
+          0.202,
+          -200.0
+        ],
+        [
+          0.204,
+          -400.0
+        ],
+        [
+          0.206,
+          -600.0
+        ],
+        [
+          0.208,
+          -800.0
+        ],
+        [
+          0.21,
+          -1000.0
+        ],
+        [
+          0.22,
+          -2500.0
+        ],
+        [
+          0.23,
+          -4500.0
+        ],
+        [
+          0.24,
+          -7500.0
+        ],
+        [
+          0.25,
+          -12500.0
+        ],
+        [
+          0.26,
+          -125000.0
+        ]
+      ],
+      "free_length": 0.16
+    },
+    {
+      "id": "damper_fr",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          0.144,
+          -0.548,
+          0.81
+        ],
+        "orientation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "body_b": "lower_wishbone_fr",
+      "frame_b": {
+        "position": [
+          0.137,
+          -0.593,
+          0.44
+        ],
+        "orientation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "damping": 15000
+    },
+    {
+      "id": "ball_upper_wishbone_inboard_1_rl",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.95645,
+          0.512,
+          0.675
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upper_wishbone_rl",
+      "frame_b": {
+        "position": [
+          -2.95645,
+          0.512,
+          0.675
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": "ball_upper_wishbone_inboard_2_rl",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -3.22845,
+          0.512,
+          0.671
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upper_wishbone_rl",
+      "frame_b": {
+        "position": [
+          -3.22845,
+          0.512,
+          0.671
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_wishbone_outboard_rl",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "upper_wishbone_rl",
+      "frame_a": {
+        "position": [
+          -3.26945,
+          0.766,
+          0.663
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_rl",
+      "frame_b": {
+        "position": [
+          -3.26945,
+          0.766,
+          0.663
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": "ball_lower_wishbone_inboard_1_rl",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -3.08245,
+          0.357,
+          0.447
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "lower_wishbone_rl",
+      "frame_b": {
+        "position": [
+          -3.08245,
+          0.357,
+          0.447
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": "ball_lower_wishbone_inboard_2_rl",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -3.52845,
+          0.357,
+          0.447
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "lower_wishbone_rl",
+      "frame_b": {
+        "position": [
+          -3.52845,
+          0.357,
+          0.447
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_wishbone_outboard_rl",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "lower_wishbone_rl",
+      "frame_a": {
+        "position": [
+          -3.26945,
+          0.837,
+          0.329
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_rl",
+      "frame_b": {
+        "position": [
+          -3.26945,
+          0.837,
+          0.329
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_tie_rod_inboard_rl",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -3.08245,
+          0.466,
+          0.506
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "tie_rod_rl",
+      "frame_b": {
+        "position": [
+          -3.08245,
+          0.466,
+          0.506
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": "ball_tie_rod_outboard_rl",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "tie_rod_rl",
+      "frame_a": {
+        "position": [
+          -3.13545,
+          0.871,
+          0.438
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_rl",
+      "frame_b": {
+        "position": [
+          -3.13545,
+          0.871,
+          0.438
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_rl",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "upright_rl",
+      "frame_a": {
+        "position": [
+          -3.26945,
+          1.01,
+          0.421
+        ],
+        "orientation": [
+          -0.707106781,
+          0.0,
+          0.0,
+          0.707106781
+        ]
+      },
+      "body_b": "wheel_rl",
+      "frame_b": {
+        "position": [
+          -3.26945,
+          1.01,
+          0.421
+        ],
+        "orientation": [
+          -0.707106781,
+          0.0,
+          0.0,
+          0.707106781
+        ]
+      }
+    },
+    {
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -3.40945,
+          0.552,
+          0.703
+        ],
+        "orientation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "body_b": "lower_wishbone_rl",
+      "frame_b": {
+        "position": [
+          -3.40245,
+          0.593,
+          0.4
+        ],
+        "orientation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "id": "spring_rl",
+      "spring_type": "coil",
+      "rate_curve": [
+        [
+          0.182,
+          711719.272
+        ],
+        [
+          0.202,
+          531468.245
+        ],
+        [
+          0.222,
+          385663.25
+        ],
+        [
+          0.242,
+          270476.949
+        ],
+        [
+          0.262,
+          182082.006
+        ],
+        [
+          0.282,
+          116651.084
+        ],
+        [
+          0.302,
+          70356.846
+        ],
+        [
+          0.322,
+          39371.956
+        ],
+        [
+          0.342,
+          19869.076
+        ],
+        [
+          0.362,
+          8020.869
+        ],
+        [
+          0.382,
+          0.0
+        ],
+        [
+          0.402,
+          -8020.869
+        ],
+        [
+          0.422,
+          -19869.076
+        ],
+        [
+          0.442,
+          -39371.956
+        ],
+        [
+          0.462,
+          -70356.846
+        ],
+        [
+          0.482,
+          -116651.084
+        ],
+        [
+          0.502,
+          -182082.006
+        ],
+        [
+          0.522,
+          -270476.949
+        ],
+        [
+          0.542,
+          -385663.25
+        ],
+        [
+          0.562,
+          -531468.245
+        ],
+        [
+          0.582,
+          -711719.272
+        ]
+      ],
+      "free_length": 0.382,
+      "installed_length": 0.305841
+    },
+    {
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -3.40945,
+          0.552,
+          0.703
+        ],
+        "orientation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "body_b": "lower_wishbone_rl",
+      "frame_b": {
+        "position": [
+          -3.40245,
+          0.593,
+          0.4
+        ],
+        "orientation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "id": "stop_spring_rl",
+      "spring_type": "rubber",
+      "rate_curve": [
+        [
+          0.09,
+          125000.0
+        ],
+        [
+          0.1,
+          12500.0
+        ],
+        [
+          0.11,
+          7500.0
+        ],
+        [
+          0.12,
+          4500.0
+        ],
+        [
+          0.13,
+          2500.0
+        ],
+        [
+          0.14,
+          1000.0
+        ],
+        [
+          0.142,
+          800.0
+        ],
+        [
+          0.144,
+          600.0
+        ],
+        [
+          0.146,
+          400.0
+        ],
+        [
+          0.148,
+          200.0
+        ],
+        [
+          0.15,
+          0.0
+        ],
+        [
+          0.35,
+          0.0
+        ],
+        [
+          0.352,
+          -200.0
+        ],
+        [
+          0.354,
+          -400.0
+        ],
+        [
+          0.356,
+          -600.0
+        ],
+        [
+          0.358,
+          -800.0
+        ],
+        [
+          0.36,
+          -1000.0
+        ],
+        [
+          0.37,
+          -2500.0
+        ],
+        [
+          0.38,
+          -4500.0
+        ],
+        [
+          0.39,
+          -7500.0
+        ],
+        [
+          0.4,
+          -12500.0
+        ],
+        [
+          0.41,
+          -125000.0
+        ]
+      ],
+      "free_length": 0.25
+    },
+    {
+      "id": "damper_rl",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -3.40945,
+          0.548,
+          0.77
+        ],
+        "orientation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "body_b": "lower_wishbone_rl",
+      "frame_b": {
+        "position": [
+          -3.40245,
+          0.594,
+          0.409
+        ],
+        "orientation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "damping": 36725.2201
+    },
+    {
+      "id": "ball_upper_wishbone_inboard_1_rr",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -2.95645,
+          -0.512,
+          0.675
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upper_wishbone_rr",
+      "frame_b": {
+        "position": [
+          -2.95645,
+          -0.512,
+          0.675
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": "ball_upper_wishbone_inboard_2_rr",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -3.22845,
+          -0.512,
+          0.671
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upper_wishbone_rr",
+      "frame_b": {
+        "position": [
+          -3.22845,
+          -0.512,
+          0.671
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_upper_wishbone_outboard_rr",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "upper_wishbone_rr",
+      "frame_a": {
+        "position": [
+          -3.26945,
+          -0.766,
+          0.663
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_rr",
+      "frame_b": {
+        "position": [
+          -3.26945,
+          -0.766,
+          0.663
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": "ball_lower_wishbone_inboard_1_rr",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -3.08245,
+          -0.357,
+          0.447
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "lower_wishbone_rr",
+      "frame_b": {
+        "position": [
+          -3.08245,
+          -0.357,
+          0.447
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": "ball_lower_wishbone_inboard_2_rr",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -3.52845,
+          -0.357,
+          0.447
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "lower_wishbone_rr",
+      "frame_b": {
+        "position": [
+          -3.52845,
+          -0.357,
+          0.447
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_lower_wishbone_outboard_rr",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "lower_wishbone_rr",
+      "frame_a": {
+        "position": [
+          -3.26945,
+          -0.837,
+          0.329
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_rr",
+      "frame_b": {
+        "position": [
+          -3.26945,
+          -0.837,
+          0.329
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "ball_tie_rod_inboard_rr",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -3.08245,
+          -0.466,
+          0.506
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "tie_rod_rr",
+      "frame_b": {
+        "position": [
+          -3.08245,
+          -0.466,
+          0.506
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": "ball_tie_rod_outboard_rr",
+      "type": "joint",
+      "joint_type": "spherical",
+      "body_a": "tie_rod_rr",
+      "frame_a": {
+        "position": [
+          -3.13545,
+          -0.871,
+          0.438
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "body_b": "upright_rr",
+      "frame_b": {
+        "position": [
+          -3.13545,
+          -0.871,
+          0.438
+        ],
+        "orientation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "x_derived": true
+    },
+    {
+      "id": "hinge_wheel_rr",
+      "type": "joint",
+      "joint_type": "revolute",
+      "body_a": "upright_rr",
+      "frame_a": {
+        "position": [
+          -3.26945,
+          -1.01,
+          0.421
+        ],
+        "orientation": [
+          -0.707106781,
+          0.0,
+          0.0,
+          0.707106781
+        ]
+      },
+      "body_b": "wheel_rr",
+      "frame_b": {
+        "position": [
+          -3.26945,
+          -1.01,
+          0.421
+        ],
+        "orientation": [
+          -0.707106781,
+          0.0,
+          0.0,
+          0.707106781
+        ]
+      }
+    },
+    {
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -3.40945,
+          -0.552,
+          0.703
+        ],
+        "orientation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "body_b": "lower_wishbone_rr",
+      "frame_b": {
+        "position": [
+          -3.40245,
+          -0.593,
+          0.4
+        ],
+        "orientation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "id": "spring_rr",
+      "spring_type": "coil",
+      "rate_curve": [
+        [
+          0.182,
+          711719.272
+        ],
+        [
+          0.202,
+          531468.245
+        ],
+        [
+          0.222,
+          385663.25
+        ],
+        [
+          0.242,
+          270476.949
+        ],
+        [
+          0.262,
+          182082.006
+        ],
+        [
+          0.282,
+          116651.084
+        ],
+        [
+          0.302,
+          70356.846
+        ],
+        [
+          0.322,
+          39371.956
+        ],
+        [
+          0.342,
+          19869.076
+        ],
+        [
+          0.362,
+          8020.869
+        ],
+        [
+          0.382,
+          0.0
+        ],
+        [
+          0.402,
+          -8020.869
+        ],
+        [
+          0.422,
+          -19869.076
+        ],
+        [
+          0.442,
+          -39371.956
+        ],
+        [
+          0.462,
+          -70356.846
+        ],
+        [
+          0.482,
+          -116651.084
+        ],
+        [
+          0.502,
+          -182082.006
+        ],
+        [
+          0.522,
+          -270476.949
+        ],
+        [
+          0.542,
+          -385663.25
+        ],
+        [
+          0.562,
+          -531468.245
+        ],
+        [
+          0.582,
+          -711719.272
+        ]
+      ],
+      "free_length": 0.382,
+      "installed_length": 0.305841
+    },
+    {
+      "type": "spring",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -3.40945,
+          -0.552,
+          0.703
+        ],
+        "orientation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "body_b": "lower_wishbone_rr",
+      "frame_b": {
+        "position": [
+          -3.40245,
+          -0.593,
+          0.4
+        ],
+        "orientation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "id": "stop_spring_rr",
+      "spring_type": "rubber",
+      "rate_curve": [
+        [
+          0.09,
+          125000.0
+        ],
+        [
+          0.1,
+          12500.0
+        ],
+        [
+          0.11,
+          7500.0
+        ],
+        [
+          0.12,
+          4500.0
+        ],
+        [
+          0.13,
+          2500.0
+        ],
+        [
+          0.14,
+          1000.0
+        ],
+        [
+          0.142,
+          800.0
+        ],
+        [
+          0.144,
+          600.0
+        ],
+        [
+          0.146,
+          400.0
+        ],
+        [
+          0.148,
+          200.0
+        ],
+        [
+          0.15,
+          0.0
+        ],
+        [
+          0.35,
+          0.0
+        ],
+        [
+          0.352,
+          -200.0
+        ],
+        [
+          0.354,
+          -400.0
+        ],
+        [
+          0.356,
+          -600.0
+        ],
+        [
+          0.358,
+          -800.0
+        ],
+        [
+          0.36,
+          -1000.0
+        ],
+        [
+          0.37,
+          -2500.0
+        ],
+        [
+          0.38,
+          -4500.0
+        ],
+        [
+          0.39,
+          -7500.0
+        ],
+        [
+          0.4,
+          -12500.0
+        ],
+        [
+          0.41,
+          -125000.0
+        ]
+      ],
+      "free_length": 0.25
+    },
+    {
+      "id": "damper_rr",
+      "type": "damper",
+      "body_a": "chassis",
+      "frame_a": {
+        "position": [
+          -3.40945,
+          -0.548,
+          0.77
+        ],
+        "orientation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "body_b": "lower_wishbone_rr",
+      "frame_b": {
+        "position": [
+          -3.40245,
+          -0.594,
+          0.409
+        ],
+        "orientation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "damping": 36725.2201
+    }
+  ],
+  "tires": {
+    "sets": {
+      "tire": {
+        "description": "HMMWV TMeasy Tire (Chrono TMeasyTire)",
+        "source": "estimated",
+        "dimensions": {
+          "overall_diameter": 0.882,
+          "section_width": 0.3175,
+          "aspect_ratio": 0.729134
+        },
+        "construction": {
+          "mass": 37.6
+        },
+        "rim": {
+          "diameter": 0.419
+        },
+        "x_chrono": {
+          "template": "TMeasyTire",
+          "file": "Nissan_Patrol/json/suv_TMeasyTire.json",
+          "friction": 0.8,
+          "rolling_resistance": 0.015
+        }
+      }
+    }
+  },
+  "steering": {
+    "type": "recirculating_ball",
+    "rack_position": [
+      -0.403985,
+      0.249,
+      0.477
+    ],
+    "rack_travel": 0.197639,
+    "overall_ratio": 1.083904,
+    "lock_to_lock": 1.745329,
+    "max_steer_angle": 0.805113
+  },
+  "x_chrono": {
+    "source": {
+      "vehicle_file": "Nissan_Patrol/json/suv_Vehicle.json",
+      "name": "suv bodies",
+      "minimum_turning_radius": 7.62,
+      "maximum_steering_angle_deg": 30.23,
+      "wheelbase": 3.34545
+    },
+    "frame": {
+      "shift_to_svj_origin": [
+        0.00545,
+        0.0,
+        -0.367
+      ],
+      "note": "p_svj = p_chrono - shift; the Chrono chassis frame is the reference frame of the chassis body"
+    },
+    "chassis": {
+      "Driver Position": {
+        "Location": [
+          0,
+          0.5,
+          1.2
+        ],
+        "Orientation": [
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "Rear Connector Location": [
+        -2.5,
+        0,
+        -0.25
+      ]
+    },
+    "steering_subsystem": {
+      "file": "Nissan_Patrol/json/suv_PitmanArm.json",
+      "template": "PitmanArm",
+      "raw": {
+        "Name": "suv Pitman Arm Steering",
+        "Type": "Steering",
+        "Template": "PitmanArm",
+        "Vehicle-Frame Inertia": false,
+        "Steering Link": {
+          "Mass": 9.072,
+          "COM": [
+            0.129,
+            0,
+            0
+          ],
+          "Moments of Inertia": [
+            1,
+            1,
+            1
+          ],
+          "Products of Inertia": [
+            0,
+            0,
+            0
+          ],
+          "Radius": 0.03
+        },
+        "Pitman Arm": {
+          "Mass": 2.259,
+          "COM": [
+            0.064,
+            0.249,
+            0
+          ],
+          "Moments of Inertia": [
+            1,
+            1,
+            1
+          ],
+          "Products of Inertia": [
+            0,
+            0,
+            0
+          ],
+          "Radius": 0.02
+        },
+        "Revolute Joint": {
+          "Location": [
+            0,
+            0.249,
+            0
+          ],
+          "Direction": [
+            0,
+            0,
+            1
+          ],
+          "Maximum Angle (deg)": 50
+        },
+        "Universal Joint": {
+          "Location": [
+            0.129,
+            0.249,
+            0
+          ],
+          "Direction Arm": [
+            0,
+            0,
+            1
+          ],
+          "Direction Link": [
+            1,
+            0,
+            0
+          ]
+        },
+        "Revolute-Spherical Joint": {
+          "Location Chassis": [
+            0,
+            -0.325,
+            0
+          ],
+          "Location Link": [
+            0.129,
+            -0.325,
+            0
+          ],
+          "Direction": [
+            0,
+            0,
+            1
+          ]
+        },
+        "Tierod Locations": {
+          "Pitman Side": [
+            0.195,
+            0.498,
+            0.035
+          ],
+          "Idler Side": [
+            0.195,
+            -0.448,
+            0.035
+          ]
+        }
+      },
+      "location": [
+        -0.398535,
+        0.0,
+        0.11
+      ],
+      "orientation": [
+        0.98699637,
+        0,
+        0.16074256,
+        0
+      ]
+    },
+    "meshes": {
+      "chassis": "vehicle/Nissan_Patrol/suv_chassis.obj",
+      "rim": {
+        "FL": "Nissan_Patrol/suv_rim.obj",
+        "FR": "Nissan_Patrol/suv_rim.obj",
+        "RL": "Nissan_Patrol/suv_rim.obj",
+        "RR": "Nissan_Patrol/suv_rim.obj"
+      },
+      "tire": {
+        "FL": "Nissan_Patrol/suv_tire.obj",
+        "FR": "Nissan_Patrol/suv_tire.obj",
+        "RL": "Nissan_Patrol/suv_tire.obj",
+        "RR": "Nissan_Patrol/suv_tire.obj"
+      },
+      "note": "Chrono mesh files as named in the Chrono JSON; the right-side rim and tyre are rotated pi about the spindle Z axis (ChWheel.cpp, ChTire.cpp)"
+    },
+    "driveline": {
+      "file": "Nissan_Patrol/json/suv_Driveline2WD.json",
+      "template": "ShaftsDriveline2WD",
+      "driven_axles": [
+        0
+      ],
+      "raw": {
+        "Name": "suv RWD Driveline",
+        "Type": "Driveline",
+        "Template": "ShaftsDriveline2WD",
+        "Shaft Direction": {
+          "Motor Block": [
+            1,
+            0,
+            0
+          ],
+          "Axle": [
+            0,
+            1,
+            0
+          ]
+        },
+        "Shaft Inertia": {
+          "Driveshaft": 0.5,
+          "Differential Box": 0.6
+        },
+        "Gear Ratio": {
+          "Conical Gear": 0.2
+        },
+        "Axle Differential Locking Limit": 100
+      }
+    },
+    "steering": {
+      "input": "Chrono steering input s in [-1, 1], positive = left turn (ChSteering.h)",
+      "gear_joint": "hinge_sector",
+      "gear_coordinate_range": 0.872665,
+      "gear_coordinate_sign_for_left_turn": -1.0,
+      "solver_check": {
+        "gear_coordinate": 0.01,
+        "right_steer_rad": {
+          "FL": 0.00922,
+          "FR": 0.009232
+        }
+      }
+    }
+  },
+  "assets": {
+    "meshes": [
+      {
+        "id": "chrono_nissan_patrol",
+        "uri": "meshes/chrono_nissan_patrol.glb",
+        "description": "Chrono OBJ meshes converted by chrono_convert.py (chassis, rims, tyres)"
+      }
+    ]
+  },
+  "powertrain": {
+    "differentials": [
+      {
+        "id": "diff_front",
+        "location": "front",
+        "type": "open",
+        "final_drive": 5.0
+      }
+    ],
+    "layout": "FF"
+  }
+}

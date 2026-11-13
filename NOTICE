@@ -1,0 +1,42 @@
+SVJ - Standard Vehicle JSON
+This repository is licensed under the Apache License 2.0 (see LICENSE).
+
+Third-party data
+----------------
+examples/chrono_hmmwv_17_bodies.svj.json, chrono_hmmwv_4wd, chrono_suv_patrol, chrono_generic_double_wishbones (all under examples/, .svj.json)
+  Conversions, by tools/chrono_convert.py, of the HMMWV, Nissan_Patrol (suv) and generic vehicle definitions (JSON files for
+  vehicle, chassis, steering, suspension, wheel, brake, driveline and tyre, with the .tir file of the HMMWV) from the Project Chrono distribution
+  (https://projectchrono.org, data/vehicle). Geometry, masses, inertias, spring / damper laws and tyre coefficients are
+  Project Chrono's values, re-expressed in SVJ (ISO 8855 axes, SVJ conventions). The OBJ meshes of the chassis, wheels and tyres of those models (data/vehicle/*/*.obj)
+  are included, converted to glTF (examples/meshes/*.glb) without changing their vertices, under the same licence; UV coordinates and
+  textures are not carried.
+
+  Project Chrono is distributed under the BSD 3-Clause licence. The licence names no per-file exceptions for the
+  data files; the file headers in data/vehicle carry none. The original notice, which must be retained:
+
+    Copyright (c) 2016, Project Chrono Development Team
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+    following conditions are met:
+     - Redistributions of source code must retain the above copyright notice, this list of conditions and the
+       following disclaimer.
+     - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+       following disclaimer in the documentation and/or other materials provided with the distribution.
+     - Neither the name of the nor the names of its contributors may be used to endorse or promote products derived
+       from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+    INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+    SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+    SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+  Not shipped: the Chrono "sedan" vehicle (no provenance statement for its numbers could be found) and its meshes.
+  The Chrono data was not checked against a physical vehicle; The names HMMWV and suv are names of Chrono models, not
+  claims about the real vehicles; the licence is the distribution's blanket BSD-3-Clause and no per-model provenance statement was found.
+
+examples/chrono_synthetic_rack_pinion.svj.json and svj-py/tests/fixtures/chrono_synth/
+  Synthetic numbers written for this repository (Apache-2.0). Only the file format is Project Chrono's.

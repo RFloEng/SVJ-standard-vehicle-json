@@ -1,0 +1,98 @@
+$ Synthetic PAC2002 tyre file written for the SVJ test-suite (not measured data; Apache-2.0)
+[UNITS]
+LENGTH                     = 'meter'
+FORCE                      = 'newton'
+ANGLE                      = 'radian'
+MASS                       = 'kg'
+TIME                       = 'second'
+PRESSURE                   = 'pascal'
+[MODEL]
+PROPERTY_FILE_FORMAT       = 'PAC2002'
+USE_MODE                   = 4
+LONGVL                     = 16.7
+VXLOW                      = 1
+TYRESIDE                   = 'LEFT'
+[TIRE_CONDITIONS]
+IP                         = 220000
+IP_NOM                     = 220000
+[DIMENSION]
+UNLOADED_RADIUS            = 0.31
+WIDTH                      = 0.205
+ASPECT_RATIO               = 0.55
+RIM_RADIUS                 = 0.2
+RIM_WIDTH                  = 0.15
+[VERTICAL]
+VERTICAL_STIFFNESS         = 220000
+VERTICAL_DAMPING           = 1500
+FNOMIN                     = 4000
+[SCALING_COEFFICIENTS]
+LFZO                       = 1.0
+LCX                        = 1.0
+LMUX                       = 1.0
+LEX                        = 1.0
+LKX                        = 1.0
+LHX                        = 1.0
+LVX                        = 1.0
+LGAX                       = 1.0
+LCY                        = 1.0
+LMUY                       = 1.0
+LEY                        = 1.0
+LKY                        = 1.0
+LHY                        = 1.0
+LVY                        = 1.0
+LGAY                       = 1.0
+LKYG                       = 1.0
+[LONGITUDINAL_COEFFICIENTS]
+PCX1                       = 1.6
+PDX1                       = 1.0
+PDX2                       = -0.1
+PDX3                       = 0.0
+PEX1                       = 0.1
+PEX2                       = 0.0
+PEX3                       = 0.0
+PEX4                       = 0.0
+PKX1                       = 20.0
+PKX2                       = 0.0
+PKX3                       = 0.0
+PHX1                       = 0.0
+PHX2                       = 0.0
+PVX1                       = 0.0
+PVX2                       = 0.0
+[LATERAL_COEFFICIENTS]
+PCY1                       = 1.3
+PDY1                       = 0.9
+PDY2                       = -0.1
+PDY3                       = -4.0
+PEY1                       = -0.5
+PEY2                       = 0.0
+PEY3                       = 0.1
+PEY4                       = -4.0
+PKY1                       = -12.0
+PKY2                       = 1.8
+PKY3                       = 0.3
+PHY1                       = 0.002
+PHY2                       = 0.0
+PHY3                       = 0.03
+PVY1                       = 0.01
+PVY2                       = 0.0
+PVY3                       = -0.2
+PVY4                       = 0.0
+[ALIGNING_COEFFICIENTS]
+QBZ1                       = 8.0
+QBZ2                       = -1.0
+QBZ3                       = 0.0
+QBZ4                       = 0.0
+QBZ5                       = 0.0
+QCZ1                       = 1.2
+QDZ1                       = 0.08
+QDZ2                       = -0.01
+QDZ3                       = 0.0
+QDZ4                       = 0.0
+QEZ1                       = -1.0
+QEZ2                       = 0.0
+QEZ3                       = 0.0
+QEZ4                       = 0.0
+QHZ1                       = 0.0
+QHZ2                       = 0.0
+QHZ3                       = 0.0
+QHZ4                       = 0.0

@@ -1,0 +1,60 @@
+{
+  "Name": "Synthetic rack-and-pinion car",
+  "Type": "Vehicle",
+  "Template": "WheeledVehicle",
+  "Chassis": {
+    "Input File": "synth/chassis/Synth_Chassis.json"
+  },
+  "Axles": [
+    {
+      "Suspension Input File": "synth/suspension/Synth_DoubleWishbone.json",
+      "Suspension Location": [
+        1.35,
+        0,
+        0
+      ],
+      "Left Wheel Input File": "synth/wheel/Synth_Wheel.json",
+      "Right Wheel Input File": "synth/wheel/Synth_Wheel.json",
+      "Left Brake Input File": "synth/brake/Synth_Brake.json",
+      "Right Brake Input File": "synth/brake/Synth_Brake.json",
+      "Steering Index": 0
+    },
+    {
+      "Suspension Input File": "synth/suspension/Synth_DoubleWishbone.json",
+      "Suspension Location": [
+        -1.35,
+        0,
+        0
+      ],
+      "Left Wheel Input File": "synth/wheel/Synth_Wheel.json",
+      "Right Wheel Input File": "synth/wheel/Synth_Wheel.json",
+      "Left Brake Input File": "synth/brake/Synth_Brake.json",
+      "Right Brake Input File": "synth/brake/Synth_Brake.json"
+    }
+  ],
+  "Steering Subsystems": [
+    {
+      "Input File": "synth/steering/Synth_RackPinion.json",
+      "Location": [
+        1.23,
+        0,
+        0
+      ],
+      "Orientation": [
+        1,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "Wheelbase": 2.7,
+  "Minimum Turning Radius": 5.0,
+  "Maximum Steering Angle (deg)": 30,
+  "Driveline": {
+    "Input File": "synth/driveline/Synth_Driveline2WD.json",
+    "Suspension Indexes": [
+      1
+    ]
+  }
+}
