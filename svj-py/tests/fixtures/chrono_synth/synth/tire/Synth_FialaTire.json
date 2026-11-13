@@ -1,0 +1,29 @@
+{
+  "Name": "Synthetic Fiala tire",
+  "Type": "Tire",
+  "Template": "FialaTire",
+  "Mass": 9.0,
+  "Inertia": [
+    0.5,
+    0.7,
+    0.5
+  ],
+  "Fiala Parameters": {
+    "Unloaded Radius": 0.31,
+    "Width": 0.205,
+    "Vertical Stiffness": 220000,
+    "Vertical Damping": 1500,
+    "Rolling Resistance": 0.012,
+    "CSLIP": 120000.0,
+    "CALPHA": 60000.0,
+    "UMIN": 0.8,
+    "UMAX": 1.0,
+    "X Relaxation Length": 0.05,
+    "Y Relaxation Length": 0.15
+  },
+  "Visualization": {
+    "Width": 0.205,
+    "Mesh Filename Left": "synth/meshes/synth_tire_left.obj",
+    "Mesh Filename Right": "synth/meshes/synth_tire_right.obj"
+  }
+}

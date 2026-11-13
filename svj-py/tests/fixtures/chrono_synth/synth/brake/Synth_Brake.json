@@ -1,0 +1,6 @@
+{
+  "Name": "Synthetic brake",
+  "Type": "Brake",
+  "Template": "BrakeSimple",
+  "Maximum Torque": 3000
+}

@@ -1,0 +1,151 @@
+{
+  "Name": "Synthetic double wishbone",
+  "Type": "Suspension",
+  "Template": "DoubleWishbone",
+  "Camber Angle (deg)": 0,
+  "Toe Angle (deg)": 0,
+  "Spindle": {
+    "Mass": 4.0,
+    "COM": [
+      0.0,
+      0.78,
+      0.0
+    ],
+    "Inertia": [
+      0.01,
+      0.02,
+      0.01
+    ],
+    "Radius": 0.1,
+    "Width": 0.06
+  },
+  "Upright": {
+    "Mass": 6.0,
+    "COM": [
+      0.0,
+      0.69,
+      -0.01
+    ],
+    "Moments of Inertia": [
+      0.05,
+      0.06,
+      0.02
+    ],
+    "Products of Inertia": [
+      0,
+      0,
+      0
+    ],
+    "Radius": 0.03
+  },
+  "Upper Control Arm": {
+    "Mass": 2.5,
+    "COM": [
+      0.0,
+      0.5,
+      0.21
+    ],
+    "Moments of Inertia": [
+      0.02,
+      0.02,
+      0.03
+    ],
+    "Products of Inertia": [
+      0,
+      0,
+      0
+    ],
+    "Radius": 0.02,
+    "Location Chassis Front": [
+      0.15,
+      0.35,
+      0.22
+    ],
+    "Location Chassis Back": [
+      -0.15,
+      0.35,
+      0.22
+    ],
+    "Location Upright": [
+      0.0,
+      0.66,
+      0.2
+    ]
+  },
+  "Lower Control Arm": {
+    "Mass": 5.0,
+    "COM": [
+      0.0,
+      0.5,
+      -0.12
+    ],
+    "Moments of Inertia": [
+      0.08,
+      0.08,
+      0.12
+    ],
+    "Products of Inertia": [
+      0,
+      0,
+      0
+    ],
+    "Radius": 0.025,
+    "Location Chassis Front": [
+      0.18,
+      0.3,
+      -0.12
+    ],
+    "Location Chassis Back": [
+      -0.18,
+      0.3,
+      -0.12
+    ],
+    "Location Upright": [
+      0.0,
+      0.7,
+      -0.13
+    ]
+  },
+  "Tierod": {
+    "Location Chassis": [
+      -0.12,
+      0.3,
+      -0.02
+    ],
+    "Location Upright": [
+      -0.12,
+      0.68,
+      -0.02
+    ]
+  },
+  "Spring": {
+    "Location Chassis": [
+      0.0,
+      0.42,
+      0.4
+    ],
+    "Location Arm": [
+      0.0,
+      0.5,
+      -0.1
+    ],
+    "Spring Coefficient": 60000.0,
+    "Free Length": 0.55
+  },
+  "Shock": {
+    "Location Chassis": [
+      0.02,
+      0.4,
+      0.38
+    ],
+    "Location Arm": [
+      0.02,
+      0.52,
+      -0.1
+    ],
+    "Damping Coefficient": 4000.0
+  },
+  "Axle": {
+    "Inertia": 0.3
+  }
+}

@@ -3396,7 +3396,7 @@ Optional top-level array. Common fields:
 
 **Wheel spin.** A positive coordinate of a wheel hinge (the revolute joint between an upright and its wheel) is **forward rolling**, whatever the frame orientation: the +Z axis of its frame points to the vehicle's left, the +Y axis of ISO 8855. *(v0.111; the validator warns for a hinge pointing right.)*
 
-**Bushings.** A `bushing` replaces the perfect joint by a six-coordinate elastic coupling at the joint frame. Its axes are those of `bushing.orientation` if given, else the joint's frame, else the vehicle frame. A rate that is **absent** is **rigid** in the directions the joint type constrains and **free** in the directions it leaves free (a revolute joint's rotation about Z has no rate, so it stays free); a rate that is given is a spring there. The bushings of a suspension carry the car: the static load of a corner over the lowest rate of a pivot is the displacement it asks for, and a validator warns when that exceeds a few millimetres (a bushing of 2.5·10⁴ N/m under a 2.6 kN corner load would move 100 mm). *(v0.111)*
+**Bushings.** A `bushing` replaces the perfect joint by a six-coordinate elastic coupling at the joint frame. Its axes are those of `bushing.orientation` if given, else the joint's frame, else the vehicle frame. A rate that is **absent** is **rigid** in the directions the joint type constrains and **free** in the directions it leaves free (a revolute joint's rotation about Z has no rate, so it stays free); a rate that is given is a spring there. The bushings of a suspension carry the car: the static load of a corner over the lowest rate of a pivot is the displacement it asks for, and a validator warns when that exceeds 10 mm (a bushing of 2.5·10⁴ N/m under a 2.6 kN corner load would move 100 mm). *(v0.111)*
 
 ### 24.5 `spring`
 
@@ -3925,6 +3925,118 @@ Setups replace the use of an override file (§3.4) for alternatives that belong 
 - **Warnings:** a setup changes a path no adjustment declares; a setup moves only some of the linked paths of an adjustment; a value changes type; the file's value is off the step grid; the file's values differ from those of its `active_setup`.
 
 `svj-py`: `Vehicle.adjustments`, `.setups`, `.active_setup`, `.apply_setup(id)`.
+
+---
+
+## 30. Conversion to and from Project Chrono::Vehicle *(tooling, v0.111)*
+
+`tools/chrono_convert.py` (`svj.chronoconvert`) converts a Chrono::Vehicle JSON vehicle (the top-level vehicle file and the
+subsystem files it names) to one SVJ file, and an SVJ file with a unified suspension (§25) to a folder of Chrono JSON files.
+Nothing is dropped silently: the CLI prints, and `--report FILE` writes, a report with four statuses: **exact**, **converted**
+(a formula or a sign change), **assumed** (a value had to be chosen) and **lost** (no SVJ or Chrono home).
+
+```
+python tools/chrono_convert.py --to svj    HMMWV_Vehicle.json out.svj.json --data-root <chrono>/data/vehicle --tire hmmwv/tire/HMMWV_Pac02Tire.json
+python tools/chrono_convert.py --to chrono out.svj.json out_dir --name my_vehicle
+```
+
+### 30.1 Licence and provenance
+
+Chrono is BSD-3-Clause (copyright Project Chrono Development Team); its data files carry no other licence. A file converted from
+Chrono data records `_metadata.license`, `copyright`, `attribution`, `source_url` and `source_files`, and the repository `NOTICE`
+repeats the notice. The Chrono meshes (OBJ) of the converted models are carried as glTF (§30.7) under the same BSD-3-Clause licence. The Chrono `sedan` data has no provenance statement and is not shipped. A
+sample with numbers written for the tests (`--synthetic`) says so in `_metadata.data_origin` and is Apache-2.0.
+
+### 30.2 Frames (verified by reading the Chrono sources)
+
+| Item | Chrono | SVJ | Converter |
+|---|---|---|---|
+| Vehicle axes | ISO 8855 (X forward, Y left, Z up) | ISO 8855 (§2.1) | none |
+| Origin | chassis reference frame | midpoint of the front axle at ground level | shift stored in `x_chrono.frame.shift_to_svj_origin` (`p_svj = p_chrono - shift`); the ground is the wheel-centre height less the loaded tyre radius from the static axle loads |
+| Quaternion | `[w, x, y, z]` | `[x, y, z, w]` | reordered |
+| Subsystem coordinates | relative to the subsystem location (suspension: the axle location); left-side data, right side mirrored | absolute, both sides | the right side is the mirror of the left (`y -> -y`; frames: y of the X and Z axes flips, `Y = Z x X`) |
+| Inertia products | matrix entries `I_xy...` | minus the integrals of `xy...` (§7.1) | sign flipped |
+| Chassis | the Chrono chassis only | `mass_total` includes suspension, steering and wheel bodies | composite CG and inertia by parallel axes; the Chrono chassis is the *remainder* (§7.2.3) |
+
+### 30.3 Mapping
+
+| Chrono | SVJ | Class |
+|---|---|---|
+| RigidChassis components (mass, COM, inertia) | `chassis.mass_total`, `center_of_gravity`, `inertia` (composite), remainder | with conversion |
+| `DoubleWishbone` | bodies `upright`, `upper_wishbone`, `lower_wishbone`, `tie_rod` (massless, `x_derived`), spherical joints at the arm ends, spring / damper constraints | with conversion (an arm is two spherical joints per pivot, equivalent to the revolute) |
+| `GenericWheeledSuspension` bodies, joints (Lock, Revolute, Spherical, Prismatic, Cylindrical, Universal), distance constraints, TSDAs | `mass_bodies`, `constraints[]` | exact / with conversion (distance constraint: massless rod body with two spherical joints) |
+| TSDA `Spring Coefficient`, `Preload`, `Free Length` | spring `rate`, `preload = P - k (L_ref - L0)`, `free_length`, `installed_length` (§24.5) | with conversion |
+| TSDA `Spring Curve Data` | `rate_curve` `[length, force]` with `length = L0 + x`, `force = P - f` | with conversion |
+| TSDA `Damping Coefficient`, `Damping Curve Data`, degressivity | damper `damping` / `bump_curve`, `rebound_curve` (a degressive law is sampled at 8 speeds) | with conversion |
+| TSDA `Minimum Length` / `Maximum Length` | a separate `rubber` spring with Chrono's default stop table | with conversion |
+| `RackPinion` | rack body on a lateral slide, `steering.type: rack_and_pinion`, `lock_to_lock = 2 x max pinion angle`, `rack_travel`, `overall_ratio` from the loop solver | with conversion; no steering wheel (assumed) |
+| `PitmanArm` | pitman arm, idler arm (massless), centre link, `steering.type: recirculating_ball`; the sector angle is the input | with conversion (SVJ to Chrono: the original PitmanArm file kept in `x_chrono.steering_subsystem` is written back when the linkage bodies are unchanged, otherwise **lost**, reported) |
+| Wheel (mass, inertia), spindle | `wheel_stations[].wheel`, one wheel body (spindle + rim + tyre + axle shaft inertia) | with conversion; the split is **assumed** on the way back |
+| BrakeSimple, BrakeShafts | `wheel_stations[].brake.model`, `max_torque` | converted (keys proposed, §30.6) |
+| RigidTire, TMeasyTire, FialaTire | `tires.sets` (size, mass, vertical stiffness and damping, relaxation lengths) | geometry exact; the force law is **lost** (Fiala slip parameters; TMeasy parameters are derived by Chrono from a load index; Rigid has none) |
+| Pac02Tire (`.tir`) | `pacejka` (§11) | with conversion (§30.4) |
+| ShaftsDriveline2WD | `powertrain.differentials[]`, `final_drive = 1 / conical gear` (Chrono ratios are output / input) | with conversion; locking limit and shaft inertias stay in `x_chrono` |
+| Engine and transmission files | not read yet | **lost** (see `proposals/svj_powertrain_part_load_sketch.md`) |
+| Chassis, wheel (rim) and tyre OBJ meshes | `assets.meshes[]` (one `.glb`), `chassis.visual`, `wheel_stations[].wheel.visual` (§22) | with conversion (§30.7); round trip back to OBJ |
+| Anti-roll bars, subchassis, rear chassis; bushing data on SVJ to Chrono | | **lost**, reported |
+| MacPherson, MultiLink, SolidAxle, SemiTrailing, Hendrickson, leaf-spring templates | | not read: the converter stops with an error for a template it does not know |
+
+SVJ to Chrono writes every suspension as `GenericWheeledSuspension` (any topology of bodies, joints, tie rods and TSDAs), the
+chassis remainder, a Wheel, `BrakeSimple` when `max_torque` is known, a `RackPinion` when the steering link is a rack on a
+lateral slide, a `ShaftsDriveline2WD` and a `TMeasyTire` file. It compares the right side with the mirrored left side and
+reports a difference above 1 mm (Chrono mirrors one side).
+
+### 30.4 Tyre signs
+
+* Chrono evaluates the Pacejka formulas in SAE signs and converts the outputs to ISO. The converter rewrites the coefficients
+  with `tire_model.to_iso_set` (§11.6) and writes an ISO 8855 set.
+* Two details of `ChPac02Tire.cpp` differ from the MF 5.2 form used by §11: `PDY3` enters as `1 + PDY3 g^2` (the converter writes
+  `pDy3 = -PDY3`), and the cornering stiffness uses a fixed factor 2 (`pKy4 = 2`, `pKy5 = 0`).
+* Camber: Chrono computes `g = atan2(n_z, n_y)`, an ISO rotation about +X, and feeds it unchanged into the SAE formulas. Taken
+  literally this makes a tyre leaning right push *left*, which fails the sign oracle (`svj-py/tests/test_tyre_sign_oracle.py`,
+  case 5). The default `--tyre-camber physical` applies `mirror_camber`, so the SVJ set obeys the oracle; `faithful` keeps the
+  literal sign. This is a reading of the source; it was not confirmed by a Chrono run.
+* `tests/test_chrono_convert.py` holds an independent port of Chrono's pure-lateral Pac02 formulas; the converted set agrees with
+  it (ISO force = minus the SAE force; camber with the inclination sign flipped) within 0.2 %.
+* `TYRESIDE`: Chrono flips the asymmetry terms on the other side; SVJ has one set, so that mirroring is reported as lost.
+
+### 30.5 Steering sign
+
+Chrono's steering input +1 is a *left* turn (`ChSteering.h`); §8.5 makes a positive steering-wheel angle steer *right*.
+`x_chrono.steering` stores the gear joint, its range and the sign of the gear coordinate that gives a left turn, from the loop
+solver. For the Pitman arm the geometry says that a positive motor angle steers right; that sign has not been confirmed
+against a running Chrono model.
+
+### 30.6 Proposed additions (not yet in the schema)
+
+`wheel_stations[].brake` accepts any keys; the converter writes `model` (`simple` or `shafts`), `max_torque` (N m) and, for
+shafts brakes, `shaft_inertia`. A formal definition (an abstract brake without disc geometry) is proposed for the next version.
+Every loop-closing joint written by the converter carries `x_derived: true`, as the suspension migrator does (§25.8), so that
+the checker does not report a fully specified loop as over-constraint.
+
+### 30.7 Meshes (one-to-one geometry)
+
+`--to svj` converts every OBJ the vehicle files name (`Visualization.Mesh` of the chassis, `Mesh Filename` of the wheel,
+`Mesh Filename Left` / `Right` of the tyre) into one `.glb` next to the output (`meshes/`, `--no-meshes` skips it). The `.glb`
+holds node `SVJ::body::chassis` and, for each wheel, the node `SVJ::wheel::<id>` with children `wheel_<id>_rim` and
+`wheel_<id>_tire`; the vertices keep the OBJ frame (mapped to glTF axes, `(x, y, z)_gl = (-Y, Z, -X)` of ISO 8855) and the node
+transform carries the placement: the chassis frame at `-shift`, the wheel at the spindle position, the left wheel unrotated and
+the right wheel turned by pi about the vertical (Chrono mirrors one mesh across the vehicle by rotation, not by flipping it).
+`_metadata.coordinate_system` is the glTF object (`up: Y`, `forward: -Z`) and `_metadata.physics_frame` is `ISO_8855`.
+`tools/integrity_check.py --meshes` verifies the bindings. The original paths and roles are kept in `x_chrono.meshes` and in the
+node `extras`, so `--to chrono` rewrites the OBJ and `.mtl` files (`<name>/meshes/`) and the `Visualization` entries; vertices,
+normals, faces and diffuse colours return unchanged (tested; polygons are fan-triangulated, vertices are unified on position and
+normal). **Not carried:** UV coordinates and texture maps (`map_Kd`), which are reported as lost; Chrono draws arms, rods,
+springs and the steering with cylinders and spheres, so these have no mesh and no visual binding.
+
+### 30.8 Verified and not verified
+
+Verified (test-suite): the synthetic sample validates with no warnings; static axle loads and CG; kingpin inclination, scrub
+radius and roll centre of both sides against hand geometry; round trips Chrono to SVJ to Chrono (hardpoints, masses, rates) and
+SVJ to Chrono to SVJ (joints to 10 um, mass, CG, rates, steering ratio); tyre signs; the mesh round trip (OBJ to GLB to OBJ, node poses, integrity check). **Not verified:** any Chrono simulation
+(PyChrono is not installed, so there is no manoeuvre comparison), the Pitman steering sign (the Pitman arm itself is written back from the stored original, not regenerated), the camber behaviour of Chrono
+itself, and Chrono's loading of the generated files. The HMMWV sample keeps 6 validator warnings that come from Chrono's own
+wishbone inertias, which violate the triangle inequality.
 
 ---
 

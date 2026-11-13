@@ -1,0 +1,20 @@
+{
+  "Name": "Synthetic rack and pinion",
+  "Type": "Steering",
+  "Template": "RackPinion",
+  "Steering Link": {
+    "Mass": 4.0,
+    "COM": 0,
+    "Inertia": [
+      0.1,
+      0.01,
+      0.1
+    ],
+    "Radius": 0.03,
+    "Length": 0.6
+  },
+  "Pinion": {
+    "Radius": 0.04,
+    "Maximum Angle (deg)": 180
+  }
+}
