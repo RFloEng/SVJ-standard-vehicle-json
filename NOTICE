@@ -8,7 +8,7 @@ examples/chrono_hmmwv_17_bodies.svj.json, chrono_hmmwv_4wd, chrono_suv_patrol, c
   vehicle, chassis, steering, suspension, wheel, brake, driveline and tyre, with the .tir file of the HMMWV) from the Project Chrono distribution
   (https://projectchrono.org, data/vehicle). Geometry, masses, inertias, spring / damper laws and tyre coefficients are
   Project Chrono's values, re-expressed in SVJ (ISO 8855 axes, SVJ conventions). The OBJ meshes of the chassis, wheels and tyres of those models (data/vehicle/*/*.obj)
-  are included, converted to glTF (examples/meshes/*.glb) without changing their vertices, under the same licence; UV coordinates and
+  are included, converted to OpenUSD with a glTF preview (examples/meshes/*.usdc, *.glb) without changing their vertices, under the same licence; UV coordinates and
   textures are not carried.
 
   Project Chrono is distributed under the BSD 3-Clause licence. The licence names no per-file exceptions for the

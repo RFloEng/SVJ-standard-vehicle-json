@@ -361,7 +361,9 @@ def mesh_trip(tmp_path_factory):
 
 def test_meshes_become_one_glb_with_visual_binding(mesh_trip):
     t, svj, doc = mesh_trip
-    glb = t / doc["assets"]["meshes"][0]["uri"]
+    a = doc["assets"]["meshes"][0]
+    assert a["format"] == "usd" and (t / a["uri"]).exists()               # OpenUSD is the asset, the GLB its preview (spec 22.10, v0.106)
+    glb = t / a["preview"]
     assert glb.exists() and glb.read_bytes()[:4] == b"glTF"
     assert doc["chassis"]["visual"]["node"] == "SVJ::body::chassis"
     assert doc["_metadata"]["physics_frame"] == "ISO_8855"
@@ -379,7 +381,7 @@ def _iso(n):
 
 def test_glb_vertices_equal_the_obj_after_node_transform(mesh_trip):
     t, svj, doc = mesh_trip
-    _, nodes = cc.read_glb((t / doc["assets"]["meshes"][0]["uri"]).read_bytes())
+    _, nodes = cc.read_glb((t / doc["assets"]["meshes"][0]["preview"]).read_bytes())
     names = [n["name"] for n in nodes]
     assert "SVJ::body::chassis" in names
     assert sum(1 for n in names if n.endswith("_rim")) == 4 and sum(1 for n in names if n.endswith("_tire")) == 4
@@ -392,7 +394,7 @@ def test_glb_vertices_equal_the_obj_after_node_transform(mesh_trip):
 
 def test_wheel_nodes_left_unrotated_right_half_turn(mesh_trip):
     t, svj, doc = mesh_trip
-    _, nodes = cc.read_glb((t / doc["assets"]["meshes"][0]["uri"]).read_bytes())
+    _, nodes = cc.read_glb((t / doc["assets"]["meshes"][0]["preview"]).read_bytes())
     wheels = [n for n in nodes if n["name"].endswith("_rim")]
     left = [n for n in wheels if _iso(n)[1] > 0]
     right = [n for n in wheels if _iso(n)[1] < 0]
@@ -426,3 +428,11 @@ def test_no_meshes_flag_and_missing_mesh_dir(tmp_path):
                     "--synthetic", "--no-meshes"]) == 0
     d = json.loads(svj.read_text(encoding="utf-8"))
     assert "assets" not in d and not (tmp_path / "meshes").exists()
+
+
+def test_mesh_format_gltf_keeps_a_glb_asset(tmp_path):
+    svj = tmp_path / "g.svj.json"
+    assert cc.main(["--to", "svj", str(VEHICLE), str(svj), "--data-root", str(FIX), "--tire", "synth/tire/Synth_FialaTire.json",
+                    "--synthetic", "--mesh-format", "gltf"]) == 0
+    a = json.loads(svj.read_text(encoding="utf-8"))["assets"]["meshes"][0]
+    assert a["uri"].endswith(".glb") and "preview" not in a and (tmp_path / a["uri"]).exists()

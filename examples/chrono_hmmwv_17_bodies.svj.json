@@ -9,7 +9,7 @@
     },
     "units": "SI",
     "description": "HMMWV 17 bodies converted from a Project Chrono::Vehicle JSON model",
-    "created": "2026-11-13T18:48:30Z",
+    "created": "2026-11-14T07:50:38Z",
     "author": "chrono_convert.py",
     "source_format": "Chrono::Vehicle",
     "alignment_convention": "relative_to_centerline",
@@ -3547,8 +3547,10 @@
     "meshes": [
       {
         "id": "chrono_hmmwv",
-        "uri": "meshes/chrono_hmmwv.glb",
-        "description": "Chrono OBJ meshes converted by chrono_convert.py (chassis, rims, tyres)"
+        "uri": "meshes/chrono_hmmwv.usdc",
+        "description": "Chrono OBJ meshes converted by chrono_convert.py (chassis, rims, tyres)",
+        "format": "usd",
+        "preview": "meshes/chrono_hmmwv.glb"
       }
     ]
   },
