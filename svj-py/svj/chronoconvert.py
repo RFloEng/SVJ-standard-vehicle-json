@@ -712,10 +712,11 @@ def _relto(path, root):
         return os.path.basename(path)
 
 
-def chrono_to_svj(vehicle_file, data_root=None, tire_file=None, engine_file=None, transmission_file=None, rep=None, camber="physical", origin="chrono", mesh_dir=None):
+def chrono_to_svj(vehicle_file, data_root=None, tire_file=None, engine_file=None, transmission_file=None, rep=None, camber="physical", origin="chrono", mesh_dir=None, mesh_format="usd"):
     rep = rep or Report("chrono->svj")
     rep.origin = origin
     rep.mesh_dir = mesh_dir
+    rep.mesh_format = mesh_format
     data = ChronoData(vehicle_file, data_root, rep)
     V = data.vehicle
     top = _relto(data.vehicle_file, data.root).split("/")[0]
@@ -2221,6 +2222,18 @@ def _wheel_node_name(sid):
     return f"SVJ::wheel::wheel_{sid.lower()}"
 
 
+def _load_gltf2usd():
+    """tools/gltf2usd.py (needs usd-core); found next to this file or in ../../tools of the svj-py package."""
+    import importlib
+    here = os.path.dirname(os.path.abspath(__file__))
+    for d in (here, os.path.join(here, "..", "..", "tools")):
+        if os.path.exists(os.path.join(d, "gltf2usd.py")):
+            if d not in sys.path:
+                sys.path.insert(0, d)
+            return importlib.import_module("gltf2usd")
+    raise ConversionError("tools/gltf2usd.py not found")
+
+
 def attach_meshes(doc, data, V, stations, shift, rep, mesh_dir, asset_name):
     """Read the Chrono chassis, rim and tyre meshes, write one .glb and add assets / visual bindings / x_chrono.meshes."""
     chassis = data.read(V["Chassis"]["Input File"])
@@ -2299,8 +2312,17 @@ def attach_meshes(doc, data, V, stations, shift, rep, mesh_dir, asset_name):
         path = os.path.join(mesh_dir, asset_name + ".glb")
     with open(path, "wb") as f:
         f.write(glb)
-    uri = f"meshes/{asset_name}.glb"
-    doc["assets"] = {"meshes": [{"id": asset_name, "uri": uri, "description": "Chrono OBJ meshes converted by chrono_convert.py (chassis, rims, tyres)"}]}
+    entry = {"id": asset_name, "uri": f"meshes/{asset_name}.glb", "description": "Chrono OBJ meshes converted by chrono_convert.py (chassis, rims, tyres)"}
+    if getattr(rep, "mesh_format", "usd") == "usd":
+        usd_path = os.path.join(mesh_dir, asset_name + ".usdc")
+        try:
+            g2u = _load_gltf2usd()
+            g2u.convert(path, usd_path, "Chrono")
+            entry.update({"uri": f"meshes/{asset_name}.usdc", "format": "usd", "preview": f"meshes/{asset_name}.glb"})
+            rep.add("converted", "mesh", "the OpenUSD asset (spec 22.10) is the asset of record; the .glb beside it is its preview copy (v0.106) and is what --to chrono reads back")
+        except Exception as e:                                          # no usd-core / no gltf2usd.py: keep the glTF asset
+            rep.add("assumed", "mesh", f"OpenUSD asset not written ({type(e).__name__}: {e}); the glTF asset is used instead (pip install usd-core, or --mesh-format gltf)")
+    doc["assets"] = {"meshes": [entry]}
     if kept["chassis"]:
         doc["chassis"]["visual"] = {"mesh_ref": asset_name, "node": "SVJ::body::chassis"}
     for w in doc["wheel_stations"]:
@@ -2310,7 +2332,7 @@ def attach_meshes(doc, data, V, stations, shift, rep, mesh_dir, asset_name):
     doc["_metadata"]["physics_frame"] = "ISO_8855"
     doc["x_chrono"]["meshes"] = {"chassis": kept["chassis"], "rim": kept["rim"], "tire": kept["tire"],
                                  "note": "Chrono mesh files as named in the Chrono JSON; the right-side rim and tyre are rotated pi about the spindle Z axis (ChWheel.cpp, ChTire.cpp)"}
-    rep.add("converted", "mesh", f"{len(meshes)} OBJ mesh(es) -> {uri}: vertices mapped to glTF axes, each mesh placed by a node transform (chassis at the chassis "
+    rep.add("converted", "mesh", f"{len(meshes)} OBJ mesh(es) -> {entry["uri"]}: vertices mapped to glTF axes, each mesh placed by a node transform (chassis at the chassis "
                                  "frame, rim and tyre at the spindle; right side rotated pi about the spindle Z axis as Chrono does); materials keep the diffuse colour")
     if textured:
         rep.add("lost", "mesh", "texture maps (map_Kd ...) of the materials are not carried, only the diffuse colour; UV coordinates are dropped: " + ", ".join(sorted(set(textured))))
@@ -2328,7 +2350,7 @@ def restore_meshes(doc, svj_dir, outdir, name, rep, chassis_json, wheel_jsons, t
     def glb_of(ref):
         if ref not in files:
             a = assets.get(ref)
-            p = os.path.join(svj_dir or ".", a["uri"]) if a else None
+            p = os.path.join(svj_dir or ".", a.get("preview") or a["uri"]) if a else None
             if not p or not os.path.exists(p) or not p.lower().endswith(".glb"):
                 rep.add("lost", "mesh", f"asset {ref!r} is not a readable .glb next to the SVJ file; meshes not written")
                 files[ref] = None
@@ -2391,11 +2413,13 @@ def main(argv=None):
                     help="Pac02 camber sign: 'physical' passes the tyre sign oracle (default), 'faithful' keeps Chrono's literal sign")
     ap.add_argument("--synthetic", action="store_true", help="the input is synthetic test data, not Chrono data: no Chrono attribution in _metadata")
     ap.add_argument("--no-meshes", action="store_true", help="do not convert the OBJ meshes to glTF (Chrono to SVJ)")
+    ap.add_argument("--mesh-format", choices=("usd", "gltf"), default="usd",
+                    help="asset format written for the meshes (Chrono to SVJ): usd = OpenUSD asset with a glTF preview copy (default; needs usd-core), gltf = glTF only")
     ap.add_argument("--report", help="write the conversion report as JSON")
     args = ap.parse_args(argv)
     try:
         if args.to == "svj":
-            doc, rep = chrono_to_svj(args.input, args.data_root, args.tire, args.engine, args.transmission, camber=args.tyre_camber, origin="synthetic" if args.synthetic else "chrono",
+            doc, rep = chrono_to_svj(args.input, args.data_root, args.tire, args.engine, args.transmission, camber=args.tyre_camber, origin="synthetic" if args.synthetic else "chrono", mesh_format=args.mesh_format,
                                       mesh_dir=None if args.no_meshes else os.path.join(os.path.dirname(os.path.abspath(args.output)), "meshes"))
             finish_steering(doc, rep)
             with open(args.output, "w", encoding="utf-8") as f:

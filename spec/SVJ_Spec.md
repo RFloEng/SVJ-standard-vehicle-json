@@ -3944,7 +3944,7 @@ python tools/chrono_convert.py --to chrono out.svj.json out_dir --name my_vehicl
 
 Chrono is BSD-3-Clause (copyright Project Chrono Development Team); its data files carry no other licence. A file converted from
 Chrono data records `_metadata.license`, `copyright`, `attribution`, `source_url` and `source_files`, and the repository `NOTICE`
-repeats the notice. The Chrono meshes (OBJ) of the converted models are carried as glTF (§30.7) under the same BSD-3-Clause licence. The Chrono `sedan` data has no provenance statement and is not shipped. A
+repeats the notice. The Chrono meshes (OBJ) of the converted models are carried as an OpenUSD asset with a glTF preview (§30.7) under the same BSD-3-Clause licence. The Chrono `sedan` data has no provenance statement and is not shipped. A
 sample with numbers written for the tests (`--synthetic`) says so in `_metadata.data_origin` and is Apache-2.0.
 
 ### 30.2 Frames (verified by reading the Chrono sources)
@@ -3977,7 +3977,7 @@ sample with numbers written for the tests (`--synthetic`) says so in `_metadata.
 | Pac02Tire (`.tir`) | `pacejka` (§11) | with conversion (§30.4) |
 | ShaftsDriveline2WD | `powertrain.differentials[]`, `final_drive = 1 / conical gear` (Chrono ratios are output / input) | with conversion; locking limit and shaft inertias stay in `x_chrono` |
 | Engine and transmission files | not read yet | **lost** (see `proposals/svj_powertrain_part_load_sketch.md`) |
-| Chassis, wheel (rim) and tyre OBJ meshes | `assets.meshes[]` (one `.glb`), `chassis.visual`, `wheel_stations[].wheel.visual` (§22) | with conversion (§30.7); round trip back to OBJ |
+| Chassis, wheel (rim) and tyre OBJ meshes | `assets.meshes[]` (one `.usdc`, preview `.glb`), `chassis.visual`, `wheel_stations[].wheel.visual` (§22) | with conversion (§30.7); round trip back to OBJ |
 | Anti-roll bars, subchassis, rear chassis; bushing data on SVJ to Chrono | | **lost**, reported |
 | MacPherson, MultiLink, SolidAxle, SemiTrailing, Hendrickson, leaf-spring templates | | not read: the converter stops with an error for a template it does not know |
 
@@ -4017,8 +4017,9 @@ the checker does not report a fully specified loop as over-constraint.
 ### 30.7 Meshes (one-to-one geometry)
 
 `--to svj` converts every OBJ the vehicle files name (`Visualization.Mesh` of the chassis, `Mesh Filename` of the wheel,
-`Mesh Filename Left` / `Right` of the tyre) into one `.glb` next to the output (`meshes/`, `--no-meshes` skips it). The `.glb`
-holds node `SVJ::body::chassis` and, for each wheel, the node `SVJ::wheel::<id>` with children `wheel_<id>_rim` and
+`Mesh Filename Left` / `Right` of the tyre) into one OpenUSD asset (`.usdc`, `format: usd`, via `tools/gltf2usd.py`, needs `usd-core`) next to the output (`meshes/`; `--no-meshes` skips it,
+`--mesh-format gltf` writes the glTF alone). The `.glb` it is made from stays as the manifest's `preview` (§22.10, v0.106) and is the file `--to chrono`
+reads back. Both hold node `SVJ::body::chassis` and, for each wheel, the node `SVJ::wheel::<id>` with children `wheel_<id>_rim` and
 `wheel_<id>_tire`; the vertices keep the OBJ frame (mapped to glTF axes, `(x, y, z)_gl = (-Y, Z, -X)` of ISO 8855) and the node
 transform carries the placement: the chassis frame at `-shift`, the wheel at the spindle position, the left wheel unrotated and
 the right wheel turned by pi about the vertical (Chrono mirrors one mesh across the vehicle by rotation, not by flipping it).
