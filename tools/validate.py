@@ -36,6 +36,7 @@ from convert_frame import frame_findings  # noqa: E402
 import assemble as _asm  # noqa: E402
 import collision_check as _col  # noqa: E402
 import setup_check as _setup  # noqa: E402
+import variant_check as _variant  # noqa: E402
 
 try:
     import jsonschema
@@ -156,6 +157,22 @@ def validate_file(svj_path: str, schema: dict, strict: bool) -> bool:
             c_e, c_w = constraints_check(applied)
             errors.extend(f"setup '{st['id']}': {e}" for e in c_e)
 
+    # Variants (spec §29.5): every variant, applied, must be a valid file of its own
+    va_errors, va_warnings = _variant.check(doc)
+    errors.extend(va_errors)
+    warnings.extend(va_warnings)
+    if not va_errors:
+        for vr in doc.get("variants") or []:
+            applied = _variant.apply_variant(doc, vr["id"])
+            for err in validator.iter_errors(applied):
+                if not _is_ref_error(err):
+                    path_str = " → ".join(str(p) for p in err.absolute_path) if err.absolute_path else "<root>"
+                    errors.append(f"variant '{vr['id']}': [{path_str}] {err.message}")
+            for fn in (multiaxle_check, drivetrain_check, multibody_check, engine_check, powertrain_check, constraints_check,
+                       steering_check, reference_check, _setup.check):
+                v_e, _v_w = fn(applied)
+                errors.extend(f"variant '{vr['id']}': {e}" for e in v_e)
+
     # Attachments: interfaces and fitted units (spec §27)
     if doc.get("interfaces"):
         i_errors, i_warnings = _asm.check_interfaces(doc)
@@ -184,10 +201,10 @@ def validate_file(svj_path: str, schema: dict, strict: bool) -> bool:
 
     # Version advisory
     version = doc.get("_metadata", {}).get("version", "unknown")
-    if version not in ("0.99", "0.99.1", "0.99.2", "0.99.3", "0.99.4", "0.99.5", "0.99.6", "0.99.7", "0.99.8", "0.100", "0.101", "0.102", "0.103", "0.104", "0.105", "0.106", "0.107", "0.108", "0.109", "0.110", "0.111"):
+    if version not in ("0.99", "0.99.1", "0.99.2", "0.99.3", "0.99.4", "0.99.5", "0.99.6", "0.99.7", "0.99.8", "0.100", "0.101", "0.102", "0.103", "0.104", "0.105", "0.106", "0.107", "0.108", "0.109", "0.110", "0.111", "0.112"):
         warnings.append(
-            f"_metadata.version is '{version}' — current spec is '0.111' "
-            "(reference pose, spring law, mass and brake consistency)"
+            f"_metadata.version is '{version}' — current spec is '0.112' "
+            "(variants: alternative engines, parts and geometries)"
         )
 
     for w in warnings:

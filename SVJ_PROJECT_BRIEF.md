@@ -26,6 +26,7 @@ tools/loop_solver.py                    Loop-closure solver, suspension gains an
 tools/assemble.py                       Interfaces, attachments, combination assembly (§27)
 tools/collision_check.py                Collision-proxy separation per pose (§28)
 tools/setup_check.py                    Adjustment ranges, setups, apply_setup (§29)
+tools/variant_check.py                  Variants: alternative engines, parts, geometries (§29.5)
 tools/mesh_check.py                     Mesh-side binding checks for glTF and OpenUSD assets, run by integrity_check.py --meshes (§22.9)
 tools/gltf2usd.py, tools/usd2gltf.py    GLB to OpenUSD converter, and OpenUSD to GLB preview copy for the viewer (§22.10; need usd-core)
 tools/tire_model.py                     Magic Formula evaluator: Fx, Fy, Mz, My, characteristics (§11.13)

@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.111",
+    "version": "0.112",
     "description": "Mazda MX-5 ND2 (2019+) 2.0L Skyactiv-G 6MT Club — factory specs where available, engineering estimates marked.",
     "coordinate_system": "ISO_8855",
     "units": "SI",
@@ -6795,5 +6795,127 @@
     "condition": "static_equilibrium",
     "load_case": "kerb_plus_driver",
     "note": "mass_total includes the 75 kg driver body; hardpoints at ride height"
-  }
+  },
+  "variants": [
+    {
+      "id": "turbo_kit",
+      "name": "Turbo kit (engine variant)",
+      "description": "Same car with a boosted engine: the full-throttle torque curve is 30 % higher. Mass, cooling and the driveline limits are not changed.",
+      "replace": {
+        "powertrain.engine.torque_curve": [
+          [
+            800,
+            104.0
+          ],
+          [
+            1000,
+            143.0
+          ],
+          [
+            1500,
+            188.5
+          ],
+          [
+            2000,
+            221.0
+          ],
+          [
+            2500,
+            240.5
+          ],
+          [
+            3000,
+            253.5
+          ],
+          [
+            3500,
+            260.0
+          ],
+          [
+            4000,
+            266.5
+          ],
+          [
+            4500,
+            263.9
+          ],
+          [
+            5000,
+            257.4
+          ],
+          [
+            5500,
+            249.6
+          ],
+          [
+            6000,
+            237.9
+          ],
+          [
+            6500,
+            221.0
+          ],
+          [
+            7000,
+            201.5
+          ],
+          [
+            7500,
+            182.0
+          ]
+        ]
+      },
+      "_est": true,
+      "_note": "illustrative curve, not a product"
+    },
+    {
+      "id": "high_front_roll_centre",
+      "name": "Front upper arm pivots raised 12 mm (geometry variant)",
+      "description": "The inner pivots of both front upper wishbones sit 12 mm higher; both joint frames of each pivot move together.",
+      "set": {
+        "constraints[ball_upper_wishbone_fl_inboard_1].frame_a.position": [
+          0.12,
+          0.3493,
+          0.4157
+        ],
+        "constraints[ball_upper_wishbone_fl_inboard_1].frame_b.position": [
+          0.12,
+          0.3493,
+          0.4157
+        ],
+        "constraints[ball_upper_wishbone_fl_inboard_2].frame_a.position": [
+          -0.12,
+          0.3493,
+          0.4157
+        ],
+        "constraints[ball_upper_wishbone_fl_inboard_2].frame_b.position": [
+          -0.12,
+          0.3493,
+          0.4157
+        ],
+        "constraints[ball_upper_wishbone_fr_inboard_1].frame_a.position": [
+          0.12,
+          -0.3493,
+          0.4157
+        ],
+        "constraints[ball_upper_wishbone_fr_inboard_1].frame_b.position": [
+          0.12,
+          -0.3493,
+          0.4157
+        ],
+        "constraints[ball_upper_wishbone_fr_inboard_2].frame_a.position": [
+          -0.12,
+          -0.3493,
+          0.4157
+        ],
+        "constraints[ball_upper_wishbone_fr_inboard_2].frame_b.position": [
+          -0.12,
+          -0.3493,
+          0.4157
+        ]
+      },
+      "_est": true,
+      "_note": "illustrative geometry change"
+    }
+  ]
 }

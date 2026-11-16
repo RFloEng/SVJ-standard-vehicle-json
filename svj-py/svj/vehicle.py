@@ -291,6 +291,16 @@ class Vehicle:
         """Id of the setup this file's values correspond to, when declared."""
         return self.data.get("active_setup")
 
+    @property
+    def variants(self) -> list[dict[str, Any]]:
+        """The `variants` array: named alternatives of this car, each an edit of the base (spec §29.5)."""
+        return self.data.get("variants", [])
+
+    def apply_variant(self, variant_id: str) -> "Vehicle":
+        """A copy of this vehicle with one variant applied: a standalone document without `variants` (spec §29.5)."""
+        from svj.variants import apply_variant
+        return Vehicle(apply_variant(self.data, variant_id))
+
     def apply_setup(self, setup_id: str) -> "Vehicle":
         """A copy of this vehicle with the values of one setup written in (spec §29.3)."""
         from svj.setups import apply_setup

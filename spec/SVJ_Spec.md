@@ -2733,6 +2733,7 @@ This section is **optional**. It provides a standard place to record performance
 
 | Version | Changes                                                                                    |
 |---------|--------------------------------------------------------------------------------------------|
+| 0.112   | **Variants** (§29.5): top-level `variants[]`, named alternatives of the car as edits of the base (`remove`, `replace`, `set`; paths of §29.1). Applying one gives a standalone file with `_metadata.variant`; each applied variant must validate like any file. New `tools/variant_check.py` (`svj.variants`), `Vehicle.variants`, `Vehicle.apply_variant`. The MX-5 template carries two: `turbo_kit` (engine) and `high_front_roll_centre` (geometry). `_metadata.version` gains `0.112` |
 | 0.111   | **Physical consistency of the reference pose, springs, mass, brakes, bushings and aero** (§7.2.3, §7.4, §10.8, §12.6, §13.3, §24.4, §24.5). Decisions, additive; new `tools/reference_check.py` (`svj.referencecheck`, run by both validators). `reference_pose` (`condition`, `load_case`; springs must balance the sprung weight under `static_equilibrium`); the spring law `F = preload + rate (L_ref − L)` with `preload` the force at the reference pose, `free_length` informative and `installed_length` derived; the chassis remainder rule (composite minus the listed bodies is physical, inertia required on every body with mass from this version, `mass_unsprung_per_corner` derived); the hydraulic chain decides the brake bias (`proportioning`, `bias` informative); bushing defaults (axes, absent rate) and a static-sag warning; wheel spin positive forward (hinge +Z to the left) and damper signs; the LSD locking torque `preload + lock · |T_in|`; one description of aero pitch (`cpm_reference`). |
 | 0.110   | **Steering wheel and gear chain** (§8.5, §8.7, §25.4). Additive. `steering.steering_wheel` gains `position`, `column_axis`, `column_rake` and `inertia`; the angle is the right-hand rotation about the axis pointing away from the driver (positive steers right). New consistency checks `tools/steering_check.py` (mirrored as `svj.steeringcheck`, run by both validators): ratio fields, steering wheel axis and rake, steering wheel joint against the placement, the coupling against `rack_travel`, and the solved geometry against `overall_ratio` and the steering direction. The steering box (`recirculating_ball`, `worm_and_sector`) is written with a sector shaft joint, a Pitman arm and a linkage of bodies and joints (§25.4); new example `skeleton_ff_recirculating_ball`. The loop solver compares a revolute coordinate modulo 2π, so a steering wheel can be turned several revolutions. The MX-5 template and the FF skeleton gain a steering wheel body, its joint and the coupling, and their `rack_travel` is now derived from the hardpoints and `overall_ratio` |
 | 0.109   | **ISO 8855 axes** (§2.1, §11.13, §22.4). The vehicle frame is X forward, Y left, Z up (it was SAE J670: Y right, Z down). Positions flip Y and Z, frame quaternions are left-multiplied by `(1,0,0,0)`, inertia products `Ixy`, `Ixz` change sign; quantities defined in words (camber top inward, toe-in, bump, `Cl`) keep their meaning. `_metadata.coordinate_system` accepts `"ISO_8855"` and `"SAE_J670"`; a file that does not declare one is SAE below 0.109 and ISO from it; `_metadata.physics_frame` declares the frame when `coordinate_system` is the glTF object. Tyre: `pacejka.axis_system` (default `"ISO_8855"`), positive `gamma` leans right. `tools/convert_frame.py` converts either way. `_metadata.version` gains `0.109` |
@@ -3863,7 +3864,7 @@ Proxies from glTF meshes (hulls), a capsule and a true cylinder pair test, and c
 
 ## 29. Adjustments and Setups *(v0.103)*
 
-A file describes a vehicle in one configuration: its numbers are the **reference setup**. Real cars are tuned: spring preload and perch height, damper clicks, anti-roll bar blades, tyre pressures, alignment. This section lets a file say **what can be changed and within what limits** (§29.2) and carry **named alternative setups** (§29.3). It is optional and additive: a reader that ignores both sees the reference setup, exactly as before.
+A file describes a vehicle in one configuration: its numbers are the **reference setup**. Real cars are tuned: spring preload and perch height, damper clicks, anti-roll bar blades, tyre pressures, alignment. This section lets a file say **what can be changed and within what limits** (§29.2), carry **named alternative setups** (§29.3), and carry **variants of the car itself**, such as another engine, other parts or a different geometry (§29.5). It is optional and additive: a reader that ignores both sees the reference setup, exactly as before.
 
 ### 29.1 Paths
 
@@ -3925,6 +3926,42 @@ Setups replace the use of an override file (§3.4) for alternatives that belong 
 - **Warnings:** a setup changes a path no adjustment declares; a setup moves only some of the linked paths of an adjustment; a value changes type; the file's value is off the step grid; the file's values differ from those of its `active_setup`.
 
 `svj-py`: `Vehicle.adjustments`, `.setups`, `.active_setup`, `.apply_setup(id)`.
+
+### 29.5 `variants[]`: alternative engines, parts and geometries *(v0.112)*
+
+A setup (§29.3) changes values that the file already has. A **variant** is an alternative **car**: another engine, other parts, a different suspension geometry. The content of the file is the **base**; each entry of the top-level array `variants[]` is a named edit of it.
+
+| Key | Type | Description |
+|---|---|---|
+| `id` | string | Required, unique in the file |
+| `name`, `description` | string | For display |
+| `remove` | array of path | Deleted: a key, or an array element selected by its `id` |
+| `replace` | object `{path: value}` | The value at the path is replaced **as a whole**: an object, an array, a key that does not exist yet, or an element of an array selected by `id` (the new element MUST be an object with that same `id`) |
+| `set` | object `{path: value}` | Values of the kind of §29.3: the path MUST resolve, and the value may be a number, a point, a curve or any JSON value |
+
+Paths are those of §29.1. The three kinds are applied in the order `remove`, `replace`, `set`, so a `set` can adjust a value inside something a `replace` brought in. A path is edited at most once in a variant. `_metadata` and `variants` cannot be replaced.
+
+```json
+"variants": [
+  { "id": "turbo_kit", "name": "Turbo kit",
+    "replace": { "powertrain.engine.torque_curve": [[2000, 190], [4000, 330], [6500, 300]] } },
+  { "id": "high_roll_centre", "name": "Front upper pivots 12 mm higher",
+    "set": { "constraints[ball_upper_wishbone_fl_inboard_1].frame_a.position": [0.12, 0.3493, 0.4157],
+             "constraints[ball_upper_wishbone_fl_inboard_1].frame_b.position": [0.12, 0.3493, 0.4157] } },
+  { "id": "other_engine", "replace": { "powertrain.engine": { "...": "a whole engine object" } },
+    "remove": ["powertrain.engine_note"] }
+]
+```
+
+**Applying a variant** gives a complete, standalone document: the base with the edits written in, **without** `variants`, and with `_metadata.variant` set to the variant's id. It is an ordinary SVJ file and MUST validate like one. `adjustments`, `setups` and `active_setup` stay in it, so a variant that changes what they address MUST also `remove` or `replace` them (a setup that names a hardpoint the variant removed would not resolve).
+
+**A variant is not a setup.** Use a setup for what the car's own adjusters change (preload, clicks, pressures); use a variant when the hardware differs. A variant is applied to the base, never to another variant; a combination of two (an engine and a geometry) is a variant of its own.
+
+**Validation.** `tools/variant_check.py` (run by `tools/validate.py`; mirrored as `svj-py/svj/variants.py` with a sync test) checks the structure and that every path resolves, and `tools/validate.py` then validates **each applied variant** against the schema and the checks of the other sections (multi-axle, drivetrain, multibody, engine, powertrain, constraints, steering, reference pose, setups); a finding of the error kind in an applied variant is an error of the file, reported as `variant '<id>': ...`.
+- **Errors:** ids unique and non-empty; `remove` is an array of paths, `replace` and `set` are objects; a path resolves at the moment it is applied; a path edited twice; a replaced element whose `id` differs; `_metadata` or `variants` replaced; the applied document fails any check above.
+- **Warning:** a variant with no edit (it equals the base).
+
+`svj-py`: `Vehicle.variants`, `Vehicle.apply_variant(id)`. `python tools/variant_check.py file.svj.json --apply <id> -o out.svj.json` writes the standalone file.
 
 ---
 
