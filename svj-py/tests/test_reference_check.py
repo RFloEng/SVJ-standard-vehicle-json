@@ -50,9 +50,26 @@ def test_shipped_examples_have_no_findings():
         assert findings(d) == [], (Path(f).name, findings(d))
 
 
-def test_mx5_template_carries_the_findings_of_the_simulator_team():
+def test_mx5_template_is_clean():
+    assert findings(load(MX5)) == []
+
+
+def test_mx5_template_with_the_old_data_carries_the_findings():
     d = load(MX5)
-    for text in ("remaining", "not positive definite", "brake share", "bushing rate", "Cpm", "do not balance the load"):
+    d["brakes"]["bias"] = 0.62
+    d["aerodynamics"]["coefficients"]["Cpm"] = -0.012
+    for c in d["constraints"]:
+        if c["type"] == "spring" and isinstance(c.get("preload"), (int, float)):
+            c["preload"] /= 7.0
+        b = c.get("bushing")
+        if isinstance(b, dict):
+            for k in ("rate_x", "rate_y", "rate_z"):
+                if k in b:
+                    b[k] /= 100
+    for body in d["chassis"]["mass_bodies"]:
+        if body["id"] == "body_shell":
+            body["mass"] += 50.0
+    for text in ("brake share", "bushing rate", "Cpm", "do not balance the load", "remaining mass would be negative"):
         assert has(d, text), text
 
 
@@ -63,21 +80,23 @@ def test_negative_preload_of_a_compression_spring():
     assert has(d, "negative preload")
 
 
+def weak_springs(d):
+    for c in d["constraints"]:
+        if c["type"] == "spring" and isinstance(c.get("preload"), (int, float)):
+            c["preload"] /= 7.0
+    return d
+
+
 def test_springs_that_do_not_carry_the_car():
-    d = load(MX5)
-    assert has(d, "do not balance the load")
+    assert has(weak_springs(load(MX5)), "do not balance the load")
 
 
 def test_springs_that_carry_the_car():
-    d = load(MX5)
-    for c in d["constraints"]:
-        if c["type"] == "spring" and isinstance(c.get("preload"), (int, float)):
-            c["preload"] *= 7.0
-    assert not has(d, "do not balance the load")
+    assert not has(load(MX5), "do not balance the load")
 
 
 def test_unloaded_reference_pose_is_not_asked_to_balance():
-    d = load(MX5)
+    d = weak_springs(load(MX5))
     d["reference_pose"] = {"condition": "unloaded"}
     assert not has(d, "do not balance the load")
 
@@ -124,14 +143,13 @@ def test_unsprung_per_corner_follows_the_bodies():
 # ── brakes ────────────────────────────────────────────────────────────────────
 def test_bias_that_the_hardware_does_not_give():
     d = load(MX5)
-    assert has(d, "brake share")
-    d["brakes"]["bias"] = 0.581
     assert not has(d, "brake share")
+    d["brakes"]["bias"] = 0.62
+    assert has(d, "brake share")
 
 
 def test_proportioning_changes_the_share():
     d = load(MX5)
-    d["brakes"]["bias"] = 0.581
     d["brakes"]["proportioning"] = {"type": "fixed_ratio", "ratio": 0.5}
     assert has(d, "brake share")
 
@@ -139,29 +157,36 @@ def test_proportioning_changes_the_share():
 # ── bushings, wheel hinge ─────────────────────────────────────────────────────
 def test_soft_bushing_is_flagged_and_stiff_is_not():
     d = load(MX5)
-    assert has(d, "bushing rate")
+    assert not has(d, "bushing rate")
     for c in d["constraints"]:
         b = c.get("bushing")
         if isinstance(b, dict):
             for k in ("rate_x", "rate_y", "rate_z"):
                 if k in b:
-                    b[k] *= 100
-    assert not has(d, "bushing rate")
+                    b[k] /= 100
+    assert has(d, "bushing rate")
 
 
 def test_wheel_hinge_sense_from_v0_111():
     d = load(MX5)
-    assert not has(d, "rolls the wheel backwards")          # earlier files are not asked
-    d["_metadata"]["version"] = "0.111"
+    assert not has(d, "rolls the wheel backwards")
+    for c in d["constraints"]:
+        if c["id"].startswith("hinge_wheel_"):
+            for k in ("frame_a", "frame_b"):
+                q = c[k]["orientation"]
+                c[k]["orientation"] = [-q[0], q[1], q[2], q[3]]
     assert has(d, "rolls the wheel backwards")
+    d["_metadata"]["version"] = "0.110"                     # earlier files are not asked
+    assert not has(d, "rolls the wheel backwards")
 
 
 # ── aero ──────────────────────────────────────────────────────────────────────
 def test_cpm_against_the_lift_split():
     d = load(MX5)
+    assert not has(d, "Cpm")
+    d["aerodynamics"]["coefficients"]["Cpm"] = -0.012
     assert has(d, "Cpm")
     d["aerodynamics"]["coefficients"]["Cpm"] = 0.0
-    assert not has(d, "Cpm")
     d["aerodynamics"]["coefficients"]["Cl_front"] = 0.10
     d["aerodynamics"]["coefficients"]["Cl_rear"] = 0.02
     assert has(d, "Cpm")

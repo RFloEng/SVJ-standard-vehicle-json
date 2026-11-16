@@ -1,7 +1,7 @@
 {
   "_metadata": {
     "specification": "SVJ",
-    "version": "0.110",
+    "version": "0.111",
     "description": "Mazda MX-5 ND2 (2019+) 2.0L Skyactiv-G 6MT Club — factory specs where available, engineering estimates marked.",
     "coordinate_system": "ISO_8855",
     "units": "SI",
@@ -40,24 +40,24 @@
       0.43
     ],
     "inertia": {
-      "Ixx": 290.0,
-      "Iyy": 1450.0,
-      "Izz": 1520.0,
-      "Ixz": -55.0,
-      "_est": true,
-      "Ixy": 0.0,
-      "Iyz": 0.0
+      "Ixx": 320.72,
+      "Iyy": 1076.6,
+      "Izz": 1170.58,
+      "Ixy": 0.16,
+      "Ixz": -26.63,
+      "Iyz": 0.22,
+      "_est": true
     },
     "mass_bodies": [
       {
         "id": "body_shell",
-        "description": "Unibody + backbone frame, closures, glass, bumpers",
+        "description": "Unibody + backbone frame, closures, glass, bumpers (carries every mass the list does not name; its position is solved from the declared centre of gravity, spec 7.2.3)",
         "category": "structural",
-        "mass": 390.6,
+        "mass": 410.0,
         "position": [
-          -2.03,
-          0.0,
-          0.562
+          -1.0918,
+          -0.0029,
+          0.5531
         ],
         "_est": true,
         "inertia": {
@@ -406,7 +406,16 @@
         "mass_distribution": {
           "sprung_fraction": 0.5
         },
-        "_est": true
+        "_est": true,
+        "inertia": {
+          "Ixx": 0.01682,
+          "Iyy": 0.00688,
+          "Izz": 0.02229,
+          "Ixy": -0.00926,
+          "Ixz": 0.00059,
+          "Iyz": -0.00099
+        },
+        "inertia_note": "estimated: slender rod between its joints, m*L^2/12"
       },
       {
         "id": "lower_wishbone_fl",
@@ -427,7 +436,16 @@
         "mass_distribution": {
           "sprung_fraction": 0.5
         },
-        "_est": true
+        "_est": true,
+        "inertia": {
+          "Ixx": 0.05644,
+          "Iyy": 0.00853,
+          "Izz": 0.06264,
+          "Ixy": -0.01916,
+          "Ixz": 0.00188,
+          "Iyz": -0.00536
+        },
+        "inertia_note": "estimated: slender rod between its joints, m*L^2/12"
       },
       {
         "id": "steering_tie_rod_fl",
@@ -448,7 +466,16 @@
         "mass_distribution": {
           "sprung_fraction": 0.5
         },
-        "_est": true
+        "_est": true,
+        "inertia": {
+          "Ixx": 0.01253,
+          "Iyy": 0.00043,
+          "Izz": 0.01243,
+          "Ixy": -0.00027,
+          "Ixz": 3e-05,
+          "Iyz": -0.00111
+        },
+        "inertia_note": "estimated: slender rod between its joints, m*L^2/12"
       },
       {
         "id": "upright_fr",
@@ -527,7 +554,16 @@
         "mass_distribution": {
           "sprung_fraction": 0.5
         },
-        "_est": true
+        "_est": true,
+        "inertia": {
+          "Ixx": 0.01682,
+          "Iyy": 0.00688,
+          "Izz": 0.02229,
+          "Ixy": 0.00926,
+          "Ixz": 0.00059,
+          "Iyz": 0.00099
+        },
+        "inertia_note": "estimated: slender rod between its joints, m*L^2/12"
       },
       {
         "id": "lower_wishbone_fr",
@@ -548,7 +584,16 @@
         "mass_distribution": {
           "sprung_fraction": 0.5
         },
-        "_est": true
+        "_est": true,
+        "inertia": {
+          "Ixx": 0.05644,
+          "Iyy": 0.00853,
+          "Izz": 0.06264,
+          "Ixy": 0.01916,
+          "Ixz": 0.00188,
+          "Iyz": 0.00536
+        },
+        "inertia_note": "estimated: slender rod between its joints, m*L^2/12"
       },
       {
         "id": "steering_tie_rod_fr",
@@ -569,7 +614,16 @@
         "mass_distribution": {
           "sprung_fraction": 0.5
         },
-        "_est": true
+        "_est": true,
+        "inertia": {
+          "Ixx": 0.01253,
+          "Iyy": 0.00043,
+          "Izz": 0.01243,
+          "Ixy": 0.00027,
+          "Ixz": 3e-05,
+          "Iyz": 0.00111
+        },
+        "inertia_note": "estimated: slender rod between its joints, m*L^2/12"
       },
       {
         "id": "upright_rl",
@@ -669,7 +723,16 @@
         "mass_distribution": {
           "sprung_fraction": 0.5
         },
-        "_est": true
+        "_est": true,
+        "inertia": {
+          "Ixx": 0.01887,
+          "Iyy": 0.00204,
+          "Izz": 0.01977,
+          "Ixy": -0.00402,
+          "Ixz": 6e-05,
+          "Iyz": -0.00027
+        },
+        "inertia_note": "estimated: slender rod between its joints, m*L^2/12"
       },
       {
         "id": "lower_control_arm_rl",
@@ -690,7 +753,16 @@
         "mass_distribution": {
           "sprung_fraction": 0.5
         },
-        "_est": true
+        "_est": true,
+        "inertia": {
+          "Ixx": 0.03186,
+          "Iyy": 0.00263,
+          "Izz": 0.03333,
+          "Ixy": -0.00677,
+          "Ixz": 0.00018,
+          "Iyz": -0.0008
+        },
+        "inertia_note": "estimated: slender rod between its joints, m*L^2/12"
       },
       {
         "id": "toe_link_rl",
@@ -711,7 +783,16 @@
         "mass_distribution": {
           "sprung_fraction": 0.5
         },
-        "_est": true
+        "_est": true,
+        "inertia": {
+          "Ixx": 0.01029,
+          "Iyy": 0.00032,
+          "Izz": 0.01029,
+          "Ixy": -6e-05,
+          "Ixz": 0.0,
+          "Iyz": -0.00015
+        },
+        "inertia_note": "estimated: slender rod between its joints, m*L^2/12"
       },
       {
         "id": "upper_lateral_link_rl",
@@ -732,7 +813,16 @@
         "mass_distribution": {
           "sprung_fraction": 0.5
         },
-        "_est": true
+        "_est": true,
+        "inertia": {
+          "Ixx": 0.00912,
+          "Iyy": 0.00063,
+          "Izz": 0.00902,
+          "Ixy": -0.00048,
+          "Ixz": -6e-05,
+          "Iyz": 0.00101
+        },
+        "inertia_note": "estimated: slender rod between its joints, m*L^2/12"
       },
       {
         "id": "lower_lateral_link_rl",
@@ -753,7 +843,16 @@
         "mass_distribution": {
           "sprung_fraction": 0.5
         },
-        "_est": true
+        "_est": true,
+        "inertia": {
+          "Ixx": 0.01222,
+          "Iyy": 0.0005,
+          "Izz": 0.01219,
+          "Ixy": 2e-05,
+          "Ixz": -0.0,
+          "Iyz": -0.0005
+        },
+        "inertia_note": "estimated: slender rod between its joints, m*L^2/12"
       },
       {
         "id": "upright_rr",
@@ -853,7 +952,16 @@
         "mass_distribution": {
           "sprung_fraction": 0.5
         },
-        "_est": true
+        "_est": true,
+        "inertia": {
+          "Ixx": 0.01887,
+          "Iyy": 0.00204,
+          "Izz": 0.01977,
+          "Ixy": 0.00402,
+          "Ixz": 6e-05,
+          "Iyz": 0.00027
+        },
+        "inertia_note": "estimated: slender rod between its joints, m*L^2/12"
       },
       {
         "id": "lower_control_arm_rr",
@@ -874,7 +982,16 @@
         "mass_distribution": {
           "sprung_fraction": 0.5
         },
-        "_est": true
+        "_est": true,
+        "inertia": {
+          "Ixx": 0.03186,
+          "Iyy": 0.00263,
+          "Izz": 0.03333,
+          "Ixy": 0.00677,
+          "Ixz": 0.00018,
+          "Iyz": 0.0008
+        },
+        "inertia_note": "estimated: slender rod between its joints, m*L^2/12"
       },
       {
         "id": "toe_link_rr",
@@ -895,7 +1012,16 @@
         "mass_distribution": {
           "sprung_fraction": 0.5
         },
-        "_est": true
+        "_est": true,
+        "inertia": {
+          "Ixx": 0.01029,
+          "Iyy": 0.00032,
+          "Izz": 0.01029,
+          "Ixy": 6e-05,
+          "Ixz": 0.0,
+          "Iyz": 0.00015
+        },
+        "inertia_note": "estimated: slender rod between its joints, m*L^2/12"
       },
       {
         "id": "upper_lateral_link_rr",
@@ -916,7 +1042,16 @@
         "mass_distribution": {
           "sprung_fraction": 0.5
         },
-        "_est": true
+        "_est": true,
+        "inertia": {
+          "Ixx": 0.00912,
+          "Iyy": 0.00063,
+          "Izz": 0.00902,
+          "Ixy": 0.00048,
+          "Ixz": -6e-05,
+          "Iyz": -0.00101
+        },
+        "inertia_note": "estimated: slender rod between its joints, m*L^2/12"
       },
       {
         "id": "lower_lateral_link_rr",
@@ -937,7 +1072,16 @@
         "mass_distribution": {
           "sprung_fraction": 0.5
         },
-        "_est": true
+        "_est": true,
+        "inertia": {
+          "Ixx": 0.01222,
+          "Iyy": 0.0005,
+          "Izz": 0.01219,
+          "Ixy": -2e-05,
+          "Ixz": -0.0,
+          "Iyz": 0.0005
+        },
+        "inertia_note": "estimated: slender rod between its joints, m*L^2/12"
       },
       {
         "id": "wheel_fl",
@@ -965,13 +1109,20 @@
         "name": "Steering rack",
         "description": "Steering rack / gear housing",
         "category": "structural",
-        "mass": 0.0,
+        "mass": 4.8,
         "position": [
           0.08,
           0.0,
           0.18
         ],
-        "x_derived": true
+        "inertia": {
+          "Ixx": 0.002,
+          "Iyy": 0.002,
+          "Izz": 0.002,
+          "Ixy": 0.0,
+          "Ixz": 0.0,
+          "Iyz": 0.0
+        }
       },
       {
         "id": "wheel_fr",
@@ -1066,7 +1217,8 @@
       "bending_stiffness": 12000.0,
       "measurement_method": "estimated",
       "_est": true
-    }
+    },
+    "inertia_note": "computed from mass_bodies (spec 7.2.3); the earlier estimate {\"Ixx\": 290.0, \"Iyy\": 1450.0, \"Izz\": 1520.0, \"Ixz\": -55.0, \"Ixy\": 0.0, \"Iyz\": 0.0} disagreed with the bodies"
   },
   "steering": {
     "type": "rack_and_pinion",
@@ -1310,6 +1462,12 @@
             "qHz3": -0.105,
             "qHz4": 0.048,
             "_note": "Estimated; not from AC fit."
+          },
+          "rolling_resistance": {
+            "qsy1": 0.01,
+            "qsy4": 0.0004,
+            "_est": true,
+            "_est_note": "generic road-tyre values (about 0.010 at low speed, rising with speed); not measured"
           }
         },
         "relaxation": {
@@ -1425,11 +1583,6 @@
         ],
         "_note": "Dimensions/construction: 205/45R17 real-world spec. Pacejka MF5.2 + thermal + physical: user-owned data fitted from AC tyres.ini virtual bench.",
         "relaxation_length_m": 0.07137,
-        "rolling_resistance": {
-          "k0": 12.0,
-          "k1": 0.001013,
-          "k2": 4911.0
-        },
         "speed_sensitivity": 0.003456,
         "dcamber_0": 1.2,
         "dcamber_1": -13.0,
@@ -1440,7 +1593,13 @@
           "d_gain": 0.0045,
           "flex_gain": 0.4
         },
-        "_source_detail": "user_ac_fit — fitted by the owner from Assetto Corsa tyre data"
+        "_source_detail": "user_ac_fit — fitted by the owner from Assetto Corsa tyre data",
+        "x_rolling_resistance_legacy": {
+          "k0": 12.0,
+          "k1": 0.001013,
+          "k2": 4911.0,
+          "_note": "k0, k1, k2 have no definition in the standard and no known source; replaced by pacejka.rolling_resistance"
+        }
       },
       "rear_205_45r17": {
         "description": "High-performance summer 205/45R17 — Pacejka MF5.2 fitted from user AC model (rear)",
@@ -1591,6 +1750,12 @@
             "qHz3": -0.105,
             "qHz4": 0.048,
             "_note": "Estimated; not from AC fit."
+          },
+          "rolling_resistance": {
+            "qsy1": 0.01,
+            "qsy4": 0.0004,
+            "_est": true,
+            "_est_note": "generic road-tyre values (about 0.010 at low speed, rising with speed); not measured"
           }
         },
         "relaxation": {
@@ -1706,11 +1871,6 @@
         ],
         "_note": "Dimensions/construction: 205/45R17 real-world spec. Pacejka MF5.2 + thermal + physical: user-owned data fitted from AC tyres.ini virtual bench.",
         "relaxation_length_m": 0.07137,
-        "rolling_resistance": {
-          "k0": 12.0,
-          "k1": 0.001013,
-          "k2": 4911.0
-        },
         "speed_sensitivity": 0.003456,
         "dcamber_0": 1.2,
         "dcamber_1": -13.0,
@@ -1721,7 +1881,13 @@
           "d_gain": 0.0045,
           "flex_gain": 0.4
         },
-        "_source_detail": "user_ac_fit — fitted by the owner from Assetto Corsa tyre data"
+        "_source_detail": "user_ac_fit — fitted by the owner from Assetto Corsa tyre data",
+        "x_rolling_resistance_legacy": {
+          "k0": 12.0,
+          "k1": 0.001013,
+          "k2": 4911.0,
+          "_note": "k0, k1, k2 have no definition in the standard and no known source; replaced by pacejka.rolling_resistance"
+        }
       }
     }
   },
@@ -1761,8 +1927,8 @@
       ]
     },
     "circuit_type": "dual_diagonal",
-    "bias": 0.62,
-    "bias_note": "estimated, typical for front-biased lightweight RWD",
+    "bias": 0.581,
+    "bias_note": "derived from the hydraulic chain (caliper areas, disc radii, equal bores): 0.581; the declared 0.62 was a design target the hardware does not give (spec 12.6)",
     "bias_type": "fixed",
     "line_pressure_max": 10000000.0,
     "abs": {
@@ -1932,7 +2098,46 @@
         ],
         "oil_temperature_offset": 15.0,
         "_est": true
-      }
+      },
+      "torque_curve_closed": [
+        [
+          800,
+          -17.2
+        ],
+        [
+          1000,
+          -18.3
+        ],
+        [
+          2000,
+          -23.9
+        ],
+        [
+          3000,
+          -29.4
+        ],
+        [
+          4000,
+          -35.0
+        ],
+        [
+          5000,
+          -40.6
+        ],
+        [
+          6000,
+          -46.2
+        ],
+        [
+          7000,
+          -51.7
+        ],
+        [
+          7500,
+          -54.5
+        ]
+      ],
+      "torque_curve_closed_note": "estimated: friction and pumping loss, FMEP = 0.8 bar + 0.35 bar per 1000 rpm, T = -Vd * FMEP / (4 pi)"
     },
     "clutch": {
       "type": "single_plate",
@@ -1968,13 +2173,13 @@
       "efficiency": 0.97,
       "shift_time": 0.2,
       "position": [
-        1.1,
+        -1.1,
         0.0,
         0.32
       ],
       "mass": 38.0,
       "output_flange": [
-        1.25,
+        -1.25,
         0.0,
         0.28
       ],
@@ -2022,7 +2227,7 @@
         "joint_front": {
           "type": "flex_disc",
           "position": [
-            1.25,
+            -1.25,
             0.0,
             0.28
           ]
@@ -2030,7 +2235,7 @@
         "joint_center": {
           "type": "universal",
           "position": [
-            1.75,
+            -1.75,
             0.0,
             0.26
           ]
@@ -2038,7 +2243,7 @@
         "joint_rear": {
           "type": "universal",
           "position": [
-            2.2,
+            -2.2,
             0.0,
             0.245
           ]
@@ -2206,9 +2411,10 @@
       "Cl_front": 0.06,
       "Cl_rear": 0.06,
       "Cs": 0.0,
-      "Cpm": -0.012,
+      "Cpm": 0.0,
       "Cym": 0.0,
-      "Crm": 0.0
+      "Crm": 0.0,
+      "Cpm_note": "derived from Cl_front and Cl_rear about the wheelbase midpoint (spec 13.3); it was -0.012"
     },
     "maps": {
       "Cd_vs_yaw": {
@@ -2282,9 +2488,9 @@
       }
     },
     "center_of_pressure": [
-      1.1,
+      -1.155,
       0.0,
-      0.32
+      0.45
     ],
     "components": [
       {
@@ -2304,7 +2510,8 @@
     ],
     "active_systems": {},
     "_est": true,
-    "_est_note": "All aero values estimated for MX-5 ND roadster body shape"
+    "_est_note": "All aero values estimated for MX-5 ND roadster body shape",
+    "center_of_pressure_note": "estimated: it was a copy of the gearbox position (1.1, 0, 0.32); now at the wheelbase midpoint and 0.45 m high"
   },
   "cooling": {
     "circuits": [
@@ -2462,10 +2669,10 @@
           0.3
         ],
         "orientation": [
-          0.711413,
+          0.7027741,
           0.0,
-          0.0,
-          0.7027741
+          -0.0,
+          -0.711413
         ]
       },
       "body_b": "wheel_fl",
@@ -2476,10 +2683,10 @@
           0.3
         ],
         "orientation": [
-          0.711413,
+          0.7027741,
           0.0,
-          0.0,
-          0.7027741
+          -0.0,
+          -0.711413
         ]
       },
       "x_derived": true
@@ -2517,13 +2724,14 @@
         ]
       },
       "bushing": {
-        "rate_x": 25000,
-        "rate_y": 150000,
-        "rate_z": 80000,
+        "rate_x": 2500000,
+        "rate_y": 15000000,
+        "rate_z": 8000000,
         "rate_rz": 200,
         "damping_x": 200,
         "damping_y": 500,
-        "_est": true
+        "_est": true,
+        "_est_note": "rates raised 100x so that the pivot carries the static corner load (simulator team S8)"
       },
       "x_derived": true
     },
@@ -2560,13 +2768,14 @@
         ]
       },
       "bushing": {
-        "rate_x": 25000,
-        "rate_y": 150000,
-        "rate_z": 80000,
+        "rate_x": 2500000,
+        "rate_y": 15000000,
+        "rate_z": 8000000,
         "rate_rz": 200,
         "damping_x": 200,
         "damping_y": 500,
-        "_est": true
+        "_est": true,
+        "_est_note": "rates raised 100x so that the pivot carries the static corner load (simulator team S8)"
       },
       "x_derived": true,
       "_est": true,
@@ -2639,13 +2848,14 @@
         ]
       },
       "bushing": {
-        "rate_x": 25000,
-        "rate_y": 150000,
-        "rate_z": 80000,
+        "rate_x": 2500000,
+        "rate_y": 15000000,
+        "rate_z": 8000000,
         "rate_rz": 200,
         "damping_x": 200,
         "damping_y": 500,
-        "_est": true
+        "_est": true,
+        "_est_note": "rates raised 100x so that the pivot carries the static corner load (simulator team S8)"
       },
       "x_derived": true
     },
@@ -2682,13 +2892,14 @@
         ]
       },
       "bushing": {
-        "rate_x": 25000,
-        "rate_y": 150000,
-        "rate_z": 80000,
+        "rate_x": 2500000,
+        "rate_y": 15000000,
+        "rate_z": 8000000,
         "rate_rz": 200,
         "damping_x": 200,
         "damping_y": 500,
-        "_est": true
+        "_est": true,
+        "_est_note": "rates raised 100x so that the pivot carries the static corner load (simulator team S8)"
       },
       "x_derived": true,
       "_est": true,
@@ -2872,7 +3083,7 @@
       "spring_type": "coilover",
       "mass": 2.0,
       "free_length": 0.23,
-      "preload": 388.8889,
+      "preload": 2958.3,
       "_est": true,
       "x_converted_from_wheel_rate": {
         "motion_ratio": 0.9,
@@ -2881,7 +3092,9 @@
         "wheel_preload": 350
       },
       "rate": 32098.7654,
-      "x_derived": true
+      "x_derived": true,
+      "installed_length": 0.4565,
+      "preload_note": "force at the reference pose: carries the sprung corner load through the motion ratio 0.805 (spec 24.5)"
     },
     {
       "id": "damper_fl",
@@ -3098,10 +3311,10 @@
           0.3
         ],
         "orientation": [
-          0.7027741,
+          0.711413,
           0.0,
-          0.0,
-          0.711413
+          -0.0,
+          -0.7027741
         ]
       },
       "body_b": "wheel_fr",
@@ -3112,10 +3325,10 @@
           0.3
         ],
         "orientation": [
-          0.7027741,
+          0.711413,
           0.0,
-          0.0,
-          0.711413
+          -0.0,
+          -0.7027741
         ]
       },
       "x_derived": true
@@ -3153,13 +3366,14 @@
         ]
       },
       "bushing": {
-        "rate_x": 25000,
-        "rate_y": 150000,
-        "rate_z": 80000,
+        "rate_x": 2500000,
+        "rate_y": 15000000,
+        "rate_z": 8000000,
         "rate_rz": 200,
         "damping_x": 200,
         "damping_y": 500,
-        "_est": true
+        "_est": true,
+        "_est_note": "rates raised 100x so that the pivot carries the static corner load (simulator team S8)"
       },
       "x_derived": true
     },
@@ -3196,13 +3410,14 @@
         ]
       },
       "bushing": {
-        "rate_x": 25000,
-        "rate_y": 150000,
-        "rate_z": 80000,
+        "rate_x": 2500000,
+        "rate_y": 15000000,
+        "rate_z": 8000000,
         "rate_rz": 200,
         "damping_x": 200,
         "damping_y": 500,
-        "_est": true
+        "_est": true,
+        "_est_note": "rates raised 100x so that the pivot carries the static corner load (simulator team S8)"
       },
       "x_derived": true,
       "_est": true,
@@ -3275,13 +3490,14 @@
         ]
       },
       "bushing": {
-        "rate_x": 25000,
-        "rate_y": 150000,
-        "rate_z": 80000,
+        "rate_x": 2500000,
+        "rate_y": 15000000,
+        "rate_z": 8000000,
         "rate_rz": 200,
         "damping_x": 200,
         "damping_y": 500,
-        "_est": true
+        "_est": true,
+        "_est_note": "rates raised 100x so that the pivot carries the static corner load (simulator team S8)"
       },
       "x_derived": true
     },
@@ -3318,13 +3534,14 @@
         ]
       },
       "bushing": {
-        "rate_x": 25000,
-        "rate_y": 150000,
-        "rate_z": 80000,
+        "rate_x": 2500000,
+        "rate_y": 15000000,
+        "rate_z": 8000000,
         "rate_rz": 200,
         "damping_x": 200,
         "damping_y": 500,
-        "_est": true
+        "_est": true,
+        "_est_note": "rates raised 100x so that the pivot carries the static corner load (simulator team S8)"
       },
       "x_derived": true,
       "_est": true,
@@ -3474,7 +3691,7 @@
       "spring_type": "coilover",
       "mass": 2.0,
       "free_length": 0.23,
-      "preload": 388.8889,
+      "preload": 2958.3,
       "_est": true,
       "x_converted_from_wheel_rate": {
         "motion_ratio": 0.9,
@@ -3483,7 +3700,9 @@
         "wheel_preload": 350
       },
       "rate": 32098.7654,
-      "x_derived": true
+      "x_derived": true,
+      "installed_length": 0.4565,
+      "preload_note": "force at the reference pose: carries the sprung corner load through the motion ratio 0.805 (spec 24.5)"
     },
     {
       "id": "damper_fr",
@@ -3700,10 +3919,10 @@
           0.3
         ],
         "orientation": [
-          0.7132504,
+          0.7009093,
           0.0,
-          0.0,
-          0.7009093
+          -0.0,
+          -0.7132504
         ]
       },
       "body_b": "wheel_rl",
@@ -3714,10 +3933,10 @@
           0.3
         ],
         "orientation": [
-          0.7132504,
+          0.7009093,
           0.0,
-          0.0,
-          0.7009093
+          -0.0,
+          -0.7132504
         ]
       },
       "x_derived": true
@@ -4097,7 +4316,7 @@
       "spring_type": "coilover",
       "mass": 1.8,
       "free_length": 0.22,
-      "preload": 447.0588,
+      "preload": 3198.1,
       "_est": true,
       "x_converted_from_wheel_rate": {
         "motion_ratio": 0.85,
@@ -4106,7 +4325,9 @@
         "wheel_preload": 380
       },
       "rate": 38754.3253,
-      "x_derived": true
+      "x_derived": true,
+      "installed_length": 0.4565,
+      "preload_note": "force at the reference pose: carries the sprung corner load through the motion ratio 0.661 (spec 24.5)"
     },
     {
       "id": "damper_rl",
@@ -4323,10 +4544,10 @@
           0.3
         ],
         "orientation": [
-          0.7009093,
+          0.7132504,
           0.0,
-          0.0,
-          0.7132504
+          -0.0,
+          -0.7009093
         ]
       },
       "body_b": "wheel_rr",
@@ -4337,10 +4558,10 @@
           0.3
         ],
         "orientation": [
-          0.7009093,
+          0.7132504,
           0.0,
-          0.0,
-          0.7132504
+          -0.0,
+          -0.7009093
         ]
       },
       "x_derived": true
@@ -4720,7 +4941,7 @@
       "spring_type": "coilover",
       "mass": 1.8,
       "free_length": 0.22,
-      "preload": 447.0588,
+      "preload": 3198.1,
       "_est": true,
       "x_converted_from_wheel_rate": {
         "motion_ratio": 0.85,
@@ -4729,7 +4950,9 @@
         "wheel_preload": 380
       },
       "rate": 38754.3253,
-      "x_derived": true
+      "x_derived": true,
+      "installed_length": 0.4565,
+      "preload_note": "force at the reference pose: carries the sprung corner load through the motion ratio 0.661 (spec 24.5)"
     },
     {
       "id": "damper_rr",
@@ -5651,7 +5874,7 @@
         "constraints[spring_fr].preload"
       ],
       "min": 0,
-      "max": 900,
+      "max": 6000,
       "unit": "N",
       "_est": true
     },
@@ -5664,7 +5887,7 @@
         "constraints[spring_rr].preload"
       ],
       "min": 0,
-      "max": 1000,
+      "max": 6500,
       "unit": "N",
       "_est": true
     },
@@ -6119,10 +6342,10 @@
       "name": "Road (as delivered)",
       "description": "The values of this file.",
       "set": {
-        "constraints[spring_fl].preload": 388.8889,
-        "constraints[spring_fr].preload": 388.8889,
-        "constraints[spring_rl].preload": 447.0588,
-        "constraints[spring_rr].preload": 447.0588,
+        "constraints[spring_fl].preload": 2958.3,
+        "constraints[spring_fr].preload": 2958.3,
+        "constraints[spring_rl].preload": 3198.1,
+        "constraints[spring_rr].preload": 3198.1,
         "constraints[damper_fl].bump_curve": [
           [
             0.0,
@@ -6345,10 +6568,10 @@
       "name": "Track day",
       "description": "Firmer bars, dampers and springs, higher pressures. Illustrative values to show how a setup is written; not a Mazda recommendation.",
       "set": {
-        "constraints[spring_fl].preload": 508.8889,
-        "constraints[spring_fr].preload": 508.8889,
-        "constraints[spring_rl].preload": 567.0588,
-        "constraints[spring_rr].preload": 567.0588,
+        "constraints[spring_fl].preload": 3871.1,
+        "constraints[spring_fr].preload": 3871.1,
+        "constraints[spring_rl].preload": 4056.5,
+        "constraints[spring_rr].preload": 4056.5,
         "constraints[damper_fl].bump_curve": [
           [
             0.0,
@@ -6567,5 +6790,10 @@
       "_est": true
     }
   ],
-  "active_setup": "road"
+  "active_setup": "road",
+  "reference_pose": {
+    "condition": "static_equilibrium",
+    "load_case": "kerb_plus_driver",
+    "note": "mass_total includes the 75 kg driver body; hardpoints at ride height"
+  }
 }

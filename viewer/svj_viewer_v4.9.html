@@ -84,7 +84,7 @@ body{background:var(--bg);color:var(--tx);font-family:'DM Sans',system-ui,sans-s
 </head>
 <body>
 
-<div id="drop-overlay">Drop .svj.json, .glb, or a vehicle folder</div>
+<div id="drop-overlay">Drop .svj.json, .glb, .usdz, or a vehicle folder</div>
 
 <div id="topbar">
   <div style="display:flex;align-items:center">
@@ -97,10 +97,10 @@ body{background:var(--bg);color:var(--tx);font-family:'DM Sans',system-ui,sans-s
     <button class="btn" id="btn-toggle-panel">◁ Panel</button>
     <button class="btn" id="btn-export" style="border-color:var(--gn);color:var(--gn)" title="Save vehicle data as .svj.json">↓ Save SVJ</button>
     <button class="btn" onclick="exportSTEP()" style="border-color:#2dd4bf;color:#2dd4bf" title="Export suspension geometry as .step for CAD">↓ Export STEP</button>
-    <button class="btn" id="btn-load-glb" style="border-color:var(--pr);color:var(--pr)" title="Load .glb/.gltf mesh file(s) to overlay on physics geometry">⬡ Mesh</button>
+    <button class="btn" id="btn-load-glb" style="border-color:var(--pr);color:var(--pr)" title="Load .glb/.gltf/.usdz mesh file(s) to overlay on physics geometry">⬡ Mesh</button>
     <button class="btn btn-ac" id="btn-load">SVJ</button>
-    <input type="file" id="file-input" accept=".json,.glb,.gltf" multiple style="display:none">
-    <input type="file" id="glb-file-input" accept=".glb,.gltf" multiple style="display:none">
+    <input type="file" id="file-input" accept=".json,.glb,.gltf,.usdz,.usdc,.usda" multiple style="display:none">
+    <input type="file" id="glb-file-input" accept=".glb,.gltf,.usdz,.usdc,.usda" multiple style="display:none">
   </div>
 </div>
 
@@ -137,6 +137,9 @@ body{background:var(--bg);color:var(--tx);font-family:'DM Sans',system-ui,sans-s
     "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js",
     "three/examples/jsm/loaders/GLTFLoader.js": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/loaders/GLTFLoader.js",
     "three/examples/jsm/controls/TransformControls.js": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/controls/TransformControls.js"
+  },
+  "scopes": {
+    "https://cdn.jsdelivr.net/npm/three@0.180.0/": { "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js" }
   }
 }
 </script>
@@ -3042,7 +3045,7 @@ const _gltfLoader = new GLTFLoader();
 // procedural geometry and loaded meshes share the same Three.js space.
 
 function loadGLTFBuffer(meshId, data, fileName, isGlb) {
-  _gltfLoader.parse(data, '', (gltf) => {
+  const ok = (gltf) => {
     const model = gltf.scene;
     // Clone materials to allow per-session opacity control, preserve original settings
     model.traverse(child => {
@@ -3100,22 +3103,95 @@ function loadGLTFBuffer(meshId, data, fileName, isGlb) {
     buildLayerUI();
     updateMeshBanner(DATA);
     showMeshToast('✓ ' + fileName + '  →  "' + meshId + '"');
-  }, () => {
+  };
+  if (/\.(usdz|usdc|usda)$/i.test(fileName)) return loadUsdBuffer(ok, data, fileName);
+  _gltfLoader.parse(data, '', ok, () => {
     showMeshToast('✕ Failed to load ' + fileName, true);
   });
 }
 
+// OpenUSD (.usdz, .usdc, .usda): read with the three.js USD loader (a newer three, loaded on demand from its own scope), then rebuilt as
+// objects of the viewer's three.js, so the rest of the mesh code treats it like a glTF asset. Geometry, transforms, names, vertex colours and
+// the basic material (colour, roughness, metalness, opacity, base-colour map) are kept; anything else in the file is ignored.
+async function loadUsdBuffer(ok, data, fileName) {
+  const CDN = 'https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/';
+  let src;
+  try {
+    const { USDLoader } = await import(CDN + 'loaders/USDLoader.js');
+    const loader = new USDLoader();
+    let buf = data;
+    if (/\.usdz$/i.test(fileName)) {                                    // the loader reads a crate (binary) main file only when it is not zipped
+      const fflate = await import(CDN + 'libs/fflate.module.js');
+      const zip = fflate.unzipSync(new Uint8Array(data));
+      const first = Object.keys(zip).find(n => /\.(usd|usda|usdc)$/i.test(n));
+      const b = first && zip[first];
+      if (b && String.fromCharCode(...b.slice(0, 8)) === 'PXR-USDC') buf = b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength);
+    }
+    src = loader.parse(buf);
+  } catch (e) {
+    showMeshToast('✕ Cannot read ' + fileName + ': ' + (e && e.message || e) + (navigator.onLine ? '' : ' (the USD reader is loaded from the network)'), true);
+    return;
+  }
+  const textures = new Map();
+  const tex = (t, srgb) => {
+    if (!t || !t.image) return null;
+    if (!textures.has(t)) {
+      const x = new THREE.Texture(t.image);
+      x.wrapS = THREE.RepeatWrapping; x.wrapT = THREE.RepeatWrapping; x.flipY = t.flipY;
+      if (srgb) x.encoding = THREE.sRGBEncoding;
+      x.needsUpdate = true; textures.set(t, x);
+    }
+    return textures.get(t);
+  };
+  const conv = o => {
+    let n;
+    if (o.isMesh && o.geometry && o.geometry.attributes.position) {
+      const g = o.geometry, G = new THREE.BufferGeometry();
+      for (const k of ['position', 'normal', 'uv', 'color']) {
+        const a = g.attributes[k];
+        if (a) G.setAttribute(k, new THREE.BufferAttribute(a.array.slice(), a.itemSize));
+      }
+      if (g.index) G.setIndex(new THREE.BufferAttribute(g.index.array.slice(), 1));
+      (g.groups || []).forEach(gr => G.addGroup(gr.start, gr.count, gr.materialIndex));
+      if (!G.attributes.normal) G.computeVertexNormals();
+      const mats = (Array.isArray(o.material) ? o.material : [o.material]).map(m => {
+        m = m || {};
+        const op = m.opacity ?? 1;
+        const mm = new THREE.MeshStandardMaterial({
+          color: m.color ? m.color.getHex() : 0xaaaaaa, roughness: m.roughness ?? 0.6, metalness: m.metalness ?? 0,
+          opacity: op, transparent: op < 1, side: THREE.DoubleSide, vertexColors: !!G.attributes.color && !m.map
+        });
+        const map = tex(m.map, true); if (map) mm.map = map;
+        return mm;
+      });
+      n = new THREE.Mesh(G, mats.length === 1 ? mats[0] : mats);
+    } else {
+      n = new THREE.Group();
+    }
+    n.name = o.name || '';
+    n.position.set(o.position.x, o.position.y, o.position.z);
+    n.quaternion.set(o.quaternion.x, o.quaternion.y, o.quaternion.z, o.quaternion.w);
+    n.scale.set(o.scale.x, o.scale.y, o.scale.z);
+    (o.children || []).forEach(c => n.add(conv(c)));
+    return n;
+  };
+  const model = conv(src);
+  const assoc = new Map(); let i = 0;
+  model.traverse(o => assoc.set(o, { type: 'nodes', index: i++ }));
+  ok({ scene: model, parser: { json: { nodes: [] }, associations: assoc } });
+}
+
 function handleGLBFile(file) {
-  const base = file.name.replace(/\.(glb|gltf)$/i, '');
+  const base = file.name.replace(/\.(glb|gltf|usdz|usdc|usda|usd)$/i, '');
   let meshId = base;
   if (meshAssets.length) {
     const hit = meshAssets.find(a =>
-      [a.uri, a.preview].some(u => (u || '').split('/').pop().replace(/\.(glb|gltf)$/i, '') === base) ||       // a USD asset is shown through its glTF `preview`
+      [a.uri, a.preview].some(u => (u || '').split('/').pop().replace(/\.(glb|gltf|usdz|usdc|usda|usd)$/i, '') === base) ||       // a USD asset is shown through its glTF `preview`
       a.id === base
     );
     if (hit) meshId = hit.id;
   }
-  const isGlb = /\.glb$/i.test(file.name);
+  const isGlb = /\.(glb|usdz|usdc)$/i.test(file.name);
   (isGlb ? file.arrayBuffer() : file.text()).then(data => loadGLTFBuffer(meshId, data, file.name, isGlb))
     .catch(() => showMeshToast('✕ Failed to read ' + file.name, true));
 }
@@ -3615,7 +3691,7 @@ async function collectDroppedFiles(entries) {
 async function processDroppedFiles(files) {
   // 1. Load SVJ first so meshAssets is populated before GLBs
   const jsonFiles = files.filter(f => /\.json$/i.test(f.name));
-  const glbFiles  = files.filter(f => /\.(glb|gltf)$/i.test(f.name));
+  const glbFiles  = files.filter(f => /\.(glb|gltf|usdz|usdc|usda)$/i.test(f.name));
 
   const parsed = [];
   for (const file of jsonFiles) {
@@ -3652,7 +3728,7 @@ async function processDroppedFiles(files) {
   // 3. If SVJ was loaded and has assets.meshes but no matching GLBs were dropped,
   //    try to auto-match by filename from ALL dropped files
   if (jsonFiles.length && meshAssets.length && !glbFiles.length) {
-    const allGlbInDrop = files.filter(f => /\.(glb|gltf)$/i.test(f.name));
+    const allGlbInDrop = files.filter(f => /\.(glb|gltf|usdz|usdc|usda)$/i.test(f.name));
     allGlbInDrop.forEach(f => handleGLBFile(f));
   }
 }

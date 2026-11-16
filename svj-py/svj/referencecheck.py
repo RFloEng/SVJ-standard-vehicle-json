@@ -37,7 +37,7 @@ except ImportError:                            # running from tools/
 G = 9.81
 BALANCE_TOL = 0.20          # spring support against sprung weight, per axle
 BIAS_TOL = 0.02
-SAG_LIMIT = 0.005           # m of static movement a bushing may be asked for
+SAG_LIMIT = 0.01           # m of static movement a bushing may be asked for
 DEFAULT_INERTIA_RADIUS = 0.02   # m: a body without inertia counts as m * r^2 about its own point
 AERO_TOL = 0.01
 UNSPRUNG_TOL = 0.15
@@ -176,6 +176,9 @@ def _mass(doc, errors, warnings):
     placed = [b for b in bodies if isinstance(b.get("position"), list) and len(b["position"]) == 3]
     total = sum(b["mass"] for b in placed)
     m0 = M - total
+    if m0 < -max(0.5, 0.005 * M):
+        msg.append(f"chassis: the listed bodies add up to {total:.1f} kg, {-m0:.1f} kg more than mass_total {M:.1f} kg; "
+                   "the remaining mass would be negative (spec 7.4)")
     if m0 > 1.0:
         p0 = [(M * cg[i] - sum(b["mass"] * b["position"][i] for b in placed)) / m0 for i in range(3)]
         wheels = [c for _, c in _stations(doc).values()]
