@@ -2839,7 +2839,7 @@ function refreshMeshFields(){
 function renderMeshes(el){
   const ids = Object.keys(loadedMeshes);
   if(!ids.length){
-    el.innerHTML = '<div style="color:var(--txD);font-size:11px;line-height:1.5">No meshes loaded.<br>Drop a <b>.glb</b> onto the viewer or use ⬡ Mesh. Then select a part here or click it in 3D, move or rotate it (gizmo, numbers, or arrow keys) and save the corrected SVJ and GLB.</div>';
+    el.innerHTML = '<div style="color:var(--txD);font-size:11px;line-height:1.5">No meshes loaded.<br>Drop a <b>.glb</b> or <b>.usdz</b> onto the viewer or use ⬡ Mesh. Then select a part here or click it in 3D, move or rotate it (gizmo, numbers, or arrow keys) and save the corrected SVJ and GLB.</div>';
     return;
   }
   const dirty = dirtyAssets();
@@ -3129,7 +3129,7 @@ async function loadUsdBuffer(ok, data, fileName) {
     }
     src = loader.parse(buf);
   } catch (e) {
-    showMeshToast('✕ Cannot read ' + fileName + ': ' + (e && e.message || e) + (navigator.onLine ? '' : ' (the USD reader is loaded from the network)'), true);
+    showMeshToast('✕ Cannot read ' + fileName + ': ' + (e && e.message || e) + (navigator.onLine ? ' (the in-browser reader does not cover every USD feature: tools/usd2gltf.py makes a glTF preview)' : ' (the USD reader is loaded from the network)'), true);
     return;
   }
   const textures = new Map();
@@ -3239,11 +3239,11 @@ function updateMeshBanner(data) {
     '</div>' +
     meshList.map(m => {
       const loaded = !!loadedMeshes[m.id], usd = isUsdAsset(m);
-      return '<div style="display:flex;align-items:center;gap:4px;padding:1px 0"' + (usd ? ' title="' + (m.preview ? 'OpenUSD asset (spec 22.10): shown through its glTF preview copy ' + m.preview + '; edits to the preview are not saved, the USD asset is the source.' : 'OpenUSD asset (spec 22.10) without a preview: the viewer shows glTF only. tools/usd2gltf.py writes a preview copy; the physics is unaffected.') + '"' : '') + '>' +
+      return '<div style="display:flex;align-items:center;gap:4px;padding:1px 0"' + (usd ? ' title="' + (m.preview ? 'OpenUSD asset (spec 22.10): shown through its glTF preview copy ' + m.preview + '; edits to the preview are not saved, the USD asset is the source.' : 'OpenUSD asset (spec 22.10) without a preview: drop the .usdz / .usdc / .usda file (or use Find meshes) and the viewer reads it here (geometry, colours, basic materials). tools/usd2gltf.py writes a glTF preview copy for full fidelity; the physics is unaffected.') + '"' : '') + '>' +
         '<div style="width:6px;height:6px;border-radius:50%;background:' + (loaded ? 'var(--gn)' : 'var(--txM)') + ';flex-shrink:0"></div>' +
         '<span style="color:' + (loaded ? 'var(--gn)' : 'var(--txD)') + ';font-weight:600">' + m.id + '</span>' +
         (m.uri ? '<span style="color:var(--txM);font-size:8px;overflow:hidden;text-overflow:ellipsis"> ' + m.uri.split('/').pop() + '</span>' : '') +
-        (usd ? '<span style="color:' + (m.preview ? 'var(--pr)' : 'var(--yl)') + ';font-size:8px"> USD · ' + (m.preview ? 'preview ' + m.preview.split('/').pop() : 'not shown') + '</span>' : '') +
+        (usd ? '<span style="color:' + (m.preview ? 'var(--pr)' : 'var(--yl)') + ';font-size:8px"> USD · ' + (m.preview ? 'preview ' + m.preview.split('/').pop() : (loaded ? 'read from the USD file' : 'drop the USD file')) + '</span>' : '') +
         '</div>';
     }).join('') +
     '<div style="margin-top:5px;display:flex;gap:4px;align-items:center">' +
@@ -3251,7 +3251,7 @@ function updateMeshBanner(data) {
     'style="flex:1;padding:3px 6px;border-radius:3px;border:1px solid var(--pr);background:var(--pr)15;color:var(--pr);font-family:JetBrains Mono,monospace;font-size:8px;cursor:pointer;font-weight:700">' +
     '📂 Find meshes…</button>' +
     '</div>' +
-    '<div style="margin-top:3px;color:var(--txM);font-size:8px">or drop folder / .glb files here</div>';
+    '<div style="margin-top:3px;color:var(--txM);font-size:8px">or drop folder / .glb / .usdz files here</div>';
 }
 
 /* Marker-form points (v0.96): a hardpoint or spring/damper mount may be {position, orientation}
@@ -3623,7 +3623,7 @@ function loadData(json) {
   // Auto-hint: show "Find meshes" prominently if SVJ has assets but none loaded yet
   if (json?.assets?.meshes?.length && Object.keys(loadedMeshes).length === 0) {
     const usd = json.assets.meshes.filter(isUsdAsset), nPrev = usd.filter(m => m.preview).length, nBare = usd.length - nPrev, nGltf = json.assets.meshes.length - usd.length;
-    showMeshToast((nGltf + nPrev) ? (nGltf + nPrev) + ' mesh file(s) declared — drop .glb or use 📂 Find meshes' + (nPrev ? ' (' + nPrev + ' as preview of OpenUSD)' : '') + (nBare ? '; ' + nBare + ' OpenUSD asset(s) without preview are not shown' : '') : 'OpenUSD asset(s) without a glTF preview are not shown (tools/usd2gltf.py writes one)');
+    showMeshToast((nGltf + nPrev) ? (nGltf + nPrev) + ' mesh file(s) declared — drop .glb / .usdz or use 📂 Find meshes' + (nPrev ? ' (' + nPrev + ' as preview of OpenUSD)' : '') + (nBare ? '; ' + nBare + ' OpenUSD asset(s) without preview: drop the .usdz/.usdc file' : '') : nBare + ' OpenUSD asset(s) declared — drop the .usdz/.usdc/.usda file or use 📂 Find meshes');
   }
 }
 
